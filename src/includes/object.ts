@@ -6,7 +6,7 @@ interface ObjectWithStringKeys {
 //2x~3x faster than JSON methods, see https://jsperf.com/deep-clone-vs-json-clone
 /**
  * Deeply clone an object or value
- * @param source The source to be clone.
+ * @param source Specify the source to be clone.
  * @param deep Max deep to clone
  */
 export function deepClone<T> (source: T, deep: number = 10): T {

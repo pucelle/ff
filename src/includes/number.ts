@@ -1,7 +1,7 @@
 /**
  * Like the opposite of toFixed, but it supports both positive and negative power, and always returns a number.
- * @param number The number to fix.
- * @param power The power that the number will correct to.
+ * @param number Specify the number to fix.
+ * @param power Specify the power that the number will correct to.
  */
 export function toPower(number: number, power = 0): number {
 	let maxPower = Math.floor(Math.log(number) / Math.log(10))
@@ -22,8 +22,8 @@ export function toPower(number: number, power = 0): number {
 
 /**
  * Like a % b, but always returns positive number.
- * @param number The number to calculate modulo.
- * @param modulo The modulo of number.
+ * @param number Specify the number to calculate modulo.
+ * @param modulo Specify the modulo of number.
  */
 export function mod(number: number, modulo: number): number {
 	return (number % modulo + Math.abs(modulo)) % modulo
@@ -32,9 +32,9 @@ export function mod(number: number, modulo: number): number {
 
 /**
  * Returns a new number which is constrained in a range.
- * @param number The number to constrain.
- * @param min The minimum number.
- * @param max The maximum number.
+ * @param number Specify the number to constrain.
+ * @param min Specify the minimum number.
+ * @param max Specify the maximum number.
  */
 export function constrain(number: number, min: number, max: number): number {
 	if (min > max) {

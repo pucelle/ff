@@ -1,7 +1,7 @@
 import * as ff from '../src'
 
 describe('Test object', () => {
-	let a = {a: 1, b: "2", c: false, d: ['3'], e: {f: 4}}
+	let a = {a: 1, b: "2", c: false, d: [3, {d: 4}], e: {f: 4}}
 	let b = JSON.parse(JSON.stringify(a))
 
 	test('deepClone', () => {
@@ -14,13 +14,22 @@ describe('Test object', () => {
 	})
 
 	test('deepEqual', () => {
+		expect(ff.deepEqual(a, b, 0)).toBeFalsy()
+		expect(ff.deepEqual(null, undefined)).toBeFalsy()
+		expect(ff.deepEqual(new Date(), {})).toBeFalsy()
+
 		expect(ff.deepEqual(a, b)).toBeTruthy()
 		expect(ff.deepEqual(a.a, b.a)).toBeTruthy()
 		expect(ff.deepEqual(a.b, b.b)).toBeTruthy()
 		expect(ff.deepEqual(a.c, b.c)).toBeTruthy()
 		expect(ff.deepEqual(a.d, b.d)).toBeTruthy()
 		expect(ff.deepEqual(a.e, b.e)).toBeTruthy()
+
 		expect(ff.deepEqual(a, {})).toBeFalsy()
+		expect(ff.deepEqual({}, a)).toBeFalsy()
+		expect(ff.deepEqual({a:1}, {b:1})).toBeFalsy()
+		expect(ff.deepEqual({a:{a:1}}, {a:{b:1}})).toBeFalsy()
 		expect(ff.deepEqual(a.d, [])).toBeFalsy()
+		expect(ff.deepEqual([], a.d)).toBeFalsy()
 	})
 })
