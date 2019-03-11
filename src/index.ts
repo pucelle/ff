@@ -1,0 +1,7 @@
+import './includes/es-polyfill'
+export * from './includes/object'
+export * from './includes/array'
+export * from './includes/string'
+export * from './includes/number'
+export * from './includes/function'
+export * from './includes/time'
