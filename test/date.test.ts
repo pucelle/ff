@@ -27,24 +27,24 @@ describe('Test date', () => {
 	})
 
 	test('isValidDate', () => {
-		expect(ff.isValidDate(2020, 0, 1, 0, 0, 0)).toBeTruthy()
-		expect(ff.isValidDate(2020, 0, 1, 0, 0)).toBeTruthy()
-		expect(ff.isValidDate(2020, 0, 1, 0)).toBeTruthy()
-		expect(ff.isValidDate(2020, 0, 1)).toBeTruthy()
-		expect(ff.isValidDate(2020, 0)).toBeTruthy()
+		expect(ff.isValidDate(2020, 0, 1, 0, 0, 0)).toEqual(true)
+		expect(ff.isValidDate(2020, 0, 1, 0, 0)).toEqual(true)
+		expect(ff.isValidDate(2020, 0, 1, 0)).toEqual(true)
+		expect(ff.isValidDate(2020, 0, 1)).toEqual(true)
+		expect(ff.isValidDate(2020, 0)).toEqual(true)
 
-		expect(ff.isValidDate(2020, 12, 1, 1, 1, 1)).toBeFalsy()
-		expect(ff.isValidDate(2020, 0, 32, 1, 1, 1)).toBeFalsy()
-		expect(ff.isValidDate(2020, 0, 1, 25, 1, 1)).toBeFalsy()
-		expect(ff.isValidDate(2020, 0, 1, 1, 61, 1)).toBeFalsy()
-		expect(ff.isValidDate(2020, 0, 1, 1, 1, 61)).toBeFalsy()
+		expect(ff.isValidDate(2020, 12, 1, 1, 1, 1)).toEqual(false)
+		expect(ff.isValidDate(2020, 0, 32, 1, 1, 1)).toEqual(false)
+		expect(ff.isValidDate(2020, 0, 1, 25, 1, 1)).toEqual(false)
+		expect(ff.isValidDate(2020, 0, 1, 1, 61, 1)).toEqual(false)
+		expect(ff.isValidDate(2020, 0, 1, 1, 1, 61)).toEqual(false)
 	})
 
 	test('isLeapYear', () => {
-		expect(ff.isLeapYear(new Date(2020, 0))).toBeTruthy()
-		expect(ff.isLeapYear(new Date(2021, 0))).toBeFalsy()
-		expect(ff.isLeapYear(new Date(2100, 0))).toBeFalsy()
-		expect(ff.isLeapYear(new Date(2000, 0))).toBeTruthy()
+		expect(ff.isLeapYear(new Date(2020, 0))).toEqual(true)
+		expect(ff.isLeapYear(new Date(2021, 0))).toEqual(false)
+		expect(ff.isLeapYear(new Date(2100, 0))).toEqual(false)
+		expect(ff.isLeapYear(new Date(2000, 0))).toEqual(true)
 	})
 
 	test('getDaysOfYear', () => {

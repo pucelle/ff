@@ -2,19 +2,13 @@ export abstract class TimedFunction {
 	
 	protected id: any = null
 
-	/**
-	 * Returns if the timed function been canceled.
-	 */
+	/** Returns if the timed function been canceled. */
 	canceled: boolean = false
 
-	/**
-	 * Returns the binded function.
-	 */
+	/** Returns the binded function. */
 	fn: Function
 
-	/**
-	 * Get or set the associated time in milliseconds. You should `reset()` after set it.
-	 */
+	/** Get or set the associated time in milliseconds. You should `reset()` after set it. */
 	ms: number
 
 	constructor(fn: Function, ms: number) {
@@ -30,9 +24,7 @@ export abstract class TimedFunction {
 
 export abstract class WrappedTimedFunction extends TimedFunction {
 
-	/**
-	 * Returns the wrapped function, which was throttled or debounced.
-	 */
+	/** Returns the wrapped function, which was throttled or debounced. */
 	wrapped: Function
 
 	constructor(fn: Function, ms: number) {
@@ -56,9 +48,7 @@ class Timeout extends TimedFunction {
 		this.reset()
 	}
 
-	/**
-	 * Restart timeout, although it was been called. always returns true.
-	 */
+	/** Restart timeout, although it was been called. always returns true. */
 	reset(): boolean {
 		if (this.id) {
 			clearTimeout(this.id)
@@ -73,9 +63,7 @@ class Timeout extends TimedFunction {
 		this.fn()
 	}
 
-	/**
-	 * Call deferred function immediately if it wasn't been called and returns true. otherwise returns false.
-	 */
+	/** Call deferred function immediately if it wasn't been called and returns true. otherwise returns false. */
 	flush(): boolean {
 		if (!this.id) {
 			return false
@@ -87,9 +75,7 @@ class Timeout extends TimedFunction {
 		return true
 	}
 
-	/**
-	 * Cancel deferred function, returns if it was canceled before been called.
-	 */
+	/** Cancel deferred function, returns if it was canceled before been called. */
 	cancel(): boolean {
 		if (!this.id) {
 			return false
@@ -123,9 +109,7 @@ class Interval extends TimedFunction {
 		this.reset()
 	}
 
-	/**
-	 * Restart interval, although it was been canceled. always returns true.
-	 */
+	/** Restart interval, although it was been canceled. always returns true. */
 	reset(): boolean {
 		if (this.id) {
 			clearInterval(this.id)
@@ -139,9 +123,7 @@ class Interval extends TimedFunction {
 		this.fn()
 	}
 
-	/**
-	 * Call interval function immediately if it wasn't been canceled and returns true. otherwise returns false.
-	 */
+	/** Call interval function immediately if it wasn't been canceled and returns true. otherwise returns false. */
 	flush(): boolean {
 		if (!this.id) {
 			return false
@@ -152,9 +134,7 @@ class Interval extends TimedFunction {
 		return true
 	}
 
-	/**
-	 * Cancel interval function, returns if it was canceled before been called.
-	 */
+	/** Cancel interval function, returns if it was canceled before been called. */
 	cancel(): boolean {
 		if (!this.id) {
 			return false
@@ -206,9 +186,7 @@ class Throttle extends WrappedTimedFunction {
 		this.id = null
 	}
 
-	/**
-	 * Reset throttle timeout, function will be called immediately next time. Will restart throttle if been canceled.
-	 */
+	/** Reset throttle timeout, function will be called immediately next time. Will restart throttle if been canceled. */
 	reset(): boolean {
 		if (this.id) {
 			clearTimeout(this.id)
@@ -219,16 +197,12 @@ class Throttle extends WrappedTimedFunction {
 		return true
 	}
 
-	/**
-	 * Do nothing, always return false.
-	 */
+	/** Do nothing, always return false. */
 	flush(): boolean {
 		return false
 	}
 
-	/**
-	 * Cancel throttle, function will be called without limit. Returns true if is not canceled before.
-	 */
+	/** Cancel throttle, function will be called without limit. Returns true if is not canceled before. */
 	cancel(): boolean {
 		if (this.canceled) {
 			return false
@@ -293,9 +267,7 @@ class SmoothThrottle extends WrappedTimedFunction {
 		}
 	}
 
-	/**
-	 * Reset throttle timeout and discard deferred call, Will restart throttle if been canceled. 
-	 */
+	/** Reset throttle timeout and discard deferred call, Will restart throttle if been canceled. */
 	reset(): boolean {
 		if (this.id) {
 			clearTimeout(this.id)
@@ -308,9 +280,7 @@ class SmoothThrottle extends WrappedTimedFunction {
 		return true
 	}
 
-	/**
-	 * Call function immediately if there is a deferred call, and restart throttle timeout.
-	 */
+	/** Call function immediately if there is a deferred call, and restart throttle timeout. */
 	flush(): boolean {
 		if (this.lastArgs) {
 			this.id = setTimeout(this.onTimeout.bind(this), this.ms)
@@ -323,9 +293,7 @@ class SmoothThrottle extends WrappedTimedFunction {
 		return false
 	}
 
-	/**
-	 * Cancel throttle, function will be called without limit. Returns true if is not canceled before.
-	 */
+	/** Cancel throttle, function will be called without limit. Returns true if is not canceled before. */
 	cancel(): boolean {
 		if (this.canceled) {
 			return false
@@ -389,9 +357,7 @@ class Debounce extends WrappedTimedFunction {
 		}
 	}
 
-	/**
-	 * Reset debounce timeout and discard deferred call. Will restart debounce if been canceled. 
-	 */
+	/** Reset debounce timeout and discard deferred call. Will restart debounce if been canceled. */
 	reset(): boolean {
 		if (this.id) {
 			clearTimeout(this.id)
@@ -403,9 +369,7 @@ class Debounce extends WrappedTimedFunction {
 		return true
 	}
 
-	/**
-	 * Call function immediately there is a deferred call, and restart debounce timeout.
-	 */
+	/** Call function immediately there is a deferred call, and restart debounce timeout. */
 	flush(): boolean {
 		if (this.id) {
 			clearTimeout(this.id)
@@ -422,9 +386,7 @@ class Debounce extends WrappedTimedFunction {
 		return false
 	}
 
-	/**
-	 * Cancel debounce, function will be called without limit. Returns true if is not canceled before.
-	 */
+	/** Cancel debounce, function will be called without limit. Returns true if is not canceled before. */
 	cancel(): boolean {
 		if (this.canceled) {
 			return false

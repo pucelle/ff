@@ -14,8 +14,13 @@ describe('Test array', () => {
 		expect(ff.remove([1,2,3], 3)).toEqual([3])
 	})
 
+	test('removeFirst', () => {
+		expect(ff.removeFirst([1,2,3,3], (v) => v === 3)).toEqual(3)
+		expect(ff.removeFirst([1,2,3], (v) => v === 4)).toEqual(undefined)
+	})
+
 	test('removeWhere', () => {
-		expect(ff.removeWhere([1,2,3], (v) => v === 3)).toEqual([3])
+		expect(ff.removeWhere([1,2,3,3], (v) => v === 3)).toEqual([3,3])
 		expect(ff.removeWhere([1,2,3], (v) => v === 4)).toEqual([])
 	})
 

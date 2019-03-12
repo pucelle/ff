@@ -3,6 +3,24 @@ interface ObjectWithStringKeys {
 }
 
 
+/**
+ * Assign values from source to target.
+ * @param target Specify the target that the sources assigned to.
+ * @param sources Specify the sources that will assigned to target by order.
+ * @param keys If `keys` is specified, only values whose key in it can be assigned.
+ */
+export function assign<T extends {[key: string]: any}, S extends {[key: string]: any}>(target: T, source: S, keys: (keyof S)[] = Object.keys(source)): T {
+	for (let key of keys) {
+		let value = source[key]
+		if (value !== undefined) {
+			target[<string>key] = value
+		}
+	}
+
+	return target
+}
+
+
 //2x~3x faster than JSON methods, see https://jsperf.com/deep-clone-vs-json-clone
 /**
  * Deeply clone an object or value

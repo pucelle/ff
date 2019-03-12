@@ -6,7 +6,7 @@
 			"type": "node",
 			"request": "launch",
 			"program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
-			"args": ["-i"],
+			"args": ["-i", "queue"],
 			"internalConsoleOptions": "openOnSessionStart",
 			"outFiles": ["${workspaceRoot}/test/**/*.ts"]
 		}

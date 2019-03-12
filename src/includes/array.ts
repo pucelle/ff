@@ -39,6 +39,22 @@ export function remove<T>(array: T[], ...items: T[]): T[] {
  * @param array Specify the array to remove items.
  * @param fn Specify the function which returns boolean values to determinae whether to remove item.
  */
+export function removeFirst<T>(array: T[], fn: (item: T, index: number) => boolean): T | undefined {
+	for (let i = array.length - 1; i >= 0; i--) {
+		if (fn(array[i], i)) {
+			return array.splice(i, 1)[0]!
+		}
+	}
+
+	return undefined
+}
+
+
+/**
+ * Remove items match `fn` from array, returns the removed items.
+ * @param array Specify the array to remove items.
+ * @param fn Specify the function which returns boolean values to determinae whether to remove item.
+ */
 export function removeWhere<T>(array: T[], fn: (item: T, index: number) => boolean): T[] {
 	let removed = []
 

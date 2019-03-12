@@ -1,17 +1,18 @@
 interface EventListener {
 	handler: Function
-	scope: object,
+	scope?: object,
 	once: boolean
 }
 
+export interface Events {
+	[key: string]: (...args: any[]) => void
+}
 
-export class Emitter<T extends {[key: string]: any[]}> {
+export class Emitter<T extends Events> {
 
 	private events: {[key in keyof T]?: EventListener[]} = {}
 
-	/**
-	 * An event emitter to listen and trigger events.
-	 */
+	/** An event emitter to listen and trigger events. */
 	constructor() {}
 
 	/**
@@ -20,7 +21,7 @@ export class Emitter<T extends {[key: string]: any[]}> {
 	 * @param handler Specify the event handler.
 	 * @param scope Specify the scope will be binded to handler.
 	 */
-	on<K extends keyof T>(name: K, handler: (...arg: T[K]) => void, scope: object) {
+	on<K extends keyof T>(name: K, handler: T[K], scope?: object) {
 		let events = this.events[name]
 		if (!events) {
 			events = this.events[name] = []
@@ -39,7 +40,7 @@ export class Emitter<T extends {[key: string]: any[]}> {
 	 * @param handler Specify the event handler.
 	 * @param scope Specify the scope will be binded to handler.
 	 */
-	once(name: string, handler: Function, scope: object) {
+	once<K extends keyof T>(name: K, handler: T[K], scope?: object) {
 		let events = this.events[name]
 
 		if (!events) {
@@ -61,7 +62,7 @@ export class Emitter<T extends {[key: string]: any[]}> {
 	 * @param handler Specify the event handler, only matched listener will be removed.
 	 * @param scope Specify the scope binded to handler. If provided, remove listener only when scope match.
 	 */
-	off(name: string, handler: Function, scope?: object) {
+	off<K extends keyof T>(name: K, handler: T[K], scope?: object) {
 		let events = this.events[name]
 		if (events) {
 			for (let i = events.length - 1; i >= 0; i--) {
@@ -103,7 +104,7 @@ export class Emitter<T extends {[key: string]: any[]}> {
 	 * @param name Specify the event name.
 	 * @param args Specify the arguments that will be passed to event handlers.
 	 */
-	emit(name: string, ...args: any[]) {
+	emit<K extends keyof T>(name: K, ...args: Parameters<T[K]>) {
 		let events = this.events[name]
 		if (events) {
 			for (let i = 0; i < events.length; i++) {
@@ -119,9 +120,7 @@ export class Emitter<T extends {[key: string]: any[]}> {
 		}
 	}
 
-	/**
-	 * Remove all event slisteners
-	 */
+	/** Remove all event slisteners */
 	removeAllListeners() {
 		this.events = {}
 	}
