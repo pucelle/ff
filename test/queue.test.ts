@@ -6,28 +6,22 @@ describe('Test queue', async () => {
 	
 	test('queueEach', async () => {
 		let fn = jest.fn()
-		await ff.queueEach(a, fn, 3)
+		await ff.queueEach(a, fn, 2)
 		expect(fn).toBeCalledTimes(a.length)
-		for (let i of a) {
-			expect(fn.mock.calls[i]).toEqual([i])
-		}
+		expect(fn.mock.calls).toEqual(a.map(i => [i]))
 	})
 
 	test('queueMap', async () => {
-		let fn = jest.fn(async (i) => {await ff.sleep(); return i * i})
-		let values = await ff.queueMap(a, fn, 3)
+		let fn = jest.fn(async (i) => {await ff.sleep(); return i})
+		let values = await ff.queueMap(a, fn, 2)
 		expect(fn).toBeCalledTimes(a.length)
-		for (let i of a) {
-			expect(fn.mock.calls[i]).toEqual([i])
-		}
-		for (let i of a) {
-			expect(values[i]).toEqual(i * i)
-		}
+		expect(fn.mock.calls).toEqual(a.map(i => [i]))
+		expect(values).toEqual(a)
 	})
 
 	test('queueSome', async () => {
 		let fn = jest.fn(i => i >= 5)
-		expect(await ff.queueSome(a, fn, 3)).toEqual(true)
+		expect(await ff.queueSome(a, fn, 2)).toEqual(true)
 		expect(fn.mock.calls.length).toBeGreaterThan(5)
 		expect(fn.mock.calls.length).toBeLessThan(a.length)
 		for (let i = 0; i < fn.mock.calls.length; i++) {
@@ -40,7 +34,7 @@ describe('Test queue', async () => {
 
 	test('queueEvery', async () => {
 		let fn = jest.fn(i => i <= 9)
-		expect(await ff.queueEvery(a, fn, 3)).toEqual(true)
+		expect(await ff.queueEvery(a, fn, 2)).toEqual(true)
 		expect(fn.mock.calls.length).toEqual(a.length)
 		for (let i = 0; i < fn.mock.calls.length; i++) {
 			expect(fn.mock.calls[i]).toEqual([i])
@@ -50,23 +44,36 @@ describe('Test queue', async () => {
 		}
 	})
 
-	test('Can start and finish', async () => {
+	test('start and finish', async () => {
 		let q = new ff.Queue({
+			concurrency: 2,
 			tasks: a,
 			handler: () => undefined
 		})
 
-		expect(q.canRun()).toEqual(true)
+		expect(q.state).toEqual(ff.QueueState.Pending)
 		expect(q.start()).toEqual(true)
-		expect(q.canRun()).toEqual(true)
+		expect(q.state).toEqual(ff.QueueState.Running)
 
 		await ff.sleep(10)
-		expect(q.state).toEqual(ff.QueueState.Finished)
-		expect(q.canRun()).toEqual(true)
+		expect(q.state).toEqual(ff.QueueState.Finish)
 	})
 
-	test('Can pause and resume', async () => {
+	test('Empty queue will finish immediately', async () => {
 		let q = new ff.Queue({
+			concurrency: 2,
+			tasks: [],
+			handler: () => undefined
+		})
+
+		q.start()
+		await ff.sleep(10)
+		expect(q.state).toEqual(ff.QueueState.Finish)
+	})
+
+	test('pause and resume', async () => {
+		let q = new ff.Queue({
+			concurrency: 2,
 			tasks: a,
 			handler: (n) => undefined
 		})
@@ -77,57 +84,125 @@ describe('Test queue', async () => {
 		await ff.sleep(10)
 		expect(q.resume()).toEqual(true)
 		expect(q.resume()).toEqual(false)
+
+		expect(q.pause()).toEqual(true)
+		expect(q.start()).toEqual(true)
 	})
 
-	test('Can end', async () => {
+	test('abort', async () => {
 		let q = new ff.Queue({
+			concurrency: 2,
 			tasks: a,
-			handler: () => undefined
+			handler: (n) => undefined
 		})
 
+		q.start()
+		expect(q.abort()).toEqual(true)
+		expect(q.abort()).toEqual(false)
+		expect(q.getTotalCount()).toEqual(a.length)
+		expect(q.getFailedCount()).toEqual(2)
 		expect(q.start()).toEqual(true)
-		expect(await q.end()).toEqual(true)
-		expect(await q.end()).toEqual(false)
+		q.pause()
+		expect(q.abort()).toEqual(true)
 	})
 
-	test('Can add', async () => {
+	test('Tasks can be abort', async () => {
+		let abort = jest.fn()
+
 		let q = new ff.Queue({
+			concurrency: 2,
 			tasks: a,
-			concurrency: 1,
+			handler: (n) => {
+				return {
+					promise: ff.sleep(),
+					abort
+				}
+			}
+		})
+
+		q.start()
+		expect(q.abort()).toEqual(true)
+		expect(abort).toBeCalledTimes(2)
+	})
+
+	test('retry', async () => {
+		let q = new ff.Queue({
+			concurrency: 2,
+			tasks: a,
+			handler: (n) => undefined
+		})
+
+		q.start()
+		q.abort()
+		expect(q.retry()).toEqual(true)
+		expect(q.getTotalCount()).toEqual(a.length)
+		expect(q.getFailedCount()).toEqual(0)
+		await ff.sleep(10)
+		expect(q.state).toEqual(ff.QueueState.Finish)
+	})
+
+	test('clear', async () => {
+		let q = new ff.Queue({
+			concurrency: 2,
+			tasks: a,
+			handler: (n) => {
+				if (n === 5) {
+					q.pause()
+					return Promise.reject('')
+				}
+				return Promise.resolve()
+			}
+		})
+
+		q.start()
+		await ff.sleep(10)
+		expect(await q.clear()).toEqual(true)
+		expect(await q.clear()).toEqual(false)
+		expect(q.getTotalCount()).toEqual(0)
+
+		q.push(...a)
+		q.pause()
+		expect(await q.clear()).toEqual(true)
+	})
+
+	test('push and unshift', async () => {
+		let q = new ff.Queue({
+			concurrency: 2,
 			fifo: false,
+			tasks: a,
 			handler: (n) => undefined
 		})
 
 		q.start()
 		await ff.sleep(10)
 
-		expect(q.state).toEqual(ff.QueueState.Finished)
+		expect(q.state).toEqual(ff.QueueState.Finish)
 		q.push(10)
 		expect(q.state).toEqual(ff.QueueState.Running)
 
 		await ff.sleep(10)
-		expect(q.state).toEqual(ff.QueueState.Finished)
+		expect(q.state).toEqual(ff.QueueState.Finish)
 		q.unshift(10)
 		expect(q.state).toEqual(ff.QueueState.Running)
 	})
 
-	test('Can find or remove', async () => {
+	test('find and remove', async () => {
 		let q = new ff.Queue({
+			concurrency: 2,
 			tasks: a,
-			fifo: false,
-			handler: async (n) => {
+			handler: (n) => {
 				if (n === 5) {
-					expect(q.find(n => n === 5)).toEqual([5])
+					expect(q.find(n => n === 5)).toEqual(5)
 					expect(q.remove(n)).toEqual([5])
 				}
 				if (n === 6) {
-					throw ''
+					return Promise.reject('')
 				}
+				return Promise.resolve()
 			}
 		})
 
 		q.start()
-		q.on('error', () => {})
 		expect(q.find(n => n === 4)).toEqual(4)
 		expect(q.remove(4)).toEqual([4])
 		expect(q.find(n => n === 10)).toEqual(undefined)
@@ -138,22 +213,22 @@ describe('Test queue', async () => {
 		expect(q.remove(6)).toEqual([6])
 	})
 
-	test('Can removeWhere', async () => {
+	test('removeWhere', async () => {
 		let q = new ff.Queue({
+			concurrency: 2,
 			tasks: a,
-			fifo: false,
-			handler: async (n) => {
+			handler: (n) => {
 				if (n === 5) {
-					expect(q.removeWhere(n => n === 5)).toEqual(5)
+					expect(q.removeWhere(n => n === 5)).toEqual([5])
 				}
 				if (n === 6) {
-					throw ''
+					return Promise.reject('')
 				}
+				return Promise.resolve()
 			}
 		})
 
 		q.start()
-		q.on('error', () => {})
 		expect(q.removeWhere(n => n === 4)).toEqual([4])
 		expect(q.removeWhere(n => n === 10)).toEqual([])
 		await ff.sleep(10)
@@ -161,31 +236,22 @@ describe('Test queue', async () => {
 		expect(q.removeWhere(n => n === 6)).toEqual([6])
 	})
 
-	test('Empty queue will finish immediately', async () => {
-		let q = new ff.Queue({
-			tasks: [],
-			handler: () => undefined
-		})
-
-		q.start()
-		expect(q.state).toEqual(ff.QueueState.Finished)
-	})
-
 	test('Can get right count', async () => {
 		let q = new ff.Queue({
+			concurrency: 2,
 			tasks: a,
-			maxRetryTimes: 0,
-			concurrency: 1,
-			handler: async (n) => {
+			continueOnError: true,
+			handler: (n) => {
 				if (n === 6) {
-					throw ''
+					return Promise.reject('')
 				}
+				return Promise.resolve()
 			}
 		})
 
 		q.start()
-		expect(q.getRunningCount()).toEqual(1)
-		expect(q.getRunningTasks()).toEqual([0])
+		expect(q.getRunningCount()).toEqual(2)
+		expect(q.getRunningTasks()).toEqual([0, 1])
 
 		await new Promise(resolve => {
 			q.on('taskfinish', n => {
@@ -208,17 +274,45 @@ describe('Test queue', async () => {
 		expect(q.getHandledCount()).toEqual(a.length - 1)
 	})
 
-	test('Queue will fail', async () => {
+	test('Failed queue', async () => {
 		let q = new ff.Queue({
+			concurrency: 2,
 			tasks: a,
-			concurrency: 1,
-			handler: async (n) => {
+			handler: (n) => {
 				if (n === 5) {
-					throw ''
+					return Promise.reject('')
 				}
+				return Promise.resolve()
 			}
 		})
 		
+		q.start()
+		await ff.sleep(10)
+		expect(q.state).toEqual(ff.QueueState.Aborted)
+		expect(q.start()).toEqual(true)
+	})
+
+	test('maxRetryTimes > 0', async () => {
+		let retried = 0
+
+		let q = new ff.Queue({
+			concurrency: 2,
+			maxRetryTimes: 1,
+			tasks: a,
+			handler: (n) => {
+				if (retried < 5) {
+					retried++
+					return Promise.reject('')
+				}
+				return Promise.resolve()
+			}
+		})
 		
+		q.start()
+		await ff.sleep(10)
+		expect(retried).toEqual(5)
+		expect(q.state).toEqual(ff.QueueState.Finish)
+		expect(q.getTotalCount()).toEqual(a.length)
+		expect(q.getFailedCount()).toEqual(0)
 	})
 })

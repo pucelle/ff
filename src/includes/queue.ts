@@ -2,6 +2,7 @@ import {assign} from './object'
 import {removeWhere} from './array'
 import {Emitter, Events} from './emitter'
 
+
 export enum QueueState {
 	/** Tasks handling not started. */
 	Pending,
@@ -13,24 +14,26 @@ export enum QueueState {
 	Paused,
 
 	/** All tasks finshed. */
-	Finished,
+	Finish,
 
 	/** Aborted because of error or by user. */
 	Aborted,
 }
 
+
 interface QueueEvents<T, V> extends Events{
-	/** Emitted after more tasks added to queue. */
-	tasksadded(tasks: T[]): void
 
 	/** Emitted after task handled successfully. */
 	taskfinish(task: T, value: V): void
 
-	/** Emitted after error occured when handling task. If not registered this event and `maxRetryTimes = 0`, error will throw and then abort the queue. */
-	taskerror(task: T, err: Error | string): void
-
 	/** Emitted after error occured when handling task or called `abort()` on task. */
 	taskabort(task: T): void
+
+	/**
+	 * Emitted after error occured when handling task.
+	 * If `continueOnError` was false and `maxRetryTimes` equals `0`, queue will be aborted.
+	 */
+	error(task: T, err: Error | string | number): void
 
 	/** Emitted after called `pause()`. */
 	pause(): void
@@ -42,28 +45,30 @@ interface QueueEvents<T, V> extends Events{
 	finish() : void
 
 	/** Emitted after error occured or called `abort()`. */
-	abort(err: Error | string): void
+	abort(err: Error | string | number): void
 
-	/** Emitted after called `end()`. */
-	end(): void
+	/** Emitted after called `clear()`. */
+	clear(): void
 }
+
 
 interface QueueItem<T> {
 	id: number
 	task: T
-	index: number
 	retriedTimes: number
 	abort: Function | null
 }
 
+
 export interface QueueOptions<T, V> {
 	concurrency?: number
-	capture?: boolean
 	fifo?: boolean
+	continueOnError?: boolean
 	maxRetryTimes?: number
 	tasks?: T[]
 	handler: QueueHandler<T, V>
 }
+
 
 type QueueHandler<T, V> = (task: T) => {promise: Promise<V>, abort: Function} | Promise<V> | V
 
@@ -76,10 +81,14 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 	/** If true, will run tasks from head of the queue. */
 	fifo: boolean = true
 
-	/** If true, will capture handler returns and cache them in capturedValues by their index of tasks. */
-	capture: boolean = false
+	/** If true, will continue handling tasks when error occurs. */
+	continueOnError: boolean = false
 
-	/** How many times to retry after task failed, if one task retry times execeed, trigger error if binded error event, others pause for a while. */
+	/**
+	 * How many times to retry after tasks failed.
+	 * if one task's retry times execeed, it will never automatically retry, but you can still retry all items by calling `retry()` manually.
+	 * Setting this option to values `> 0` implies `continueOnError` is true.
+	 */
 	maxRetryTimes: number = 0
 
 	/** Specify the task array which will be passed to handler in order. */
@@ -90,9 +99,6 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 	
 	/** Returns current working state. */
 	state: QueueState = QueueState.Pending
-
-	/** Returns the captured values from handler when `capture` is true. */
-	captured: V[] = []
 
 	private seed: number = 1
 	private handledCount: number = 0
@@ -110,7 +116,7 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 			this.tasks.push(...options.tasks)
 		}
 		
-		assign(this, options, ['concurrency', 'capture', 'fifo', 'maxRetryTimes'])
+		assign(this, options, ['concurrency', 'fifo', 'continueOnError', 'maxRetryTimes'])
 	}
 
 	/** Returns the tount of total tasks, included handled and unhandled and failed. */
@@ -153,27 +159,17 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 		return this.failedItems.map(v => v.task)
 	}
 
-	private assertCanRun() {
-		if (!this.canRun()) {
-			throw new Error('Queue is ended')
-		}
-	}
-
-	/** Returns if can handle more tasks. Should returns false after ended. */
-	canRun() {
-		return this.state === QueueState.Pending || this.state === QueueState.Running || this.state === QueueState.Finished
-	}
-
-	/** Start handling tasks. Will emit finish event if no task to run. Returns if queue started */
+	/** Start handling tasks. Will emit `finish` event in next tick if no task to run. Returns if true queue started. */
 	start() {
-		this.assertCanRun()
-
-		if ((this.state === QueueState.Pending || this.state === QueueState.Finished) && this.tasks.length > 0) {
+		if (this.state === QueueState.Paused) {
+			this.resume()
+		}
+		else if (this.tasks.length > 0) {
 			this.state = QueueState.Running
 			this.mayHandleNextTask()
 		}
 		else {
-			this.onFinished()
+			Promise.resolve().then(() => this.onFinish())
 		}
 
 		return this.state === QueueState.Running
@@ -229,13 +225,12 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 			this.handleItem({
 				id: this.seed++,
 				task,
-				index,
 				retriedTimes: 0,
 				abort: null
 			})
 		}
 
-		if (this.getRunningCount() < this.concurrency && this.failedItems.length) {
+		if (this.maxRetryTimes > 0 && this.getRunningCount() < this.concurrency && this.failedItems.length) {
 			for (let i = 0; i < this.failedItems.length; i++) {
 				let item = this.failedItems[i]
 				if (item.retriedTimes < this.maxRetryTimes) {
@@ -251,7 +246,7 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 		}
 
 		if (this.getRunningCount() === 0) {
-			this.onFinished()
+			this.onFinish()
 		}
 	}
 
@@ -263,9 +258,9 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 		this.runningItems.push(item)
 
 		let value = this.handler(task)
-		if (typeof value === 'object' && (<any>value).promise instanceof Promise && typeof (<any>value).abort === 'function') {
-			item.abort = (<any>value).abort
+		if (value && typeof value === 'object' && (<any>value).promise instanceof Promise && typeof (<any>value).abort === 'function') {
 			(<any>value).promise.then(onItemFinish, onItemError)
+			item.abort = (<any>value).abort
 		}
 		else if (value instanceof Promise) {
 			value.then(onItemFinish, onItemError)
@@ -277,21 +272,13 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 
 
 	private async onItemFinish(item: QueueItem<T>, value: V) {
-		item.abort = null
-
-		if (this.resumePromise) {
-			await this.resumePromise
-		}
-
-		if (!this.removeFromRunningItem(item)) {
+		await this.prepareItem(item)
+		
+		if (!this.removeFromRunning(item)) {
 			return
 		}
 
 		this.handledCount++
-
-		if (this.captured) {
-			this.captured[item.index] = value
-		}
 
 		if (this.state === QueueState.Running) {
 			this.emit('taskfinish', item.task, value)
@@ -300,35 +287,33 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 		}
 	}
 
-	private async onItemError(item: QueueItem<T>, err: Error | string) {
-		item.abort = null
-
-		if (this.resumePromise) {
-			await this.resumePromise
-		}
-
-		if (!this.removeFromRunningItem(item)) {
+	private async onItemError(item: QueueItem<T>, err: Error | string | number) {
+		await this.prepareItem(item)
+		
+		if (!this.removeFromRunning(item)) {
 			return
 		}
 
 		this.failedItems.push(item)
+		this.emit('error', item.task, err)
 
-		let hasTaskErrorListener = this.hasListener('taskerror')
-		let hasRetryTimesSet = this.maxRetryTimes > 0
-
-		if (this.state === QueueState.Running) {
-			this.emit('taskerror', item.task, err)
-		}
-
-		if (hasErrorEvent && retryTimesExceed) {
-			this.onError(err)
+		if (!this.continueOnError && this.maxRetryTimes === 0) {
+			this.onFatalError(err)
 		}
 		else {
 			this.mayHandleNextTask()
 		}
 	}
 
-	private removeFromRunningItem(item: QueueItem<T>) {
+	private async prepareItem(item: QueueItem<T>) {
+		item.abort = null
+
+		if (this.resumePromise) {
+			await this.resumePromise
+		}
+	}
+
+	private removeFromRunning(item: QueueItem<T>) {
 		let index = this.runningItems.findIndex(v => v.id === item.id)
 		if (index > -1) {
 			this.runningItems.splice(index, 1)
@@ -338,83 +323,86 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 		return false
 	}
 
-	private onFinished() {
+	private onFinish() {
 		if (this.state === QueueState.Pending || this.state === QueueState.Running) {
-			this.state = QueueState.Finished
+			this.state = QueueState.Finish
 			this.emit('finish')
 		}
 	}
 
-	private onError(err: Error | string) {
-		if (this.state === QueueState.Running) {
-			this.emit('error', err)
-			this.abort('error')
-		}
+	private onFatalError(err: Error | string | number) {
+		this.abort(err)
 	}
 
-	/** Retry all failed tasks immediately, ignore their retried times count. */
+	/** Retry all failed tasks immediately, ignore their retried times count. Returns if has failed tasks and queue started. */
 	retry() {
-		this.assertCanRun()
-		
-		if (this.getFailedCount() > 0) {
+		let hasFailedTasks = this.getFailedCount() > 0
+		if (hasFailedTasks) {
 			this.tasks.push(...this.getFailedTasks())
 			this.failedItems = []
 		}
 
-		this.start()
+		let started = this.start()
+
+		return started && hasFailedTasks
 	}
 
-	/** Abort queue and all running tasks. after aborted, queue will can't be restarted anymore. */
-	async abort(err: Error | string = 'manually'): Promise<boolean> {
+	/**
+	 * Abort queue and all running tasks. After aborted, queue ca still be started by calling `start()`.
+	 * Returns if queue was successfully aborted.
+	 */
+	abort(err: Error | string | number = 'manually'): boolean {
 		if (!(this.state === QueueState.Running || this.state === QueueState.Paused)) {
 			return false
 		}
 
 		this.state = QueueState.Aborted
-		await this.abortRunningTasks()
+		this.failedItems.push(...this.runningItems)
+		this.abortRunningItems()
 		this.emit('abort', err)
 		return true
 	}
 
-
-	private async abortRunningTasks() {
-		while (this.runningItems.length > 0) {
-			let {task, abort} = this.runningItems.shift()!
-			if (abort) {
-				await abort()
-			}
-
-			this.emit('taskabort', task)
-		}
+	private abortRunningItems() {
+		this.runningItems.map(item => this.abortItem(item))
+		this.runningItems = []
 	}
 
-	/** End queue and abort all running and unhandled tasks. Different to `abort()`, queue can be restarted later. */
-	async end(): Promise<boolean> {
+	private abortItem(item: QueueItem<T>) {
+		let {task, abort} = item
+
+		if (abort) {
+			abort()
+		}
+
+		this.emit('taskabort', task)
+	}
+
+	/** End queue, abort all running tasks and clear all tasks and handling records. */
+	async clear(): Promise<boolean> {
 		if (!(this.state === QueueState.Running || this.state === QueueState.Paused)) {
 			return false
 		}
 
-		this.state = QueueState.Finished
+		this.state = QueueState.Finish
 		this.tasks = []
 		this.failedItems = []
-		await this.abortRunningTasks()
+		this.handledCount = 0
+		await this.abortRunningItems()
 		
 		if (this.resumeResolve) {
 			this.resumeResolve()
 		}
 
-		this.emit('end')
+		this.emit('clear')
 		return true
 	}
 
 	/** Push tasks to queue. */
 	push(...tasks: T[]) {
-		this.assertCanRun()
-
 		this.tasks.push(...tasks)
-		this.emit('tasksadded', tasks)
 
-		if (this.state === QueueState.Finished) {
+		if (this.state === QueueState.Finish) {
 			this.start()
 		}
 
@@ -423,12 +411,9 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 
 	/** Unshift tasks to queue. */
 	unshift(...items: T[]) {
-		this.assertCanRun()
-
 		this.tasks.unshift(...items)
-		this.emit('tasksadded', items)
 
-		if (this.state === QueueState.Finished) {
+		if (this.state === QueueState.Finish) {
 			this.start()
 		}
 
@@ -455,15 +440,14 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 		return undefined
 	}
 
-	/** Remove tasks, note that it's O(m * n) */
+	/** Remove tasks, note that it's O(m * n) algorithm */
 	remove(...tasks: T[]): T[] {
 		let removed: T[] = []
 
 		for (let task of tasks) {
 			let index = this.runningItems.findIndex(item => item.task === task)
 			if (index > -1) {
-				this.runningItems.splice(index, 1)
-				this.emit('taskabort', task)
+				this.abortItem(this.runningItems.splice(index, 1)[0])
 				removed.push(task)
 			}
 			else {
@@ -475,7 +459,7 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 			}
 
 			if (index === -1) {
-				index = this.tasks.findIndex(task => task === task)
+				index = this.tasks.findIndex(v => v === task)
 				if (index > -1) {
 					tasks.splice(index, 1)
 					removed.push(task)
@@ -490,9 +474,13 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 
 	/** Remove all matched tasks */
 	removeWhere(fn: (task: T) => boolean): T[] {
-		let removed = []
-		removed.push(...removeWhere(this.runningItems, item => fn(item.task)).map(obj => obj.task))
-		removed.push(...removeWhere(this.failedItems, item => fn(item.task)).map(obj => obj.task))
+		let removed: T[] = []
+
+		let runningItems = removeWhere(this.runningItems, item => fn(item.task))
+		runningItems.forEach(item => this.abortItem(item))
+		removed.push(...runningItems.map(item => item.task))
+
+		removed.push(...removeWhere(this.failedItems, item => fn(item.task)).map(item => item.task))
 		removed.push(...removeWhere(this.tasks, task => fn(task)))
 
 		this.mayHandleNextTask()
@@ -531,14 +519,18 @@ export function queueEach<T>(tasks: T[], handler: (task: T) => Promise<void> | v
  */
 export function queueMap<T, V>(tasks: T[], handler: (task: T) => Promise<V> | V, concurrency?: number): Promise<V[]> {
 	return new Promise((resolve, reject) => {
+		let values: V[] = []
+		let indexedTasks = tasks.map((task, index) => ({task, index}))
+
 		let q = new Queue({
 			concurrency,
-			capture: true,
-			tasks,
-			handler
+			tasks: indexedTasks,
+			handler: async ({task, index}) => {
+				values[index] = await handler(task)
+			}
 		})
 
-		q.on('finish', () => resolve(q.captured))
+		q.on('finish', () => resolve(values))
 		q.on('error', reject)
 		q.start()
 	})
@@ -555,7 +547,6 @@ export function queueSome<T>(tasks: T[], handler: (task: T) => Promise<boolean> 
 	return new Promise((resolve, reject) => {
 		let q = new Queue({
 			concurrency,
-			capture: true,
 			tasks,
 			handler
 		})
@@ -563,7 +554,7 @@ export function queueSome<T>(tasks: T[], handler: (task: T) => Promise<boolean> 
 		q.on('taskfinish', (task: T, value: boolean) => {
 			if (value) {
 				resolve(true)
-				q.end()
+				q.clear()
 			}
 		})
 
