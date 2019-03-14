@@ -255,9 +255,9 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 		this.runningItems.push(item)
 
 		let value = this.handler(task)
-		if (value && typeof value === 'object' && (<any>value).promise instanceof Promise && typeof (<any>value).abort === 'function') {
-			(<any>value).promise.then(onItemFinish, onItemError)
-			item.abort = (<any>value).abort
+		if (value && typeof value === 'object' && (value as any).promise instanceof Promise && typeof (value as any).abort === 'function') {
+			(value as any).promise.then(onItemFinish, onItemError)
+			item.abort = (value as any).abort
 		}
 		else if (value instanceof Promise) {
 			value.then(onItemFinish, onItemError)

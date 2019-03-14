@@ -13,7 +13,7 @@ export function assign<T extends {[key: string]: any}, S extends {[key: string]:
 	for (let key of keys) {
 		let value = source[key]
 		if (value !== undefined) {
-			target[<string>key] = value
+			target[key as string] = value
 		}
 	}
 
@@ -45,7 +45,7 @@ export function deepClone<T> (source: T, deep: number = 10): T {
 	else {
 		let cloned: ObjectWithStringKeys = {}
 		for (let key of Object.keys(source)) {
-			let value = (<ObjectWithStringKeys>source)[key]
+			let value = (source as ObjectWithStringKeys)[key]
 			cloned[key] = deepClone(value, deep - 1)
 		}
 
@@ -90,8 +90,8 @@ export function deepEqual(a: unknown, b: unknown, deep: number = 10): boolean {
 			return false
 		}
 
-		let valueA = (<ObjectWithStringKeys>a)[key]
-		let valueB = (<ObjectWithStringKeys>b)[key]
+		let valueA = (a as ObjectWithStringKeys)[key]
+		let valueB = (b as ObjectWithStringKeys)[key]
 
 		if (!deepEqual(valueA, valueB, deep - 1)) {
 			return false

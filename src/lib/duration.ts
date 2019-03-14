@@ -40,7 +40,7 @@ export function parseDurationToObject(duration: string): DateObject {
 		let matches = <string[][]>subMatches(duration, /(\d+(?:\.\d+)?) ?([yMwdhms])/g)
 
 		for (let [count, unit] of matches) {
-			o[<DateUnit>unit] = Number(count)
+			o[unit as DateUnit] = Number(count)
 		}
 	}
 
@@ -57,8 +57,8 @@ export function parseDurationToSeconds(duration: string): number {
 	let seconds = 0
 
 	for (let unit of Object.keys(o)) {
-		let count = o[<DateUnit>unit]!
-		seconds += count * DATE_UNIT_SECONDS[<DateUnit>unit]
+		let count = o[unit as DateUnit]!
+		seconds += count * DATE_UNIT_SECONDS[unit as DateUnit]
 	}
 
 	return seconds
@@ -81,11 +81,11 @@ export function parseSecondsToDurationObject (seconds: number, units = dateUnits
 	}
 
 	for (let unit of units) {
-		let unitValue = DATE_UNIT_SECONDS[<DateUnit>unit]
+		let unitValue = DATE_UNIT_SECONDS[unit as DateUnit]
 		let count = Math.floor(seconds / unitValue)
 
 		if (count > 0) {
-			o[<DateUnit>unit] = count
+			o[unit as DateUnit] = count
 			seconds = seconds % unitValue
 		}
 	}
@@ -105,7 +105,7 @@ export function formatSecondsToDuration (seconds: number, units: string = dateUn
 	let outputUnitCount = 0
 
 	for (let unit of Object.keys(o)) {
-		let count = o[<DateUnit>unit]
+		let count = o[unit as DateUnit]
 
 		if (count > 0) {
 			duration += count + unit

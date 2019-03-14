@@ -164,7 +164,7 @@ export class Order<T> {
 	constructor(firstOrder: OrderTuple<T, string | number>, ...orders: OrderTuple<T, string | number>[]) {
 		for (let order of [firstOrder, ...orders]) {
 			if (['string', 'number', 'function'].includes(typeof order)) {
-				this.orders.push([<any>order, 1])
+				this.orders.push([order as any, 1])
 			}
 			else if (Array.isArray(order) && ['string', 'number', 'function'].includes(typeof order[0])) {
 				this.orders.push([order[0], order[1] === -1 || order[1] === 'desc' ? -1 : 1])
@@ -193,8 +193,8 @@ export class Order<T> {
 				bi = keyOrFn(b)
 			}
 			else {
-				ai = <number | string>(<any>a)[keyOrFn]
-				bi = <number | string>(<any>b)[keyOrFn]
+				ai = (a as any)[keyOrFn] as number | string
+				bi = (b as any)[keyOrFn] as number | string
 			}
 
 			if (ai < bi) {
@@ -338,7 +338,7 @@ export function keyBy<T>(array: T[], keyOrFn: CanSortKeys<T> | OrderFunction<T>)
 			key = keyOrFn(item)
 		}
 		else {
-			key = <string | number><unknown>item[keyOrFn]
+			key = item[keyOrFn] as unknown as string | number
 		}
 
 		index[key] = item
@@ -363,7 +363,7 @@ export function groupBy<T>(array: T[], keyOrFn: CanSortKeys<T> | OrderFunction<T
 			key = keyOrFn(item)
 		}
 		else {
-			key = <string | number><unknown>item[keyOrFn]
+			key = item[keyOrFn] as unknown as string | number
 		}
 
 		let group = index[key] || (index[key] = [])

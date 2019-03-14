@@ -107,7 +107,7 @@ export function subMatches(string: string, re: RegExp, sliceIndex: number = 1): 
  */
 export function format(template: string, source: {[key: string]: string} | string[]): string {
 	return template.replace(/\$\{(\w+)\}/g, (m0: string, m1: string) => {
-		let value = (<any>source)[m1]
+		let value = (source as any)[m1]
 		if (value === undefined) {
 			value = m0
 		}

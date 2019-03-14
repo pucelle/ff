@@ -127,7 +127,7 @@ export function getDaysOfMonth(date: Date): number {
 export function cloneDate(date: Date = new Date(), units: string = dateUnits): Date {
 	let dateValues = [...dateUnits].map(unit => {
 		if (units.includes(unit)) {
-			return getDateByUnit(date, <DateUnit>unit)
+			return getDateByUnit(date, unit as DateUnit)
 		}
 		else {
 			return unit === 'd' ? 1 : 0
@@ -161,8 +161,8 @@ export function addDurationToDate(date: Date, duration: string): Date {
 	let newDate = new Date(date)
 
 	for (let unit of Object.keys(o)) {
-		let value = getDateByUnit(newDate, <DateUnit>unit) + o[<DateUnit>unit] * flag
-		setDateByUnit(newDate, value, <DateUnit>unit)
+		let value = getDateByUnit(newDate, unit as DateUnit) + o[unit as DateUnit] * flag
+		setDateByUnit(newDate, value, unit as DateUnit)
 	}
 
 	return newDate
@@ -177,7 +177,7 @@ export function addDurationToDate(date: Date, duration: string): Date {
 export function formatDate(date: Date, format = 'yyyy/MM/dd hh:mm:ss'): string {
 	return format.replace(/y+|M+|d+|h+|m+|s+/g, m0 => {
 		let unit = m0[0]
-		let value = getDateByUnit(date, <DateUnit>unit[0])
+		let value = getDateByUnit(date, unit[0] as DateUnit)
 		
 		if (unit === 'M') {
 			value += 1
@@ -199,8 +199,8 @@ export function formatToShort (date: Date, format: {[key in DateUnit]?: string} 
 	let matchFormat: string = Object.values(format)[0]!
 
 	for (let unit of dateUnits) {
-		hasDifferentUnit = hasDifferentUnit || getDateByUnit(date, <DateUnit>unit) !== getDateByUnit(now, <DateUnit>unit)
-		matchFormat = format[<DateUnit>unit] || matchFormat
+		hasDifferentUnit = hasDifferentUnit || getDateByUnit(date, unit as DateUnit) !== getDateByUnit(now, unit as DateUnit)
+		matchFormat = format[unit as DateUnit] || matchFormat
 
 		if (hasDifferentUnit) {
 			break
