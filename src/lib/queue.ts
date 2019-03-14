@@ -46,9 +46,6 @@ interface QueueEvents<T, V> extends Events{
 
 	/** Emitted after error occured or called `abort()`. */
 	abort(err: Error | string | number): void
-
-	/** Emitted after called `clear()`. */
-	clear(): void
 }
 
 
@@ -379,7 +376,7 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 	}
 
 	/** End queue, abort all running tasks and clear all tasks and handling records. */
-	async clear(): Promise<boolean> {
+	clear(): boolean {
 		if (!(this.state === QueueState.Running || this.state === QueueState.Paused)) {
 			return false
 		}
@@ -388,13 +385,12 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 		this.tasks = []
 		this.failedItems = []
 		this.handledCount = 0
-		await this.abortRunningItems()
+		this.abortRunningItems()
 		
 		if (this.resumeResolve) {
 			this.resumeResolve()
 		}
 
-		this.emit('clear')
 		return true
 	}
 

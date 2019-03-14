@@ -45,7 +45,7 @@ interface RegExpConstructor {
 	escape (source: string): string
 }
 
-//still a proposal, but I love it
+//still a proposal, but I love it.
 if (!RegExp.escape) {
 	Object.defineProperty(RegExp, 'escape', {
 	 	value: function (source: string): string {
