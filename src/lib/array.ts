@@ -1,7 +1,7 @@
 /**
  * Add items to array, for each item in items, will push into array if is not exist in array.
- * @param array Specify the array to add items.
- * @param items Specify the items to add to array.
+ * @param array The array to add items.
+ * @param items The items to add to array.
  */
 export function add<T>(array: T[], ...items: T[]): T[] {
 	for (let item of items) {
@@ -16,8 +16,8 @@ export function add<T>(array: T[], ...items: T[]): T[] {
 
 /**
  * Remove items from array, returns the actual removed items.
- * @param array Specify the array to remove items.
- * @param items Specify the items to remove from array.
+ * @param array The array to remove items.
+ * @param items The items to remove from array.
  */
 export function remove<T>(array: T[], ...items: T[]): T[] {
 	let removed = []
@@ -36,8 +36,8 @@ export function remove<T>(array: T[], ...items: T[]): T[] {
 
 /**
  * Remove items match `fn` from array, returns the removed items.
- * @param array Specify the array to remove items.
- * @param fn Specify the function which returns boolean values to determinae whether to remove item.
+ * @param array The array to remove items.
+ * @param fn The function which returns boolean values to determinae whether to remove item.
  */
 export function removeFirst<T>(array: T[], fn: (item: T, index: number) => boolean): T | undefined {
 	for (let i = array.length - 1; i >= 0; i--) {
@@ -52,8 +52,8 @@ export function removeFirst<T>(array: T[], fn: (item: T, index: number) => boole
 
 /**
  * Remove items match `fn` from array, returns the removed items.
- * @param array Specify the array to remove items.
- * @param fn Specify the function which returns boolean values to determinae whether to remove item.
+ * @param array The array to remove items.
+ * @param fn The function which returns boolean values to determinae whether to remove item.
  */
 export function removeWhere<T>(array: T[], fn: (item: T, index: number) => boolean): T[] {
 	let removed = []
@@ -70,7 +70,7 @@ export function removeWhere<T>(array: T[], fn: (item: T, index: number) => boole
 
 /**
  * Returns a new array which has been removed duplicate items.
- * @param array Specify the array to remove duplicate items.
+ * @param array The array to remove duplicate items.
  */
 export function unique<T extends number | string>(array: T[]): T[] {
 	let set: Set<T> = new Set()
@@ -85,7 +85,7 @@ export function unique<T extends number | string>(array: T[]): T[] {
 
 /**
  * Creates an array of unique values from given arrays.
- * @param arrays Specify the arrays to get union from.
+ * @param arrays The arrays to get union from.
  */
 export function union<T extends number | string>(...arrays: T[][]): T[] {
 	let set: Set<T> = new Set()
@@ -102,7 +102,7 @@ export function union<T extends number | string>(...arrays: T[][]): T[] {
 
 /**
  * Creates an array of unique values that are included in all given arrays.
- * @param arrays Specify the arrays to get intersection from.
+ * @param arrays The arrays to get intersection from.
  */
 export function intersect<T extends number | string>(...arrays: T[][]): T[] {
 	let map: Map<T, number> = new Map()
@@ -126,8 +126,8 @@ export function intersect<T extends number | string>(...arrays: T[][]): T[] {
 
 /**
  * Creates an array from given array but exclude items in excludeArrays.
- * @param array Specify the array to include items.
- * @param excludeArrays Specify the arrays to exclude items from.
+ * @param array The array to include items.
+ * @param excludeArrays The arrays to exclude items from.
  */
 export function difference<T extends number | string>(array: T[], ...excludeArrays: T[][]): T[] {
 	let set: Set<T> = new Set()
@@ -273,14 +273,14 @@ export class Order<T> {
 
 /**
  * Sort object type items inside array by instantiated `ff.Order` object.
- * @param array Specify the array to order.
+ * @param array The array to order.
  * @param order instantiated `ff.Order`.
  */
 export function orderBy<T extends object>(array: T[], order: Order<T>): T[]
 
 /**
  * Sort object type items inside array by specified orders.
- * @param array Specify the array to order.
+ * @param array The array to order.
  * @param orders Rest argument of type `key` or `OrderFunction` which will return a `key`, or [`key` / `OrderFunction`, `OrderDirection`].
  */
 /*
@@ -305,8 +305,8 @@ export function orderBy<T extends object>(array: T[], order: Order<T> | OrderTup
 
 /**
  * Create a map object composed of `[key, value]` touples that returned from fn.
- * @param array Specify the array to generate map object.
- * @param fn Specify the function to return `[key, value]` tuple for each item.
+ * @param array The array to generate map object.
+ * @param fn The function to return `[key, value]` tuple for each item.
  */
 
 //Compar to map, object has same performance, and is more convinent to use, but will lose number key type.
@@ -325,8 +325,8 @@ export function indexBy<T, V>(array: T[], fn: (value: T, index: number) => [stri
 
 /**
  * Create a map object composed of keys generated from `keyOrFn` and original values.
- * @param array Specify the array to generate key map object.
- * @param keyOrFn Specify the key attribute name of each item whose related value will be used as key. or the function which accepts each item as argument and returns a key.
+ * @param array The array to generate key map object.
+ * @param keyOrFn The key attribute name of each item whose related value will be used as key. or the function which accepts each item as argument and returns a key.
  */
 export function keyBy<T>(array: T[], keyOrFn: CanSortKeys<T> | OrderFunction<T>): {[key: string]: T} {
 	let index: {[key: string]: T} = {}
@@ -350,8 +350,8 @@ export function keyBy<T>(array: T[], keyOrFn: CanSortKeys<T> | OrderFunction<T>)
 
 /**
  * Creates a map object composed of keys generated from the results of running each element of collecti
- * @param array Specify the array to group by. 
- * @param keyOrFn Specify the key attribute name of each item whose related value will be used as key. or the function which accepts each item as argument and returns a key.
+ * @param array The array to group by. 
+ * @param keyOrFn The key attribute name of each item whose related value will be used as key. or the function which accepts each item as argument and returns a key.
  */
 export function groupBy<T>(array: T[], keyOrFn: CanSortKeys<T> | OrderFunction<T>): {[key: string]: T[]} {
 	let index: {[key: string]: T[]} = {}
@@ -376,9 +376,9 @@ export function groupBy<T>(array: T[], keyOrFn: CanSortKeys<T> | OrderFunction<T
 
 /**
  * Group and aggregate items in array by aggregate function
- * @param array Specify the array to aggregate. 
- * @param keyOrFn Specify the key attribute name of each item whose related value will be used as key. or the function which accepts each item as argument and returns a key.
- * @param aggregateFn Specify the aggregate function which accepts grouped items and key as arguments, and returns aggregate value.
+ * @param array The array to aggregate. 
+ * @param keyOrFn The key attribute name of each item whose related value will be used as key. or the function which accepts each item as argument and returns a key.
+ * @param aggregateFn The aggregate function which accepts grouped items and key as arguments, and returns aggregate value.
  */
 export function aggregate<T, V>(array: T[], keyOrFn: CanSortKeys<T> | OrderFunction<T>, aggregateFn: (items: T[], key?: string) => V): {[key: string]: V} {
 	let index = groupBy(array, keyOrFn)
@@ -391,7 +391,7 @@ export function aggregate<T, V>(array: T[], keyOrFn: CanSortKeys<T> | OrderFunct
 
 /**
  * Returns the length of the array.
- * @param array Specify the array to count length.
+ * @param array The array to count length.
  */
 export function count(array: any[]): number {
 	return array.length
@@ -400,7 +400,7 @@ export function count(array: any[]): number {
 
 /**
  * Returns the sum of the array items.
- * @param array Specify the array of numbers.
+ * @param array The array of numbers.
  */
 export function sum(array: number[]): number {
 	return array.reduce((v1, v2) => v1 + v2, 0)
@@ -409,7 +409,7 @@ export function sum(array: number[]): number {
 
 /**
  * Returns the average value of the array items. returns 0 if no items in array.
- * @param array Specify the array of numbers.
+ * @param array The array of numbers.
  */
 export function avg(array: number[]): number {
 	if (array.length === 0) {
@@ -421,7 +421,7 @@ export function avg(array: number[]): number {
 
 /**
  * Returns the maximun value of the array items. returns -Infinity if no items in array.
- * @param array Specify the array of numbers.
+ * @param array The array of numbers.
  */
 export function max(array: number[]) {
 	return Math.max(...array)
@@ -430,7 +430,7 @@ export function max(array: number[]) {
 
 /**
  * Returns the maximun value of the array items. returns Infinity if no items in array.
- * @param array Specify the array of numbers.
+ * @param array The array of numbers.
  */
 export function min(array: number[]) {
 	return Math.min(...array)

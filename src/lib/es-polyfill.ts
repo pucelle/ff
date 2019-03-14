@@ -40,7 +40,7 @@ if (!String.prototype.padEnd) {
 interface RegExpConstructor {
 	/**
 	 * Escape string to be RegExp source.
-	 * @param source Specify the source string which will be escaped.
+	 * @param source The source string which will be escaped.
 	 */
 	escape (source: string): string
 }

@@ -17,9 +17,9 @@ export class Emitter<T extends Events> {
 
 	/**
 	 * Register listener for specified event name.
-	 * @param name Specify the event name.
-	 * @param handler Specify the event handler.
-	 * @param scope Specify the scope will be binded to handler.
+	 * @param name The event name.
+	 * @param handler The event handler.
+	 * @param scope The scope will be binded to handler.
 	 */
 	on<K extends keyof T>(name: K, handler: T[K], scope?: object) {
 		let events = this.events[name]
@@ -36,9 +36,9 @@ export class Emitter<T extends Events> {
 
 	/**
 	 * Register listener for specified event name for only once.
-	 * @param name Specify the event name.
-	 * @param handler Specify the event handler.
-	 * @param scope Specify the scope will be binded to handler.
+	 * @param name The event name.
+	 * @param handler The event handler.
+	 * @param scope The scope will be binded to handler.
 	 */
 	once<K extends keyof T>(name: K, handler: T[K], scope?: object) {
 		let events = this.events[name]
@@ -58,9 +58,9 @@ export class Emitter<T extends Events> {
 
 	/**
 	 * Stop listening specified event.
-	 * @param name Specify the event name.
-	 * @param handler Specify the event handler, only matched listener will be removed.
-	 * @param scope Specify the scope binded to handler. If provided, remove listener only when scope match.
+	 * @param name The event name.
+	 * @param handler The event handler, only matched listener will be removed.
+	 * @param scope The scope binded to handler. If provided, remove listener only when scope match.
 	 */
 	off<K extends keyof T>(name: K, handler: T[K], scope?: object) {
 		let events = this.events[name]
@@ -76,9 +76,9 @@ export class Emitter<T extends Events> {
 
 	/**
 	 * Check if registered listener for specified event.
-	 * @param name Specify the event name.
-	 * @param handler Specify the event handler. If provided, will also check if the handler match.
-	 * @param scope Specify the scope binded to handler. If provided, will additionally check if the scope match.
+	 * @param name The event name.
+	 * @param handler The event handler. If provided, will also check if the handler match.
+	 * @param scope The scope binded to handler. If provided, will additionally check if the scope match.
 	 */
 	hasListener(name: string, handler?: Function, scope?: object) {
 		let events = this.events[name]
@@ -101,8 +101,8 @@ export class Emitter<T extends Events> {
 
 	/**
 	 * Emit specified event with followed arguments.
-	 * @param name Specify the event name.
-	 * @param args Specify the arguments that will be passed to event handlers.
+	 * @param name The event name.
+	 * @param args The arguments that will be passed to event handlers.
 	 */
 	emit<K extends keyof T>(name: K, ...args: Parameters<T[K]>) {
 		let events = this.events[name]

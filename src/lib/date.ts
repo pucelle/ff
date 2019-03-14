@@ -7,8 +7,8 @@ export const dateUnits = 'yMdhms'
 
 /**
  * Get one of the date value by the unit type.
- * @param date Specify the date object to get value from.
- * @param unit Specify the unit type, must be one of `'y', 'M', 'd', 'h', 'm', 's'`.
+ * @param date The date object to get value from.
+ * @param unit The unit type, must be one of `'y', 'M', 'd', 'h', 'm', 's'`.
  */
 export function getDateByUnit(date: Date, unit: DateUnit): number {
 	switch (unit) {
@@ -38,9 +38,9 @@ export function getDateByUnit(date: Date, unit: DateUnit): number {
 
 /**
  * Set one of the date value by the unit type.
- * @param date Specify the date object to set value.
- * @param value Specify the date value to set.
- * @param unit Specify the unit type, must be one of `'y', 'M', 'd', 'h', 'm', 's'`.
+ * @param date The date object to set value.
+ * @param value The date value to set.
+ * @param unit The unit type, must be one of `'y', 'M', 'd', 'h', 'm', 's'`.
  */
 export function setDateByUnit(date: Date, value: number, unit: DateUnit): number {
 	switch (unit) {
@@ -91,7 +91,7 @@ export function isValidDate(y: number, M: number, d: number = 1, h: number = 0, 
 
 /**
  * Returns if the year of date is a leap year, which contains 366 days.
- * @param date Specify the date to test.
+ * @param date The date to test.
  */
 export function isLeapYear(date: Date): boolean {
 	let year = date.getFullYear()
@@ -101,7 +101,7 @@ export function isLeapYear(date: Date): boolean {
 
 /**
  * Returns the days in the year from a date, which is 366 for leap year, 355 otherwise.
- * @param date Specify the date to get days from.
+ * @param date The date to get days from.
  */
 export function getDaysOfYear(date: Date): number {
 	return isLeapYear(date) ? 366 : 365
@@ -110,7 +110,7 @@ export function getDaysOfYear(date: Date): number {
 
 /**
  * Returns the days in the month from a date, which betweens 28-31.
- * @param date Specify the date to get days from.
+ * @param date The date to get days from.
  */
 export function getDaysOfMonth(date: Date): number {
 	let d = new Date(date.getTime())
@@ -121,8 +121,8 @@ export function getDaysOfMonth(date: Date): number {
 
 /**
  * Clone a date. Can specified `units` to partly clone.
- * @param date Specify the date to clone, default value is current date.
- * @param units Specify the units to partly clone.
+ * @param date The date to clone, default value is current date.
+ * @param units The units to partly clone.
  */
 export function cloneDate(date: Date = new Date(), units: string = dateUnits): Date {
 	let dateValues = [...dateUnits].map(unit => {
@@ -147,8 +147,8 @@ export function cloneDate(date: Date = new Date(), units: string = dateUnits): D
 
 /**
  * Add duration string to a date and returns a new date.
- * @param date Specify the date to add duration.
- * @param duration Specify the duration string to add to date.
+ * @param date The date to add duration.
+ * @param duration The duration string to add to date.
  */
 export function addDurationToDate(date: Date, duration: string): Date {
 	let isMinus = duration[0] === '-'
@@ -171,8 +171,8 @@ export function addDurationToDate(date: Date, duration: string): Date {
 
 /**
  * Returns a formatted date string.
- * @param date Specify the date to format.
- * @param format Specify the date format, default value is `'yyyy/MM/dd hh:mm:ss'`.
+ * @param date The date to format.
+ * @param format The date format, default value is `'yyyy/MM/dd hh:mm:ss'`.
  */
 export function formatDate(date: Date, format = 'yyyy/MM/dd hh:mm:ss'): string {
 	return format.replace(/y+|M+|d+|h+|m+|s+/g, m0 => {
@@ -190,8 +190,8 @@ export function formatDate(date: Date, format = 'yyyy/MM/dd hh:mm:ss'): string {
 
 /**
  * Returns a short type formatted date string.
- * @param date Specify the date to format.
- * @param format Specify the format object to use, default value is `{y: 'yyyy/MM/dd hh:mm', M: 'MM/dd hh:mm', h: 'hh:mm'}`.
+ * @param date The date to format.
+ * @param format The format object to use, default value is `{y: 'yyyy/MM/dd hh:mm', M: 'MM/dd hh:mm', h: 'hh:mm'}`.
  */
 export function formatToShort (date: Date, format: {[key in DateUnit]?: string} = {y: 'yyyy/MM/dd hh:mm', M: 'MM/dd hh:mm', h: 'hh:mm'}) {
 	let now = new Date()

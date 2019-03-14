@@ -67,8 +67,8 @@ export function parseDurationToSeconds(duration: string): number {
 
 /**
  * Parse second count to duration object `{y, M, d, h, m, s}`.
- * @param seconds Specify the second count.
- * @param units Specify the unit to use when parsing, default value is `yMdhms`.
+ * @param seconds The second count.
+ * @param units The unit to use when parsing, default value is `yMdhms`.
  */
 export function parseSecondsToDurationObject (seconds: number, units = dateUnits): DateObject {
 	let o = {
@@ -123,7 +123,7 @@ export function formatSecondsToDuration (seconds: number, units: string = dateUn
 
 /**
  * Format second count to time string like `01:01:01`.
- * @param seconds Specify the second count.
+ * @param seconds The second count.
  */
 export function formatSecondsToTime (seconds: number) {
 	let h = Math.floor(seconds / 3600)

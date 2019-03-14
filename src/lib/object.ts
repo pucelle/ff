@@ -5,8 +5,8 @@ interface ObjectWithStringKeys {
 
 /**
  * Assign values from source to target.
- * @param target Specify the target that the sources assigned to.
- * @param sources Specify the sources that will assigned to target by order.
+ * @param target The target that the sources assigned to.
+ * @param sources The sources that will assigned to target by order.
  * @param keys If `keys` is specified, only values whose key in it can be assigned.
  */
 export function assign<T extends {[key: string]: any}, S extends {[key: string]: any}>(target: T, source: S, keys: (keyof S)[] = Object.keys(source)): T {
@@ -24,7 +24,7 @@ export function assign<T extends {[key: string]: any}, S extends {[key: string]:
 //2x~3x faster than JSON methods, see https://jsperf.com/deep-clone-vs-json-clone
 /**
  * Deeply clone an object or value
- * @param source Specify the source to be clone.
+ * @param source The source to be clone.
  * @param deep Max deep to clone
  */
 export function deepClone<T> (source: T, deep: number = 10): T {

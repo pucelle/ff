@@ -88,10 +88,10 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 	 */
 	maxRetryTimes: number = 0
 
-	/** Specify the task array which will be passed to handler in order. */
+	/** The task array which will be passed to handler in order. */
 	tasks: T[] = []
 
-	/** Specify the handler to handle each task. It should return a value when `capture` is true. */
+	/** The handler to handle each task. It should return a value when `capture` is true. */
 	handler: QueueHandler<T, V>
 	
 	/** Returns current working state. */
@@ -266,7 +266,6 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 			Promise.resolve().then(() => onItemFinish(<V>value))
 		}
 	}
-
 
 	private async onItemFinish(item: QueueItem<T>, value: V) {
 		await this.prepareItem(item)
@@ -488,8 +487,8 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 
 /**
  * Run tasks in queue, returns a promise which will be resolved after finished.
- * @param tasks Specify the task array which will be passed to handler in order. 
- * @param handler Specify the handler to handle each task.
+ * @param tasks The task array which will be passed to handler in order. 
+ * @param handler The handler to handle each task.
  * @param concurrency Specify how many tasks to run simultaneously.
  */
 export function queueEach<T>(tasks: T[], handler: (task: T) => Promise<void> | void, concurrency?: number): Promise<void> {
@@ -509,8 +508,8 @@ export function queueEach<T>(tasks: T[], handler: (task: T) => Promise<void> | v
 
 /**
  * Run tasks in queue, returns a promise which will be resolved with returned values from handler after finished.
- * @param tasks Specify the task array which will be passed to handler in order. 
- * @param handler Specify the handler to handle each task. It should returns a value.
+ * @param tasks The task array which will be passed to handler in order. 
+ * @param handler The handler to handle each task. It should returns a value.
  * @param concurrency Specify how many tasks to run simultaneously.
  */
 export function queueMap<T, V>(tasks: T[], handler: (task: T) => Promise<V> | V, concurrency?: number): Promise<V[]> {
@@ -535,8 +534,8 @@ export function queueMap<T, V>(tasks: T[], handler: (task: T) => Promise<V> | V,
 
 /**
  * Run tasks in queue, returns a promise which will be resolved if some tasks match handler.
- * @param tasks Specify the task array which will be passed to handler in order. 
- * @param handler Specify the handler to handle each task. It should returns a boolean value.
+ * @param tasks The task array which will be passed to handler in order. 
+ * @param handler The handler to handle each task. It should returns a boolean value.
  * @param concurrency Specify how many tasks to run simultaneously.
  */
 export function queueSome<T>(tasks: T[], handler: (task: T) => Promise<boolean> | boolean, concurrency?: number): Promise<boolean> {
@@ -563,8 +562,8 @@ export function queueSome<T>(tasks: T[], handler: (task: T) => Promise<boolean> 
 
 /**
  * Run tasks in queue, returns a promise which will be resolved if every tasks match handler.
- * @param tasks Specify the task array which will be passed to handler in order. 
- * @param handler Specify the handler to handle each task. It should returns a boolean value.
+ * @param tasks The task array which will be passed to handler in order. 
+ * @param handler The handler to handle each task. It should returns a boolean value.
  * @param concurrency Specify how many tasks to run simultaneously.
  */
 export function queueEvery<T>(tasks: T[], handler: (task: T) => Promise<boolean> | boolean, concurrency?: number): Promise<boolean> {
