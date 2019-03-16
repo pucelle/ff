@@ -1,6 +1,6 @@
 //replace $0 to matches[0], $1 to matches[1]...
 function replaceMatchTags(template: string, match: RegExpExecArray | RegExpMatchArray) {
-	return template.replace(/\$(?:([$&\d])|<(\w+)>)/g, (m0, m1, m2) => {
+	return template.replace(/\$(?:([$&\d])|<(\w+)>)/g, (_m0, m1, m2) => {
 		if (m2) {
 			return match.groups ? match.groups[m2] || '' : ''
 		}
@@ -24,8 +24,6 @@ function replaceMatchTags(template: string, match: RegExpExecArray | RegExpMatch
  * @param template Replace `$i` or `$<name>` to corresponding match.
  */
 export function select(string: string, re: RegExp, template: string): string | string[] {
-	let match: RegExpExecArray |  null
-
 	if (re.global) {
 		let match: RegExpExecArray |  null
 		let matches: string[] = []

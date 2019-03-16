@@ -217,8 +217,7 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 		
 		while (this.getRunningCount() < this.concurrency && this.tasks.length > 0) {
 			let task = this.fifo ? this.tasks.shift()! : this.tasks.pop()!
-			let index = this.getHandledCount() + this.getRunningCount() + this.getFailedCount()
-			
+
 			this.handleItem({
 				id: this.seed++,
 				task,
@@ -546,7 +545,7 @@ export function queueSome<T>(tasks: T[], handler: (task: T) => Promise<boolean> 
 			handler
 		})
 
-		q.on('taskfinish', (task: T, value: boolean) => {
+		q.on('taskfinish', (_task: T, value: boolean) => {
 			if (value) {
 				resolve(true)
 				q.clear()
