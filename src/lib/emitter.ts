@@ -22,12 +22,10 @@ function getEvents(emitter: Emitter, name: string): EventListener[] {
 }
 
 
-export interface Events {
-	[key: string]: (...args: any[]) => void
-}
+type EventHandler = (...args: any[]) => void
 
 /** An event emitter to listen and emit events. */
-export class Emitter<T extends Events = Events> {
+export class Emitter<Events = any> {
 
 	/**
 	 * Register listener for specified event name.
@@ -35,7 +33,7 @@ export class Emitter<T extends Events = Events> {
 	 * @param handler The event handler.
 	 * @param scope The scope will be binded to handler.
 	 */
-	on<K extends keyof T>(name: K, handler: T[K], scope?: object) {
+	on<K extends keyof Events>(name: K, handler: Events[K] & EventHandler, scope?: object) {
 		let events = getEvents(this, name as string)
 		events.push({
 			handler,
@@ -50,7 +48,7 @@ export class Emitter<T extends Events = Events> {
 	 * @param handler The event handler.
 	 * @param scope The scope will be binded to handler.
 	 */
-	once<K extends keyof T>(name: K, handler: T[K], scope?: object) {
+	once<K extends keyof Events>(name: K, handler: Events[K] & EventHandler, scope?: object) {
 		let events = getEvents(this, name as string)
 		events.push({
 			handler,
@@ -65,7 +63,7 @@ export class Emitter<T extends Events = Events> {
 	 * @param handler The event handler, only matched listener will be removed.
 	 * @param scope The scope binded to handler. If provided, remove listener only when scope match.
 	 */
-	off<K extends keyof T>(name: K, handler: T[K], scope?: object) {
+	off<K extends keyof Events>(name: K, handler: Events[K] & EventHandler, scope?: object) {
 		let events = getEvents(this, name as string)
 		if (events) {
 			for (let i = events.length - 1; i >= 0; i--) {
@@ -83,7 +81,7 @@ export class Emitter<T extends Events = Events> {
 	 * @param handler The event handler. If provided, will also check if the handler match.
 	 * @param scope The scope binded to handler. If provided, will additionally check if the scope match.
 	 */
-	hasListener(name: string, handler?: Function, scope?: object) {
+	hasListener(name: string, handler?: EventHandler, scope?: object) {
 		let events = getEvents(this, name as string)
 
 		if (!handler) {
@@ -107,7 +105,7 @@ export class Emitter<T extends Events = Events> {
 	 * @param name The event name.
 	 * @param args The arguments that will be passed to event handlers.
 	 */
-	emit<K extends keyof T>(name: K, ...args: Parameters<T[K]>) {
+	emit<K extends keyof Events>(name: K, ...args: Parameters<Events[K] & EventHandler>) {
 		let events = getEvents(this, name as string)
 		if (events) {
 			for (let i = 0; i < events.length; i++) {

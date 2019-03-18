@@ -1,6 +1,6 @@
 import {assign} from './object'
 import {removeWhere} from './array'
-import {Emitter, Events} from './emitter'
+import {Emitter} from './emitter'
 
 
 export enum QueueState {
@@ -21,7 +21,7 @@ export enum QueueState {
 }
 
 
-interface QueueEvents<T, V> extends Events{
+interface QueueEvents<T, V> {
 
 	/** Emitted after task handled successfully. */
 	taskfinish(task: T, value: V): void
@@ -49,28 +49,28 @@ interface QueueEvents<T, V> extends Events{
 }
 
 
-interface QueueItem<T> {
+interface QueueItem<Task> {
 	id: number
-	task: T
+	task: Task
 	retriedTimes: number
 	abort: Function | null
 }
 
 
-export interface QueueOptions<T, V> {
+export interface QueueOptions<Task, Value> {
 	concurrency?: number
 	fifo?: boolean
 	continueOnError?: boolean
 	maxRetryTimes?: number
-	tasks?: T[]
-	handler: QueueHandler<T, V>
+	tasks?: Task[]
+	handler: QueueHandler<Task, Value>
 }
 
 
-type QueueHandler<T, V> = (task: T) => {promise: Promise<V>, abort: Function} | Promise<V> | V
+type QueueHandler<Task, Value> = (task: Task) => {promise: Promise<Value>, abort: Function} | Promise<Value> | Value
 
 
-export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
+export class Queue<Task, Value> extends Emitter<QueueEvents<Task, Value>> {
 
 	/** Specify how many tasks to run simultaneously. */
 	concurrency: number = 10
@@ -89,22 +89,22 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 	maxRetryTimes: number = 0
 
 	/** The task array which will be passed to handler in order. */
-	tasks: T[] = []
+	tasks: Task[] = []
 
 	/** The handler to handle each task. It should return a value when `capture` is true. */
-	handler: QueueHandler<T, V>
+	handler: QueueHandler<Task, Value>
 	
 	/** Returns current working state. */
 	state: QueueState = QueueState.Pending
 
 	private seed: number = 1
 	private handledCount: number = 0
-	private runningItems: QueueItem<T>[] = []
-	private failedItems: QueueItem<T>[] = []
+	private runningItems: QueueItem<Task>[] = []
+	private failedItems: QueueItem<Task>[] = []
 	private resumePromise: Promise<void> | null = null
 	private resumeResolve: (() => void) | null = null
 
-	constructor(options: QueueOptions<T, V>) {
+	constructor(options: QueueOptions<Task, Value>) {
 		super()
 
 		this.handler = options.handler
@@ -152,7 +152,7 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 	}
 
 	/** Returns the failed tasks. */
-	getFailedTasks(): T[] {
+	getFailedTasks(): Task[] {
 		return this.failedItems.map(v => v.task)
 	}
 
@@ -186,6 +186,7 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 				resolve()
 			}
 		})
+		
 		this.emit('pause')
 
 		return true
@@ -246,7 +247,7 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 		}
 	}
 
-	private handleItem(item: QueueItem<T>) {
+	private handleItem(item: QueueItem<Task>) {
 		let {task} = item
 		let onItemFinish = this.onItemFinish.bind(this, item)
 		let onItemError = this.onItemError.bind(this, item)
@@ -262,11 +263,11 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 			value.then(onItemFinish, onItemError)
 		}
 		else {
-			Promise.resolve().then(() => onItemFinish(<V>value))
+			Promise.resolve().then(() => onItemFinish(<Value>value))
 		}
 	}
 
-	private async onItemFinish(item: QueueItem<T>, value: V) {
+	private async onItemFinish(item: QueueItem<Task>, value: Value) {
 		await this.prepareItem(item)
 		
 		if (!this.removeFromRunning(item)) {
@@ -277,12 +278,11 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 
 		if (this.state === QueueState.Running) {
 			this.emit('taskfinish', item.task, value)
-			this.emit('taskend', item.task, true)	
 			this.mayHandleNextTask()
 		}
 	}
 
-	private async onItemError(item: QueueItem<T>, err: Error | string | number) {
+	private async onItemError(item: QueueItem<Task>, err: Error | string | number) {
 		await this.prepareItem(item)
 		
 		if (!this.removeFromRunning(item)) {
@@ -300,7 +300,7 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 		}
 	}
 
-	private async prepareItem(item: QueueItem<T>) {
+	private async prepareItem(item: QueueItem<Task>) {
 		item.abort = null
 
 		if (this.resumePromise) {
@@ -308,7 +308,7 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 		}
 	}
 
-	private removeFromRunning(item: QueueItem<T>) {
+	private removeFromRunning(item: QueueItem<Task>) {
 		let index = this.runningItems.findIndex(v => v.id === item.id)
 		if (index > -1) {
 			this.runningItems.splice(index, 1)
@@ -363,7 +363,7 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 		this.runningItems = []
 	}
 
-	private abortItem(item: QueueItem<T>) {
+	private abortItem(item: QueueItem<Task>) {
 		let {task, abort} = item
 
 		if (abort) {
@@ -393,7 +393,7 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 	}
 
 	/** Push tasks to queue. */
-	push(...tasks: T[]) {
+	push(...tasks: Task[]) {
 		this.tasks.push(...tasks)
 
 		if (this.state === QueueState.Finish) {
@@ -404,7 +404,7 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 	}
 
 	/** Unshift tasks to queue. */
-	unshift(...items: T[]) {
+	unshift(...items: Task[]) {
 		this.tasks.unshift(...items)
 
 		if (this.state === QueueState.Finish) {
@@ -415,7 +415,7 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 	}
 
 	/** Find first matched task. */
-	find(fn: (task: T) => boolean): T | undefined {
+	find(fn: (task: Task) => boolean): Task | undefined {
 		let item = this.runningItems.find(item => fn(item.task))
 		if (item) {
 			return item.task
@@ -435,8 +435,8 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 	}
 
 	/** Remove tasks, note that it's O(m * n) algorithm */
-	remove(...tasks: T[]): T[] {
-		let removed: T[] = []
+	remove(...tasks: Task[]): Task[] {
+		let removed: Task[] = []
 
 		for (let task of tasks) {
 			let index = this.runningItems.findIndex(item => item.task === task)
@@ -467,8 +467,8 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
 	}
 
 	/** Remove all matched tasks */
-	removeWhere(fn: (task: T) => boolean): T[] {
-		let removed: T[] = []
+	removeWhere(fn: (task: Task) => boolean): Task[] {
+		let removed: Task[] = []
 
 		let runningItems = removeWhere(this.runningItems, item => fn(item.task))
 		runningItems.forEach(item => this.abortItem(item))
@@ -490,7 +490,7 @@ export class Queue<T, V> extends Emitter<QueueEvents<T, V>> {
  * @param handler The handler to handle each task.
  * @param concurrency Specify how many tasks to run simultaneously.
  */
-export function queueEach<T>(tasks: T[], handler: (task: T) => Promise<void> | void, concurrency?: number): Promise<void> {
+export function queueEach<Task>(tasks: Task[], handler: (task: Task) => Promise<void> | void, concurrency?: number): Promise<void> {
 	return new Promise((resolve, reject) => {
 		let q = new Queue({
 			concurrency,
@@ -511,9 +511,9 @@ export function queueEach<T>(tasks: T[], handler: (task: T) => Promise<void> | v
  * @param handler The handler to handle each task. It should returns a value.
  * @param concurrency Specify how many tasks to run simultaneously.
  */
-export function queueMap<T, V>(tasks: T[], handler: (task: T) => Promise<V> | V, concurrency?: number): Promise<V[]> {
+export function queueMap<Task, Value>(tasks: Task[], handler: (task: Task) => Promise<Value> | Value, concurrency?: number): Promise<Value[]> {
 	return new Promise((resolve, reject) => {
-		let values: V[] = []
+		let values: Value[] = []
 		let indexedTasks = tasks.map((task, index) => ({task, index}))
 
 		let q = new Queue({
@@ -537,7 +537,7 @@ export function queueMap<T, V>(tasks: T[], handler: (task: T) => Promise<V> | V,
  * @param handler The handler to handle each task. It should returns a boolean value.
  * @param concurrency Specify how many tasks to run simultaneously.
  */
-export function queueSome<T>(tasks: T[], handler: (task: T) => Promise<boolean> | boolean, concurrency?: number): Promise<boolean> {
+export function queueSome<Task>(tasks: Task[], handler: (task: Task) => Promise<boolean> | boolean, concurrency?: number): Promise<boolean> {
 	return new Promise((resolve, reject) => {
 		let q = new Queue({
 			concurrency,
@@ -545,7 +545,7 @@ export function queueSome<T>(tasks: T[], handler: (task: T) => Promise<boolean> 
 			handler
 		})
 
-		q.on('taskfinish', (_task: T, value: boolean) => {
+		q.on('taskfinish', (_task: Task, value: boolean) => {
 			if (value) {
 				resolve(true)
 				q.clear()
@@ -565,10 +565,10 @@ export function queueSome<T>(tasks: T[], handler: (task: T) => Promise<boolean> 
  * @param handler The handler to handle each task. It should returns a boolean value.
  * @param concurrency Specify how many tasks to run simultaneously.
  */
-export function queueEvery<T>(tasks: T[], handler: (task: T) => Promise<boolean> | boolean, concurrency?: number): Promise<boolean> {
+export function queueEvery<Task>(tasks: Task[], handler: (task: Task) => Promise<boolean> | boolean, concurrency?: number): Promise<boolean> {
 	return queueSome(
 		tasks,
-		async (task: T) => !(await handler(task)),
+		async (task: Task) => !(await handler(task)),
 		concurrency
 	).then(value => !value)
 }
