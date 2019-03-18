@@ -1,20 +1,20 @@
 {
-  "name": "ff",
-  "version": "1.0.0",
-  "description": "A small JavaScript utility library, to make programming easier.",
-  "main": "out/index.js",
-  "scripts": {
-    "compile": "tsc -b",
-    "watch": "tsc -b -w",
-    "test": "jest"
-  },
-  "author": "pucelle",
-  "license": "MIT",
-  "devDependencies": {
-    "@types/jest": "^24.0.9",
-    "@types/node": "^11.10.4",
-    "jest": "^24.1.0",
-    "ts-jest" :"^24.0.0",
-    "typescript": "^3.3.3"
-  }
+	"name": "ff",
+	"version": "1.0.0",
+	"description": "A small JavaScript utility library, to make programming easier.",
+	"main": "out/index.js",
+	"scripts": {
+		"compile": "tsc -b",
+		"watch": "tsc -b -w",
+		"test": "jest"
+	},
+	"author": "pucelle",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/jest": "^24.0.9",
+		"@types/node": "^11.10.4",
+		"jest": "^24.1.0",
+		"ts-jest" :"^24.0.0",
+		"typescript": "^3.3.3"
+	}
 }
