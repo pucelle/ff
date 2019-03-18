@@ -75,7 +75,7 @@ describe('Test queue', async () => {
 		let q = new ff.Queue({
 			concurrency: 2,
 			tasks: a,
-			handler: (n) => undefined
+			handler: () => undefined
 		})
 
 		q.start()
@@ -93,7 +93,7 @@ describe('Test queue', async () => {
 		let q = new ff.Queue({
 			concurrency: 2,
 			tasks: a,
-			handler: (n) => undefined
+			handler: () => undefined
 		})
 
 		q.start()
@@ -112,7 +112,7 @@ describe('Test queue', async () => {
 		let q = new ff.Queue({
 			concurrency: 2,
 			tasks: a,
-			handler: (n) => {
+			handler: () => {
 				return {
 					promise: ff.sleep(),
 					abort
@@ -129,7 +129,7 @@ describe('Test queue', async () => {
 		let q = new ff.Queue({
 			concurrency: 2,
 			tasks: a,
-			handler: (n) => undefined
+			handler: () => undefined
 		})
 
 		q.start()
@@ -170,7 +170,7 @@ describe('Test queue', async () => {
 			concurrency: 2,
 			fifo: false,
 			tasks: a,
-			handler: (n) => undefined
+			handler: () => undefined
 		})
 
 		q.start()
@@ -299,7 +299,7 @@ describe('Test queue', async () => {
 			concurrency: 2,
 			maxRetryTimes: 1,
 			tasks: a,
-			handler: (n) => {
+			handler: () => {
 				if (retried < 5) {
 					retried++
 					return Promise.reject('')
