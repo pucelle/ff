@@ -1,31 +1,16 @@
+type EventHandler = (...args: any[]) => void
+
 interface EventListener {
-	handler: Function
+	handler: EventHandler
 	scope?: object,
 	once: boolean
 }
 
-const eventMap: WeakMap<Emitter, {[key: string]: EventListener[]}> = new WeakMap()
-
-function getEvents(emitter: Emitter, name: string): EventListener[] {
-	let map = eventMap.get(emitter)
-	if (!map) {
-		map = {}
-		eventMap.set(emitter, map)
-	}
-
-	let events = map[name]
-	if (!events) {
-		events = map[name] = []
-	}
-
-	return events
-}
-
-
-type EventHandler = (...args: any[]) => void
 
 /** An event emitter to listen and emit events. */
 export class Emitter<Events = any> {
+
+	private _events: {[key: string]: EventListener[]} = {}
 
 	/**
 	 * Register listener for specified event name.
@@ -33,8 +18,9 @@ export class Emitter<Events = any> {
 	 * @param handler The event handler.
 	 * @param scope The scope will be binded to handler.
 	 */
-	on<K extends keyof Events>(name: K, handler: Events[K] & EventHandler, scope?: object) {
-		let events = getEvents(this, name as string)
+	on<K extends keyof Events & string>(name: K, handler: Events[K] & EventHandler, scope?: object) {
+		let events = this._events[name] || (this._events[name] = [])
+		
 		events.push({
 			handler,
 			scope,
@@ -48,8 +34,9 @@ export class Emitter<Events = any> {
 	 * @param handler The event handler.
 	 * @param scope The scope will be binded to handler.
 	 */
-	once<K extends keyof Events>(name: K, handler: Events[K] & EventHandler, scope?: object) {
-		let events = getEvents(this, name as string)
+	once<K extends keyof Events & string>(name: K, handler: Events[K] & EventHandler, scope?: object) {
+		let events = this._events[name] || (this._events[name] = [])
+
 		events.push({
 			handler,
 			scope,
@@ -63,8 +50,8 @@ export class Emitter<Events = any> {
 	 * @param handler The event handler, only matched listener will be removed.
 	 * @param scope The scope binded to handler. If provided, remove listener only when scope match.
 	 */
-	off<K extends keyof Events>(name: K, handler: Events[K] & EventHandler, scope?: object) {
-		let events = getEvents(this, name as string)
+	off<K extends keyof Events & string>(name: K, handler: Events[K] & EventHandler, scope?: object) {
+		let events = this._events[name]
 		if (events) {
 			for (let i = events.length - 1; i >= 0; i--) {
 				let event = events[i]
@@ -82,7 +69,7 @@ export class Emitter<Events = any> {
 	 * @param scope The scope binded to handler. If provided, will additionally check if the scope match.
 	 */
 	hasListener(name: string, handler?: EventHandler, scope?: object) {
-		let events = getEvents(this, name as string)
+		let events = this._events[name]
 
 		if (!handler) {
 			return !!events && events.length > 0
@@ -105,8 +92,8 @@ export class Emitter<Events = any> {
 	 * @param name The event name.
 	 * @param args The arguments that will be passed to event handlers.
 	 */
-	emit<K extends keyof Events>(name: K, ...args: Parameters<Events[K] & EventHandler>) {
-		let events = getEvents(this, name as string)
+	emit<K extends keyof Events & string>(name: K, ...args: Parameters<Events[K] & EventHandler>) {
+		let events = this._events[name]
 		if (events) {
 			for (let i = 0; i < events.length; i++) {
 				let event = events[i]
@@ -123,6 +110,6 @@ export class Emitter<Events = any> {
 
 	/** Remove all event slisteners */
 	removeAllListeners() {
-		eventMap.delete(this)
+		this._events = {}
 	}
 }
