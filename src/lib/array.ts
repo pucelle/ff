@@ -175,7 +175,7 @@ export class Order<Item> {
 		}
 	}
 
-	private throwInvalidArguments(orders: any) {
+	private throwInvalidArguments(orders: unknown) {
 		throw new Error(JSON.stringify(orders) + ' doesn\'t specify any valid key and order.')
 	}
 
@@ -393,7 +393,7 @@ export function aggregate<Item, Value>(array: Item[], keyOrFn: CanSortKeys<Item>
  * Returns the length of the array.
  * @param array The array to count length.
  */
-export function count(array: any[]): number {
+export function count(array: unknown[]): number {
 	return array.length
 }
 

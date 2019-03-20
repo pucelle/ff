@@ -1,5 +1,5 @@
 interface ObjectWithStringKeys {
-	[key: string]: any
+	[key: string]: unknown
 }
 
 
@@ -9,7 +9,7 @@ interface ObjectWithStringKeys {
  * @param sources The sources that will assigned to target by order.
  * @param keys If `keys` is specified, only values whose key in it can be assigned.
  */
-export function assign<T extends {[key: string]: any}, S extends {[key: string]: any}>(target: T, source: S, keys: (keyof S)[] = Object.keys(source)): T {
+export function assign<T extends {[key: string]: unknown}, S extends {[key: string]: unknown}>(target: T, source: S, keys: (keyof S)[] = Object.keys(source)): T {
 	for (let key of keys) {
 		let value = source[key]
 		if (value !== undefined) {
