@@ -31,7 +31,7 @@ export function getDateByUnit(date: Date, unit: DateUnit): number {
 			return date.getSeconds()
 
 		default:
-			throw `"${unit}" is not a valid date unit`
+			throw new Error(`"${unit}" is not a valid date unit`)
 	}
 }
 
@@ -63,7 +63,7 @@ export function setDateByUnit(date: Date, value: number, unit: DateUnit): number
 			return date.setSeconds(value)
 
 		default:
-			throw `"${unit}" is not a valid date unit`
+			throw new Error(`"${unit}" is not a valid date unit`)
 	}
 }
 

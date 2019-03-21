@@ -170,13 +170,9 @@ export class Order<Item> {
 				this.orders.push([order[0], order[1] === -1 || order[1] === 'desc' ? -1 : 1])
 			}
 			else {
-				this.throwInvalidArguments(orders)
+				throw new Error(JSON.stringify(orders) + ' doesn\'t specify any valid key and order.')
 			}
 		}
-	}
-
-	private throwInvalidArguments(orders: unknown) {
-		throw new Error(JSON.stringify(orders) + ' doesn\'t specify any valid key and order.')
 	}
 
 	sortArray(array: Item[]) {
