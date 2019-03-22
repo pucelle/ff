@@ -155,13 +155,13 @@ type CanSortKeys<Item> = Extract<{[Key in keyof Item]: Item[Key] extends string 
 
 export class Order<Item> {
 
-	private orders: NormativeOrderTuple<Item, keyof Item>[] = []
+	private orders: NormativeOrderTuple<Item, string | number>[] = []
 
 	/**
 	 * Create an order rule, used in `orderBy`, and can also be used to binary search from or binary insert into array with object type items
 	 * @param orders Rest arguments of type `key` or `OrderFunction` which will return a `key`, or [`key` / `OrderFunction`, `OrderDirection`].
 	 */
-	constructor(firstOrder: OrderTuple<Item, keyof Item>, ...orders: OrderTuple<Item, keyof Item>[]) {
+	constructor(firstOrder: OrderTuple<Item, string | number>, ...orders: OrderTuple<Item, string | number>[]) {
 		for (let order of [firstOrder, ...orders]) {
 			if (['string', 'number', 'function'].includes(typeof order)) {
 				this.orders.push([order as any, 1])
@@ -170,7 +170,7 @@ export class Order<Item> {
 				this.orders.push([order[0], order[1] === -1 || order[1] === 'desc' ? -1 : 1])
 			}
 			else {
-				throw new Error(JSON.stringify(orders) + ' doesn\'t specify any valid key and order.')
+				throw new Error(JSON.stringify(orders) + ' doesn\'t specify any valid key or order.')
 			}
 		}
 	}
@@ -389,7 +389,8 @@ export function aggregate<Item, Value>(array: Item[], keyOrFn: CanSortKeys<Item>
  * Returns the length of the array.
  * @param array The array to count length.
  */
-export function count(array: unknown[]): number {
+//can't use `array: unknown` here, or it will cause `Item` in `aggregate` was inferred as `unknown` and make `CanSortKeys<Item>` not work.
+export function count(array: any[]): number {
 	return array.length
 }
 

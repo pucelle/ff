@@ -1,5 +1,4 @@
-import * as ff from '../src'
-import {addDurationToDate, formatDate, formatToShort} from '../src';
+import * as ff from '../../src'
 
 
 describe('Test date', () => {
@@ -61,8 +60,8 @@ describe('Test date', () => {
 	})
 
 	test('cloneDate', () => {
-		expect(formatDate(ff.cloneDate())).toEqual(formatDate(new Date()))
-		expect(formatDate(ff.cloneDate(d))).toEqual(formatDate(d))
+		expect(ff.formatDate(ff.cloneDate())).toEqual(ff.formatDate(new Date()))
+		expect(ff.formatDate(ff.cloneDate(d))).toEqual(ff.formatDate(d))
 		expect(ff.cloneDate(d, 'yMd')).toEqual(new Date(d.getFullYear(), d.getMonth(), d.getDate()))
 		expect(ff.cloneDate(d, 'yM')).toEqual(new Date(d.getFullYear(), d.getMonth()))
 	})
@@ -80,16 +79,16 @@ describe('Test date', () => {
 	})
 
 	test('formatToShortTime', () => {
-		let n = addDurationToDate(d, '1y')
-		expect(formatToShort(n)).toEqual(formatDate(n, 'yyyy/MM/dd hh:mm'))
+		let n = ff.addDurationToDate(d, '1y')
+		expect(ff.formatToShort(n)).toEqual(ff.formatDate(n, 'yyyy/MM/dd hh:mm'))
 
-		n = addDurationToDate(d, d.getMonth() > 6 ? '-1M' : '1M')
-		expect(ff.formatToShort(n)).toEqual(formatDate(n, 'MM/dd hh:mm'))
+		n = ff.addDurationToDate(d, d.getMonth() > 6 ? '-1M' : '1M')
+		expect(ff.formatToShort(n)).toEqual(ff.formatDate(n, 'MM/dd hh:mm'))
 
-		n = addDurationToDate(d, d.getDate() > 15 ? '-1d' : '1d')
-		expect(ff.formatToShort(n)).toEqual(formatDate(n, 'MM/dd hh:mm'))
+		n = ff.addDurationToDate(d, d.getDate() > 15 ? '-1d' : '1d')
+		expect(ff.formatToShort(n)).toEqual(ff.formatDate(n, 'MM/dd hh:mm'))
 
-		n = addDurationToDate(d, d.getHours() > 12 ? '-1h' : '1h')
-		expect(ff.formatToShort(n)).toEqual(formatDate(n, 'hh:mm'))
+		n = ff.addDurationToDate(d, d.getHours() > 12 ? '-1h' : '1h')
+		expect(ff.formatToShort(n)).toEqual(ff.formatDate(n, 'hh:mm'))
 	})
 })

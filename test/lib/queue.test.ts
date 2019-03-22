@@ -1,4 +1,4 @@
-import * as ff from '../src'
+import * as ff from '../../src'
 
 
 describe('Test queue', async () => {
@@ -254,7 +254,7 @@ describe('Test queue', async () => {
 		expect(q.getRunningTasks()).toEqual([0, 1])
 
 		await new Promise(resolve => {
-			q.on('taskfinish', n => {
+			q.on('taskfinish', (n: number) => {
 				if (n === 5) {
 					q.pause()
 					resolve()

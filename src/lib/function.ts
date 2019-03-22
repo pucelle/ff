@@ -305,7 +305,7 @@ class SmoothThrottle extends WrappedTimedFunction {
 }
 
 /**
- * Throttle function calls like `throttle`, but will calls `fn` lazily and smooth. Returns a new function.
+ * Throttle function calls like `throttle`, but will call `fn` lazily and smooth. Returns a new function.
  * @param fn The function to throttle.
  * @param ms The time period in which only at most one call allowed.
  */

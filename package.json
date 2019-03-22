@@ -1,20 +1,31 @@
 {
 	"name": "ff",
 	"version": "1.0.0",
-	"description": "A small JavaScript utility library, to make programming easier.",
-	"main": "out/index.js",
+	"description": "A small JavaScript utility library, to make web programming easier.",
+	"main": "src/index.ts",
 	"scripts": {
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
-		"test": "jest"
+		"test": "jest && gulp test && start test/dom/index.html"
 	},
 	"author": "pucelle",
 	"license": "MIT",
 	"devDependencies": {
 		"@types/jest": "^24.0.9",
 		"@types/node": "^11.10.4",
+		"@types/chai": "^4.1.7",
+		"@types/mocha": "^5.2.6",
+		"browserify": "^16.2.3",
+		"chai": "^4.2.0",
+		"exorcist": "^1.0.1",
+		"gulp": "^4.0.0",
+		"gulp-util": "^3.0.8",
 		"jest": "^24.1.0",
-		"ts-jest" :"^24.0.0",
-		"typescript": "^3.3.3"
+		"mocha": "^6.0.2",
+		"ts-jest": "^24.0.0",
+		"tsify": "^4.0.1",
+		"typescript": "^3.3.3333",
+		"vinyl-source-stream": "^2.0.0",
+		"watchify": "^3.11.1"
 	}
 }
