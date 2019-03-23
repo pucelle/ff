@@ -1,5 +1,3 @@
-/// <reference types="node" />
-
 import * as ff from '../../../src'
 const assert = chai.assert
 
