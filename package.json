@@ -2,7 +2,7 @@
 	"name": "ff",
 	"version": "1.0.0",
 	"description": "A small JavaScript utility library, to make web programming easier.",
-	"main": "src/index.ts",
+	"main": "index.ts",
 	"scripts": {
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",

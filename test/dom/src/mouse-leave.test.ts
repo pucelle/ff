@@ -1,4 +1,4 @@
-import * as ff from '../../../src'
+import * as ff from '../../..'
 import * as helper from './helper'
 const assert = chai.assert
 
