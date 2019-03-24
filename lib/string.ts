@@ -1,4 +1,4 @@
-//replace $0 to matches[0], $1 to matches[1]...
+/** Replace `$0` to `matches[0]`, `$1` to `matches[1]`... */
 function replaceMatchTags(template: string, match: RegExpExecArray | RegExpMatchArray) {
 	return template.replace(/\$(?:([$&\d])|<(\w+)>)/g, (_m0, m1, m2) => {
 		if (m2) {

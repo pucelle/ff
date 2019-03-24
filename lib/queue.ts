@@ -211,7 +211,7 @@ export class Queue<Task, Value> extends Emitter<QueueEvents<Task, Value>> {
 	}
 
 	private mayHandleNextTask() {
-		//state may change after in event handler, so we need to test state here.
+		// State may change after in event handler, so we need to test state here.
 		if (this.state !== QueueState.Running) {
 			return
 		}

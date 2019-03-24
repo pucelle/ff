@@ -21,7 +21,7 @@ export function assign<T extends {[key: string]: unknown}, S extends {[key: stri
 }
 
 
-//2x~3x faster than JSON methods, see https://jsperf.com/deep-clone-vs-json-clone
+// 2x~3x faster than JSON methods, see https://jsperf.com/deep-clone-vs-json-clone
 /**
  * Deeply clone an object or value
  * @param source The source to be clone.
@@ -54,7 +54,7 @@ export function deepClone<T> (source: T, deep: number = 10): T {
 }
 
 
-//1x faster than JSON methods, see https://jsperf.com/deep-equal-vs-json-compare
+// 1x faster than JSON methods, see https://jsperf.com/deep-equal-vs-json-compare
 /**
  * Deeply compare two objects or values
  * @param a left one

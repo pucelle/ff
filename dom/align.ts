@@ -73,7 +73,7 @@ export class Aligner {
 		this.y = anchor2[1] - anchor1[1]
 		let overflowYSet = this.alignVertical()
 
-		//if scrollbar appeared, width of el may change
+		// If scrollbar appeared, width of el may change
 		if (overflowYSet) {
 			this.w = this.el.offsetWidth
 			anchor1 = this.getFixedAnchor(this.w, this.h, this.position[0])
@@ -82,12 +82,12 @@ export class Aligner {
 		this.x = anchor2[0] - anchor1[0]
 		this.alignHerizontal()
 
-		//handle trangle position
+		// Handle trangle position
 		if (this.trangle) {
 			this.alignTrangle()
 		}
 
-		//if is not fixed, minus coordinates relative to offsetParent
+		// If is not fixed, minus coordinates relative to offsetParent
 		if (getComputedStyle(this.el).position !== 'fixed' && this.target !== document.body && this.target !== document.documentElement) {
 			var offsetParent = this.el.offsetParent as HTMLElement
 			if (offsetParent) {
@@ -124,24 +124,24 @@ export class Aligner {
 		}
 
 		if (position.length === 1) {
-			//t -> bc-tc
+			// t -> bc-tc
 			if ('tb'.includes(position)) {
 				position = ALIGN_POS_OPPOSITE[position] + 'c-' + position + 'c'
 			}
 
-			//l -> cr-cl
-			//c -> cc-cc
+			// l -> cr-cl
+			// c -> cc-cc
 			else {
 				position = 'c' + ALIGN_POS_OPPOSITE[position] + '-c' + position
 			}
 		}
 		else if (position.length === 2) {
-			//tl -> bl-tl
+			// tl -> bl-tl
 			if ('tb'.includes(position[0])) {
 				position = ALIGN_POS_OPPOSITE[position[0]] + position[1] + '-' + position
 			}
 
-			//lt -> tr-tl
+			// lt -> tr-tl
 			else {
 				position = position[1] + ALIGN_POS_OPPOSITE[position[0]] + '-' + position[1] + position[0]
 			}
@@ -244,7 +244,7 @@ export class Aligner {
 		return [x, y]
 	}
 
-	//get absolute anchor position in scrolling page
+	/** get absolute anchor position in scrolling page */
 	getAbsoluteAnchor(rect: SimpleRect, anchor: string): [number, number] {
 		let x = anchor.includes('l') ? 0 : anchor.includes('r') ? rect.width  : rect.width  / 2
 		let y = anchor.includes('t') ? 0 : anchor.includes('b') ? rect.height : rect.height / 2

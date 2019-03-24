@@ -98,7 +98,7 @@ export class Emitter<Events = any> {
 			for (let i = 0; i < events.length; i++) {
 				let event = events[i]
 
-				//the listener may call off, so must remove it before handling
+				// The listener may call off, so must remove it before handling
 				if (event.once === true) {
 					events.splice(i--, 1)
 				}

@@ -305,7 +305,7 @@ export function orderBy<Item extends object>(array: Item[], order: Order<Item> |
  * @param fn The function to return `[key, value]` tuple for each item.
  */
 
-//Compar to map, object has same performance, and is more convinent to use, but will lose number key type.
+// Compar to map, object has same performance, and is more convinent to use, but will lose number key type.
 export function indexBy<Item, V>(array: Item[], fn: (value: Item, index: number) => [string | number, V]): {[key: string]: V} {
 	let index: {[key: string]: V} = {}
 
@@ -389,7 +389,7 @@ export function aggregate<Item, Value>(array: Item[], keyOrFn: CanSortKeys<Item>
  * Returns the length of the array.
  * @param array The array to count length.
  */
-//can't use `array: unknown` here, or it will cause `Item` in `aggregate` was inferred as `unknown` and make `CanSortKeys<Item>` not work.
+// Can't use `array: unknown` here, or it will cause `Item` in `aggregate` was inferred as `unknown` and make `CanSortKeys<Item>` not work.
 export function count(array: any[]): number {
 	return array.length
 }

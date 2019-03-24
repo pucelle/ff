@@ -134,8 +134,8 @@ export function getRect(el: Element): SimpleRect {
 }
 
 
-//returns if has enough intersection with viewport
-//percentage supports negative value
+// Returns if has enough intersection with viewport
+// Percentage supports negative value
 
 /**
  * Check if element is visible in current viewport. Note that this may cause page reflow.

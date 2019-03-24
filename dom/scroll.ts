@@ -69,17 +69,17 @@ export function scrollToView(el: HTMLElement, gap: number = 0, duration: number 
 		let newScrollY = 0
 		let offsetY = getScrollOffset(el, wrapper, direction)
 
-		//need to scroll for pxs to top edges align
+		// Needs to scroll for pxs to top edges align
 		let topOffset = offsetY - gap - oldScrollY
 
-		//need to scroll for pxs to bottom edges align
+		// Needs to scroll for pxs to bottom edges align
 		let botOffset = offsetY + el.offsetHeight + gap - wrapper.clientHeight - oldScrollY
 
-		//needs to scroll up
+		// Needs to scroll up
 		if (topOffset < 0 && botOffset < 0) {
 			newScrollY = Math.max(topOffset, botOffset) + oldScrollY
 		}
-		//needs to scroll down
+		// Needs to scroll down
 		else if (botOffset > 0 && topOffset > 0) {
 			newScrollY = Math.min(botOffset, topOffset) + oldScrollY
 		}

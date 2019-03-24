@@ -135,7 +135,7 @@ export async function getFilesFromTransfer(transfer: DataTransfer): Promise<File
 		}
 	}
 
-	//can only read files
+	// Can only read files
 	else {
 		files = transferFiles
 	}
@@ -184,7 +184,7 @@ function readFilesFromDirectoryReader(reader: any): Promise<File[]> {
 	return new Promise((resolve, reject) => {
 		let files: File[] = []
 
-		//readEntries API can only read at most 100 files each time, so if reader isn't completed, still read it.
+		// readEntries API can only read at most 100 files each time, so if reader isn't completed, still read it.
 		reader.readEntries(
 			async (entries: any) => {
 				if (entries && entries.length) {

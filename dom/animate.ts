@@ -12,13 +12,13 @@ const animationElementMap: WeakMap<HTMLElement, Animation> = new WeakMap()
 
 const CUBIC_BEZIER_EASINGS = {
 
-	//BASE
+	// BASE
 	'ease'              : [0.250,  0.100, 0.250, 1.000],
 	'ease-in'           : [0.420,  0.000, 1.000, 1.000],
 	'ease-out'          : [0.000,  0.000, 0.580, 1.000],
 	'ease-in-out'       : [0.420,  0.000, 0.580, 1.000],
 
-	//EASE IN
+	// EASE IN
 	'ease-in-quad'      : [0.550,  0.085, 0.680, 0.530],
 	'ease-in-cubic'     : [0.550,  0.055, 0.675, 0.190],
 	'ease-in-quart'     : [0.895,  0.030, 0.685, 0.220],
@@ -28,7 +28,7 @@ const CUBIC_BEZIER_EASINGS = {
 	'ease-in-circ'      : [0.600,  0.040, 0.980, 0.335],
 	'ease-in-back'      : [0.600, -0.280, 0.735, 0.045],
 
-	//EASE OUT
+	// EASE OUT
 	'ease-out-quad'     : [0.250,  0.460, 0.450, 0.940],
 	'ease-out-cubic'    : [0.215,  0.610, 0.355, 1.000],
 	'ease-out-quart'    : [0.165,  0.840, 0.440, 1.000],
@@ -38,7 +38,7 @@ const CUBIC_BEZIER_EASINGS = {
 	'ease-out-circ'     : [0.075,  0.820, 0.165, 1.000],
 	'ease-out-back'     : [0.175,  0.885, 0.320, 1.275],
 
-	//EASE IN OUT
+	// EASE IN OUT
 	'ease-in-out-quad'  : [0.455,  0.030, 0.515, 0.955],
 	'ease-in-out-cubic' : [0.645,  0.045, 0.355, 1.000],
 	'ease-in-out-quart' : [0.770,  0.000, 0.175, 1.000],

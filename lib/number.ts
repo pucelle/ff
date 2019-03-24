@@ -12,7 +12,7 @@ export function toPower(number: number, power = 0): number {
 		return Math.round(number / n) * n
 	}
 
-	//this can avoid the `0.1 + 0.2 != 0.3`
+	// This can avoid the `0.1 + 0.2 != 0.3`
 	else {
 		let n = Math.pow(10, -power)
 		return Math.round(number * n) / n
