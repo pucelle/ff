@@ -73,12 +73,7 @@ export function removeWhere<Item>(array: Item[], fn: (item: Item, index: number)
  * @param array The array to remove duplicate items.
  */
 export function unique<Item extends number | string>(array: Item[]): Item[] {
-	let set: Set<Item> = new Set()
-
-	for (let item of array) {
-		set.add(item)
-	}
-
+	let set: Set<Item> = new Set(array)
 	return [...set.values()]
 }
 
@@ -105,12 +100,23 @@ export function union<Item extends number | string>(...arrays: Item[][]): Item[]
  * @param arrays The arrays to get intersection from.
  */
 export function intersect<Item extends number | string>(...arrays: Item[][]): Item[] {
-	let map: Map<Item, number> = new Map()
 	let interset: Item[] = []
 
-	for (let array of arrays) {
+	if (!arrays.length) {
+		return interset
+	}
+
+	let map: Map<Item, number> = new Map()
+
+	for (let item of arrays[0]) {
+		map.set(item, 1)
+	}
+
+	for (let array of arrays.slice(1)) {
 		for (let item of array) {
-			map.set(item, (map.get(item) || 0) + 1)
+			if (map.has(item)) {
+				map.set(item, map.get(item)! + 1)
+			}
 		}
 	}
 
@@ -130,11 +136,7 @@ export function intersect<Item extends number | string>(...arrays: Item[][]): It
  * @param excludeArrays The arrays to exclude items from.
  */
 export function difference<Item extends number | string>(array: Item[], ...excludeArrays: Item[][]): Item[] {
-	let set: Set<Item> = new Set()
-
-	for (let item of array) {
-		set.add(item)
-	}
+	let set: Set<Item> = new Set(array)
 
 	for (let difArray of excludeArrays) {
 		for (let item of difArray) {
