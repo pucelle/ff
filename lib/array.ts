@@ -74,7 +74,7 @@ export function removeWhere<Item>(array: Item[], fn: (item: Item, index: number)
  */
 export function unique<Item extends number | string>(array: Item[]): Item[] {
 	let set: Set<Item> = new Set(array)
-	return [...set.values()]
+	return [...set]
 }
 
 
@@ -91,7 +91,7 @@ export function union<Item extends number | string>(...arrays: Item[][]): Item[]
 		}
 	}
 
-	return [...set.values()]
+	return [...set]
 }
 
 
@@ -144,7 +144,7 @@ export function difference<Item extends number | string>(array: Item[], ...exclu
 		}
 	}
 
-	return [...set.values()]
+	return [...set]
 }
 
 
