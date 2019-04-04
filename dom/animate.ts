@@ -8,8 +8,10 @@ export type AnimationFrame = {[key in StyleName]?: string | number}
 
 const DEFAULT_ANIMATION_DURATION = 200
 const DEFAULT_ANIMATION_EASING = 'ease-out'
-const animationElementMap: WeakMap<HTMLElement, Animation> = new WeakMap()
+const elementAnimationMap: WeakMap<HTMLElement, Animation> = new WeakMap()
 
+
+// Copied from `Bourbon` source codes.
 const CUBIC_BEZIER_EASINGS = {
 
 	// BASE
@@ -292,16 +294,16 @@ export function animate(el: HTMLElement, startFrame: AnimationFrame, endFrame: A
 		duration,
 	})
 
-	animationElementMap.set(el, animation)
+	elementAnimationMap.set(el, animation)
 
 	return new Promise((resolve) => {
 		animation.addEventListener('finish', () => {
-			animationElementMap.delete(el)
+			elementAnimationMap.delete(el)
 			resolve(true)
 		}, false)
 
 		animation.addEventListener('cancel', () => {
-			animationElementMap.delete(el)
+			elementAnimationMap.delete(el)
 			resolve(false)
 		}, false)
 	})
@@ -365,9 +367,9 @@ export async function animateTo(el: HTMLElement, endFrame: AnimationFrame, durat
  * @param el The element to stop animation on.
  */
 export function stopAnimation(el: HTMLElement) {
-	let animation = animationElementMap.get(el)
+	let animation = elementAnimationMap.get(el)
 	if (animation) {
 		animation.cancel()
-		animationElementMap.delete(el)
+		elementAnimationMap.delete(el)
 	}
 }
