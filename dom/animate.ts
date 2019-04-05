@@ -178,7 +178,7 @@ function startIntervalAnimation(
 export function animateProperty(el: HTMLElement, property: AnimationName, startValue: number, endValue: number, duration: number, easing: AnimationEasing = DEFAULT_ANIMATION_EASING) {
 	let stop
 
-	let promise = new Promise((resolve) => {
+	let promise: Promise<boolean> = new Promise((resolve) => {
 		stop = startIntervalAnimation(
 			duration,
 			easing,
@@ -255,7 +255,7 @@ export function animatePropertyTo(el: HTMLElement, property: AnimationName, endV
 export function animateByFunction(fn: (y: number) => void, startValue: number, endValue: number, duration: number, easing: AnimationEasing = DEFAULT_ANIMATION_EASING) {
 	let stop
 
-	let promise = new Promise((resolve) => {
+	let promise: Promise<boolean> = new Promise((resolve) => {
 		stop = startIntervalAnimation(duration, easing,
 			(y) => {
 				fn(startValue + (endValue - startValue) * y)
@@ -281,7 +281,7 @@ export function animateByFunction(fn: (y: number) => void, startValue: number, e
  */
 export function animate(el: HTMLElement, startFrame: AnimationFrame, endFrame: AnimationFrame, duration: number = DEFAULT_ANIMATION_DURATION, easing: AnimationEasing = DEFAULT_ANIMATION_EASING) {
 	if (!el.animate) {
-		return Promise.resolve()
+		return Promise.resolve(false)
 	}
 	stopAnimation(el)
 	
@@ -306,7 +306,7 @@ export function animate(el: HTMLElement, startFrame: AnimationFrame, endFrame: A
 			elementAnimationMap.delete(el)
 			resolve(false)
 		}, false)
-	})
+	}) as Promise<boolean>
 }
 
 
@@ -359,6 +359,39 @@ export async function animateTo(el: HTMLElement, endFrame: AnimationFrame, durat
 
 	await animate(el, startFrame, endFrame, duration, easing)
 	setStyle(el, endFrame)
+}
+
+
+
+/** Capture current states as start frame, and later states as end frame 
+ * @param el The element to execute web animation.
+ * @param properties The style properties to capture.
+ * @param duration The animation duration.
+ * @param easing  The animation easing.
+ */
+export function animateToNextFrame(el: HTMLElement, properties: StyleName[] | StyleName, duration: number = DEFAULT_ANIMATION_DURATION, easing: AnimationEasing = DEFAULT_ANIMATION_EASING) {
+	if (!el.animate) {
+		return Promise.resolve(false)
+	}
+
+	stopAnimation(el)
+
+	if (typeof properties === 'string') {
+		properties = [properties]
+	}
+
+	let startFrame: AnimationFrame = {}
+	let style = getComputedStyle(el)
+
+	for (let property of properties) {
+		startFrame[property] = (style as any)[property]
+	}
+
+	return new Promise(resolve => {
+		requestAnimationFrame(() => {
+			animateFrom(el, startFrame, duration, easing).then(resolve)
+		})
+	}) as Promise<boolean>
 }
 
 

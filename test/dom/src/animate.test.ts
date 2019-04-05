@@ -72,6 +72,13 @@ describe('Test animate', () => {
 		assert.equal(ff.getNumeric(div, 'left'), 200)
 		assert.closeTo(Date.now() - d, 100, 50)
 
+		d = Date.now()
+		let promise = ff.animateToNextFrame(div, 'left', 100)
+		div.style.left = '300px'
+		await promise
+		assert.equal(ff.getNumeric(div, 'left'), 300)
+		assert.closeTo(Date.now() - d, 100, 50)
+
 		div.remove()
 	})
 })
