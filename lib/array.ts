@@ -58,9 +58,9 @@ export function removeFirst<Item>(array: Item[], fn: (item: Item, index: number)
 export function removeWhere<Item>(array: Item[], fn: (item: Item, index: number) => boolean): Item[] {
 	let removed = []
 
-	for (let i = array.length - 1; i >= 0; i--) {
+	for (let i = 0; i < array.length; i++) {
 		if (fn(array[i], i)) {
-			removed.unshift(...array.splice(i, 1))
+			removed.push(array.splice(i--, 1)[0])
 		}
 	}
 
