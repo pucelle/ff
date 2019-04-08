@@ -334,8 +334,8 @@ export function animateFrom(el: HTMLElement, startFrame: AnimationFrame, duratio
 	let endFrame: AnimationFrame = {}
 	let style = getComputedStyle(el)
 
-	for (let name in startFrame) {
-		endFrame[name as StyleName] = (style as any)[name] || DEFAULT_STYLE[name] || '0'
+	for (let property in startFrame) {
+		endFrame[property as StyleName] = (style as any)[property] || DEFAULT_STYLE[property] || '0'
 	}
 
 	return animate(el, startFrame, endFrame, duration, easing)
@@ -353,12 +353,16 @@ export async function animateTo(el: HTMLElement, endFrame: AnimationFrame, durat
 	let startFrame: AnimationFrame = {}
 	let style = getComputedStyle(el)
 
-	for (let name in endFrame) {
-		startFrame[name as StyleName] = (style as any)[name] || DEFAULT_STYLE[name] || '0'
+	for (let property in endFrame) {
+		startFrame[property as StyleName] = (style as any)[property] || DEFAULT_STYLE[property] || '0'
 	}
 
-	await animate(el, startFrame, endFrame, duration, easing)
-	setStyle(el, endFrame)
+	let finish = await animate(el, startFrame, endFrame, duration, easing)
+	if (finish) {
+		setStyle(el, endFrame)
+	}
+
+	return finish
 }
 
 
