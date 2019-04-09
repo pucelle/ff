@@ -8,10 +8,10 @@ const glob = require('glob')
 const exorcist = require('exorcist')
 
 
-function bundle(task) {
+function task(name) {
 	let browser = browserify({
 		basedir: '.',
-		debug: true,
+		//debug: true,
 		entries: glob.sync(__dirname + '/test/dom/**/*.test.ts')
 	})
 	browser.plugin(tsify, {
@@ -20,20 +20,24 @@ function bundle(task) {
 	})
 	browser.on('log', gutil.log)
 
-	if (task === 'test-watch') {
+	if (name === 'test-watch') {
 		browser.plugin(watchify)
 		browser.on('update', () => {
 			browser.close()
-			bundle(task)
+			bundle()
 		})
 	}
 
-	return browser
-		.bundle()
-		.pipe(exorcist(__dirname + '/test/dom/bundle.js.map'))
-		.pipe(source('bundle.js'))
-		.pipe(gulp.dest('test/dom'))
+	function bundle() {
+		return browser
+			.bundle()
+			//.pipe(exorcist(__dirname + '/test/dom/bundle.js.map'))
+			.pipe(source('bundle.js'))
+			.pipe(gulp.dest('test/dom'))
+	}
+
+	return bundle()
 }
 
-gulp.task('test', () => bundle('test'))
-gulp.task('test-watch', () => bundle('test-watch'))
+gulp.task('test', () => task('test'))
+gulp.task('test-watch', () => task('test-watch'))

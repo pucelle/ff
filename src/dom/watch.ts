@@ -39,40 +39,54 @@ export let watchInterval = 20
 
 
 /**
- * Watch specified state. Returns a cancel function. Note that this method may slow page speed and cause additional reflow.
+ * Watch specified state. Returns a cancel function.
+ * Note that this method may slow page speed and cause additional reflow.
  * @param el The element to watch.
  * @param type The state to watch, can be `'show' | 'hide' | 'inview' | 'outview' | 'size' | 'rect'`.
  * @param callback The callback to call when state changed.
- * @param immediate If is true, call callback immediately with current state`.
  */
-export function watch<Type extends WatchType>(el: HTMLElement, type: Type, callback: WatchCallback<Type>, immediate: boolean = false): () => void {
-	return bindWatch(false, false, el, type, callback, immediate)
+export function watch<Type extends WatchType>(el: HTMLElement, type: Type, callback: WatchCallback<Type>): () => void {
+	return bindWatch(false, false, false, el, type, callback)
 }
 
 
 /**
- * Watch specified state until it changed. Returns a cancel function. Note that this method may slow page speed and cause additional reflow.
+ * Watch specified state, call callback immediately with current state`. Returns a cancel function.
+ * Note that this method may slow page speed and cause additional reflow.
+ * @param el The element to watch.
+ * @param type The state to watch, can be `'show' | 'hide' | 'inview' | 'outview' | 'size' | 'rect'`.
+ * @param callback The callback to call when state changed.
+ */
+export function watchImmediately<Type extends WatchType>(el: HTMLElement, type: Type, callback: WatchCallback<Type>): () => void {
+	return bindWatch(false, false, true, el, type, callback)
+}
+
+
+/**
+ * Watch specified state until it changed. Returns a cancel function.
+ * Note that this method may slow page speed and cause additional reflow.
  * @param el The element to watch.
  * @param type The state to watch, can be `'show' | 'hide' | 'inview' | 'outview' | 'size' | 'rect'`.
  * @param callback The callback to call when state changed.
  */
 export function watchOnce<Type extends WatchType>(el: HTMLElement, type: WatchType, callback: WatchCallback<Type>): () => void {
-	return bindWatch(true, false, el, type, callback, false)
+	return bindWatch(true, false, false, el, type, callback)
 }
 
 
 /**
- * Watch specified state until it becomes true. Returns a cancel function. Note that this method may slow page speed and cause additional reflow.
+ * Watch specified state until it becomes true. Returns a cancel function.
+ * Note that this method may slow page speed and cause additional reflow.
  * @param el The element to watch.
  * @param type The state to watch, can be `'show' | 'hide' | 'inview' | 'outview'`.
  * @param callback The callback to call when state becomes true.
  */
 export function watchUntil<Type extends 'show' | 'hide' | 'inview' | 'outview'>(el: HTMLElement, type: Type, callback: WatchCallback<Type>): () => void {
-	return bindWatch(true, true, el, type, callback, false)
+	return bindWatch(true, true, false, el, type, callback)
 }
 
 
-function bindWatch(isOnce: boolean, untilTrue: boolean, el: HTMLElement, type: WatchType, callback: Function, immediate: boolean): () => void {
+function bindWatch(isOnce: boolean, untilTrue: boolean, immediate: boolean, el: HTMLElement, type: WatchType, callback: Function): () => void {
 	let getState = WATCH_STATE_FN[type]
 	let oldState: any
 	let intervalId: any = null

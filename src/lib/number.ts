@@ -4,6 +4,14 @@
  * @param power The power that the number will correct to.
  */
 export function toPower(number: number, power = 0): number {
+	if (number < 0) {
+		return - toPower(-number)
+	}
+
+	if (number === 0) {
+		return 0
+	}
+	
 	let maxPower = Math.floor(Math.log(number) / Math.log(10))
 	power = Math.min(maxPower, power)
 
@@ -12,7 +20,7 @@ export function toPower(number: number, power = 0): number {
 		return Math.round(number / n) * n
 	}
 
-	// This can avoid the `0.1 + 0.2 != 0.3`
+	// This can avoid `0.1 + 0.2 !== 0.3`
 	else {
 		let n = Math.pow(10, -power)
 		return Math.round(number * n) / n

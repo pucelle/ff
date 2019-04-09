@@ -11,7 +11,7 @@ describe('Test watch', () => {
 		div.style.cssText = 'width: 100px; height: 100px; position: fixed; left: 0; top: 0'
 		document.body.append(div)
 
-		let cancelWatch = ff.watch(div, 'show', fn, true)
+		let cancelWatch = ff.watchImmediately(div, 'show', fn)
 		assert.equal(fn.mock.calls.length, 1)
 
 		div.remove()

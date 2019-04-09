@@ -1,3 +1,6 @@
+/// <reference types="../node_modules/@types/chai" />
+
+
 /** Works like jest.fn */
 export function fn(handler: Function = function(){}) {
 	let calls: any[] = []
