@@ -14,7 +14,10 @@ function bundle(task) {
 		debug: true,
 		entries: glob.sync(__dirname + '/test/dom/**/*.test.ts')
 	})
-	browser.plugin(tsify, {types: ['mocha', 'chai']})
+	browser.plugin(tsify, {
+		typeRoots: ['test/dom/node_modules/@types'],
+		types: ['mocha', 'chai']
+	})
 	browser.on('log', gutil.log)
 
 	if (task === 'test-watch') {

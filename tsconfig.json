@@ -3,8 +3,9 @@
 		"module": "commonjs",
 		"target": "esnext",
 		"lib": ["esnext", "dom", "dom.iterable"],
+		"rootDir": "src",
 		"outDir": "out",
-		"sourceMap": true,
+		"declaration": true,
 		"strict": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
@@ -15,6 +16,7 @@
 	},
 	"exclude": [
 		"node_modules",
+		"out",
 		"test"
 	]
 }

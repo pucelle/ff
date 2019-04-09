@@ -44,18 +44,18 @@ class Aligner {
         let anchor2 = this.getAbsoluteAnchor(this.targetRect, this.position[1]);
         this.y = anchor2[1] - anchor1[1];
         let overflowYSet = this.alignVertical();
-        //if scrollbar appeared, width of el may change
+        // If scrollbar appeared, width of el may change
         if (overflowYSet) {
             this.w = this.el.offsetWidth;
             anchor1 = this.getFixedAnchor(this.w, this.h, this.position[0]);
         }
         this.x = anchor2[0] - anchor1[0];
         this.alignHerizontal();
-        //handle trangle position
+        // Handle trangle position
         if (this.trangle) {
             this.alignTrangle();
         }
-        //if is not fixed, minus coordinates relative to offsetParent
+        // If is not fixed, minus coordinates relative to offsetParent
         if (getComputedStyle(this.el).position !== 'fixed' && this.target !== document.body && this.target !== document.documentElement) {
             var offsetParent = this.el.offsetParent;
             if (offsetParent) {
@@ -88,22 +88,22 @@ class Aligner {
             throw `"${position}" is not a valid position`;
         }
         if (position.length === 1) {
-            //t -> bc-tc
+            // t -> bc-tc
             if ('tb'.includes(position)) {
                 position = ALIGN_POS_OPPOSITE[position] + 'c-' + position + 'c';
             }
-            //l -> cr-cl
-            //c -> cc-cc
+            // l -> cr-cl
+            // c -> cc-cc
             else {
                 position = 'c' + ALIGN_POS_OPPOSITE[position] + '-c' + position;
             }
         }
         else if (position.length === 2) {
-            //tl -> bl-tl
+            // tl -> bl-tl
             if ('tb'.includes(position[0])) {
                 position = ALIGN_POS_OPPOSITE[position[0]] + position[1] + '-' + position;
             }
-            //lt -> tr-tl
+            // lt -> tr-tl
             else {
                 position = position[1] + ALIGN_POS_OPPOSITE[position[0]] + '-' + position[1] + position[0];
             }
@@ -186,7 +186,7 @@ class Aligner {
         let y = anchor.includes('t') ? 0 : anchor.includes('b') ? h : h / 2;
         return [x, y];
     }
-    //get absolute anchor position in scrolling page
+    /** get absolute anchor position in scrolling page */
     getAbsoluteAnchor(rect, anchor) {
         let x = anchor.includes('l') ? 0 : anchor.includes('r') ? rect.width : rect.width / 2;
         let y = anchor.includes('t') ? 0 : anchor.includes('b') ? rect.height : rect.height / 2;
@@ -341,6 +341,7 @@ function alignToEvent(el, event, offset = [0, 0]) {
     });
 }
 exports.alignToEvent = alignToEvent;
+
 },{"./css":3,"./node":8,"./util":13}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -348,14 +349,15 @@ const css_1 = require("./css");
 const util_1 = require("./util");
 const DEFAULT_ANIMATION_DURATION = 200;
 const DEFAULT_ANIMATION_EASING = 'ease-out';
-const animationElementMap = new WeakMap();
+const elementAnimationMap = new WeakMap();
+// Copied from `Bourbon` source codes.
 const CUBIC_BEZIER_EASINGS = {
-    //BASE
+    // BASE
     'ease': [0.250, 0.100, 0.250, 1.000],
     'ease-in': [0.420, 0.000, 1.000, 1.000],
     'ease-out': [0.000, 0.000, 0.580, 1.000],
     'ease-in-out': [0.420, 0.000, 0.580, 1.000],
-    //EASE IN
+    // EASE IN
     'ease-in-quad': [0.550, 0.085, 0.680, 0.530],
     'ease-in-cubic': [0.550, 0.055, 0.675, 0.190],
     'ease-in-quart': [0.895, 0.030, 0.685, 0.220],
@@ -364,7 +366,7 @@ const CUBIC_BEZIER_EASINGS = {
     'ease-in-expo': [0.950, 0.050, 0.795, 0.035],
     'ease-in-circ': [0.600, 0.040, 0.980, 0.335],
     'ease-in-back': [0.600, -0.280, 0.735, 0.045],
-    //EASE OUT
+    // EASE OUT
     'ease-out-quad': [0.250, 0.460, 0.450, 0.940],
     'ease-out-cubic': [0.215, 0.610, 0.355, 1.000],
     'ease-out-quart': [0.165, 0.840, 0.440, 1.000],
@@ -373,7 +375,7 @@ const CUBIC_BEZIER_EASINGS = {
     'ease-out-expo': [0.190, 1.000, 0.220, 1.000],
     'ease-out-circ': [0.075, 0.820, 0.165, 1.000],
     'ease-out-back': [0.175, 0.885, 0.320, 1.275],
-    //EASE IN OUT
+    // EASE IN OUT
     'ease-in-out-quad': [0.455, 0.030, 0.515, 0.955],
     'ease-in-out-cubic': [0.645, 0.045, 0.355, 1.000],
     'ease-in-out-quart': [0.770, 0.000, 0.175, 1.000],
@@ -570,7 +572,7 @@ exports.animateByFunction = animateByFunction;
  */
 function animate(el, startFrame, endFrame, duration = DEFAULT_ANIMATION_DURATION, easing = DEFAULT_ANIMATION_EASING) {
     if (!el.animate) {
-        return Promise.resolve();
+        return Promise.resolve(false);
     }
     stopAnimation(el);
     startFrame = util_1.normativeStyleObject(startFrame);
@@ -580,14 +582,14 @@ function animate(el, startFrame, endFrame, duration = DEFAULT_ANIMATION_DURATION
         easing: cubicEasing,
         duration,
     });
-    animationElementMap.set(el, animation);
+    elementAnimationMap.set(el, animation);
     return new Promise((resolve) => {
         animation.addEventListener('finish', () => {
-            animationElementMap.delete(el);
+            elementAnimationMap.delete(el);
             resolve(true);
         }, false);
         animation.addEventListener('cancel', () => {
-            animationElementMap.delete(el);
+            elementAnimationMap.delete(el);
             resolve(false);
         }, false);
     });
@@ -612,8 +614,8 @@ const DEFAULT_STYLE = {
 function animateFrom(el, startFrame, duration = DEFAULT_ANIMATION_DURATION, easing = DEFAULT_ANIMATION_EASING) {
     let endFrame = {};
     let style = getComputedStyle(el);
-    for (let name in startFrame) {
-        endFrame[name] = style[name] || DEFAULT_STYLE[name] || '0';
+    for (let property in startFrame) {
+        endFrame[property] = style[property] || DEFAULT_STYLE[property] || '0';
     }
     return animate(el, startFrame, endFrame, duration, easing);
 }
@@ -628,25 +630,55 @@ exports.animateFrom = animateFrom;
 async function animateTo(el, endFrame, duration = DEFAULT_ANIMATION_DURATION, easing = DEFAULT_ANIMATION_EASING) {
     let startFrame = {};
     let style = getComputedStyle(el);
-    for (let name in endFrame) {
-        startFrame[name] = style[name] || DEFAULT_STYLE[name] || '0';
+    for (let property in endFrame) {
+        startFrame[property] = style[property] || DEFAULT_STYLE[property] || '0';
     }
-    await animate(el, startFrame, endFrame, duration, easing);
-    css_1.setStyle(el, endFrame);
+    let finish = await animate(el, startFrame, endFrame, duration, easing);
+    if (finish) {
+        css_1.setStyle(el, endFrame);
+    }
+    return finish;
 }
 exports.animateTo = animateTo;
+/** Capture current states as start frame, and later states as end frame
+ * @param el The element to execute web animation.
+ * @param properties The style properties to capture.
+ * @param duration The animation duration.
+ * @param easing  The animation easing.
+ */
+function animateToNextFrame(el, properties, duration = DEFAULT_ANIMATION_DURATION, easing = DEFAULT_ANIMATION_EASING) {
+    if (!el.animate) {
+        return Promise.resolve(false);
+    }
+    stopAnimation(el);
+    if (typeof properties === 'string') {
+        properties = [properties];
+    }
+    let startFrame = {};
+    let style = getComputedStyle(el);
+    for (let property of properties) {
+        startFrame[property] = style[property];
+    }
+    return new Promise(resolve => {
+        requestAnimationFrame(() => {
+            animateFrom(el, startFrame, duration, easing).then(resolve);
+        });
+    });
+}
+exports.animateToNextFrame = animateToNextFrame;
 /**
  * Stop animation on element.
  * @param el The element to stop animation on.
  */
 function stopAnimation(el) {
-    let animation = animationElementMap.get(el);
+    let animation = elementAnimationMap.get(el);
     if (animation) {
         animation.cancel();
-        animationElementMap.delete(el);
+        elementAnimationMap.delete(el);
     }
 }
 exports.stopAnimation = stopAnimation;
+
 },{"./css":3,"./util":13}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -681,6 +713,7 @@ function setStyle(el, property, value) {
     }
 }
 exports.setStyle = setStyle;
+
 },{"./util":13}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -730,6 +763,7 @@ function setDraggable(el, mover = el) {
     };
 }
 exports.setDraggable = setDraggable;
+
 },{"./css":3}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -849,7 +883,7 @@ async function getFilesFromTransfer(transfer) {
             files = transferFiles;
         }
     }
-    //can only read files
+    // Can only read files
     else {
         files = transferFiles;
     }
@@ -890,7 +924,7 @@ async function readFilesFromEntry(entry) {
 function readFilesFromDirectoryReader(reader) {
     return new Promise((resolve, reject) => {
         let files = [];
-        //readEntries API can only read at most 100 files each time, so if reader isn't completed, still read it.
+        // readEntries API can only read at most 100 files each time, so if reader isn't completed, still read it.
         reader.readEntries(async (entries) => {
             if (entries && entries.length) {
                 try {
@@ -909,6 +943,7 @@ function readFilesFromDirectoryReader(reader) {
         }, reject);
     });
 }
+
 },{}],6:[function(require,module,exports){
 "use strict";
 function __export(m) {
@@ -927,6 +962,7 @@ __export(require("./file"));
 __export(require("./query"));
 __export(require("./storage"));
 __export(require("./watch"));
+
 },{"./align":1,"./animate":2,"./css":3,"./draggable":4,"./file":5,"./mouse-leave":7,"./node":8,"./pan":9,"./query":10,"./scroll":11,"./storage":12,"./watch":14}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -1000,6 +1036,7 @@ function bindMouseLeaveAll(isOnce, elOrs, callback, ms) {
     }
     return cancel;
 }
+
 },{}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -1124,8 +1161,8 @@ function getRect(el) {
     }
 }
 exports.getRect = getRect;
-//returns if has enough intersection with viewport
-//percentage supports negative value
+// Returns if has enough intersection with viewport
+// Percentage supports negative value
 /**
  * Check if element is visible in current viewport. Note that this may cause page reflow.
  * @param el The element to check if is in view.
@@ -1141,6 +1178,7 @@ function isInview(el, percentage = 0.5) {
         && yIntersect / Math.min(box.height, dh) > percentage;
 }
 exports.isInview = isInview;
+
 },{"./css":3}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -1203,6 +1241,7 @@ function onPan(el, callback) {
     };
 }
 exports.onPan = onPan;
+
 },{"./css":3}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -1244,6 +1283,7 @@ function useQuery(url, query) {
     return url;
 }
 exports.useQuery = useQuery;
+
 },{}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -1305,15 +1345,15 @@ function scrollToView(el, gap = 0, duration = 0, easing = 'ease-out') {
         let oldScrollY = wrapper.scrollTop;
         let newScrollY = 0;
         let offsetY = getScrollOffset(el, wrapper, direction);
-        //need to scroll for pxs to top edges align
+        // Needs to scroll for pxs to top edges align
         let topOffset = offsetY - gap - oldScrollY;
-        //need to scroll for pxs to bottom edges align
+        // Needs to scroll for pxs to bottom edges align
         let botOffset = offsetY + el.offsetHeight + gap - wrapper.clientHeight - oldScrollY;
-        //needs to scroll up
+        // Needs to scroll up
         if (topOffset < 0 && botOffset < 0) {
             newScrollY = Math.max(topOffset, botOffset) + oldScrollY;
         }
-        //needs to scroll down
+        // Needs to scroll down
         else if (botOffset > 0 && topOffset > 0) {
             newScrollY = Math.min(botOffset, topOffset) + oldScrollY;
         }
@@ -1419,6 +1459,7 @@ function scrollToTop(el, gap = 0, duration = 0, easing = 'ease-out') {
     return false;
 }
 exports.scrollToTop = scrollToTop;
+
 },{"./animate":2}],12:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -1518,6 +1559,7 @@ class JSONStorage {
     }
 }
 exports.storage = new JSONStorage();
+
 },{}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -1548,6 +1590,7 @@ function getClosestFixedElement(el) {
     return el === document.documentElement ? null : el;
 }
 exports.getClosestFixedElement = getClosestFixedElement;
+
 },{}],14:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -1696,6 +1739,7 @@ function valueOrObjectEqual(a, b) {
     }
     return true;
 }
+
 },{"./node":8}],15:[function(require,module,exports){
 "use strict";
 function __export(m) {
@@ -1704,6 +1748,7 @@ function __export(m) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./lib"));
 __export(require("./dom"));
+
 },{"./dom":6,"./lib":22}],16:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -1758,9 +1803,9 @@ exports.removeFirst = removeFirst;
  */
 function removeWhere(array, fn) {
     let removed = [];
-    for (let i = array.length - 1; i >= 0; i--) {
+    for (let i = 0; i < array.length; i++) {
         if (fn(array[i], i)) {
-            removed.unshift(...array.splice(i, 1));
+            removed.push(array.splice(i--, 1)[0]);
         }
     }
     return removed;
@@ -1771,11 +1816,8 @@ exports.removeWhere = removeWhere;
  * @param array The array to remove duplicate items.
  */
 function unique(array) {
-    let set = new Set();
-    for (let item of array) {
-        set.add(item);
-    }
-    return [...set.values()];
+    let set = new Set(array);
+    return [...set];
 }
 exports.unique = unique;
 /**
@@ -1789,7 +1831,7 @@ function union(...arrays) {
             set.add(item);
         }
     }
-    return [...set.values()];
+    return [...set];
 }
 exports.union = union;
 /**
@@ -1797,11 +1839,19 @@ exports.union = union;
  * @param arrays The arrays to get intersection from.
  */
 function intersect(...arrays) {
-    let map = new Map();
     let interset = [];
-    for (let array of arrays) {
+    if (!arrays.length) {
+        return interset;
+    }
+    let map = new Map();
+    for (let item of arrays[0]) {
+        map.set(item, 1);
+    }
+    for (let array of arrays.slice(1)) {
         for (let item of array) {
-            map.set(item, (map.get(item) || 0) + 1);
+            if (map.has(item)) {
+                map.set(item, map.get(item) + 1);
+            }
         }
     }
     for (let [item, count] of map.entries()) {
@@ -1818,16 +1868,13 @@ exports.intersect = intersect;
  * @param excludeArrays The arrays to exclude items from.
  */
 function difference(array, ...excludeArrays) {
-    let set = new Set();
-    for (let item of array) {
-        set.add(item);
-    }
+    let set = new Set(array);
     for (let difArray of excludeArrays) {
         for (let item of difArray) {
             set.delete(item);
         }
     }
-    return [...set.values()];
+    return [...set];
 }
 exports.difference = difference;
 class Order {
@@ -1936,7 +1983,7 @@ exports.orderBy = orderBy;
  * @param array The array to generate map object.
  * @param fn The function to return `[key, value]` tuple for each item.
  */
-//Compar to map, object has same performance, and is more convinent to use, but will lose number key type.
+// Compar to map, object has same performance, and is more convinent to use, but will lose number key type.
 function indexBy(array, fn) {
     let index = {};
     for (let i = 0, len = array.length; i < len; i++) {
@@ -2005,7 +2052,7 @@ exports.aggregate = aggregate;
  * Returns the length of the array.
  * @param array The array to count length.
  */
-//can't use `array: unknown` here, or it will cause `Item` in `aggregate` was inferred as `unknown` and make `CanSortKeys<Item>` not work.
+// Can't use `array: unknown` here, or it will cause `Item` in `aggregate` was inferred as `unknown` and make `CanSortKeys<Item>` not work.
 function count(array) {
     return array.length;
 }
@@ -2045,6 +2092,7 @@ function min(array) {
     return Math.min(...array);
 }
 exports.min = min;
+
 },{}],17:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -2217,6 +2265,7 @@ function formatToShort(date, format = { y: 'yyyy/MM/dd hh:mm', M: 'MM/dd hh:mm',
     return formatDate(date, matchFormat);
 }
 exports.formatToShort = formatToShort;
+
 },{"./duration":18}],18:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -2333,6 +2382,7 @@ function formatSecondsToTime(seconds) {
         + String(s).padStart(2, '0');
 }
 exports.formatSecondsToTime = formatSecondsToTime;
+
 },{"./date":17,"./string":26}],19:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -2344,13 +2394,13 @@ class Emitter {
     /**
      * Register listener for specified event name.
      * @param name The event name.
-     * @param handler The event handler.
-     * @param scope The scope will be binded to handler.
+     * @param listener The event listener.
+     * @param scope The scope will be binded to listener.
      */
-    on(name, handler, scope) {
+    on(name, listener, scope) {
         let events = this._events[name] || (this._events[name] = []);
         events.push({
-            handler,
+            listener,
             scope,
             once: false,
         });
@@ -2358,13 +2408,13 @@ class Emitter {
     /**
      * Register listener for specified event name for only once.
      * @param name The event name.
-     * @param handler The event handler.
-     * @param scope The scope will be binded to handler.
+     * @param listener The event listener.
+     * @param scope The scope will be binded to listener.
      */
-    once(name, handler, scope) {
+    once(name, listener, scope) {
         let events = this._events[name] || (this._events[name] = []);
         events.push({
-            handler,
+            listener,
             scope,
             once: true
         });
@@ -2372,15 +2422,15 @@ class Emitter {
     /**
      * Stop listening specified event.
      * @param name The event name.
-     * @param handler The event handler, only matched listener will be removed.
-     * @param scope The scope binded to handler. If provided, remove listener only when scope match.
+     * @param listener The event listener, only matched listener will be removed.
+     * @param scope The scope binded to listener. If provided, remove listener only when scope match.
      */
-    off(name, handler, scope) {
+    off(name, listener, scope) {
         let events = this._events[name];
         if (events) {
             for (let i = events.length - 1; i >= 0; i--) {
                 let event = events[i];
-                if (event.handler === handler && (!scope || event.scope === scope)) {
+                if (event.listener === listener && (!scope || event.scope === scope)) {
                     events.splice(i, 1);
                 }
             }
@@ -2389,18 +2439,18 @@ class Emitter {
     /**
      * Check if registered listener for specified event.
      * @param name The event name.
-     * @param handler The event handler. If provided, will also check if the handler match.
-     * @param scope The scope binded to handler. If provided, will additionally check if the scope match.
+     * @param listener The event listener. If provided, will also check if the listener match.
+     * @param scope The scope binded to listener. If provided, will additionally check if the scope match.
      */
-    hasListener(name, handler, scope) {
+    hasListener(name, listener, scope) {
         let events = this._events[name];
-        if (!handler) {
+        if (!listener) {
             return !!events && events.length > 0;
         }
-        else if (events && handler) {
+        else if (events && listener) {
             for (let i = 0, len = events.length; i < len; i++) {
                 let event = events[i];
-                if (event.handler === handler && (!scope || event.scope === scope)) {
+                if (event.listener === listener && (!scope || event.scope === scope)) {
                     return true;
                 }
             }
@@ -2410,27 +2460,28 @@ class Emitter {
     /**
      * Emit specified event with followed arguments.
      * @param name The event name.
-     * @param args The arguments that will be passed to event handlers.
+     * @param args The arguments that will be passed to event listeners.
      */
     emit(name, ...args) {
         let events = this._events[name];
         if (events) {
             for (let i = 0; i < events.length; i++) {
                 let event = events[i];
-                //the handler may call off, so must remove it before handling
+                // The listener may call off, so must remove it before handling
                 if (event.once === true) {
                     events.splice(i--, 1);
                 }
-                event.handler.apply(event.scope, args);
+                event.listener.apply(event.scope, args);
             }
         }
     }
-    /** Remove all event slisteners */
+    /** Remove all event listeners */
     removeAllListeners() {
         this._events = {};
     }
 }
 exports.Emitter = Emitter;
+
 },{}],20:[function(require,module,exports){
 "use strict";
 /*Polyfill for parts of ECMAScript 2017+, which is not widely supported by modern browsers*/
@@ -2466,7 +2517,7 @@ if (!String.prototype.padEnd) {
         }
     });
 }
-//still a proposal, but I love it.
+// Still a proposal, but I love it.
 if (!RegExp.escape) {
     Object.defineProperty(RegExp, 'escape', {
         value: function (source) {
@@ -2474,6 +2525,7 @@ if (!RegExp.escape) {
         }
     });
 }
+
 },{}],21:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -2804,6 +2856,7 @@ function debounce(fn, ms) {
     return new Debounce(fn, ms);
 }
 exports.debounce = debounce;
+
 },{}],22:[function(require,module,exports){
 "use strict";
 function __export(m) {
@@ -2821,6 +2874,7 @@ __export(require("./duration"));
 __export(require("./date"));
 __export(require("./emitter"));
 __export(require("./queue"));
+
 },{"./array":16,"./date":17,"./duration":18,"./emitter":19,"./es-polyfill":20,"./function":21,"./number":23,"./object":24,"./queue":25,"./string":26,"./time":27}],23:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -2836,7 +2890,7 @@ function toPower(number, power = 0) {
         let n = Math.pow(10, power);
         return Math.round(number / n) * n;
     }
-    //this can avoid the `0.1 + 0.2 != 0.3`
+    // This can avoid the `0.1 + 0.2 != 0.3`
     else {
         let n = Math.pow(10, -power);
         return Math.round(number * n) / n;
@@ -2871,6 +2925,7 @@ function constrain(number, min, max) {
     return number;
 }
 exports.constrain = constrain;
+
 },{}],24:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -2890,7 +2945,7 @@ function assign(target, source, keys = Object.keys(source)) {
     return target;
 }
 exports.assign = assign;
-//2x~3x faster than JSON methods, see https://jsperf.com/deep-clone-vs-json-clone
+// 2x~3x faster than JSON methods, see https://jsperf.com/deep-clone-vs-json-clone
 /**
  * Deeply clone an object or value
  * @param source The source to be clone.
@@ -2920,7 +2975,7 @@ function deepClone(source, deep = 10) {
     }
 }
 exports.deepClone = deepClone;
-//1x faster than JSON methods, see https://jsperf.com/deep-equal-vs-json-compare
+// 1x faster than JSON methods, see https://jsperf.com/deep-equal-vs-json-compare
 /**
  * Deeply compare two objects or values
  * @param a left one
@@ -2958,6 +3013,7 @@ function deepEqual(a, b, deep = 10) {
     return true;
 }
 exports.deepEqual = deepEqual;
+
 },{}],25:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -3084,7 +3140,7 @@ class Queue extends emitter_1.Emitter {
         return true;
     }
     mayHandleNextTask() {
-        //state may change after in event handler, so we need to test state here.
+        // State may change after in event handler, so we need to test state here.
         if (this.state !== QueueState.Running) {
             return;
         }
@@ -3378,10 +3434,11 @@ function queueEvery(tasks, handler, concurrency) {
     return queueSome(tasks, async (task) => !(await handler(task)), concurrency).then(value => !value);
 }
 exports.queueEvery = queueEvery;
+
 },{"./array":16,"./emitter":19,"./object":24}],26:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-//replace $0 to matches[0], $1 to matches[1]...
+/** Replace `$0` to `matches[0]`, `$1` to `matches[1]`... */
 function replaceMatchTags(template, match) {
     return template.replace(/\$(?:([$&\d])|<(\w+)>)/g, (_m0, m1, m2) => {
         if (m2) {
@@ -3586,6 +3643,7 @@ function toDashCase(string) {
     });
 }
 exports.toDashCase = toDashCase;
+
 },{}],27:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -3597,10 +3655,11 @@ function sleep(ms = 0) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 exports.sleep = sleep;
+
 },{}],28:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const ff = require("../../../src");
+const ff = require("../../..");
 const assert = chai.assert;
 describe('Test align', () => {
     it('align with positions t | b | c | l | r', () => {
@@ -3867,10 +3926,10 @@ describe('Test align', () => {
         div.remove();
     });
 });
-},{"../../../src":15}],29:[function(require,module,exports){
+},{"../../..":15}],29:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const ff = require("../../../src");
+const ff = require("../../..");
 const assert = chai.assert;
 describe('Test animate', () => {
     it('animateProperty', async () => {
@@ -3927,13 +3986,19 @@ describe('Test animate', () => {
         await ff.animateFrom(div, { left: 100 }, 100);
         assert.equal(ff.getNumeric(div, 'left'), 200);
         assert.closeTo(Date.now() - d, 100, 50);
+        d = Date.now();
+        let promise = ff.animateToNextFrame(div, 'left', 100);
+        div.style.left = '300px';
+        await promise;
+        assert.equal(ff.getNumeric(div, 'left'), 300);
+        assert.closeTo(Date.now() - d, 100, 50);
         div.remove();
     });
 });
-},{"../../../src":15}],30:[function(require,module,exports){
+},{"../../..":15}],30:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const ff = require("../../../src");
+const ff = require("../../..");
 const assert = chai.assert;
 describe('Test css', () => {
     it('getNumeric', () => {
@@ -3951,10 +4016,10 @@ describe('Test css', () => {
         div.remove();
     });
 });
-},{"../../../src":15}],31:[function(require,module,exports){
+},{"../../..":15}],31:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const ff = require("../../../src");
+const ff = require("../../..");
 const assert = chai.assert;
 describe('Test draggable', () => {
     it('setDraggable', async () => {
@@ -3990,7 +4055,7 @@ describe('Test draggable', () => {
         div.remove();
     });
 });
-},{"../../../src":15}],32:[function(require,module,exports){
+},{"../../..":15}],32:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /** Works like jest.fn */
@@ -4013,7 +4078,7 @@ exports.fn = fn;
 },{}],33:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const ff = require("../../../src");
+const ff = require("../../..");
 const helper = require("./helper");
 const assert = chai.assert;
 let mouseEnter = (el) => {
@@ -4066,10 +4131,10 @@ describe('Test onMouseLeaveAll', () => {
         div1.remove();
     });
 });
-},{"../../../src":15,"./helper":32}],34:[function(require,module,exports){
+},{"../../..":15,"./helper":32}],34:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const ff = require("../../../src");
+const ff = require("../../..");
 const assert = chai.assert;
 describe('Test node', () => {
     it('nodeIndex & elementIndex', () => {
@@ -4124,10 +4189,10 @@ describe('Test node', () => {
         div.remove();
     });
 });
-},{"../../../src":15}],35:[function(require,module,exports){
+},{"../../..":15}],35:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const ff = require("../../../src");
+const ff = require("../../..");
 const assert = chai.assert;
 describe('Test query', () => {
     it('parseQuery', () => {
@@ -4142,10 +4207,10 @@ describe('Test query', () => {
         assert.deepEqual(ff.useQuery('http://www.example.com?a=b', { c: 'd', e: '' }), 'http://www.example.com?a=b&c=d&e=');
     });
 });
-},{"../../../src":15}],36:[function(require,module,exports){
+},{"../../..":15}],36:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const ff = require("../../../src");
+const ff = require("../../..");
 const assert = chai.assert;
 describe('Test scroll', () => {
     it('hasScrollbar', async () => {
@@ -4235,10 +4300,10 @@ describe('Test scroll', () => {
         div.remove();
     });
 });
-},{"../../../src":15}],37:[function(require,module,exports){
+},{"../../..":15}],37:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const ff = require("../../../src");
+const ff = require("../../..");
 const assert = chai.assert;
 describe('Test storage', () => {
     it('storage', () => {
@@ -4250,10 +4315,10 @@ describe('Test storage', () => {
         assert.equal(ff.storage.has('a'), false);
     });
 });
-},{"../../../src":15}],38:[function(require,module,exports){
+},{"../../..":15}],38:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const ff = require("../../../src");
+const ff = require("../../..");
 const helper = require("./helper");
 const assert = chai.assert;
 describe('Test watch', () => {
@@ -4418,5 +4483,5 @@ describe('Test watch', () => {
         cancelWatch();
     });
 });
-},{"../../../src":15,"./helper":32}]},{},[28,29,30,31,33,34,35,36,37,38])
+},{"../../..":15,"./helper":32}]},{},[28,29,30,31,33,34,35,36,37,38])
 //# sourceMappingURL=bundle.js.map

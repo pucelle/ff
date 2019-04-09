@@ -2,18 +2,17 @@
 	"name": "ff",
 	"version": "1.0.0",
 	"description": "A small JavaScript utility library, to make web programming easier.",
-	"main": "index.ts",
+	"main": "out/index.js",
 	"scripts": {
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
-		"test": "jest && gulp test && start test/dom/index.html"
+		"test": "jest && gulp test && start test/dom/index.html",
+		"postinstall": "cd test/dom && npm install"
 	},
 	"author": "pucelle",
 	"license": "MIT",
 	"devDependencies": {
 		"@types/jest": "^24.0.9",
-		"@types/chai": "^4.1.7",
-		"@types/mocha": "^5.2.6",
 		"browserify": "^16.2.3",
 		"chai": "^4.2.0",
 		"exorcist": "^1.0.1",
