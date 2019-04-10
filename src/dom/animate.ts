@@ -58,6 +58,10 @@ const easingFns: {[key: string]: (x: number) => number} = {
 	}
 }
 
+/**
+ * Get a `(x) => y` function from easing name.
+ * @param easing The extended easing name.
+ */
 export function getEasingFunction(name: AnimationEasing): (x: number) => number {
 	if (name === 'linear') {
 		return easingFns[name]
@@ -66,6 +70,17 @@ export function getEasingFunction(name: AnimationEasing): (x: number) => number 
 		return easingFns[name] = getCubicBezierEasingFunction(name)
 	}
 }
+
+/**
+ * Get `cubic-bezier(...)` from easing name.
+ * @param easing The extended easing name.
+ */
+export function getEasing(easing: AnimationEasing): string {
+	return CUBIC_BEZIER_EASINGS.hasOwnProperty(easing)
+		? 'cubic-bezier(' + CUBIC_BEZIER_EASINGS[easing as keyof typeof CUBIC_BEZIER_EASINGS].join(', ') + ')'
+		: easing
+}
+
 
 
 /**
@@ -287,7 +302,7 @@ export function animate(el: HTMLElement, startFrame: AnimationFrame, endFrame: A
 	
 	startFrame = normativeStyleObject(startFrame as any)
 	endFrame = normativeStyleObject(endFrame as any)
-	let cubicEasing = getAnimationEasing(easing)
+	let cubicEasing = getEasing(easing)
 
 	let animation = el.animate([startFrame, endFrame], {
 		easing: cubicEasing,
@@ -307,13 +322,6 @@ export function animate(el: HTMLElement, startFrame: AnimationFrame, endFrame: A
 			resolve(false)
 		}, false)
 	}) as Promise<boolean>
-}
-
-
-function getAnimationEasing(easing: AnimationEasing): string {
-	return CUBIC_BEZIER_EASINGS.hasOwnProperty(easing)
-		? 'cubic-bezier(' + CUBIC_BEZIER_EASINGS[easing as keyof typeof CUBIC_BEZIER_EASINGS].join(', ') + ')'
-		: easing
 }
 
 
