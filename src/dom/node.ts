@@ -116,19 +116,19 @@ export function getRect(el: Element): Rect {
 			bottom: dh,
 			left: 0,
 			width: dw,
-			height: dh,
+			height: dh
 		}
 	}
 	else {
 		let rect = el.getBoundingClientRect()
 
 		return {
-			bottom: rect.bottom,
-			height: rect.height,
-			left: rect.left,
-			right: rect.right,
 			top: rect.top,
+			right: rect.right,
+			bottom: rect.bottom,
+			left: rect.left,
 			width: rect.width,
+			height: rect.height
 		}
 	}
 }

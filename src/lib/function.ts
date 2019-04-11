@@ -36,7 +36,7 @@ export abstract class WrappedTimedFunction extends TimedFunction {
 }
 
 
-class Timeout extends TimedFunction {
+export class Timeout extends TimedFunction {
 
 	/**
 	 * Just like setTimeout, call `fn` after `ms` millisecons.
@@ -97,7 +97,7 @@ export function timeout(fn: Function, ms: number = 0): Timeout {
 }
 
 
-class Interval extends TimedFunction {
+export class Interval extends TimedFunction {
 
 	/**
 	 * Just like setInterval, call `fn` every `ms` millisecons.
@@ -156,7 +156,7 @@ export function interval(fn: Function, ms: number): Interval {
 }
 
 
-class Throttle extends WrappedTimedFunction {
+export class Throttle extends WrappedTimedFunction {
 
 	/**
 	 * Throttle function calls, call returned function twice in `ms` millisecons will only call `fn` for once. Returns a new function.
@@ -223,7 +223,7 @@ export function throttle(fn: Function, ms: number): Throttle {
 }
 
 
-class SmoothThrottle extends WrappedTimedFunction {
+export class SmoothThrottle extends WrappedTimedFunction {
 	
 	private lastArgs: any[] | null = null
 	private lastThis: any = null
@@ -314,7 +314,7 @@ export function smoothThrottle(fn: Function, ms: number): SmoothThrottle {
 }
 
 
-class Debounce extends WrappedTimedFunction {
+export class Debounce extends WrappedTimedFunction {
 
 	private lastArgs: any[] | null = null
 	private lastThis: any = null

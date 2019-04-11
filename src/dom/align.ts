@@ -51,7 +51,7 @@ export class Aligner {
 		this.canShrinkInY = !!options.canShrinkInY
 		this.direction = this.getDirection()
 		this.margin = this.parseMargin(options.margin || 0)
-		this.targetRect = this.getExtendedRectFromMargin()
+		this.targetRect = this.getExtendedRect()
 		this.w  = this.el.offsetWidth
 
 		if (this.canShrinkInY) {
@@ -90,7 +90,9 @@ export class Aligner {
 		// If is not fixed, minus coordinates relative to offsetParent
 		if (getComputedStyle(this.el).position !== 'fixed' && this.target !== document.body && this.target !== document.documentElement) {
 			var offsetParent = this.el.offsetParent as HTMLElement
-			if (offsetParent) {
+
+			// If we use body's top postion, it will cause a bug when body has a margin top (even from margin collapse)
+			if (offsetParent && (offsetParent !== document.body && offsetParent !== document.documentElement)) {
 				var parentRect = offsetParent.getBoundingClientRect()
 				this.x -= parentRect.left + getNumeric(offsetParent, 'borderLeftWidth')
 				this.y -= parentRect.top + getNumeric(offsetParent, 'borderTopWidth')
@@ -159,6 +161,15 @@ export class Aligner {
 		return pos
 	}
 	
+	getDirection() {
+		return {
+			top    : this.position[0].includes('b') && this.position[1].includes('t'),
+			right  : this.position[0].includes('l') && this.position[1].includes('r'),
+			bottom : this.position[0].includes('t') && this.position[1].includes('b'),
+			left   : this.position[0].includes('r') && this.position[1].includes('l'),
+		}
+	}
+
 	/** top [right] [bottom] [left] -> [t, r, b, l]. */
 	parseMargin(margin: number | number[]): [number, number, number, number] {
 		if (typeof margin === 'number') {
@@ -170,32 +181,23 @@ export class Aligner {
 		margin[2] = margin[2] !== undefined ? margin[2] || 0 : margin[0]
 		margin[3] = margin[3] !== undefined ? margin[3] || 0 : margin[1]
 
-		return margin as [number, number, number, number]
-	}
-
-	getDirection() {
-		return {
-			top    : this.position[0].includes('b') && this.position[1].includes('t'),
-			right  : this.position[0].includes('l') && this.position[1].includes('r'),
-			bottom : this.position[0].includes('t') && this.position[1].includes('b'),
-			left   : this.position[0].includes('r') && this.position[1].includes('l'),
-		}
-	}
-
-	getExtendedRectFromMargin(): Rect {
-		let rect = getRect(this.target)
-
 		if (this.trangle) {
 			if (this.direction.top || this.direction.bottom) {
-				this.margin[0] += this.trangle.offsetHeight
-				this.margin[2] += this.trangle.offsetHeight
+				margin[0] += this.trangle.offsetHeight
+				margin[2] += this.trangle.offsetHeight
 			}
 
 			if (this.direction.left || this.direction.right) {
-				this.margin[1] += this.trangle.offsetWidth
-				this.margin[3] += this.trangle.offsetWidth
+				margin[1] += this.trangle.offsetWidth
+				margin[3] += this.trangle.offsetWidth
 			}
 		}
+
+		return margin as [number, number, number, number]
+	}
+
+	getExtendedRect(): Rect {
+		let rect = getRect(this.target)
 
 		if (this.direction.top || this.direction.bottom) {
 			rect.top    -= this.margin[0]
@@ -334,7 +336,7 @@ export class Aligner {
 				tx = this.w / 2 - trangle.offsetWidth / 2
 			}
 
-			setStyle(trangle, {left: tx})
+			setStyle(trangle, {left: tx, top: '', bottom: ''})
 
 			let tTop = getNumeric(trangle, 'top')
 			let tBottom = getNumeric(trangle, 'bottom')
@@ -360,7 +362,7 @@ export class Aligner {
 				ty = this.h / 2 - trangle.offsetHeight / 2
 			}
 
-			setStyle(trangle, {top: ty})
+			setStyle(trangle, {top: ty, left: '', right: ''})
 
 			let tLeft = getNumeric(trangle, 'left')
 			let tRight = getNumeric(trangle, 'right')
