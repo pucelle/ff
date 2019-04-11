@@ -99,13 +99,13 @@ export function outerHeight(el: HTMLElement) {
 }
 
 
-export type SimpleRect = {[key in 'top' | 'right' | 'bottom' |'left' | 'width' | 'height']: number}
+export type Rect = {[key in 'top' | 'right' | 'bottom' |'left' | 'width' | 'height']: number}
 
 /**
  * Returns an object like `getBoundingClientRect`, the didderence is it always returns the visible part for `<html>`. Note that this may cause page reflow.
  * @param el The element to get rect size.
  */
-export function getRect(el: Element): SimpleRect {
+export function getRect(el: Element): Rect {
 	if (el === document.documentElement) {
 		let dw = document.documentElement.clientWidth
 		let dh = document.documentElement.clientHeight

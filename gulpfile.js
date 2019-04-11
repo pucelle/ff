@@ -23,7 +23,6 @@ function task(name) {
 	if (name === 'test-watch') {
 		browser.plugin(watchify)
 		browser.on('update', () => {
-			browser.close()
 			bundle()
 		})
 	}

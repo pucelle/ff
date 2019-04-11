@@ -1,5 +1,5 @@
 import {getNumeric, setStyle, getStyle} from './css'
-import {SimpleRect, getRect} from './node'
+import {Rect, getRect} from './node'
 import {getClosestFixedElement} from './util'
 
 
@@ -36,7 +36,7 @@ export class Aligner {
 	private position: [string, string]
 	private margin: [number, number, number, number]
 	private direction: {[key in 'top' | 'right' | 'bottom' | 'left']: boolean}
-	private targetRect: SimpleRect
+	private targetRect: Rect
 	private canShrinkInY: boolean
 	private w: number
 	private h: number
@@ -182,7 +182,7 @@ export class Aligner {
 		}
 	}
 
-	getExtendedRectFromMargin(): SimpleRect {
+	getExtendedRectFromMargin(): Rect {
 		let rect = getRect(this.target)
 
 		if (this.trangle) {
@@ -245,7 +245,7 @@ export class Aligner {
 	}
 
 	/** get absolute anchor position in scrolling page */
-	getAbsoluteAnchor(rect: SimpleRect, anchor: string): [number, number] {
+	getAbsoluteAnchor(rect: Rect, anchor: string): [number, number] {
 		let x = anchor.includes('l') ? 0 : anchor.includes('r') ? rect.width  : rect.width  / 2
 		let y = anchor.includes('t') ? 0 : anchor.includes('b') ? rect.height : rect.height / 2
 

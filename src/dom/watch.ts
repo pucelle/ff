@@ -1,4 +1,4 @@
-import {isInview, getRect, SimpleRect} from './node'
+import {isInview, getRect, Rect} from './node'
 
 
 type WatchType = keyof typeof WATCH_STATE_FN
@@ -30,7 +30,7 @@ export const WATCH_STATE_FN = {
 		}
 	},
 	
-	rect (el: HTMLElement): SimpleRect {
+	rect (el: HTMLElement): Rect {
 		return getRect(el)
 	},
 }
