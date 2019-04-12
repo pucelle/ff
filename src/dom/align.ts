@@ -243,13 +243,16 @@ export class Aligner {
 	/** 
 	 * When el can be scrolled, if we just expend it to test its natural height, it's scrolled position will lost.
 	 * So we get `scrollHeight - clientHeight` as a diff and add it to it's current height as it's natural height.
-	 * May not el but child is scrolled.
+	 * Note that the `trangle` will cause `scrollHeight` plus for it's height.
+	 * Otherwise may not el but child is scrolled.
 	 */
 	getNaturalHeight(): number {
 		let h = this.el.offsetHeight
 
 		let diffHeight = this.el.scrollHeight - this.el.clientHeight
-		if (diffHeight === 0) {
+		let maxAllowdDiffWhenNotScrolled = this.trangle ? this.trangle.offsetHeight : 0
+		
+		if (diffHeight <= maxAllowdDiffWhenNotScrolled) {
 			diffHeight = Math.max(...[...this.el.children].map(child => child.scrollHeight - child.clientHeight))
 		}
 		
