@@ -28,6 +28,88 @@ export function align(el: HTMLElement, target: HTMLElement, position: string, op
 }
 
 
+/**
+ * Full type is `[tbc][lrc]-[tbc][lrc]`, means `[Y of el][X of el]-[Y of target][X of target]`.
+ * Shorter type should be `[Touch][Align]` or `[Touch]`.
+ * E.g.: `t` is short for `tc` or `b-t` or `bc-tc`, which means align el to the top-center of target.
+ * E.g.: `tl` is short for `bl-tl`, which means align el to the top-left of target.
+ * E.g.: `lt` is short for `tr-tl`, which means align el to the left-top of target.
+ */
+function parseAlignPosition(position: string): [string, string] {
+	const ALIGN_POS_OPPOSITE: {[key: string]: string} = {
+		t: 'b',
+		b: 't',
+		c: 'c',
+		l: 'r',
+		r: 'l',
+	}
+
+	if (!/^(?:[tbc][lrc]-[tbc][lrc]|[tbclr]-[tbclr]|[tbc][lrc]|[tbclr])/.test(position)) {
+		throw `"${position}" is not a valid position`
+	}
+
+	if (position.length === 1) {
+		// t -> bc-tc
+		if ('tb'.includes(position)) {
+			position = ALIGN_POS_OPPOSITE[position] + 'c-' + position + 'c'
+		}
+
+		// l -> cr-cl
+		// c -> cc-cc
+		else {
+			position = 'c' + ALIGN_POS_OPPOSITE[position] + '-c' + position
+		}
+	}
+	else if (position.length === 2) {
+		// tl -> bl-tl
+		if ('tb'.includes(position[0])) {
+			position = ALIGN_POS_OPPOSITE[position[0]] + position[1] + '-' + position
+		}
+
+		// lt -> tr-tl
+		else {
+			position = position[1] + ALIGN_POS_OPPOSITE[position[0]] + '-' + position[1] + position[0]
+		}
+	}
+
+	let posArray = position.split('-')
+	return [completeAlignPosition(posArray[0]), completeAlignPosition(posArray[1])]
+}
+
+function completeAlignPosition(pos: string): string {
+	if (pos.length === 1) {
+		pos = 'tb'.includes(pos) ? pos + 'c' : 'c' + pos
+	}
+
+	return pos
+}
+
+
+/** Used to get main align direction from align position string and then set trangle styles. */
+export function getAlignDirection(pos: string): 't' | 'b' | 'l' | 'r' | 'c' | '' {
+	let position = parseAlignPosition(pos)
+
+	if (position[0].includes('b') && position[1].includes('t')) {
+		return 't'
+	}
+	else if (position[0].includes('l') && position[1].includes('r')) {
+		return 'r'
+	}
+	else if (position[0].includes('t') && position[1].includes('b')) {
+		return 'b'
+	}
+	else if (position[0].includes('r') && position[1].includes('l')) {
+		return 'l'
+	}
+	else if (position[0] === 'cc' && position[1] === 'cc') {
+		return 'c'
+	}
+	else {
+		return ''
+	}
+}
+
+
 export class Aligner {
 
 	private el: HTMLElement
@@ -47,9 +129,9 @@ export class Aligner {
 		this.el = el
 		this.target = target
 		this.trangle = options.trangle || null
-		this.position = this.parseAlignPosition(position)
+		this.position = parseAlignPosition(position)
 		this.canShrinkInY = !!options.canShrinkInY
-		this.direction = this.getDirection()
+		this.direction = this.getDirections()
 		this.margin = this.parseMargin(options.margin || 0)
 		this.targetRect = this.getExtendedRect()
 		this.w  = this.el.offsetWidth
@@ -92,10 +174,10 @@ export class Aligner {
 			var offsetParent = this.el.offsetParent as HTMLElement
 
 			// If we use body's top postion, it will cause a bug when body has a margin top (even from margin collapse)
-			if (offsetParent && (offsetParent !== document.body && offsetParent !== document.documentElement)) {
+			if (offsetParent) {
 				var parentRect = offsetParent.getBoundingClientRect()
-				this.x -= parentRect.left + getNumeric(offsetParent, 'borderLeftWidth')
-				this.y -= parentRect.top + getNumeric(offsetParent, 'borderTopWidth')
+				this.x -= parentRect.left
+				this.y -= parentRect.top
 			}
 		}
 
@@ -105,63 +187,7 @@ export class Aligner {
 		})
 	}
 
-	/**
-	 * Full type is `[tbc][lrc]-[tbc][lrc]`, means `[Y of el][X of el]-[Y of target][X of target]`.
-	 * Shorter type should be `[Touch][Align]` or `[Touch]`.
-	 * E.g.: `t` is short for `tc` or `b-t` or `bc-tc`, which means align el to the top-center of target.
-	 * E.g.: `tl` is short for `bl-tl`, which means align el to the top-left of target.
-	 * E.g.: `lt` is short for `tr-tl`, which means align el to the left-top of target.
-	 */
-	parseAlignPosition(position: string): [string, string] {
-		const ALIGN_POS_OPPOSITE: {[key: string]: string} = {
-			t: 'b',
-			b: 't',
-			c: 'c',
-			l: 'r',
-			r: 'l',
-		}
-
-		if (!/^(?:[tbc][lrc]-[tbc][lrc]|[tbclr]-[tbclr]|[tbc][lrc]|[tbclr])/.test(position)) {
-			throw `"${position}" is not a valid position`
-		}
-
-		if (position.length === 1) {
-			// t -> bc-tc
-			if ('tb'.includes(position)) {
-				position = ALIGN_POS_OPPOSITE[position] + 'c-' + position + 'c'
-			}
-
-			// l -> cr-cl
-			// c -> cc-cc
-			else {
-				position = 'c' + ALIGN_POS_OPPOSITE[position] + '-c' + position
-			}
-		}
-		else if (position.length === 2) {
-			// tl -> bl-tl
-			if ('tb'.includes(position[0])) {
-				position = ALIGN_POS_OPPOSITE[position[0]] + position[1] + '-' + position
-			}
-
-			// lt -> tr-tl
-			else {
-				position = position[1] + ALIGN_POS_OPPOSITE[position[0]] + '-' + position[1] + position[0]
-			}
-		}
-
-		let posArray = position.split('-')
-		return [this.completeAlignPosition(posArray[0]), this.completeAlignPosition(posArray[1])]
-	}
-
-	completeAlignPosition(pos: string): string {
-		if (pos.length === 1) {
-			pos = 'tb'.includes(pos) ? pos + 'c' : 'c' + pos
-		}
-	
-		return pos
-	}
-	
-	getDirection() {
+	getDirections() {
 		return {
 			top    : this.position[0].includes('b') && this.position[1].includes('t'),
 			right  : this.position[0].includes('l') && this.position[1].includes('r'),
@@ -336,7 +362,7 @@ export class Aligner {
 				tx = this.w / 2 - trangle.offsetWidth / 2
 			}
 
-			setStyle(trangle, {left: tx, top: '', bottom: ''})
+			setStyle(trangle, {left: tx, right: '', top: '', bottom: ''})
 
 			let tTop = getNumeric(trangle, 'top')
 			let tBottom = getNumeric(trangle, 'bottom')
@@ -362,7 +388,7 @@ export class Aligner {
 				ty = this.h / 2 - trangle.offsetHeight / 2
 			}
 
-			setStyle(trangle, {top: ty, left: '', right: ''})
+			setStyle(trangle, {top: ty, bottom: '', left: '', right: ''})
 
 			let tLeft = getNumeric(trangle, 'left')
 			let tRight = getNumeric(trangle, 'right')
