@@ -24,7 +24,7 @@ export interface AlignOptions {
  * @param options Additional options.
  */
 export function align(el: HTMLElement, target: HTMLElement, position: string, options: AlignOptions = {}) {
-	new Aligner(el, target, position, options).align()
+	new Aligner(el, target, position, options)
 }
 
 
@@ -142,6 +142,8 @@ export class Aligner {
 		else {
 			this.h  = this.el.offsetHeight
 		}
+
+		this.align()
 	}
 
 	align() {
