@@ -10,7 +10,7 @@ interface EventItem {
 /** An event emitter to listen and emit events. */
 export class Emitter<Events = {}> {
 
-	private _events: {[key: string]: EventItem[]} = {}
+	private __events: {[key: string]: EventItem[]} = {}
 
 	/**
 	 * Register listener for specified event name.
@@ -19,7 +19,7 @@ export class Emitter<Events = {}> {
 	 * @param scope The scope will be binded to listener.
 	 */
 	on<K extends keyof Events & string>(name: K, listener: Events[K] & EventListener, scope?: object) {
-		let events = this._events[name] || (this._events[name] = [])
+		let events = this.__events[name] || (this.__events[name] = [])
 		
 		events.push({
 			listener,
@@ -35,7 +35,7 @@ export class Emitter<Events = {}> {
 	 * @param scope The scope will be binded to listener.
 	 */
 	once<K extends keyof Events & string>(name: K, listener: Events[K] & EventListener, scope?: object) {
-		let events = this._events[name] || (this._events[name] = [])
+		let events = this.__events[name] || (this.__events[name] = [])
 
 		events.push({
 			listener,
@@ -51,7 +51,7 @@ export class Emitter<Events = {}> {
 	 * @param scope The scope binded to listener. If provided, remove listener only when scope match.
 	 */
 	off<K extends keyof Events & string>(name: K, listener: Events[K] & EventListener, scope?: object) {
-		let events = this._events[name]
+		let events = this.__events[name]
 		if (events) {
 			for (let i = events.length - 1; i >= 0; i--) {
 				let event = events[i]
@@ -69,7 +69,7 @@ export class Emitter<Events = {}> {
 	 * @param scope The scope binded to listener. If provided, will additionally check if the scope match.
 	 */
 	hasListener(name: string, listener?: EventListener, scope?: object) {
-		let events = this._events[name]
+		let events = this.__events[name]
 
 		if (!listener) {
 			return !!events && events.length > 0
@@ -93,7 +93,7 @@ export class Emitter<Events = {}> {
 	 * @param args The arguments that will be passed to event listeners.
 	 */
 	emit<K extends keyof Events & string>(name: K, ...args: Parameters<Events[K] & EventListener>) {
-		let events = this._events[name]
+		let events = this.__events[name]
 		if (events) {
 			for (let i = 0; i < events.length; i++) {
 				let event = events[i]
@@ -110,6 +110,6 @@ export class Emitter<Events = {}> {
 
 	/** Remove all event slisteners */
 	removeAllListeners() {
-		this._events = {}
+		this.__events = {}
 	}
 }
