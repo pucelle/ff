@@ -289,15 +289,26 @@ export class Aligner {
 		let overflowYSet = false
 		let y = this.y
 
-		if (this.direction.top && y < 0 && spaceTop < spaceBottom) {
-			y = this.targetRect.bottom
-			this.direction.top = false
-			this.direction.bottom = true
+		if (this.direction.top || this.direction.bottom) {
+			if (this.direction.top && y < 0 && spaceTop < spaceBottom) {
+				y = this.targetRect.bottom
+				this.direction.top = false
+				this.direction.bottom = true
+			}
+			else if (y + this.h > dh && spaceTop > spaceBottom) {
+				y = this.targetRect.top - this.h
+				this.direction.top = true
+				this.direction.bottom = false
+			}
 		}
-		else if (y + this.h > dh && spaceTop > spaceBottom) {
-			y = this.targetRect.top - this.h
-			this.direction.top = true
-			this.direction.bottom = false
+		else {
+			if (y + this.h > dh) {
+				y = dh - this.h
+			}
+
+			if (y < 0) {
+				y = 0
+			}
 		}
 
 		if (y < 0) {
@@ -325,22 +336,26 @@ export class Aligner {
 		let spaceRight = dw - this.targetRect.right
 		let x = this.x
 
-		if (this.direction.left && x < 0 && spaceLeft < spaceRight) {
-			x = this.targetRect.right
-			this.direction.left = false
-			this.direction.right = true
+		if (this.direction.left || this.direction.right) {
+			if (this.direction.left && x < 0 && spaceLeft < spaceRight) {
+				x = this.targetRect.right
+				this.direction.left = false
+				this.direction.right = true
+			}
+			else if (this.direction.right && x > dw - this.w && spaceLeft > spaceRight) {
+				x = this.targetRect.left - this.w
+				this.direction.left = true
+				this.direction.right = false
+			}
 		}
-		else if (this.direction.right && x > dw - this.w && spaceLeft > spaceRight) {
-			x = this.targetRect.left - this.w
-			this.direction.left = true
-			this.direction.right = false
-		}
+		else {
+			if (x + this.w > dw) {
+				x = dw - this.w
+			}
 
-		if (x < 0) {
-			x = 0
-		}
-		else if (x + this.w > dw) {
-			x = dw - this.w
+			if (x < 0) {
+				x = 0
+			}
 		}
 
 		this.x = x
