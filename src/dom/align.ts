@@ -226,18 +226,12 @@ export class Aligner {
 
 	getExtendedRect(): Rect {
 		let rect = getRect(this.target)
-
-		if (this.direction.top || this.direction.bottom) {
-			rect.top    -= this.margin[0]
-			rect.height += this.margin[0] + this.margin[2]
-			rect.bottom = rect.top + rect.height
-		}
-
-		if (this.direction.left || this.direction.right) {
-			rect.left   -= this.margin[3]
-			rect.width  += this.margin[1] + this.margin[3]
-			rect.right  = rect.left + rect.width
-		}
+		rect.top    -= this.margin[0]
+		rect.height += this.margin[0] + this.margin[2]
+		rect.bottom = rect.top + rect.height
+		rect.left   -= this.margin[3]
+		rect.width  += this.margin[1] + this.margin[3]
+		rect.right  = rect.left + rect.width
 		
 		return rect
 	}
