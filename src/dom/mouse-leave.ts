@@ -4,7 +4,7 @@
  * @param ms If mouse leaves all the element and don't enter elements again, call callback.
  * @param callback The callback to call after mouse leaves all the elements.
  */
-export function onMouseLeaveAll(elOrs: HTMLElement | HTMLElement[], callback: () => void, ms: number = 200): () => void {
+export function onMouseLeaveAll(elOrs: Element | Element[], callback: () => void, ms: number = 200): () => void {
 	return bindMouseLeaveAll(false, elOrs, callback, ms)
 }
 
@@ -15,12 +15,12 @@ export function onMouseLeaveAll(elOrs: HTMLElement | HTMLElement[], callback: ()
  * @param ms If mouse leaves all the element and don't enter elements again, call callback.
  * @param callback The callback to call after mouse leaves all the elements.
  */
-export function onceMouseLeaveAll(elOrs: HTMLElement | HTMLElement[], callback: () => void, ms: number = 200): () => void {
+export function onceMouseLeaveAll(elOrs: Element | Element[], callback: () => void, ms: number = 200): () => void {
 	return bindMouseLeaveAll(true, elOrs, callback, ms)
 }
 
 
-function bindMouseLeaveAll(isOnce: boolean, elOrs: HTMLElement | HTMLElement[], callback: () => void, ms: number): () => void {
+function bindMouseLeaveAll(isOnce: boolean, elOrs: Element | Element[], callback: () => void, ms: number): () => void {
 	let els = Array.isArray(elOrs) ? elOrs : [elOrs]
 	let mouseIn = false
 	let ended = false
