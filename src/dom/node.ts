@@ -153,3 +153,113 @@ export function isInview(el: Element, percentage: number = 0.5): boolean {
 	return xIntersect / Math.min(box.width , dw) > percentage
 		&& yIntersect / Math.min(box.height, dh) > percentage
 }
+
+
+/** 
+ * Returns previous node in node trees. See Elements panel in your Chrome Dev Tool.
+ * @param node The node to get previous node from.
+ * @param until When specified, the returned node must be contained in the `until` element.
+ */
+export function getPreviousNode(node: Node, until?: Element): Node | null {
+	if (until && node === until) {
+		return null
+	}
+
+	let prev = node.previousSibling as Node | null
+	if (prev) {
+		while (prev.lastChild) {
+			prev = prev.lastChild
+		}
+	}
+	else {
+		prev = node.parentNode
+
+		if (until && prev === until) {
+			return null
+		}
+	}
+
+	return prev
+}
+
+/** 
+ * Returns previous element in node trees. See Elements panel in your Chrome Dev Tool.
+ * @param el The element to get previous element from.
+ * @param until When specified, the returned element must be contained in the `until` element.
+ */
+export function getPreviousElement(el: Element, until?: Element): Element | null {
+	if (until && el === until) {
+		return null
+	}
+
+	let prev = el.previousElementSibling as Element | null
+	if (prev) {
+		while (prev.lastElementChild) {
+			prev = prev.lastElementChild
+		}
+	}
+	else {
+		prev = el.parentElement
+		
+		if (until && prev === until) {
+			return null
+		}
+	}
+
+	return prev
+}
+
+
+/** 
+ * Returns next node in node trees. See Elements panel in your Chrome Dev Tool.
+ * Note that this may returns the child nodes of `node`.
+ * @param node The node to get next node from.
+ * @param until When specified, the returned node must be contained in the `until` element.
+ */
+export function getNextNode(node: Node, until?: Element): Node | null {
+	let next = (node.firstChild || node.nextSibling) as Node | null
+	if (!next) {
+		next = node.parentNode as Node | null
+
+		while (next && !next.nextSibling) {
+			next = next.parentNode
+
+			if (until && next === until) {
+				return null
+			}
+		}
+
+		if (next) {
+			next = next.nextSibling
+		}
+	}
+
+	return next
+}
+
+/** 
+ * Returns next element in node trees. See Elements panel in your Chrome Dev Tool.
+ * Note that this may returns the children element of `el`.
+ * @param el The element to get next element from.
+ * @param until When specified, the returned element must be contained in the `until` element.
+ */
+export function getNextElement(el: Element, until?: Element): Element | null {
+	let next = (el.firstElementChild || el.nextElementSibling) as Element | null
+	if (!next) {
+		next = el.parentElement as Element | null
+
+		while (next && !next.nextElementSibling) {
+			next = next.parentElement
+
+			if (until && next === until) {
+				return null
+			}
+		}
+
+		if (next) {
+			next = next.nextElementSibling
+		}
+	}
+
+	return next
+}
