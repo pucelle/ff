@@ -66,7 +66,7 @@ export function scrollToView(el: HTMLElement, gap: number = 0, duration: number 
 
 	if (direction === 'y') {
 		let oldScrollY = wrapper.scrollTop
-		let newScrollY = 0
+		let newScrollY: number | null = null
 		let offsetY = getScrollOffset(el, wrapper, direction)
 
 		// Needs to scroll for pxs to top edges align
@@ -84,7 +84,7 @@ export function scrollToView(el: HTMLElement, gap: number = 0, duration: number 
 			newScrollY = Math.min(botOffset, topOffset) + oldScrollY
 		}
 
-		if (newScrollY !== oldScrollY) {
+		if (newScrollY !== null && newScrollY !== oldScrollY) {
 			if (duration) {
 				animatePropertyTo(wrapper, 'scrollTop', newScrollY, duration, easing)
 			}
@@ -94,6 +94,8 @@ export function scrollToView(el: HTMLElement, gap: number = 0, duration: number 
 
 			return true
 		}
+
+		return false
 	}
 
 	if (direction === 'x') {
