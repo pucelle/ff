@@ -22,17 +22,20 @@ export abstract class TimedFunction {
 }
 
 
-export abstract class WrappedTimedFunction extends TimedFunction {
+export abstract class WrappedTimedFunction<F extends Function> extends TimedFunction {
 
 	/** Returns the wrapped function, which was throttled or debounced. */
-	wrapped: Function
+	wrapped: F
 
-	constructor(fn: Function, ms: number) {
+	constructor(fn: F, ms: number) {
 		super(fn, ms)
 		this.wrapped = this.wrap()
+
+		// To track original handler so that we can unregister the wrapped in event listener.
+		;(this.wrapped as any).__original = fn
 	}
 
-	protected abstract wrap(): Function & {}
+	protected abstract wrap(): F
 }
 
 
@@ -156,14 +159,14 @@ export function interval(fn: Function, ms: number): Interval {
 }
 
 
-export class Throttle extends WrappedTimedFunction {
+export class Throttle<F extends Function> extends WrappedTimedFunction<F> {
 
 	/**
 	 * Throttle function calls, call returned function twice in `ms` millisecons will only call `fn` for once. Returns a new function.
 	 * @param fn The function to throttle.
 	 * @param ms The time period in which only at most one call allowed.
 	 */
-	constructor(fn: Function, ms: number) {
+	constructor(fn: F, ms: number) {
 		super(fn, ms)
 	}
 
@@ -179,7 +182,7 @@ export class Throttle extends WrappedTimedFunction {
 				me.id = setTimeout(me.onTimeout.bind(me), me.ms)
 				me.fn.apply(this, args)
 			}
-		}
+		} as unknown as F
 	}
 
 	private onTimeout() {
@@ -218,12 +221,12 @@ export class Throttle extends WrappedTimedFunction {
  * @param fn The function to throttle.
  * @param ms The time period in which only at most one call allowed.
  */
-export function throttle(fn: Function, ms: number): Throttle {
+export function throttle<F extends Function>(fn: F, ms: number): Throttle<F> {
 	return new Throttle(fn, ms)
 }
 
 
-export class SmoothThrottle extends WrappedTimedFunction {
+export class SmoothThrottle<F extends Function> extends WrappedTimedFunction<F> {
 	
 	private lastArgs: any[] | null = null
 	private lastThis: any = null
@@ -233,12 +236,12 @@ export class SmoothThrottle extends WrappedTimedFunction {
 	 * @param fn The function to throttle.
 	 * @param ms The time period in which only at most one call allowed.
 	 */
-	constructor(fn: Function, ms: number) {
+	constructor(fn: F, ms: number) {
 		super(fn, ms)
 		this.wrapped = this.wrap()
 	}
 
-	protected wrap(): Function {
+	protected wrap(): F {
 		let me = this
 		return function(this: any, ...args: any[]) {
 			if (me.canceled) {
@@ -252,7 +255,7 @@ export class SmoothThrottle extends WrappedTimedFunction {
 			if (!me.id) {
 				me.id = setTimeout(me.onTimeout.bind(me), me.ms)
 			}
-		}
+		} as unknown as F
 	}
 
 	private onTimeout() {
@@ -309,12 +312,12 @@ export class SmoothThrottle extends WrappedTimedFunction {
  * @param fn The function to throttle.
  * @param ms The time period in which only at most one call allowed.
  */
-export function smoothThrottle(fn: Function, ms: number): SmoothThrottle {
+export function smoothThrottle<F extends Function>(fn: F, ms: number): SmoothThrottle<F> {
 	return new SmoothThrottle(fn, ms)
 }
 
 
-export class Debounce extends WrappedTimedFunction {
+export class Debounce<F extends Function> extends WrappedTimedFunction<F> {
 
 	private lastArgs: any[] | null = null
 	private lastThis: any = null
@@ -324,12 +327,12 @@ export class Debounce extends WrappedTimedFunction {
 	 * @param fn The function to debounce.
 	 * @param ms The timeout in milliseconds.
 	 */
-	constructor(fn: Function, ms: number) {
+	constructor(fn: F, ms: number) {
 		super(fn, ms)
 		this.wrapped = this.wrap()
 	}
 
-	protected wrap() {
+	protected wrap(): F {
 		let me = this
 		return function(this: any, ...args: any[]) {
 			if (me.canceled) {
@@ -344,7 +347,7 @@ export class Debounce extends WrappedTimedFunction {
 			me.id = setTimeout(me.onTimeout.bind(me), me.ms)
 			me.lastArgs = args
 			me.lastThis = this
-		}
+		} as unknown as F
 	}
 
 	private onTimeout() {
@@ -402,6 +405,6 @@ export class Debounce extends WrappedTimedFunction {
  * @param fn The function to debounce.
  * @param ms The timeout in milliseconds.
  */
-export function debounce (fn: Function, ms: number): Debounce {
+export function debounce<F extends Function> (fn: F, ms: number): Debounce<F> {
 	return new Debounce(fn, ms)
 }
