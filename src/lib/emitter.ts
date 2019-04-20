@@ -108,7 +108,7 @@ export class Emitter<Events = any> {
 		}
 	}
 
-	/** Remove all event slisteners */
+	/** Remove all event listeners */
 	removeAllListeners() {
 		this.__events = {}
 	}
