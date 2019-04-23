@@ -96,34 +96,37 @@ function bindWatch(isOnce: boolean, untilTrue: boolean, immediate: boolean, el: 
 		throw new Error(`Failed to watch, type "${type}" is not supported`)
 	}
 
-	if (untilTrue || immediate) {
-		oldState = getState(el)
+	// It may cause relayout, so need to be delayed to next frame.
+	requestAnimationFrame(() => {
+		if (untilTrue || immediate) {
+			oldState = getState(el)
 
-		if (oldState && untilTrue || immediate) {
-			callback(oldState)
+			if (oldState && untilTrue || immediate) {
+				callback(oldState)
+			}
 		}
-	}
-	
-	if (untilTrue && oldState) {
-		return unwatch
-	}
+		
+		if (untilTrue && oldState) {
+			return
+		}
 
-	if (type === 'size' && typeof ((window as any).ResizeObserver) === 'function') {
-		observer = new (window as any).ResizeObserver(onResize)
-		observer.observe(el)
-	}
-	else if ((type === 'inview' || type ===  'outview') && typeof IntersectionObserver === 'function') {
-		observer = new IntersectionObserver(onInviewChange)
-		observer.observe(el)
-	}
-	else {
-		oldState = getState(el)
+		if (type === 'size' && typeof ((window as any).ResizeObserver) === 'function') {
+			observer = new (window as any).ResizeObserver(onResize)
+			observer.observe(el)
+		}
+		else if ((type === 'inview' || type ===  'outview') && typeof IntersectionObserver === 'function') {
+			observer = new IntersectionObserver(onInviewChange)
+			observer.observe(el)
+		}
+		else {
+			oldState = getState(el)
 
-		intervalId = setInterval(() => {
-			let newState = getState(el)
-			onChange(newState)
-		}, watchInterval)
-	}
+			intervalId = setInterval(() => {
+				let newState = getState(el)
+				onChange(newState)
+			}, watchInterval)
+		}
+	})
 
 	function onResize(entries: any) {
 		for (let {contentRect} of entries) {
