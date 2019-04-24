@@ -26,7 +26,7 @@ export type ExtendEvents<BaseConstructor extends new (...args: any) => any, Even
 
 
 /** An event emitter to listen and emit events. */
-export class Emitter<Events = {}> {
+export class Emitter<Events = any> {
 
 	private __events: {[key: string]: EventItem[]} = {}
 

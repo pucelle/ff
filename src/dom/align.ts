@@ -312,13 +312,13 @@ export class Aligner {
 		}
 
 		if (y < 0) {
-			y = 0
-			if (this.canShrinkInY) {
+			if (this.direction.top && this.canShrinkInY) {
+				y = 0
 				setStyle(this.el, 'height', spaceTop)
 				overflowYSet = true
 			}
 		}
-		else if (y + this.h > dh) {
+		else if (this.direction.bottom && y + this.h > dh) {
 			if (this.canShrinkInY) {
 				setStyle(this.el, 'height', spaceBottom)
 				overflowYSet = true
