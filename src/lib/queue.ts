@@ -20,7 +20,6 @@ export enum QueueState {
 	Aborted,
 }
 
-
 interface QueueEvents<T, V> {
 
 	/** Emitted after task handled successfully. */
@@ -48,14 +47,12 @@ interface QueueEvents<T, V> {
 	abort(err: Error | string | number): void
 }
 
-
 interface QueueItem<Task> {
 	id: number
 	task: Task
 	retriedTimes: number
 	abort: Function | null
 }
-
 
 export interface QueueOptions<Task, Value> {
 	concurrency?: number
@@ -65,7 +62,6 @@ export interface QueueOptions<Task, Value> {
 	tasks?: Task[]
 	handler: QueueHandler<Task, Value>
 }
-
 
 type QueueHandler<Task, Value> = (task: Task) => {promise: Promise<Value>, abort: Function} | Promise<Value> | Value
 

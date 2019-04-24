@@ -6,9 +6,27 @@ interface EventItem {
 	once: boolean
 }
 
+type FilterListeners<I> = {[K in keyof I]: BeListener<I[K]> }
+type BeListener<V> = V extends (...args: infer Args) => void ? (...args: Args) => void : never
+type KeyOfListeners<I> = keyof FilterListeners<I> & string
+
+// Inspired by `https://stackoverflow.com/questions/55763701`.
+// We meet a problem in inherit event types and giving event arguments limination and auto complete.
+
+// At first, we are trying to merge event listener interfaces but failed,
+// The main reason is when one of the the event listener interface is generic argument,
+// we can't merge two event listener interfaces and infer types of listener arguments for one listener,
+// The type of listener becomes `resolved Listener A & unresolved Listener B`, arguments of it can't be inferred.
+
+// So here we exclude all the keys in Emitter from base class,
+// and then merge with the extended class listener interface.
+// Use it like `class B extends A as ExtendEvents(typeof A, EventsInterface)`
+export type ExtendEvents<BaseConstructor extends new (...args: any) => any, Events>
+	= (new (...a: ConstructorParameters<BaseConstructor>) => Exclude<InstanceType<BaseConstructor>, keyof Emitter> & Emitter<Events>)
+
 
 /** An event emitter to listen and emit events. */
-export class Emitter<Events = any> {
+export class Emitter<Events = {}> {
 
 	private __events: {[key: string]: EventItem[]} = {}
 
@@ -18,7 +36,7 @@ export class Emitter<Events = any> {
 	 * @param listener The event listener.
 	 * @param scope The scope will be binded to listener.
 	 */
-	on<K extends keyof Events & string>(name: K, listener: Events[K] & EventListener, scope?: object) {
+	on<K extends KeyOfListeners<Events>>(name: K, listener: FilterListeners<Events>[K], scope?: object) {
 		let events = this.__events[name] || (this.__events[name] = [])
 		
 		events.push({
@@ -34,7 +52,7 @@ export class Emitter<Events = any> {
 	 * @param listener The event listener.
 	 * @param scope The scope will be binded to listener.
 	 */
-	once<K extends keyof Events & string>(name: K, listener: Events[K] & EventListener, scope?: object) {
+	once<K extends KeyOfListeners<Events>>(name: K, listener: FilterListeners<Events>[K], scope?: object) {
 		let events = this.__events[name] || (this.__events[name] = [])
 
 		events.push({
@@ -50,7 +68,7 @@ export class Emitter<Events = any> {
 	 * @param listener The event listener, only matched listener will be removed.
 	 * @param scope The scope binded to listener. If provided, remove listener only when scope match.
 	 */
-	off<K extends keyof Events & string>(name: K, listener: Events[K] & EventListener, scope?: object) {
+	off<K extends KeyOfListeners<Events>>(name: K, listener: FilterListeners<Events>[K], scope?: object) {
 		let events = this.__events[name]
 		if (events) {
 			for (let i = events.length - 1; i >= 0; i--) {
@@ -92,7 +110,7 @@ export class Emitter<Events = any> {
 	 * @param name The event name.
 	 * @param args The arguments that will be passed to event listeners.
 	 */
-	emit<K extends keyof Events & string>(name: K, ...args: Parameters<Events[K] & EventListener>) {
+	emit<K extends KeyOfListeners<Events>>(name: K, ...args: Parameters<FilterListeners<Events>[K]>) {
 		let events = this.__events[name]
 		if (events) {
 			for (let i = 0; i < events.length; i++) {
