@@ -3,13 +3,13 @@ import {getNumeric} from './css'
 
 /**
  * Returns the index of node in it' node silbings.
- * @param el The node.
+ * @param node The node.
  */
-export function nodeIndex(el: Node): number {
-	if (el.parentNode) {
+export function getNodeIndex(node: Node): number {
+	if (node.parentNode) {
 		let i = 0
-		for (let child of el.parentNode.childNodes) {
-			if (child === el) {
+		for (let child of node.parentNode.childNodes) {
+			if (child === node) {
 				return i
 			}
 			i++
@@ -24,7 +24,7 @@ export function nodeIndex(el: Node): number {
  * Returns the index of element in it' element silbings.
  * @param el The node.
  */
-export function elementIndex(el: Element): number {
+export function getElementIndex(el: Element): number {
 	if (el.parentNode) {
 		let i = 0
 		for (let child of el.parentNode.children) {
@@ -43,7 +43,7 @@ export function elementIndex(el: Element): number {
  * Returns inner width of element, which equals `clientWidth - paddingWidths` or `width - paddingWidths - scrollbarWidth`. Note that this may cause page reflow.
  * @param el The element to get width.
  */
-export function innerWidth(el: Element): number {
+export function getInnerWidth(el: Element): number {
 	let w = el.clientWidth
 	if (w) {
 		return el.clientWidth - getNumeric(el, 'paddingLeft') - getNumeric(el, 'paddingRight')
@@ -58,7 +58,7 @@ export function innerWidth(el: Element): number {
  * Returns inner height of element, which equals `clientHeight - paddingHeights` or `height - paddingHeights - scrollbarHeight`. Note that this may cause page reflow.
  * @param el The element to get height.
  */
-export function innerHeight(el: Element): number {
+export function getInnerHeight(el: Element): number {
 	let h = el.clientHeight
 	if (h) {
 		return h - getNumeric(el, 'paddingTop') - getNumeric(el, 'paddingBottom')
@@ -73,7 +73,7 @@ export function innerHeight(el: Element): number {
  * Returns outer width of element, which equals `offsetWidth + marginWidths`. Note that this may cause page reflow.
  * @param el The element to get width.
  */
-export function outerWidth(el: HTMLElement) {
+export function getOuterWidth(el: HTMLElement) {
 	let w = el.offsetWidth
 	if (w) {
 		return w + getNumeric(el, 'marginLeft') + getNumeric(el, 'marginRight')
@@ -88,7 +88,7 @@ export function outerWidth(el: HTMLElement) {
  * Returns inner height of element, which equals `offsetHeight + marginHeights`. Note that this may cause page reflow.
  * @param el The element to get height.
  */
-export function outerHeight(el: HTMLElement) {
+export function getOuterHeight(el: HTMLElement) {
 	let h = el.offsetHeight
 	if (h) {
 		return h + getNumeric(el, 'marginTop') + getNumeric(el, 'marginBottom')

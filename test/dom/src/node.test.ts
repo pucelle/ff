@@ -1,3 +1,5 @@
+/// <reference types="../node_modules/@types/chai" />
+
 import * as ff from '../../..'
 const assert = chai.assert
 
@@ -5,12 +7,12 @@ const assert = chai.assert
 describe('Test node', () => {
 	it('nodeIndex & elementIndex', () => {
 		assert.equal(
-			ff.nodeIndex(document.body),
+			ff.getNodeIndex(document.body),
 			[...document.documentElement.childNodes].indexOf(document.body)
 		)
 
 		assert.equal(
-			ff.elementIndex(document.body),
+			ff.getElementIndex(document.body),
 			[...document.documentElement.children].indexOf(document.body)
 		)
 	})
@@ -20,13 +22,13 @@ describe('Test node', () => {
 		div.style.cssText = 'width: 1000px; height: 100px; margin: 10px; padding: 10px;'
 		document.body.appendChild(div)
 
-		assert.equal(ff.innerWidth(div), 980)
-		assert.equal(ff.innerHeight(div), 80)
+		assert.equal(ff.getInnerWidth(div), 980)
+		assert.equal(ff.getInnerHeight(div), 80)
 
 		div.style.overflow = 'scroll'
 		
-		assert.equal(ff.innerWidth(div), 980 - ff.getScrollbarWidth())
-		assert.equal(ff.innerHeight(div), 80 - ff.getScrollbarWidth())
+		assert.equal(ff.getInnerWidth(div), 980 - ff.getScrollbarWidth())
+		assert.equal(ff.getInnerHeight(div), 80 - ff.getScrollbarWidth())
 
 		div.remove()
 	})
@@ -36,8 +38,8 @@ describe('Test node', () => {
 		div.style.cssText = 'width: 1000px; height: 100px; margin: 10px; padding: 10px;'
 		document.body.appendChild(div)
 
-		assert.equal(ff.outerWidth(div), 1020)
-		assert.equal(ff.outerHeight(div), 120)
+		assert.equal(ff.getOuterWidth(div), 1020)
+		assert.equal(ff.getOuterHeight(div), 120)
 
 		div.remove()
 	})
