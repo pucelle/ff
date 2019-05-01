@@ -35,8 +35,6 @@ export const WATCH_STATE_FN = {
 	},
 }
 
-export let watchInterval = 20
-
 
 /**
  * Watch specified state. Returns a cancel function.
@@ -89,7 +87,7 @@ export function watchUntil<Type extends 'show' | 'hide' | 'inview' | 'outview'>(
 function bindWatch(isOnce: boolean, untilTrue: boolean, immediate: boolean, el: HTMLElement, type: WatchType, callback: Function): () => void {
 	let getState = WATCH_STATE_FN[type]
 	let oldState: any
-	let intervalId: any = null
+	let loop: WatchLoop | null = null
 	let observer: any = null
 
 	if (!getState) {
@@ -121,10 +119,10 @@ function bindWatch(isOnce: boolean, untilTrue: boolean, immediate: boolean, el: 
 		else {
 			oldState = getState(el)
 
-			intervalId = setInterval(() => {
+			loop = new AnimationFrameLoop(() => {
 				let newState = getState(el)
 				onChange(newState)
-			}, watchInterval)
+			})
 		}
 	})
 
@@ -155,9 +153,8 @@ function bindWatch(isOnce: boolean, untilTrue: boolean, immediate: boolean, el: 
 	}
 
 	function unwatch() {
-		if (intervalId) {
-			clearInterval(intervalId)
-			intervalId = null
+		if (loop) {
+			loop.cancel()
 		}
 		else if (observer) {
 			observer.unobserve(el)
@@ -198,4 +195,51 @@ function valueOrObjectEqual(a: unknown, b: unknown): boolean {
 	}
 
 	return true
+}
+
+
+export interface WatchLoopConstructor {
+	new(callback: () => void): WatchLoop
+}
+
+export interface WatchLoop {
+	cancel(): void
+}
+
+
+// Why not use `setInterval`:
+// Everybody knows that `requestAnimationFrame` is better than `setInterval`
+// because `setInterval` will either lost frame or trigger for twice in one frame.
+
+// Is there any performance problem on the always running `requestAnimationFrame`?
+// Yes, it may be a problem. But if your watch loops are less than 1000 normally, there should be no problem.
+// It keeps running but will not cause your CPU usage high.
+// Otherwise, use `watch` only you definitely need it.
+
+// Is there some alternate ways to do so?
+// Yes, Especially when you are using one framework to manage all the UI updating work, just call callback after UI updated.
+// But there are some more work to do, Like capturing scroll event.
+// Note that scroll event is not bubblable, so you need to capture whell, mouse and keyboard evnets.
+// Otherwise make sure the events you want to capture are not stopped.
+
+const AnimationFrameLoop: WatchLoopConstructor = class AnimationFrameLoop implements WatchLoop {
+
+	private callback: () => void
+	private ended: boolean = false
+
+	constructor(callback: () => void) {
+		this.callback = callback
+		this.next()
+	}
+
+	private next() {
+		if (!this.ended) {
+			this.callback.call(null)
+			requestAnimationFrame(() => this.next())
+		}
+	}
+
+	cancel() {
+		this.ended = true
+	}
 }
