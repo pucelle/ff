@@ -148,6 +148,118 @@ export function difference<Item extends number | string>(array: Item[], ...exclu
 }
 
 
+/**
+ * Find one item from a sorted array matched `fn`.
+ * @param array The sorted array.
+ * @param fn The function to accept item in array as argument and returns `-1` to move left, `1` to move right.
+ */
+export function binaryFind<Item>(array: Item[], fn: (item: Item) => (0 | -1 | 1)): Item | undefined {
+	let index = binaryFindIndex(array, fn)
+	return index === -1 ? undefined : array[index]
+}
+
+
+/**
+ * Find the index in a sorted array in where the item in the index position matched `fn`.
+ * @param array The sorted array.
+ * @param fn The function to accept item in array as argument and returns `-1` to move left, `1` to move right.
+ */
+export function binaryFindIndex<Item>(array: Item[], fn: (item: Item) => (0 | -1 | 1)): number {
+	if (array.length === 0) {
+		return -1
+	}
+
+	let result = fn(array[0])
+	if (result === 0) {
+		return 0
+	}
+	if (result === -1) {
+		return -1
+	}
+
+	if (array.length === 1) {
+		return -1
+	}
+
+	result = fn(array[array.length - 1])
+	if (result === 0) {
+		return array.length - 1
+	}
+	if (result === 1) {
+		return -1
+	}
+
+	let start = 0
+	let end = array.length - 1
+
+	while (end - start > 1) {
+		let center = Math.floor((end + start) / 2)
+		let result = fn(array[center])
+
+		if (result === 0) {
+			return center
+		}
+		else if (result === -1) {
+			end = center
+		}
+		else {
+			start = center
+		}
+	}
+
+	return -1
+}
+
+
+/**
+ * Find the closest index in a sorted array in where to insert new item.
+ * Returned index betweens `0 - array.length`, and if `array[index]` exist, `fn(array[index]) >= 0`.
+ * @param array The sorted array.
+ * @param fn The function to accept item in array as argument and returns `-1` to move left, `1` to move right.
+ */
+export function binaryFindIndexToInsert<Item>(array: Item[], fn: (item: Item) => (0 | -1 | 1)): number {
+	if (array.length === 0) {
+		return 0
+	}
+
+	let result = fn(array[0])
+	if (result === 0 || result === -1) {
+		return 0
+	}
+	if (array.length === 1) {
+		return 1
+	}
+
+	result = fn(array[array.length - 1])
+	if (result === 0) {
+		return array.length - 1
+	}
+	if (result === 1) {
+		return array.length
+	}
+
+	let start = 0
+	let end = array.length - 1
+
+	while (end - start > 1) {
+		let center = Math.floor((end + start) / 2)
+		let result = fn(array[center])
+
+		if (result === 0) {
+			return center
+		}
+		else if (result === -1) {
+			end = center
+		}
+		else {
+			start = center
+		}
+	}
+
+	return end
+}
+
+
 export type OrderDirection = -1 | 1 | 'asc' | 'desc'
 export type OrderFunction<Item> = (item: Item) => string | number
 export type OrderTuple<Item, Key> = Key | OrderFunction<Item> | [Key | OrderFunction<Item>, OrderDirection]
@@ -211,60 +323,17 @@ export class Order<Item> {
 		return 0
 	}
 
-	binaryInsert(array: Item[], item: Item): Item[] {
-		let index = this.binaryFindIndexToInsert(array, item)
-		array.splice(index, 0, item)
-		return array
-	}
-
-	binaryFindIndexToInsert(array: Item[], item: Item): number {
-		if (array.length === 0) {
-			return 0
-		}
-
-		let compareResult = this.compare(item, array[0])
-		if (compareResult === 0 || compareResult === -1) {
-			return 0
-		}
-		if (array.length === 1) {
-			return 1
-		}
-
-		compareResult = this.compare(item, array[array.length - 1])
-		if (compareResult === 0) {
-			return array.length - 1
-		}
-		if (compareResult === 1) {
-			return array.length
-		}
-
-		let start = 0
-		let end = array.length - 1
-
-		while (end - start > 1) {
-			let center = Math.floor((end + start) / 2)
-			let compareResult = this.compare(item, array[center])
-
-			if (compareResult === 0) {
-				return center
-			}
-			else if (compareResult === -1) {
-				end = center
-			}
-			else {
-				start = center
-			}
-		}
-
-		return end
+	binaryFind(array: Item[], item: Item): Item | undefined {
+		return binaryFind(array, i => this.compare(item, i))
 	}
 
 	binaryFindIndex(array: Item[], item: Item): number {
-		let index = this.binaryFindIndexToInsert(array, item)
-		if (index < array.length && this.compare(item, array[index]) === 0) {
-			return index
-		}
-		return -1
+		return binaryFindIndex(array, i => this.compare(item, i))
+	}
+	
+	binaryInsert(array: Item[], item: Item) {
+		let index = binaryFindIndexToInsert(array, i => this.compare(item, i))
+		array.splice(index, 0, item)
 	}
 }
 

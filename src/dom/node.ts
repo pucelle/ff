@@ -99,7 +99,7 @@ export function getOuterHeight(el: HTMLElement) {
 }
 
 
-export type Rect = {[key in 'top' | 'right' | 'bottom' |'left' | 'width' | 'height']: number}
+export type Rect = {-readonly [key in keyof ClientRect]: number }
 
 /**
  * Returns an object like `getBoundingClientRect`, the didderence is it always returns the visible part for `<html>`. Note that this may cause page reflow.
