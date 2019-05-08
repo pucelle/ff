@@ -1,4 +1,4 @@
-type EventListener = (...args: any[]) => void
+type EventListener = (...args: any) => void
 
 interface EventItem {
 	listener: EventListener

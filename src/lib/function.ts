@@ -164,25 +164,34 @@ export class Throttle<F extends Function> extends WrappedTimedFunction<F> {
 	/**
 	 * Throttle function calls, call returned function twice in `ms` millisecons will only call `fn` for once. Returns a new function.
 	 * @param fn The function to throttle.
-	 * @param ms The time period in which only at most one call allowed.
+	 * @param ms The time period in which only at most one call allowed. If omitted, using `requestAnimationFrame` to throttle.
 	 */
-	constructor(fn: F, ms: number) {
+	constructor(fn: F, ms: number = 0) {
 		super(fn, ms)
 	}
 
 	protected wrap() {
 		let me = this
-		return function(this: any, ...args: any[]) {
+		return function(this: any, ...args: any) {
 			if (me.canceled) {
 				me.fn.apply(this, args)
 				return
 			}
 			
 			if (!me.id) {
-				me.id = setTimeout(me.onTimeout.bind(me), me.ms)
+				me.setThrottle()
 				me.fn.apply(this, args)
 			}
 		} as unknown as F
+	}
+
+	private setThrottle() {
+		if (this.ms) {
+			this.id = setTimeout(this.onTimeout.bind(this), this.ms)
+		}
+		else {
+			this.id = requestAnimationFrame(this.onTimeout.bind(this))
+		}
 	}
 
 	private onTimeout() {
@@ -192,12 +201,22 @@ export class Throttle<F extends Function> extends WrappedTimedFunction<F> {
 	/** Reset throttle timeout, function will be called immediately next time. Will restart throttle if been canceled. */
 	reset(): boolean {
 		if (this.id) {
-			clearTimeout(this.id)
-			this.id = null
+			this.clearThrottle()
 		}
 
 		this.canceled = false
 		return true
+	}
+
+	private clearThrottle() {
+		if (this.ms) {
+			clearTimeout(this.id)
+		}
+		else {
+			cancelAnimationFrame(this.id)
+		}
+		
+		this.id = null
 	}
 
 	/** Do nothing, always return false. */
@@ -221,7 +240,7 @@ export class Throttle<F extends Function> extends WrappedTimedFunction<F> {
  * @param fn The function to throttle.
  * @param ms The time period in which only at most one call allowed.
  */
-export function throttle<F extends Function>(fn: F, ms: number): Throttle<F> {
+export function throttle<F extends Function>(fn: F, ms: number = 0): Throttle<F> {
 	return new Throttle(fn, ms)
 }
 
@@ -243,7 +262,7 @@ export class SmoothThrottle<F extends Function> extends WrappedTimedFunction<F> 
 
 	protected wrap(): F {
 		let me = this
-		return function(this: any, ...args: any[]) {
+		return function(this: any, ...args: any) {
 			if (me.canceled) {
 				me.fn.apply(this, args)
 				return
@@ -253,9 +272,18 @@ export class SmoothThrottle<F extends Function> extends WrappedTimedFunction<F> 
 			me.lastThis = this
 	
 			if (!me.id) {
-				me.id = setTimeout(me.onTimeout.bind(me), me.ms)
+				me.setThrottle()
 			}
 		} as unknown as F
+	}
+
+	private setThrottle() {
+		if (this.ms) {
+			this.id = setTimeout(this.onTimeout.bind(this), this.ms)
+		}
+		else {
+			this.id = requestAnimationFrame(this.onTimeout.bind(this))
+		}
 	}
 
 	private onTimeout() {
@@ -263,7 +291,7 @@ export class SmoothThrottle<F extends Function> extends WrappedTimedFunction<F> 
 			this.fn.apply(this.lastThis, this.lastArgs)
 			this.lastArgs = null
 			this.lastThis = null
-			this.id = setTimeout(this.onTimeout.bind(this), this.ms)
+			this.setThrottle()
 		}
 		else {
 			this.id = null
@@ -273,8 +301,7 @@ export class SmoothThrottle<F extends Function> extends WrappedTimedFunction<F> 
 	/** Reset throttle timeout and discard deferred call, Will restart throttle if been canceled. */
 	reset(): boolean {
 		if (this.id) {
-			clearTimeout(this.id)
-			this.id = null
+			this.clearThrottle()
 		}
 
 		this.lastArgs = null
@@ -286,7 +313,7 @@ export class SmoothThrottle<F extends Function> extends WrappedTimedFunction<F> 
 	/** Call function immediately if there is a deferred call, and restart throttle timeout. */
 	flush(): boolean {
 		if (this.lastArgs) {
-			this.id = setTimeout(this.onTimeout.bind(this), this.ms)
+			this.setThrottle()
 			this.fn.apply(this.lastThis, this.lastArgs)
 			this.lastArgs = null
 			this.lastThis = null
@@ -294,6 +321,17 @@ export class SmoothThrottle<F extends Function> extends WrappedTimedFunction<F> 
 		}
 
 		return false
+	}
+
+	private clearThrottle() {
+		if (this.ms) {
+			clearTimeout(this.id)
+		}
+		else {
+			cancelAnimationFrame(this.id)
+		}
+		
+		this.id = null
 	}
 
 	/** Cancel throttle, function will be called without limit. Returns true if is not canceled before. */
@@ -334,7 +372,7 @@ export class Debounce<F extends Function> extends WrappedTimedFunction<F> {
 
 	protected wrap(): F {
 		let me = this
-		return function(this: any, ...args: any[]) {
+		return function(this: any, ...args: any) {
 			if (me.canceled) {
 				me.fn.apply(this, args)
 				return
