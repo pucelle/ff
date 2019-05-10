@@ -1,5 +1,15 @@
 /**
- * Like the opposite of toFixed, but it supports both positive and negative power, and always returns a number.
+ * Like `toFixed`, but it supports both positive and negative power, and always returns a number.
+ * @param number The number to fix.
+ * @param decimalCount The decimal count that the number will correct to.
+ */
+export function toDecimal(number: number, decimalCount = 0): number {
+	return toPower(number, -decimalCount)
+}
+
+
+/**
+ * Like the opposite of `toFixed`, but it supports both positive and negative power, and always returns a number.
  * @param number The number to fix.
  * @param power The power that the number will correct to.
  */
