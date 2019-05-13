@@ -1,4 +1,20 @@
 /**
+ * Repeat value for multiple times and returns the array of it.
+ * @param item The value to repeat.
+ * @param count Count of times to repeat.
+ */
+export function repeatTimes<Item>(item: Item, count: number): Item[] {
+	let items: Item[] = []
+
+	for (let i = 0 ; i < count; i++) {
+		items.push(item)
+	}
+
+	return items
+}
+
+
+/**
  * Add items to array, for each item in items, will push into array if is not exist in array.
  * @param array The array to add items.
  * @param items The items to add to array.
