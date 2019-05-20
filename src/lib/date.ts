@@ -172,9 +172,9 @@ export function addDurationToDate(date: Date, duration: string): Date {
 /**
  * Returns a formatted date string.
  * @param date The date to format.
- * @param format The date format, default value is `'yyyy/MM/dd hh:mm:ss'`.
+ * @param format The date format, default value is `'yyyy-MM-dd hh:mm:ss'`.
  */
-export function formatDate(date: Date, format = 'yyyy/MM/dd hh:mm:ss'): string {
+export function formatDate(date: Date, format = 'yyyy-MM-dd hh:mm:ss'): string {
 	return format.replace(/y+|M+|d+|h+|m+|s+/g, m0 => {
 		let unit = m0[0]
 		let value = getDateByUnit(date, unit[0] as DateUnit)
@@ -191,9 +191,9 @@ export function formatDate(date: Date, format = 'yyyy/MM/dd hh:mm:ss'): string {
 /**
  * Returns a short type formatted date string.
  * @param date The date to format.
- * @param format The format object to use, default value is `{y: 'yyyy/MM/dd hh:mm', M: 'MM/dd hh:mm', h: 'hh:mm'}`.
+ * @param format The format object to use, default value is `{y: 'yyyy-MM-dd hh:mm', M: 'MM-dd hh:mm', h: 'hh:mm'}`.
  */
-export function formatToShort (date: Date, format: {[key in DateUnit]?: string} = {y: 'yyyy/MM/dd hh:mm', M: 'MM/dd hh:mm', h: 'hh:mm'}) {
+export function formatToShort (date: Date, format: {[key in DateUnit]?: string} = {y: 'yyyy-MM-dd hh:mm', M: 'MM-dd hh:mm', h: 'hh:mm'}) {
 	let now = new Date()
 	let hasDifferentUnit = false
 	let matchFormat: string = Object.values(format)[0]!
