@@ -30,14 +30,14 @@ export function parseDurationToObject(duration: string): DateObject {
 	}
 
 	if (duration.includes(':')) {
-		let [h, m, s] = (<string[]>subMatches(duration, /(?:(\d\d):)?(\d\d):(\d\d(?:\.\d+)?)/)).map(v => Number(v) || 0)
+		let [h, m, s] = subMatches(duration, /(?:(\d\d):)?(\d\d):(\d\d(?:\.\d+)?)/)[0].map(v => Number(v) || 0)
 
 		o.h = h
 		o.m = m
 		o.s = s
 	}
 	else {
-		let matches = <string[][]>subMatches(duration, /(\d+(?:\.\d+)?) ?([yMwdhms])/g)
+		let matches = subMatches(duration, /(\d+(?:\.\d+)?) ?([yMwdhms])/g)
 
 		for (let [count, unit] of matches) {
 			o[unit as DateUnit] = Number(count)
