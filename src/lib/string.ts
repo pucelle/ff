@@ -45,12 +45,29 @@ export function select(string: string, re: RegExp, template: string): string | s
 
 
 /**
- * Returns specified index of sub match in `string` by executing `re`. Returns an array when `re` is global.
+ * Returns specified index of sub match in `string` by executing `re`.
  * @param string The string to select sub match.
  * @param re The RegExp to execute on string.
  * @param index Select the sub match in the index from each match result or results.
  */
-export function subMatchAt(string: string, re: RegExp, index: number = 0): string | string[] {
+export function subMatchAt(string: string, re: RegExp, index: number = 0): string {
+	let match = re.exec(string)
+	if (match) {
+		return match[index] || ''
+	}
+	else {
+		return ''
+	}
+}
+
+
+/**
+ * Returns specified index of sub matches in `string` by executing `re`. Returns an array of matches.
+ * @param string The string to select sub match.
+ * @param re The RegExp to execute on string.
+ * @param index Select the sub match in the index from each match result or results.
+ */
+export function subMatchesAt(string: string, re: RegExp, index: number = 0): string[] {
 	if (re.global) {
 		let match: RegExpExecArray |  null
 		let matches: string[] = []
@@ -62,10 +79,10 @@ export function subMatchAt(string: string, re: RegExp, index: number = 0): strin
 	else {
 		let match: RegExpMatchArray | null = string.match(re)
 		if (match) {
-			return match[index] || ''
+			return [match[index] || '']
 		}
 		else {
-			return ''
+			return []
 		}
 	}
 }
@@ -77,7 +94,7 @@ export function subMatchAt(string: string, re: RegExp, index: number = 0): strin
  * @param re The RegExp to execute on string.
  * @param sliceIndex Slice each match results from, specify to 0 to include whole match, 1 to only include sub matches.
  */
-export function subMatches(string: string, re: RegExp, sliceIndex: number = 1): string[] | string[][] {
+export function subMatches(string: string, re: RegExp, sliceIndex: number = 1): string[][] {
 	if (re.global) {
 		let match: RegExpExecArray |  null
 		let matches: string[][] = []
@@ -89,7 +106,7 @@ export function subMatches(string: string, re: RegExp, sliceIndex: number = 1): 
 	else {
 		let match: RegExpMatchArray | null = string.match(re)
 		if (match) {
-			return [...match].slice(sliceIndex)
+			return [[...match].slice(sliceIndex)]
 		}
 		else {
 			return []
@@ -103,7 +120,7 @@ export function subMatches(string: string, re: RegExp, sliceIndex: number = 1): 
  * @param template String to format
  * @param source The data source.
  */
-export function format(template: string, source: {[key: string]: string} | string[]): string {
+export function format(template: string, source: {[key: string]: string | number} | (string | number)[]): string {
 	return template.replace(/\$\{(\w+)\}/g, (m0: string, m1: string) => {
 		let value = (source as any)[m1]
 		if (value === undefined) {
