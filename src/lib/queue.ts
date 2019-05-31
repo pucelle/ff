@@ -66,7 +66,7 @@ export interface QueueOptions<Task, Value> {
 type QueueHandler<Task, Value> = (task: Task) => {promise: Promise<Value>, abort: Function} | Promise<Value> | Value
 
 
-export class Queue<Task, Value = void> extends Emitter<QueueEvents<Task, Value>> {
+export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, Value>> {
 
 	/** Specify how many tasks to run simultaneously. */
 	concurrency: number = 10

@@ -7,7 +7,7 @@ interface ObjectWithStringKeys {
  * Assign values from source to target.
  * @param target The target that the sources assigned to.
  * @param sources The sources that will assigned to target by order.
- * @param keys If `keys` is specified, only values whose key in it can be assigned.
+ * @param keys If `keys` specified, only values whose keys are included will be assigned.
  */
 export function assign<T extends {[key: string]: unknown}, S extends {[key: string]: unknown}>(target: T, source: S, keys: (keyof S)[] = Object.keys(source)): T {
 	for (let key of keys) {

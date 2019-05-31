@@ -193,7 +193,7 @@ export function formatDate(date: Date, format = 'yyyy-MM-dd hh:mm:ss'): string {
  * @param date The date to format.
  * @param format The format object to use, default value is `{y: 'yyyy-MM-dd hh:mm', M: 'MM-dd hh:mm', h: 'hh:mm'}`.
  */
-export function formatToShort (date: Date, format: {[key in DateUnit]?: string} = {y: 'yyyy-MM-dd hh:mm', M: 'MM-dd hh:mm', h: 'hh:mm'}) {
+export function formatToShortDate(date: Date, format: {[key in DateUnit]?: string} = {y: 'yyyy-MM-dd hh:mm', M: 'MM-dd hh:mm', h: 'hh:mm'}) {
 	let now = new Date()
 	let hasDifferentUnit = false
 	let matchFormat: string = Object.values(format)[0]!
