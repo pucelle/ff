@@ -116,12 +116,12 @@ export function subMatches(string: string, re: RegExp, sliceIndex: number = 1): 
 
 
 /**
- * Format string to replace placeholders `${key}` in `template` to `source[key]`. will keep the placeholders if no match found.
+ * Format string to replace placeholders `{key}` in `template` to `source[key]`. will keep the placeholders if no match found.
  * @param template String to format
  * @param source The data source.
  */
 export function format(template: string, source: {[key: string]: string | number} | (string | number)[]): string {
-	return template.replace(/\$\{(\w+)\}/g, (m0: string, m1: string) => {
+	return template.replace(/\{(\w+)\}/g, (m0: string, m1: string) => {
 		let value = (source as any)[m1]
 		if (value === undefined) {
 			value = m0
