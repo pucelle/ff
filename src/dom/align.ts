@@ -1,4 +1,4 @@
-import {getNumeric, setStyle, getStyle} from './css'
+import {getNumeric, setStyle} from './css'
 import {Rect, getRect} from './node'
 import {getClosestFixedElement} from './util'
 
@@ -446,11 +446,6 @@ export class Aligner {
  * @param offset `[x, y]` offset to adjust align position. 
  */
 export function alignToEvent(el: HTMLElement, event: MouseEvent, offset: [number, number] = [0, 0]) {
-	let isFixed = getStyle(el, 'position') === 'fixed'
-	if (!isFixed) {
-		throw new Error('Element must be "fixed" position when using "alignByEvent"')
-	}
-
 	let dw = document.documentElement.clientWidth
 	let dh = document.documentElement.clientHeight
 	let w  = el.offsetWidth
@@ -461,11 +456,11 @@ export function alignToEvent(el: HTMLElement, event: MouseEvent, offset: [number
 	let y = ey + offset[1]
 
 	if (x + w > dw) {
-		x = ex - w
+		x = dw - w
 	}
 
 	if (y + h > dh) {
-		y = ey - h
+		y = dh - h
 	}
 
 	setStyle(el, {
