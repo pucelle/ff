@@ -1,19 +1,14 @@
-interface ObjectWithStringKeys {
-	[key: string]: unknown
-}
-
-
 /**
  * Assign values from source to target.
  * @param target The target that the sources assigned to.
  * @param sources The sources that will assigned to target by order.
  * @param keys If `keys` specified, only values whose keys are included will be assigned.
  */
-export function assign<T extends {[key: string]: unknown}, S extends {[key: string]: unknown}>(target: T, source: S, keys: (keyof S)[] = Object.keys(source)): T {
+export function assign<T extends object, S extends object>(target: T, source: S, keys: (keyof S)[] = Object.keys(source) as (keyof S)[]): T {
 	for (let key of keys) {
 		let value = source[key]
 		if (value !== undefined) {
-			target[key as string] = value
+			target[key as unknown as keyof T] = value as any
 		}
 	}
 
@@ -33,23 +28,23 @@ export function deepClone<T> (source: T, deep: number = 10): T {
 	}
 
 	if (Array.isArray(source)) {
-		return <T><unknown>source.map(value => {
+		return source.map(value => {
 			if (typeof value !== 'object' || !value) {
 				return value
 			}
 			else {
 				return deepClone(value, deep - 1)
 			}
-		})
+		}) as unknown as T
 	}
 	else {
-		let cloned: ObjectWithStringKeys = {}
+		let cloned: any = {}
 		for (let key of Object.keys(source)) {
-			let value = (source as ObjectWithStringKeys)[key]
+			let value = (source as any)[key]
 			cloned[key] = deepClone(value, deep - 1)
 		}
 
-		return <T>cloned
+		return cloned as unknown as T
 	}
 }
 
@@ -90,8 +85,8 @@ export function deepEqual(a: unknown, b: unknown, deep: number = 10): boolean {
 			return false
 		}
 
-		let valueA = (a as ObjectWithStringKeys)[key]
-		let valueB = (b as ObjectWithStringKeys)[key]
+		let valueA = (a as any)[key]
+		let valueB = (b as any)[key]
 
 		if (!deepEqual(valueA, valueB, deep - 1)) {
 			return false
