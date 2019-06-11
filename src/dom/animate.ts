@@ -6,8 +6,10 @@ export type AnimationEasing = keyof typeof CUBIC_BEZIER_EASINGS | 'linear'
 export type AnimationName = StyleName | 'scrollTop' | 'scrollLeft'
 export type AnimationFrame = {[key in StyleName]?: string | number}
 
-const DEFAULT_ANIMATION_DURATION = 200
-const DEFAULT_ANIMATION_EASING = 'ease-out'
+
+export let defaultAnimationDuration: number = 200
+export let defaultAnimationEasing: AnimationEasing = 'ease-out-quad'
+
 const elementAnimationMap: WeakMap<HTMLElement, Animation> = new WeakMap()
 
 
@@ -137,8 +139,8 @@ function getCubicBezierEasingFunction(name: keyof typeof CUBIC_BEZIER_EASINGS) {
 
 
 function startIntervalAnimation(
-	duration: number = DEFAULT_ANIMATION_DURATION,
-	easing: AnimationEasing = DEFAULT_ANIMATION_EASING,
+	duration: number = defaultAnimationDuration,
+	easing: AnimationEasing = defaultAnimationEasing,
 	onInterval: (x: number) => void,
 	onEnd: (finish: boolean) => void,
 ) {
@@ -190,7 +192,7 @@ function startIntervalAnimation(
  * @param duration The animation duration.
  * @param easing  The animation easing.
  */
-export function animateProperty(el: HTMLElement, property: AnimationName, startValue: number, endValue: number, duration: number, easing: AnimationEasing = DEFAULT_ANIMATION_EASING) {
+export function animateProperty(el: HTMLElement, property: AnimationName, startValue: number, endValue: number, duration: number, easing: AnimationEasing = defaultAnimationEasing) {
 	let stop
 
 	let promise: Promise<boolean> = new Promise((resolve) => {
@@ -225,7 +227,7 @@ export function animateProperty(el: HTMLElement, property: AnimationName, startV
  * @param duration The animation duration.
  * @param easing  The animation easing.
  */
-export function animatePropertyFrom(el: HTMLElement, property: AnimationName, startValue: number, duration: number, easing: AnimationEasing = DEFAULT_ANIMATION_EASING) {
+export function animatePropertyFrom(el: HTMLElement, property: AnimationName, startValue: number, duration: number, easing: AnimationEasing = defaultAnimationEasing) {
 	let endValue: number
 	if (property === 'scrollTop' || property === 'scrollLeft') {
 		endValue = el[property]
@@ -246,7 +248,7 @@ export function animatePropertyFrom(el: HTMLElement, property: AnimationName, st
  * @param duration The animation duration.
  * @param easing  The animation easing.
  */
-export function animatePropertyTo(el: HTMLElement, property: AnimationName, endValue: number, duration: number, easing: AnimationEasing = DEFAULT_ANIMATION_EASING) {
+export function animatePropertyTo(el: HTMLElement, property: AnimationName, endValue: number, duration: number, easing: AnimationEasing = defaultAnimationEasing) {
 	let startValue: number
 	if (property === 'scrollTop' || property === 'scrollLeft') {
 		startValue = el[property]
@@ -267,7 +269,7 @@ export function animatePropertyTo(el: HTMLElement, property: AnimationName, endV
  * @param duration The animation duration.
  * @param easing  The animation easing.
  */
-export function animateByFunction(fn: (y: number) => void, startValue: number, endValue: number, duration: number, easing: AnimationEasing = DEFAULT_ANIMATION_EASING) {
+export function animateByFunction(fn: (y: number) => void, startValue: number, endValue: number, duration: number, easing: AnimationEasing = defaultAnimationEasing) {
 	let stop
 
 	let promise: Promise<boolean> = new Promise((resolve) => {
@@ -294,7 +296,7 @@ export function animateByFunction(fn: (y: number) => void, startValue: number, e
  * @param duration The animation duration.
  * @param easing  The animation easing.
  */
-export function animate(el: HTMLElement, startFrame: AnimationFrame, endFrame: AnimationFrame, duration: number = DEFAULT_ANIMATION_DURATION, easing: AnimationEasing = DEFAULT_ANIMATION_EASING) {
+export function animate(el: HTMLElement, startFrame: AnimationFrame, endFrame: AnimationFrame, duration: number = defaultAnimationDuration, easing: AnimationEasing = defaultAnimationEasing) {
 	if (!el.animate) {
 		return Promise.resolve(false)
 	}
@@ -309,10 +311,12 @@ export function animate(el: HTMLElement, startFrame: AnimationFrame, endFrame: A
 		duration,
 	})
 
+	el.style.pointerEvents = 'none'
 	elementAnimationMap.set(el, animation)
 
 	return new Promise((resolve) => {
 		animation.addEventListener('finish', () => {
+			el.style.pointerEvents = ''
 			elementAnimationMap.delete(el)
 			resolve(true)
 		}, false)
@@ -332,13 +336,13 @@ const DEFAULT_STYLE: {[key: string]: string} = {
 
 
 /**
- * Execute standard web animation on element.
+ * Execute standard web animation on element with start frame specified, the end frame will be specified as zero values.
  * @param el The element to execute web animation.
  * @param startFrame The start frame.
  * @param duration The animation duration.
  * @param easing  The animation easing.
  */
-export function animateFrom(el: HTMLElement, startFrame: AnimationFrame, duration: number = DEFAULT_ANIMATION_DURATION, easing: AnimationEasing = DEFAULT_ANIMATION_EASING) {
+export function animateFrom(el: HTMLElement, startFrame: AnimationFrame, duration: number = defaultAnimationDuration, easing: AnimationEasing = defaultAnimationEasing) {
 	let endFrame: AnimationFrame = {}
 	let style = getComputedStyle(el)
 
@@ -351,21 +355,30 @@ export function animateFrom(el: HTMLElement, startFrame: AnimationFrame, duratio
 
 
 /**
- * Execute standard web animation on element. After animation end, the state of element will be the specified end state.
+ * Execute standard web animation on element with end frame specified, the end frame will be specified as current state values.
+ * After animation executed, will apply end frame values to element.
  * @param el The element to execute web animation.
  * @param endFrame The end frame.
  * @param duration The animation duration.
  * @param easing  The animation easing.
  */
-export async function animateTo(el: HTMLElement, endFrame: AnimationFrame, duration: number = DEFAULT_ANIMATION_DURATION, easing: AnimationEasing = DEFAULT_ANIMATION_EASING) {
+export async function animateTo(el: HTMLElement, endFrame: AnimationFrame, duration: number = defaultAnimationDuration, easing: AnimationEasing = defaultAnimationEasing) {
 	let startFrame: AnimationFrame = {}
 	let style = getComputedStyle(el)
+
+	// Fix '' to `0` or `none`
+	let standardEndFrame = Object.assign({}, endFrame)
+	for (let property in standardEndFrame) {
+		if (standardEndFrame[property as StyleName] === '') {
+			standardEndFrame[property as StyleName] = DEFAULT_STYLE[property] || '0'
+		}
+	}
 
 	for (let property in endFrame) {
 		startFrame[property as StyleName] = (style as any)[property] || DEFAULT_STYLE[property] || '0'
 	}
 
-	let finish = await animate(el, startFrame, endFrame, duration, easing)
+	let finish = await animate(el, startFrame, standardEndFrame, duration, easing)
 	if (finish) {
 		setStyle(el, endFrame)
 	}
@@ -374,14 +387,13 @@ export async function animateTo(el: HTMLElement, endFrame: AnimationFrame, durat
 }
 
 
-
 /** Capture current states as start frame, and later states as end frame 
  * @param el The element to execute web animation.
  * @param properties The style properties to capture.
  * @param duration The animation duration.
  * @param easing  The animation easing.
  */
-export function animateToNextFrame(el: HTMLElement, properties: StyleName[] | StyleName, duration: number = DEFAULT_ANIMATION_DURATION, easing: AnimationEasing = DEFAULT_ANIMATION_EASING) {
+export function animateToNextFrame(el: HTMLElement, properties: StyleName[] | StyleName, duration: number = defaultAnimationDuration, easing: AnimationEasing = defaultAnimationEasing) {
 	if (!el.animate) {
 		return Promise.resolve(false)
 	}
@@ -415,6 +427,7 @@ export function stopAnimation(el: HTMLElement) {
 	let animation = elementAnimationMap.get(el)
 	if (animation) {
 		animation.cancel()
+		el.style.pointerEvents = ''
 		elementAnimationMap.delete(el)
 	}
 }
