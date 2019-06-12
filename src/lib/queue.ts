@@ -68,8 +68,8 @@ type QueueHandler<Task, Value> = (task: Task) => {promise: Promise<Value>, abort
 
 export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, Value>> {
 
-	/** Specify how many tasks to run simultaneously. */
-	concurrency: number = 10
+	/** Specify how many tasks to run simultaneously. Default value is `5`. */
+	concurrency: number = 5
 
 	/** If true, will run tasks from head of the queue. */
 	fifo: boolean = true
