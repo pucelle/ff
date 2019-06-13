@@ -296,6 +296,7 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 		}
 	}
 
+	// Prepare until we can handle it, normally is the state changed from pause to resume.
 	private async prepareItem(item: QueueItem<Task>) {
 		item.abort = null
 
@@ -388,6 +389,13 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 		return true
 	}
 
+	/** Remove all not running tasks. */
+	clearNotRunning() {
+		this.tasks = []
+		this.failedItems = []
+		this.handledCount = 0
+	}
+
 	/** Push tasks to queue. */
 	push(...tasks: Task[]) {
 		this.tasks.push(...tasks)
@@ -430,7 +438,7 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 		return undefined
 	}
 
-	/** Remove tasks, note that it's O(m * n) algorithm */
+	/** Remove tasks even the task is running, note that it's O(m * n) algorithm */
 	remove(...tasks: Task[]): Task[] {
 		let removed: Task[] = []
 
@@ -462,7 +470,7 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 		return removed
 	}
 
-	/** Remove all matched tasks */
+	/** Remove all matched tasks even the task is running. */
 	removeWhere(fn: (task: Task) => boolean): Task[] {
 		let removed: Task[] = []
 
