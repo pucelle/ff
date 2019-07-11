@@ -208,7 +208,7 @@ export function afterLast(string: string, substring: string, greedy: boolean = f
  * @param string The string to be capitalized.
  */
 export function capitalize(string: string): string {
-	return string.slice(0, 1).toUpperCase() + string.slice(1)
+	return string.slice(0, 1).toUpperCase() + string.slice(1).toLowerCase()
 }
 
 
