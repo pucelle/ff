@@ -48,9 +48,9 @@ export function select(string: string, re: RegExp, template: string): string | s
  * Returns specified index of sub match in `string` by executing `re`.
  * @param string The string to select sub match.
  * @param re The RegExp to execute on string.
- * @param index Select the sub match in the index from each match result or results. Default value is 0.
+ * @param index Select the sub match in the index from each match result or results. Default value is 1.
  */
-export function subMatchAt(string: string, re: RegExp, index: number = 0): string {
+export function subMatchAt(string: string, re: RegExp, index: number = 1): string {
 	let match = re.exec(string)
 	if (match) {
 		return match[index] || ''
@@ -65,9 +65,9 @@ export function subMatchAt(string: string, re: RegExp, index: number = 0): strin
  * Returns specified index of sub matches in `string` by executing `re`. Returns an array of matches.
  * @param string The string to select sub match.
  * @param re The RegExp to execute on string.
- * @param index Select the sub match in the index from each match result or results. Default value is 0.
+ * @param index Select the sub match in the index from each match result or results. Default value is 1.
  */
-export function subMatchesAt(string: string, re: RegExp, index: number = 0): string[] {
+export function subMatchesAt(string: string, re: RegExp, index: number = 1): string[] {
 	if (re.global) {
 		let match: RegExpExecArray |  null
 		let matches: string[] = []
