@@ -5,7 +5,7 @@ class JSONStorage {
 	private supported: boolean | null = null
 
 	/**
-	 * Test if storage is supported. Will return false in private mode. 
+	 * Test if localStorage is supported. Will return false in private mode. 
 	 */
 	isSupported(): boolean {
 		if (this.supported !== null) {
@@ -24,7 +24,7 @@ class JSONStorage {
 	}
 
 	/**
-	 * Test if has set key.
+	 * Test if has set key in localStorage.
 	 * @param key 
 	 */
 	has(key: string): boolean | null {
@@ -37,16 +37,29 @@ class JSONStorage {
 	}
 
 	/**
-	 * Get json data from key.
+	 * Get json data from localStorage by `key`.
+	 * @param key The string type key.
+	 * @param defaultValue The default value to return when data havn't been storaged.
+	 */
+	get<T>(key: string, defaultValue: T): T
+
+	/**
+	 * Get json data from localStorage by `key`.
 	 * @param key The string type key.
 	 */
-	get(key: string): unknown {
+	get(key: string): any
+
+	get(key: string, defaultValue: any = null): any {
 		if (!this.isSupported()) {
 			return null
 		}
 
 		key = this.prefix + key
 		let value = localStorage[key]
+
+		if (value === undefined) {
+			return defaultValue
+		}
 
 		if (value && typeof value === 'string') {
 			try{
@@ -55,28 +68,28 @@ class JSONStorage {
 				if (expires && expires < Date.now()) {
 					delete localStorage[key]
 					delete localStorage[key + this.expireSuffix]
-					return null
+					return defaultValue
 				}
 				else {
 					return value
 				}
 			}
 			catch (err) {
-				return null
+				return defaultValue
 			}
 		}
 		else {
-			return null
+			return defaultValue
 		}
 	}
 
 	/**
-	 * Cache json data in key. Returns if cached. 
+	 * Cache json data into localStorage by `key`. Returns if cached. 
 	 * @param key The string type key.
 	 * @param value The json data to cache.
 	 * @param expires An optional expire time in second.
 	 */
-	set(key: string, value: unknown, expires?: number): boolean | null {
+	set(key: string, value: any, expires?: number): boolean | null {
 		if (!this.isSupported()) {
 			return null
 		}
@@ -92,7 +105,7 @@ class JSONStorage {
 	}
 
 	/**
-	 * Delete cached json data in key. Returns if deleted.
+	 * Delete cached json data in localStorage by `key`. Returns if deleted.
 	 * @param key The string type key.
 	 */
 	delete(key: string): boolean | null {
