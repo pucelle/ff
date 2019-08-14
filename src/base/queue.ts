@@ -16,7 +16,7 @@ export enum QueueState {
 	/** All tasks finshed. */
 	Finish,
 
-	/** Aborted because of error or by user. */
+	/** Aborted because of error or aborted by user. */
 	Aborted,
 }
 
@@ -45,6 +45,9 @@ interface QueueEvents<T, V> {
 
 	/** Emitted after error occured or called `abort()`. */
 	abort(err: Error | string | number): void
+
+	/** End after `finish` or `abort` */
+	end(): void
 }
 
 interface QueueItem<Task> {
@@ -166,6 +169,12 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 		}
 
 		return this.state === QueueState.Running
+	}
+
+	untilFinish(): Promise<void> {
+		return new Promise((resolve, reject) => {
+			this.once('end', err => err ? reject(err) : resolve())
+		})
 	}
 
 	/** Pause handling tasks, running tasks will not aborted, but will not emit task events until `resume()`. Returns if paused from running state. */
@@ -319,6 +328,7 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 		if (this.state === QueueState.Pending || this.state === QueueState.Running) {
 			this.state = QueueState.Finish
 			this.emit('finish')
+			this.emit('end', null)
 		}
 	}
 
@@ -352,6 +362,7 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 		this.failedItems.push(...this.runningItems)
 		this.abortRunningItems()
 		this.emit('abort', err)
+		this.emit('end', err)
 		return true
 	}
 
