@@ -47,7 +47,7 @@ interface QueueEvents<T, V> {
 	abort(err: Error | string | number): void
 
 	/** End after `finish` or `abort` */
-	end(): void
+	end(err: Error | null): void
 }
 
 interface QueueItem<Task> {
