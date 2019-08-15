@@ -1,6 +1,6 @@
 class JSONStorage {
 
-	private prefix: string = '_fdom_'
+	private prefix: string = '_ff_'
 	private expireSuffix: string = '_expires_'
 	private supported: boolean | null = null
 
