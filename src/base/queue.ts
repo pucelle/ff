@@ -383,7 +383,7 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 
 	/** End queue, abort all running tasks and clear all tasks and handling records. */
 	clear(): boolean {
-		if (!(this.state === QueueState.Running || this.state === QueueState.Paused)) {
+		if (!(this.state === QueueState.Running || this.state === QueueState.Paused || this.state === QueueState.Finish)) {
 			return false
 		}
 
