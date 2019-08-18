@@ -386,7 +386,7 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 		this.emit('taskabort', task)
 	}
 
-	/** End queue, abort all running tasks and clear all tasks and handling records. */
+	/** End and finish queue, abort all running tasks and clear all tasks and handling records. */
 	clear(): boolean {
 		if (!(this.state === QueueState.Running || this.state === QueueState.Paused || this.state === QueueState.Finish)) {
 			return false
@@ -397,6 +397,8 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 		this.failedItems = []
 		this.handledCount = 0
 		this.abortRunningItems()
+		this.emit('finish')
+		this.emit('end')
 		
 		if (this.resumeResolve) {
 			this.resumeResolve()
