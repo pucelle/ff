@@ -172,9 +172,14 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 	}
 
 	untilFinish(): Promise<void> {
-		return new Promise((resolve, reject) => {
-			this.once('end', err => err ? reject(err) : resolve())
-		})
+		if (this.getUnhandledCount() > 0) {
+			return new Promise((resolve, reject) => {
+				this.once('end', err => err ? reject(err) : resolve())
+			})
+		}
+		else {
+			return Promise.resolve()
+		}
 	}
 
 	/** Pause handling tasks, running tasks will not aborted, but will not emit task events until `resume()`. Returns if paused from running state. */
