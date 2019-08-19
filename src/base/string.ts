@@ -45,12 +45,12 @@ export function select(string: string, re: RegExp, template: string): string | s
 
 
 /**
- * Returns specified index of sub match in `string` by executing `re`.
+ * Returns specified index of sub match in `string` from executing `re`.
  * @param string The string to select sub match.
  * @param re The RegExp to execute on string.
- * @param index Select the sub match in the index from each match result or results. Default value is 1.
+ * @param index Select the sub match in the index from each match result or results.
  */
-export function subMatchAt(string: string, re: RegExp, index: number = 1): string {
+export function subMatchAt(string: string, re: RegExp, index: number): string {
 	let match = re.exec(string)
 	if (match) {
 		return match[index] || ''
@@ -62,12 +62,22 @@ export function subMatchAt(string: string, re: RegExp, index: number = 1): strin
 
 
 /**
- * Returns specified index of sub matches in `string` by executing `re`. Returns an array of matches.
+ * Returns the first sub match in `string` from executing `re`.
  * @param string The string to select sub match.
  * @param re The RegExp to execute on string.
- * @param index Select the sub match in the index from each match result or results. Default value is 1.
  */
-export function subMatchesAt(string: string, re: RegExp, index: number = 1): string[] {
+export function firstMatch(string: string, re: RegExp): string {
+	return subMatchAt(string, re, 1)
+}
+
+
+/**
+ * Returns specified index of sub matches in `string` from executing `re`. Returns an array of matches.
+ * @param string The string to select sub match.
+ * @param re The RegExp to execute on string.
+ * @param index Select the sub match in the index from each match result or results.
+ */
+export function subMatchesAt(string: string, re: RegExp, index: number): string[] {
 	if (re.global) {
 		let match: RegExpExecArray |  null
 		let matches: string[] = []
@@ -89,7 +99,7 @@ export function subMatchesAt(string: string, re: RegExp, index: number = 1): str
 
 
 /**
- * Returns all sub matches in `string` by executing `re`. Returns an array that includes sub matches when `re` is global.
+ * Returns all sub matches in `string` from executing `re`. Returns an array that includes sub matches when `re` is global.
  * @param string The string to select sub matches.
  * @param re The RegExp to execute on string.
  * @param sliceIndex Slice each match results from, specify to 0 to include whole match, 1 to only include sub matches. Default value is 1.
