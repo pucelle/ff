@@ -1,4 +1,4 @@
-import * as ff from '../..'
+import * as ff from '../../out'
 
 
 describe('Test array', () => {
