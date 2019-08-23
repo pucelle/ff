@@ -58,8 +58,8 @@ interface QueueItem<Task> {
 }
 
 export interface QueueOptions<Task, Value> {
+	key?: string
 	concurrency?: number
-	fifo?: boolean
 	continueOnError?: boolean
 	maxRetryTimes?: number
 	tasks?: Task[]
@@ -71,11 +71,11 @@ type QueueHandler<Task, Value> = (task: Task) => {promise: Promise<Value>, abort
 
 export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, Value>> {
 
+	/** If provided, can avoid adding duplicate tasks. */
+	key: keyof Task | null = null
+
 	/** Specify how many tasks to run simultaneously. Default value is `5`. */
 	concurrency: number = 5
-
-	/** If true, will run tasks from head of the queue. */
-	fifo: boolean = true
 
 	/** If true, will continue handling tasks when error occurs. */
 	continueOnError: boolean = false
@@ -91,11 +91,12 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 	tasks: Task[] = []
 
 	/** The handler to handle each task. It should return a value when `capture` is true. */
-	handler: QueueHandler<Task, Value>
+	handler!: QueueHandler<Task, Value>
 	
 	/** Returns current working state. */
 	state: QueueState = QueueState.Pending
 
+	private keyValues: Set<any> | null = null
 	private seed: number = 1
 	private handledCount: number = 0
 	private runningItems: QueueItem<Task>[] = []
@@ -106,13 +107,14 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 	constructor(options: QueueOptions<Task, Value>) {
 		super()
 
-		this.handler = options.handler
-
 		if (options.tasks) {
-			this.tasks.push(...options.tasks)
+			options.tasks = [...options.tasks]
 		}
+		assign(this, options)
 		
-		assign(this, options, ['concurrency', 'fifo', 'continueOnError', 'maxRetryTimes'])
+		if (this.key) {
+			this.keyValues = new Set()
+		}
 	}
 
 	/** Returns the tount of total tasks, included handled and unhandled and failed. */
@@ -227,7 +229,7 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 		}
 		
 		while (this.getRunningCount() < this.concurrency && this.tasks.length > 0) {
-			let task = this.fifo ? this.tasks.shift()! : this.tasks.pop()!
+			let task = this.tasks.shift()!
 
 			this.handleItem({
 				id: this.seed++,
@@ -416,6 +418,12 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 
 	/** Push tasks to queue. */
 	push(...tasks: Task[]) {
+		if (this.keyValues) {
+			for (let task of tasks) {
+				this.keyValues.add(task[this.key!])
+			}
+		}
+
 		this.tasks.push(...tasks)
 
 		if (this.state === QueueState.Finish) {
@@ -426,14 +434,45 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 	}
 
 	/** Unshift tasks to queue. */
-	unshift(...items: Task[]) {
-		this.tasks.unshift(...items)
+	unshift(...tasks: Task[]) {
+		if (this.keyValues) {
+			for (let task of tasks) {
+				this.keyValues.add(task[this.key!])
+			}
+		}
+
+		this.tasks.unshift(...tasks)
 
 		if (this.state === QueueState.Finish) {
 			this.start()
 		}
 
 		this.mayHandleNextTask()
+	}
+
+	has(task: Task) {
+		if (this.keyValues) {
+			return this.keyValues.has(task[this.key!])
+		}
+		else {
+			return false
+		}
+	}
+
+	add(...tasks: Task[]) {
+		tasks = tasks.filter(t => !this.has(t))
+
+		if (tasks.length > 0) {
+			this.push(...tasks)
+		}
+	}
+
+	addToStart(...tasks: Task[]) {
+		tasks = tasks.filter(t => !this.has(t))
+
+		if (tasks.length > 0) {
+			this.unshift(...tasks)
+		}
 	}
 
 	/** Find first matched task. */
