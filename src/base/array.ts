@@ -476,7 +476,7 @@ export function aggregate<Item, Value>(array: Item[], keyOrFn: CanSortKeys<Item>
  * Returns the length of the array.
  * @param array The array to count length.
  */
-// Can't use `array: unknown` here, or it will cause `Item` in `aggregate` was inferred as `unknown` and make `CanSortKeys<Item>` not work.
+// Can't use `array: unknown` here, or it will cause `Item` in `aggregate` was inferred as `unknown` and make `CanSortKeys<Item>` not working.
 export function count(array: any[]): number {
 	return array.length
 }
