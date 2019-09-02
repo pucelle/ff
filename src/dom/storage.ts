@@ -1,3 +1,6 @@
+type InferFromDefault<T> = T extends null | undefined ? any : T
+
+
 class JSONStorage {
 
 	private prefix: string = '_ff_'
@@ -41,7 +44,7 @@ class JSONStorage {
 	 * @param key The string type key.
 	 * @param defaultValue The default value to return when data havn't been storaged.
 	 */
-	get<T>(key: string, defaultValue: T): T
+	get<T>(key: string, defaultValue: T): InferFromDefault<T>
 
 	/**
 	 * Get json data from localStorage by `key`.
