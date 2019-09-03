@@ -324,7 +324,7 @@ export class Order<Item> {
 			}
 
 			if (ai < bi) {
-				return <-1 | 1>-order
+				return -order as -1 | 1
 			}
 
 			if (ai > bi) {
@@ -332,7 +332,7 @@ export class Order<Item> {
 			}
 
 			if (ai !== bi) {
-				return ai === null || ai === undefined ? <-1 | 1>-order : order
+				return ai === null || ai === undefined ? -order as -1 | 1 : order
 			}
 		}
 
