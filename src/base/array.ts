@@ -280,7 +280,7 @@ export type OrderDirection = -1 | 1 | 'asc' | 'desc'
 export type OrderFunction<Item> = (item: Item) => string | number
 export type OrderTuple<Item, Key> = Key | OrderFunction<Item> | [Key | OrderFunction<Item>, OrderDirection]
 type NormativeOrderTuple<Item, Key> = [Key | OrderFunction<Item>, -1 | 1]
-type CanSortKeys<Item> = Extract<{[Key in keyof Item]: Item[Key] extends string | number ? Key : never}[keyof Item], string | number>
+type CanSortKeys<Item> = Extract<keyof Item, string | number>
 
 
 export class Order<Item> {
