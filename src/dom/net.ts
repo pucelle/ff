@@ -41,7 +41,7 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 		for (let {url, type} of normalized) {
 			try {
 				let blob = await this.loadOne(url, (loaded: number) => {
-					this.emit('progress', completedSize + loaded, totalSize)
+					this.emit('progress', Math.min(completedSize + loaded, totalSize), totalSize)
 				})
 
 				completedSize += sizes.shift()!
