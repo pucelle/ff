@@ -3,9 +3,13 @@ type InferFromDefault<T> = T extends null | undefined ? any : T
 
 class JSONStorage {
 
-	private prefix: string = '_ff_'
+	private prefix: string = ''
 	private expireSuffix: string = '_expires_'
 	private supported: boolean | null = null
+
+	constructor(prefix: string) {
+		this.prefix = prefix
+	}
 
 	/**
 	 * Test if localStorage is supported. Will return false in private mode. 
@@ -121,6 +125,14 @@ class JSONStorage {
 
 		return delete localStorage[key]
 	}
+
+	/**
+	 * Returns a new storage to cache data using `namespace` as namespace.
+	 * @param key The string type key.
+	 */
+	group(namespace: string) {
+		return new JSONStorage(this.prefix + namespace)
+	}
 }
 
-export const storage = new JSONStorage()
+export const storage = new JSONStorage('_ff_')
