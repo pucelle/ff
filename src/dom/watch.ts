@@ -43,7 +43,7 @@ export const WATCH_STATE_FN = {
  * @param type The state to watch, can be `'show' | 'hide' | 'inview' | 'outview' | 'size' | 'rect'`.
  * @param callback The callback to call when state changed.
  */
-export function watch<Type extends WatchType>(el: HTMLElement, type: Type, callback: WatchCallback<Type>): () => void {
+export function watchLayout<Type extends WatchType>(el: HTMLElement, type: Type, callback: WatchCallback<Type>): () => void {
 	return bindWatch(false, false, false, el, type, callback)
 }
 
@@ -55,7 +55,7 @@ export function watch<Type extends WatchType>(el: HTMLElement, type: Type, callb
  * @param type The state to watch, can be `'show' | 'hide' | 'inview' | 'outview' | 'size' | 'rect'`.
  * @param callback The callback to call when state changed.
  */
-export function watchImmediately<Type extends WatchType>(el: HTMLElement, type: Type, callback: WatchCallback<Type>): () => void {
+export function watchLayoutImmediately<Type extends WatchType>(el: HTMLElement, type: Type, callback: WatchCallback<Type>): () => void {
 	return bindWatch(false, false, true, el, type, callback)
 }
 
@@ -67,7 +67,7 @@ export function watchImmediately<Type extends WatchType>(el: HTMLElement, type: 
  * @param type The state to watch, can be `'show' | 'hide' | 'inview' | 'outview' | 'size' | 'rect'`.
  * @param callback The callback to call when state changed.
  */
-export function watchOnce<Type extends WatchType>(el: HTMLElement, type: WatchType, callback: WatchCallback<Type>): () => void {
+export function watchLayoutOnce<Type extends WatchType>(el: HTMLElement, type: WatchType, callback: WatchCallback<Type>): () => void {
 	return bindWatch(true, false, false, el, type, callback)
 }
 
@@ -79,7 +79,7 @@ export function watchOnce<Type extends WatchType>(el: HTMLElement, type: WatchTy
  * @param type The state to watch, can be `'show' | 'hide' | 'inview' | 'outview'`.
  * @param callback The callback to call when state becomes true.
  */
-export function watchUntil<Type extends 'show' | 'hide' | 'inview' | 'outview'>(el: HTMLElement, type: Type, callback: WatchCallback<Type>): () => void {
+export function watchLayoutUntil<Type extends 'show' | 'hide' | 'inview' | 'outview'>(el: HTMLElement, type: Type, callback: WatchCallback<Type>): () => void {
 	return bindWatch(true, true, false, el, type, callback)
 }
 
@@ -87,7 +87,7 @@ export function watchUntil<Type extends 'show' | 'hide' | 'inview' | 'outview'>(
 function bindWatch(isOnce: boolean, untilTrue: boolean, immediate: boolean, el: HTMLElement, type: WatchType, callback: Function): () => void {
 	let getState = WATCH_STATE_FN[type]
 	let oldState: any
-	let loop: WatchLoop | null = null
+	let loop: WatchLayoutLoop | null = null
 	let observer: any = null
 
 	if (!getState) {
@@ -198,11 +198,11 @@ function valueOrObjectEqual(a: unknown, b: unknown): boolean {
 }
 
 
-export interface WatchLoopConstructor {
-	new(callback: () => void): WatchLoop
+export interface WatchLayoutLoopConstructor {
+	new(callback: () => void): WatchLayoutLoop
 }
 
-export interface WatchLoop {
+export interface WatchLayoutLoop {
 	cancel(): void
 }
 
@@ -222,7 +222,7 @@ export interface WatchLoop {
 // Note that scroll event is not bubblable, so you need to capture whell, mouse and keyboard evnets.
 // Otherwise make sure the events you want to capture are not stopped.
 
-const AnimationFrameLoop: WatchLoopConstructor = class AnimationFrameLoop implements WatchLoop {
+const AnimationFrameLoop: WatchLayoutLoopConstructor = class AnimationFrameLoop implements WatchLayoutLoop {
 
 	private callback: () => void
 	private ended: boolean = false
