@@ -165,7 +165,7 @@ export function difference<Item extends number | string>(array: Item[], ...exclu
 
 
 /**
- * Find one item from a sorted array matched `fn`.
+ * Binary find one item from a sorted array which match `fn`.
  * @param array The sorted array.
  * @param fn The function to accept item in array as argument and returns `-1` to move left, `1` to move right.
  */
@@ -176,7 +176,7 @@ export function binaryFind<Item>(array: Item[], fn: (item: Item) => (0 | -1 | 1)
 
 
 /**
- * Find the index in a sorted array in where the item in the index position matched `fn`.
+ * Binary find the index in a sorted array at where the item match `fn`.
  * @param array The sorted array.
  * @param fn The function to accept item in array as argument and returns `-1` to move left, `1` to move right.
  */
@@ -228,8 +228,8 @@ export function binaryFindIndex<Item>(array: Item[], fn: (item: Item) => (0 | -1
 
 
 /**
- * Find the closest index in a sorted array in where to insert new item.
- * Returned index betweens `0 - array.length`, and if `array[index]` exist, `fn(array[index]) >= 0`.
+ * Binary find the closest index in a sorted array in where to insert new item.
+ * Returned index betweens `0 ~ array.length`, and if `array[index]` exist, `fn(array[index]) >= 0`.
  * @param array The sorted array.
  * @param fn The function to accept item in array as argument and returns `-1` to move left, `1` to move right.
  */
@@ -305,10 +305,21 @@ export class Order<Item> {
 		}
 	}
 
+	/**
+	 * Sort `array` inside by the order specified by current object.
+	 * @param array The array to sort.
+	 */
 	sortArray(array: Item[]) {
 		array.sort((a, b) => this.compare(a, b))
 	}
 
+	/**
+	 * Compare two items.
+	 * When `order` is `1`: returns `0` if they are same; returns `-1` if the first one less that the second one; else returns `1`.
+	 * When `order` is `-1`: returns `0` if they are same; returns `1` if the first one less that the second one; else returns `-1`.
+	 * @param a First item.
+	 * @param b Second item.
+	 */
 	compare(a: Item, b: Item): 0 | -1 | 1 {
 		for (let [keyOrFn, order] of this.orders) {
 			let ai: number | string
@@ -339,14 +350,34 @@ export class Order<Item> {
 		return 0
 	}
 
+	/**
+	 * Binary find the index of `array` the value at where equals to `item`.
+	 * Returns `-1` if not found.
+	 * @param array The array to lookup.
+	 * @param item The item to search.
+	 */
 	binaryFind(array: Item[], item: Item): Item | undefined {
 		return binaryFind(array, i => this.compare(item, i))
 	}
 
+	/**
+	 * Binary find an index of `array` to insert `item` and keep current order.
+	 * Returned value betweens `0 ~ array.length`.
+	 * @param array The array to lookup.
+	 * @param item The item to compare.
+	 */
 	binaryFindIndex(array: Item[], item: Item): number {
 		return binaryFindIndex(array, i => this.compare(item, i))
 	}
 	
+	/**
+	 * Binary find the closest index in a sorted array in where to insert new item and keep current order.
+	 * @param array The array to lookup.
+	 * @param item The item to insert.
+	 */
+
+	// `splice` is very slower since it reallocate memory frequently.
+	// See https://jsperf.com/splice-vs-filter
 	binaryInsert(array: Item[], item: Item) {
 		let index = binaryFindIndexToInsert(array, i => this.compare(item, i))
 		array.splice(index, 0, item)
@@ -362,7 +393,7 @@ export class Order<Item> {
 export function orderBy<Item extends object>(array: Item[], order: Order<Item>): Item[]
 
 /**
- * Sort object type items inside array by specified orders.
+ * Sort items of object type inside array by a specified orders.
  * @param array The array to order.
  * @param orders Rest argument of type `key` or `OrderFunction` which will return a `key`, or [`key` / `OrderFunction`, `OrderDirection`].
  */
