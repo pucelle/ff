@@ -49,7 +49,7 @@ export function watchLayout<Type extends WatchType>(el: HTMLElement, type: Type,
 
 
 /**
- * Watch specified state, call callback immediately with current state`. Returns a cancel function.
+ * Watch specified state, call callback in next animation frame with current state`. Returns a cancel function.
  * Note that this method may slow page speed and cause additional reflow.
  * @param el The element to watch.
  * @param type The state to watch, can be `'show' | 'hide' | 'inview' | 'outview' | 'size' | 'rect'`.
