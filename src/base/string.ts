@@ -236,9 +236,9 @@ export function toCamerCase(string: string): string {
  * @param string The string to transform.
  */
 export function toDashCase(string: string): string {
-	return string.replace(/(^|.)[A-Z]+/g, (m0: string, charBefore: string | undefined) => {
+	return string.replace(/(^|.)([A-Z]+)/g, (m0: string, charBefore: string | undefined, upperChars: string) => {
 		if (charBefore && /\w/.test(charBefore)) {
-			return charBefore + '-' + m0.toLowerCase()
+			return charBefore + '-' + upperChars.toLowerCase()
 		}
 		else {
 			return m0.toLowerCase()
