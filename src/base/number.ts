@@ -39,6 +39,16 @@ export function toPower(number: number, power = 0): number {
 
 
 /**
+ * Nearly same with `number.toPrecision`, except it returns number type.
+ * @param number The number to transfer to specified precision.
+ * @param precision The precision value betweens 1-21, default value is 1.
+ */
+export function toPrecision(number: number,  precision: number = 1): number {
+	return Number(number.toPrecision(precision))
+}
+
+
+/**
  * Like a % b, but always returns positive number.
  * @param number The number to calculate modulo.
  * @param modulo The modulo of number.

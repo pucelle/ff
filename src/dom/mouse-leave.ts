@@ -1,7 +1,7 @@
 /**
  * Call callback after mouse leaves all of the elements. It's very usefull to handle mouse hover event in menu & submenu.
  * @param elOrs The element array to capture leave at.
- * @param ms If mouse leaves all the element and don't enter elements again, call callback.
+ * @param ms If mouse leaves all the element and don't enter elements again, call callback. Default value is 200.
  * @param callback The callback to call after mouse leaves all the elements.
  */
 export function onMouseLeaveAll(elOrs: Element | Element[], callback: () => void, ms: number = 200): () => void {
@@ -12,7 +12,7 @@ export function onMouseLeaveAll(elOrs: Element | Element[], callback: () => void
 /**
  * Call callback after mouse leaves all of the elements only for once, its very usefull to handle mouse event in menu & submenu.
  * @param elOrs The element array to capture leave at.
- * @param ms If mouse leaves all the element and don't enter elements again, call callback.
+ * @param ms If mouse leaves all the element and don't enter elements again, call callback. Default value is 200.
  * @param callback The callback to call after mouse leaves all the elements.
  */
 export function onceMouseLeaveAll(elOrs: Element | Element[], callback: () => void, ms: number = 200): () => void {
