@@ -1,11 +1,49 @@
 /**
+ * It's common that another popup2 triggered in one existing popup1,
+ * When mouse moved to popup2, popup1 which has trigger of popup2 will disappear.
+ * This is not right, so we will implement a popup level:
+ * When popup2 generated, we check the trigger if it is contained in any registered element,
+ * of an exist mouse leave binding group.
+ * If so, we lock the exist group until the current popup disappeared.
+ */
+
+const MouseLeaveBindings: Set<MouseLeaveBinding> = new Set()
+const LockingBindings: Map<MouseLeaveBinding, MouseLeaveBinding> = new Map()
+
+function onBindingCreated(binding: MouseLeaveBinding) {
+	for (let existingBinding of [...MouseLeaveBindings].reverse()) {
+		for (let el of binding.els) {
+			if (existingBinding.els.some(existingEl => existingEl.contains(el) && existingEl !== el)) {
+				existingBinding.lock()
+				LockingBindings.set(binding, existingBinding)
+				break
+			}
+		}
+	}
+
+	MouseLeaveBindings.add(binding)
+}
+
+function onBindingDeleted(binding: MouseLeaveBinding) {
+	let lockingBinding = LockingBindings.get(binding)
+	if (lockingBinding) {
+		lockingBinding.unlock()
+		LockingBindings.delete(binding)
+	}
+
+	MouseLeaveBindings.delete(binding)
+}
+
+
+/**
  * Call callback after mouse leaves all of the elements. It's very usefull to handle mouse hover event in menu & submenu.
  * @param elOrs The element array to capture leave at.
  * @param ms If mouse leaves all the element and don't enter elements again, call callback. Default value is 200.
  * @param callback The callback to call after mouse leaves all the elements.
  */
 export function onMouseLeaveAll(elOrs: Element | Element[], callback: () => void, ms: number = 200): () => void {
-	return bindMouseLeaveAll(false, elOrs, callback, ms)
+	let binding = new MouseLeaveBinding(false, elOrs, callback, ms)
+	return () => binding.cancel()
 }
 
 
@@ -16,70 +54,102 @@ export function onMouseLeaveAll(elOrs: Element | Element[], callback: () => void
  * @param callback The callback to call after mouse leaves all the elements.
  */
 export function onceMouseLeaveAll(elOrs: Element | Element[], callback: () => void, ms: number = 200): () => void {
-	return bindMouseLeaveAll(true, elOrs, callback, ms)
+	let binding = new MouseLeaveBinding(true, elOrs, callback, ms)
+	return () => binding.cancel()
 }
 
 
-function bindMouseLeaveAll(isOnce: boolean, elOrs: Element | Element[], callback: () => void, ms: number): () => void {
-	let els = Array.isArray(elOrs) ? elOrs : [elOrs]
-	let mouseIn = false
-	let ended = false
-	let timer: ReturnType<typeof setTimeout> | null = null
+class MouseLeaveBinding {
 
-	function onMouseEnter() {
-		mouseIn = true
-		clear()
+	els: Element[]
+
+	private locked: boolean = false
+	private isOnce: boolean
+	private callback: () => void
+	private ms: number
+	private mouseIn: boolean = false
+	private ended: boolean = false
+	private timer: ReturnType<typeof setTimeout> | null = null
+
+	constructor(isOnce: boolean, elOrs: Element | Element[], callback: () => void, ms: number) {
+		this.isOnce = isOnce
+		this.els = Array.isArray(elOrs) ? elOrs : [elOrs]
+		this.callback = callback
+		this.ms = ms
+
+		this.onMouseEnter = this.onMouseEnter.bind(this)
+		this.onMouseLeave = this.onMouseLeave.bind(this)
+		
+		for (let el of this.els) {
+			el.addEventListener('mouseenter', this.onMouseEnter, false)
+			el.addEventListener('mouseleave', this.onMouseLeave, false)
+		}
+
+		onBindingCreated(this)
 	}
 
-	function onMouseLeave() {
-		mouseIn = false
-		clear()
+	private onMouseEnter() {
+		this.mouseIn = true
+		this.clearTimeout()
+	}
 
-		timer = setTimeout(function () {
-			timer = null
+	private onMouseLeave() {
+		this.mouseIn = false
+		this.clearTimeout()
 
-			if (!mouseIn) {
-				flush()
+		this.timer = setTimeout(() => {
+			this.timer = null
+
+			if (!this.mouseIn) {
+				this.flush()
 			}
-		}, ms)
+		}, this.ms)
 	}
 
-	function clear() {
-		if (timer) {
-			clearTimeout(timer)
-			timer = null
+	private clearTimeout() {
+		if (this.timer) {
+			clearTimeout(this.timer)
+			this.timer = null
 		}
 	}
 
-	function flush() {
-		if (ended) {
+	flush() {
+		if (this.ended) {
 			return
 		}
 
-		if (isOnce) {
-			cancel()
+		if (this.isOnce) {
+			this.cancel()
 		}
 
-		callback()
+		if (!this.locked) {
+			this.callback()
+		}
 	}
 
-	function cancel() {
-		if (timer) {
-			clearTimeout(timer)
+	cancel() {
+		if (this.timer) {
+			clearTimeout(this.timer)
 		}
 
-		for (let el of els) {
-			el.removeEventListener('mouseenter', onMouseEnter, false)
-			el.removeEventListener('mouseleave', onMouseLeave, false)
+		for (let el of this.els) {
+			el.removeEventListener('mouseenter', this.onMouseEnter, false)
+			el.removeEventListener('mouseleave', this.onMouseLeave, false)
 		}
 
-		ended = true
+		this.ended = true
+		onBindingDeleted(this)
 	}
 
-	for (let el of els) {
-		el.addEventListener('mouseenter', onMouseEnter, false)
-		el.addEventListener('mouseleave', onMouseLeave, false)
+	lock() {
+		this.locked = true
 	}
 
-	return cancel
+	unlock() {
+		this.locked = false
+
+		if (!this.mouseIn) {
+			this.flush()
+		}
+	}
 }
