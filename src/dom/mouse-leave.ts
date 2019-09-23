@@ -8,14 +8,14 @@
  */
 
 const MouseLeaveBindings: Set<MouseLeaveBinding> = new Set()
-const LockingBindings: Map<MouseLeaveBinding, MouseLeaveBinding> = new Map()
+const ToLockBindings: Map<MouseLeaveBinding, MouseLeaveBinding> = new Map()
 
 function onBindingCreated(binding: MouseLeaveBinding) {
 	for (let existingBinding of [...MouseLeaveBindings].reverse()) {
 		for (let el of binding.els) {
 			if (existingBinding.els.some(existingEl => existingEl.contains(el) && existingEl !== el)) {
 				existingBinding.lock()
-				LockingBindings.set(binding, existingBinding)
+				ToLockBindings.set(binding, existingBinding)
 				break
 			}
 		}
@@ -25,10 +25,10 @@ function onBindingCreated(binding: MouseLeaveBinding) {
 }
 
 function onBindingDeleted(binding: MouseLeaveBinding) {
-	let lockingBinding = LockingBindings.get(binding)
+	let lockingBinding = ToLockBindings.get(binding)
 	if (lockingBinding) {
 		lockingBinding.unlock()
-		LockingBindings.delete(binding)
+		ToLockBindings.delete(binding)
 	}
 
 	MouseLeaveBindings.delete(binding)
@@ -63,7 +63,12 @@ class MouseLeaveBinding {
 
 	els: Element[]
 
-	private locked: boolean = false
+	// Why not a boolean property?
+	// When a sub popup hide, it will trigger unlock on binding later, not immediately.
+	// A new sub popup may trigger lock on binding, and then trigger unlock on old sub.
+	// `lock -> lock -> unlock`, cause binding to be canceled.
+	private lockCount: number = 0
+
 	private isOnce: boolean
 	private callback: () => void
 	private ms: number
@@ -95,6 +100,13 @@ class MouseLeaveBinding {
 
 	private onMouseLeave() {
 		this.mouseIn = false
+
+		if (this.lockCount === 0) {
+			this.startTimeout()
+		}
+	}
+
+	private startTimeout() {
 		this.clearTimeout()
 
 		this.timer = setTimeout(() => {
@@ -122,15 +134,11 @@ class MouseLeaveBinding {
 			this.cancel()
 		}
 
-		if (!this.locked) {
-			this.callback()
-		}
+		this.callback()
 	}
 
 	cancel() {
-		if (this.timer) {
-			clearTimeout(this.timer)
-		}
+		this.clearTimeout()
 
 		for (let el of this.els) {
 			el.removeEventListener('mouseenter', this.onMouseEnter, false)
@@ -142,14 +150,18 @@ class MouseLeaveBinding {
 	}
 
 	lock() {
-		this.locked = true
+		this.clearTimeout()
+		this.lockCount++
 	}
 
 	unlock() {
-		this.locked = false
+		this.lockCount--
 
-		if (!this.mouseIn) {
-			this.flush()
+		if (this.lockCount === 0) {
+			// Call `startTimeout()` can delay parent popup hiding.
+			// Using `if (!this.mouseIn) this.flush()` is nearly the same,
+			// because the sub popup trigger unlock later.
+			this.startTimeout()
 		}
 	}
 }
