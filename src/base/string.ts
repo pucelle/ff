@@ -227,7 +227,7 @@ export function capitalize(string: string): string {
  * @param string The string to transform.
  */
 export function toCamerCase(string: string): string {
-	return string.replace(/[-_][a-z]/g, m0 => m0[1].toUpperCase())
+	return string.replace(/[-_ ][a-z]/g, m0 => m0[1].toUpperCase())
 }
 
 
@@ -237,7 +237,7 @@ export function toCamerCase(string: string): string {
  */
 export function toDashCase(string: string): string {
 	return string.replace(/(^|.)([A-Z]+)/g, (m0: string, charBefore: string | undefined, upperChars: string) => {
-		if (charBefore && /\w/.test(charBefore)) {
+		if (charBefore && /[a-z ]/i.test(charBefore)) {
 			return charBefore + '-' + upperChars.toLowerCase()
 		}
 		else {
@@ -245,4 +245,13 @@ export function toDashCase(string: string): string {
 		}
 	})
 	.replace(/_/g, '-')
+}
+
+
+/**
+ * Transform the string to dash case by spliting words with `_`.
+ * @param string The string to transform.
+ */
+export function toUnderscoreCase(string: string): string {
+	return toDashCase(string).replace(/-/g, '_')
 }
