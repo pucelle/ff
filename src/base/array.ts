@@ -422,15 +422,31 @@ export function orderBy<Item extends object>(array: Item[], order: Order<Item> |
  * @param array The array to generate map object.
  * @param fn The function to return `[key, value]` tuple for each item.
  */
+export function indexBy<Item, V>(array: Item[], fn: (value: Item, index: number) => [string | number, V]): {[key: string]: V}
+
+/**
+ * Create a map object as `{item[key]: item}` type.
+ * @param array The array to generate map object.
+ * @param key The key of items in array to get value as index keys.
+ */
+export function indexBy<Item, K>(array: Item[], key: K): {[key: string]: Item}
 
 // Compar to map, object has same performance, and is more convinent to use, but will lose number key type.
-export function indexBy<Item, V>(array: Item[], fn: (value: Item, index: number) => [string | number, V]): {[key: string]: V} {
-	let index: {[key: string]: V} = {}
+export function indexBy<Item>(array: Item[], keyOrFn: keyof Item | ((value: Item, index: number) => [string | number, any])): {[key: string]: any} {
+	let index: {[key: string]: any} = {}
 
-	for (let i = 0, len = array.length; i < len; i++) {
-		let item = array[i]
-		let [key, value] = fn(item, i)
-		index[key] = value
+	if (typeof keyOrFn === 'function') {
+		for (let i = 0, len = array.length; i < len; i++) {
+			let item = array[i]
+			let [key, value] = keyOrFn(item, i)
+			index[key] = value
+		}
+	}
+	else {
+		for (let item of array) {
+			let key = item[keyOrFn] as unknown as string
+			index[key] = item
+		}
 	}
 
 	return index
@@ -535,6 +551,15 @@ export function avg(array: number[]): number {
 
 
 /**
+ * Returns the minimal value of the array items. returns Infinity if no items in array.
+ * @param array The array of numbers.
+ */
+export function min(array: number[]) {
+	return Math.min(...array)
+}
+
+
+/**
  * Returns the maximun value of the array items. returns -Infinity if no items in array.
  * @param array The array of numbers.
  */
@@ -544,9 +569,59 @@ export function max(array: number[]) {
 
 
 /**
- * Returns the maximun value of the array items. returns Infinity if no items in array.
+ * Returns the index of the minimal value of the array items. returns -1 if no items in array.
  * @param array The array of numbers.
+ * @param map The map function to map item to a number.
  */
-export function min(array: number[]) {
-	return Math.min(...array)
+export function minIndex<T>(array: T[], map?: (item: T, index: number) => number) {
+	let values: number[]
+
+	if (map) {
+		values = array.map(map)
+	}
+	else {
+		values = array as unknown as number[]
+	}
+
+	let minIndex = -1
+	let minValue = Infinity
+
+	for (let i = 0; i < values.length; i++) {
+		if (values[i] < minValue) {
+			minIndex = i
+			minValue = values[i]
+		}
+	}
+
+	return minIndex
+}
+
+
+
+/**
+ * Returns the index of the maximun value of the array items. returns -1 if no items in array.
+ * @param array The array of numbers.
+ * @param map The map function to map item to a number.
+ */
+export function maxIndex<T>(array: T[], map?: (item: T, index: number) => number) {
+	let values: number[]
+
+	if (map) {
+		values = array.map(map)
+	}
+	else {
+		values = array as unknown as number[]
+	}
+
+	let maxIndex = -1
+	let maxValue = -Infinity
+
+	for (let i = 0; i < values.length; i++) {
+		if (values[i] > maxValue) {
+			maxIndex = i
+			maxValue = values[i]
+		}
+	}
+
+	return maxIndex
 }
