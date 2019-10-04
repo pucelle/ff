@@ -208,11 +208,11 @@ export interface WatchLayoutLoop {
 
 
 // Why not use `setInterval`:
-// Everybody knows that `requestAnimationFrame` is better than `setInterval`
+// `requestAnimationFrame` is better than `setInterval`
 // because `setInterval` will either lost frame or trigger for twice in one frame.
 
 // Is there any performance problem on the always running `requestAnimationFrame`?
-// Yes, it may be a problem. But if your watch loops are less than 1000 normally, there should be no problem.
+// Yes, it may be a problem. But if your watched elements are less than 1000 normally, there should be no problem.
 // It keeps running but will not cause your CPU usage high.
 // Otherwise, use `watch` only you definitely need it.
 
@@ -221,6 +221,11 @@ export interface WatchLayoutLoop {
 // But there are some more work to do, Like capturing scroll event.
 // Note that scroll event is not bubblable, so you need to capture whell, mouse and keyboard evnets.
 // Otherwise make sure the events you want to capture are not stopped.
+
+// Why using `setTimeout` after `requestAnimationFrame`?
+// Because we meet a big problem when working with `flit`:
+// Every time when data changes in `flit` and still rendering,
+// Here it forces layout and causes reflow.
 
 const AnimationFrameLoop: WatchLayoutLoopConstructor = class AnimationFrameLoop implements WatchLayoutLoop {
 
@@ -235,7 +240,9 @@ const AnimationFrameLoop: WatchLayoutLoopConstructor = class AnimationFrameLoop 
 	private next() {
 		if (!this.ended) {
 			this.callback.call(null)
-			requestAnimationFrame(() => this.next())
+			requestAnimationFrame(() => {
+				setTimeout(() => this.next(), 0)
+			})
 		}
 	}
 
