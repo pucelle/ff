@@ -7,31 +7,48 @@
  * If so, we lock the exist group until the current popup disappeared.
  */
 
-const MouseLeaveBindings: Set<MouseLeaveBinding> = new Set()
-const ToLockBindings: Map<MouseLeaveBinding, MouseLeaveBinding> = new Map()
+const MouseLeaves: Set<MouseLeave> = new Set()
 
-function onBindingCreated(binding: MouseLeaveBinding) {
-	for (let existingBinding of [...MouseLeaveBindings].reverse()) {
-		for (let el of binding.els) {
+
+/**
+ * Make sure elements and all their ancestors can't trigger mouse leave callback.
+ * @param elOrs Element or array of element.
+ */
+export function lockOuterMouseLeave(elOrs: Element | Element[]): () => void {
+	let lockedBy = getMouseLeaveLocks(elOrs)
+	if (lockedBy) {
+		lockedBy.lock()
+	}
+
+	return () => {
+		if (lockedBy) {
+			lockedBy.unlock()
+		}
+	}
+}
+
+
+function getMouseLeaveLocks(elOrs: Element | Element[]): MouseLeave | null {
+	let els = Array.isArray(elOrs) ? elOrs : [elOrs]
+
+	for (let existingBinding of [...MouseLeaves].reverse()) {
+		for (let el of els) {
 			if (existingBinding.els.some(existingEl => existingEl.contains(el) && existingEl !== el)) {
-				existingBinding.lock()
-				ToLockBindings.set(binding, existingBinding)
-				break
+				return existingBinding
 			}
 		}
 	}
 
-	MouseLeaveBindings.add(binding)
+	return null
 }
 
-function onBindingDeleted(binding: MouseLeaveBinding) {
-	let lockingBinding = ToLockBindings.get(binding)
-	if (lockingBinding) {
-		lockingBinding.unlock()
-		ToLockBindings.delete(binding)
-	}
 
-	MouseLeaveBindings.delete(binding)
+/**
+ * Check if element or any of it's ancestors was locked and can't trigger mouse leave callback.
+ * @param el Element to check.
+ */
+export function isMouseLeaveLockedAt(elOrs: Element | Element[]): boolean {
+	return !!getMouseLeaveLocks(elOrs)
 }
 
 
@@ -42,7 +59,7 @@ function onBindingDeleted(binding: MouseLeaveBinding) {
  * @param callback The callback to call after mouse leaves all the elements.
  */
 export function onMouseLeaveAll(elOrs: Element | Element[], callback: () => void, ms: number = 200): () => void {
-	let binding = new MouseLeaveBinding(false, elOrs, callback, ms)
+	let binding = new MouseLeave(false, elOrs, callback, ms)
 	return () => binding.cancel()
 }
 
@@ -54,12 +71,12 @@ export function onMouseLeaveAll(elOrs: Element | Element[], callback: () => void
  * @param callback The callback to call after mouse leaves all the elements.
  */
 export function onceMouseLeaveAll(elOrs: Element | Element[], callback: () => void, ms: number = 200): () => void {
-	let binding = new MouseLeaveBinding(true, elOrs, callback, ms)
+	let binding = new MouseLeave(true, elOrs, callback, ms)
 	return () => binding.cancel()
 }
 
 
-class MouseLeaveBinding {
+class MouseLeave {
 
 	els: Element[]
 
@@ -75,6 +92,7 @@ class MouseLeaveBinding {
 	private mouseIn: boolean = false
 	private ended: boolean = false
 	private timer: ReturnType<typeof setTimeout> | null = null
+	private unlockOuterMouseLeave: () => void
 
 	constructor(isOnce: boolean, elOrs: Element | Element[], callback: () => void, ms: number) {
 		this.isOnce = isOnce
@@ -90,7 +108,9 @@ class MouseLeaveBinding {
 			el.addEventListener('mouseleave', this.onMouseLeave, false)
 		}
 
-		onBindingCreated(this)
+		this.unlockOuterMouseLeave = lockOuterMouseLeave(elOrs)
+		MouseLeaves.add(this)
+
 	}
 
 	private onMouseEnter() {
@@ -146,7 +166,8 @@ class MouseLeaveBinding {
 		}
 
 		this.ended = true
-		onBindingDeleted(this)
+		this.unlockOuterMouseLeave()
+		MouseLeaves.delete(this)
 	}
 
 	lock() {
@@ -158,10 +179,9 @@ class MouseLeaveBinding {
 		this.lockCount--
 
 		if (this.lockCount === 0) {
-			// Call `startTimeout()` can delay parent popup hiding.
-			// Using `if (!this.mouseIn) this.flush()` is nearly the same,
-			// because the sub popup trigger unlock later.
-			this.startTimeout()
+			if (!this.mouseIn) {
+				this.flush()
+			}
 		}
 	}
 }
