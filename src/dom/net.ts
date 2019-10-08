@@ -1,8 +1,8 @@
 import {firstMatch} from '../base/string'
 import {Emitter, sum} from '../base'
 
-type Resources = (string | {url: string, type?: ResourceType})[]
-type NormalizedResources = {url: string, type: ResourceType}[]
+type Resources = (string | {name?: string, url: string, type?: ResourceType})[]
+type NormalizedResources = {name: string, url: string, type: ResourceType}[]
 type ResourceType = 'css' | 'js' | 'blob'
 type OnProgress = (loaded: number, total: number) => void
 
@@ -38,9 +38,9 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 		let totalSize = sum(sizes)
 		let completedSize = 0
 
-		for (let {url, type} of normalized) {
+		for (let {name, url, type} of normalized) {
 			try {
-				let blob = await this.loadOne(url, (loaded: number) => {
+				let blob = await this.loadOne(name, url, (loaded: number) => {
 					this.emit('progress', Math.min(completedSize + loaded, totalSize), totalSize)
 				})
 
@@ -83,12 +83,24 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 	private normalizeResources(resources: Resources): NormalizedResources {
 		return resources.map(r => {
 			if (typeof r === 'string') {
-				return {url: r, type: this.inferResourceTypeFromURL(r)}
+				return {
+					name: this.getBaseNameFromURL(r),
+					url: r,
+					type: this.inferResourceTypeFromURL(r)
+				}
 			}
 			else {
-				return {url: r.url, type: r.type || 'blob'}
+				return {
+					name: r.name || this.getBaseNameFromURL(r.url),
+					url: r.url,
+					type: r.type || 'blob'
+				}
 			}
 		})
+	}
+
+	private getBaseNameFromURL(url: string) {
+		return firstMatch(url, /([^\/]+)$/).replace(/\.\w+$/, '')
 	}
 
 	private inferResourceTypeFromURL(url: string): ResourceType {
@@ -102,7 +114,7 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 		}
 	}
 		
-	private async loadOne(url: string, onprogress: OnProgress): Promise<Blob | null> {
+	private async loadOne(name: string, url: string, onprogress: OnProgress): Promise<Blob | null> {
 		let absloteURL = this.getAbsoluteURL(url)
 
 		return new Promise((resolve, reject) => {
@@ -118,6 +130,7 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 
 			xhr.onloadend = () => {
 				if (xhr.status >= 200 && xhr.status < 400) {
+					this.blobMap.set(name, xhr.response)
 					this.blobMap.set(absloteURL, xhr.response)
 					resolve(xhr.response)
 				}
