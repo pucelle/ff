@@ -1,5 +1,5 @@
 /**
- * Assign values from source to target.
+ * Assign object keys and values from source to target.
  * @param target The target that the sources assigned to.
  * @param sources The sources that will assigned to target by order.
  * @param keys If `keys` specified, only values whose keys are included will be assigned.
@@ -8,6 +8,24 @@ export function assign<T extends object, S extends object>(target: T, source: S,
 	for (let key of keys) {
 		let value = source[key]
 		if (value !== undefined) {
+			target[key as unknown as keyof T] = value as any
+		}
+	}
+
+	return target
+}
+
+
+/**
+ * Assign object keys and values from source to target if each key not been set.
+ * @param target The target that the sources assigned to.
+ * @param sources The sources that will assigned to target by order.
+ * @param keys If `keys` specified, only values whose keys are included will be assigned.
+ */
+export function assignIf<T extends object, S extends object>(target: T, source: S, keys: (keyof S)[] = Object.keys(source) as (keyof S)[]): T {
+	for (let key of keys) {
+		let value = source[key]
+		if (value !== undefined && target[key as unknown as keyof T] === undefined) {
 			target[key as unknown as keyof T] = value as any
 		}
 	}
