@@ -15,7 +15,7 @@ const MouseLeaves: Set<MouseLeave> = new Set()
  * @param elOrs Element or array of element.
  */
 export function lockOuterMouseLeave(elOrs: Element | Element[]): () => void {
-	let lockedBy = getMouseLeaveLocks(elOrs)
+	let lockedBy = getMouseLeaveThatLocks(elOrs)
 	if (lockedBy) {
 		lockedBy.lock()
 	}
@@ -28,13 +28,14 @@ export function lockOuterMouseLeave(elOrs: Element | Element[]): () => void {
 }
 
 
-function getMouseLeaveLocks(elOrs: Element | Element[]): MouseLeave | null {
+function getMouseLeaveThatLocks(elOrs: Element | Element[]): MouseLeave | null {
 	let els = Array.isArray(elOrs) ? elOrs : [elOrs]
 
-	for (let existingBinding of [...MouseLeaves].reverse()) {
+	for (let existing of [...MouseLeaves].reverse()) {
 		for (let el of els) {
-			if (existingBinding.els.some(existingEl => existingEl.contains(el) && existingEl !== el)) {
-				return existingBinding
+			// Elements should not equal because some old not `mouseIn` but will be reused elements should be ignored
+			if (existing.els.some(existingEl => existingEl.contains(el) && existingEl !== el)) {
+				return existing
 			}
 		}
 	}
@@ -48,7 +49,17 @@ function getMouseLeaveLocks(elOrs: Element | Element[]): MouseLeave | null {
  * @param el Element to check.
  */
 export function isMouseLeaveLockedAt(elOrs: Element | Element[]): boolean {
-	return !!getMouseLeaveLocks(elOrs)
+	let els = Array.isArray(elOrs) ? elOrs : [elOrs]
+
+	for (let existing of [...MouseLeaves].reverse()) {
+		for (let el of els) {
+			if (existing.els.some(existingEl => existingEl.contains(el))) {
+				return existing.mouseIn
+			}
+		}
+	}
+
+	return false
 }
 
 
@@ -79,6 +90,7 @@ export function onceMouseLeaveAll(elOrs: Element | Element[], callback: () => vo
 class MouseLeave {
 
 	els: Element[]
+	mouseIn: boolean = false
 
 	// Why not a boolean property?
 	// When a sub popup hide, it will trigger unlock on binding later, not immediately.
@@ -89,7 +101,6 @@ class MouseLeave {
 	private isOnce: boolean
 	private callback: () => void
 	private ms: number
-	private mouseIn: boolean = false
 	private ended: boolean = false
 	private timer: ReturnType<typeof setTimeout> | null = null
 	private unlockOuterMouseLeave: () => void
