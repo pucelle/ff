@@ -45,7 +45,7 @@ function getMouseLeaveThatLocks(elOrs: Element | Element[]): MouseLeave | null {
 
 
 /**
- * Check if element or any of it's ancestors was locked and can't trigger mouse leave callback.
+ * Check if element or any of it's ancestors was locked and can't be released for reusing.
  * @param el Element to check.
  */
 export function isMouseLeaveLockedAt(elOrs: Element | Element[]): boolean {
@@ -94,7 +94,7 @@ class MouseLeave {
 
 	// Why not a boolean property?
 	// When a sub popup hide, it will trigger unlock on binding later, not immediately.
-	// A new sub popup may trigger lock on binding, and then trigger unlock on old sub.
+	// But a new sub popup may trigger lock on binding, and then old sub popup trigger unlock.
 	// `lock -> lock -> unlock`, cause binding to be canceled.
 	private lockCount: number = 0
 
@@ -169,6 +169,10 @@ class MouseLeave {
 	}
 
 	cancel() {
+		if (this.ended) {
+			return
+		}
+		
 		this.clearTimeout()
 
 		for (let el of this.els) {
