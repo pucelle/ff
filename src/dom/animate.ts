@@ -10,7 +10,7 @@ export type AnimationFrame = {[key in StyleName]?: string | number}
 export let defaultAnimationDuration: number = 200
 export let defaultAnimationEasing: AnimationEasing = 'ease-out-quad'
 
-const elementAnimationMap: WeakMap<HTMLElement, Animation> = new WeakMap()
+const ElementAnimationMap: WeakMap<HTMLElement, Animation> = new WeakMap()
 
 
 // Copied from `Bourbon` source codes.
@@ -312,17 +312,17 @@ export function animate(el: HTMLElement, startFrame: AnimationFrame, endFrame: A
 	})
 
 	el.style.pointerEvents = 'none'
-	elementAnimationMap.set(el, animation)
+	ElementAnimationMap.set(el, animation)
 
 	return new Promise((resolve) => {
 		animation.addEventListener('finish', () => {
 			el.style.pointerEvents = ''
-			elementAnimationMap.delete(el)
+			ElementAnimationMap.delete(el)
 			resolve(true)
 		}, false)
 
 		animation.addEventListener('cancel', () => {
-			elementAnimationMap.delete(el)
+			ElementAnimationMap.delete(el)
 			resolve(false)
 		}, false)
 	}) as Promise<boolean>
@@ -424,10 +424,10 @@ export function animateToNextFrame(el: HTMLElement, properties: StyleName[] | St
  * @param el The element to stop animation on.
  */
 export function stopAnimation(el: HTMLElement) {
-	let animation = elementAnimationMap.get(el)
+	let animation = ElementAnimationMap.get(el)
 	if (animation) {
 		animation.cancel()
 		el.style.pointerEvents = ''
-		elementAnimationMap.delete(el)
+		ElementAnimationMap.delete(el)
 	}
 }

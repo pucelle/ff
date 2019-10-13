@@ -1,5 +1,5 @@
 /**
- * Repeat value for multiple times and returns the array of it.
+ * Returns the array of `value` repeat for `count` times.
  * @param item The value to repeat.
  * @param count Count of times to repeat.
  */
@@ -15,7 +15,7 @@ export function repeatTimes<T>(item: T, count: number): T[] {
 
 
 /**
- * Add items to array, for each item in items, will push into array if is not exist in array.
+ * Add items to `array`, duplicate items will not be added.
  * @param array The array to add items.
  * @param items The items to add to array.
  */
@@ -31,9 +31,9 @@ export function add<T>(array: T[], ...items: T[]): T[] {
 
 
 /**
- * Remove items from array, returns the actual removed items.
+ * Remove items from `array`. Returns the removed items.
  * @param array The array to remove items.
- * @param items The items to remove from array.
+ * @param items The items removed from array.
  */
 export function remove<T>(array: T[], ...items: T[]): T[] {
 	let removed = []
@@ -51,7 +51,7 @@ export function remove<T>(array: T[], ...items: T[]): T[] {
 
 
 /**
- * Remove items match `fn` from array, returns the removed items.
+ * Remove the first item which match `fn` from `array`. Returns the removed items.
  * @param array The array to remove items.
  * @param fn The function which returns boolean values to determinae whether to remove item.
  */
@@ -67,7 +67,7 @@ export function removeFirst<T>(array: T[], fn: (item: T, index: number) => boole
 
 
 /**
- * Remove items match `fn` from array, returns the removed items.
+ * Remove all the items match `fn` from `array`. Returns the removed items.
  * @param array The array to remove items.
  * @param fn The function which returns boolean values to determinae whether to remove item.
  */
@@ -85,7 +85,7 @@ export function removeWhere<T>(array: T[], fn: (item: T, index: number) => boole
 
 
 /**
- * Returns a new array which has been removed duplicate items.
+ * Returns a new array from `array` but removes duplicate items.
  * @param array The array to remove duplicate items.
  */
 export function unique<T extends number | string>(array: T[]): T[] {
@@ -95,7 +95,7 @@ export function unique<T extends number | string>(array: T[]): T[] {
 
 
 /**
- * Creates an array of unique values from given arrays.
+ * Creates an array composed of all the unique values from given `arrays`.
  * @param arrays The arrays to get union from.
  */
 export function union<T extends number | string>(...arrays: T[][]): T[] {
@@ -147,7 +147,7 @@ export function intersect<T extends number | string>(...arrays: T[][]): T[] {
 
 
 /**
- * Creates an array from given array but exclude items in excludeArrays.
+ * Creates a new array from given `array` but exclude items in `excludeArrays`.
  * @param array The array to include items.
  * @param excludeArrays The arrays to exclude items from.
  */
@@ -165,7 +165,7 @@ export function difference<T extends number | string>(array: T[], ...excludeArra
 
 
 /**
- * Binary find one item from a sorted array which match `fn`.
+ * Using binary algorithm to find one item from a sorted array which match `fn`.
  * @param array The sorted array.
  * @param fn The function to accept item in array as argument and returns `-1` to move left, `1` to move right.
  */
@@ -176,7 +176,7 @@ export function binaryFind<T>(array: T[], fn: (item: T) => (0 | -1 | 1)): T | un
 
 
 /**
- * Binary find the index in a sorted array at where the item match `fn`.
+ * Using binary algorithm to find index from a sorted array at where the item match `fn`.
  * @param array The sorted array.
  * @param fn The function to accept item in array as argument and returns `-1` to move left, `1` to move right.
  */
@@ -228,7 +228,7 @@ export function binaryFindIndex<T>(array: T[], fn: (item: T) => (0 | -1 | 1)): n
 
 
 /**
- * Binary find the closest index in a sorted array in where to insert new item.
+ * Using binary algorithm to find the closest index from a sorted array in where to insert new item and keep order.
  * Returned index betweens `0 ~ array.length`, and if `array[index]` exist, `fn(array[index]) >= 0`.
  * @param array The sorted array.
  * @param fn The function to accept item in array as argument and returns `-1` to move left, `1` to move right.
@@ -419,14 +419,14 @@ export function orderBy<T extends object>(array: T[], order: Order<T> | OrderTup
 
 
 /**
- * Create a map object composed of `[key, value]` touples that returned from fn.
+ * Create a map object from `[key, value]` touples returned from `fn`.
  * @param array The array to generate map object.
  * @param fn The function to return `[key, value]` tuple for each item.
  */
 export function indexBy<T, V>(array: T[], fn: (value: T, index: number) => [string | number, V]): {[key: string]: V}
 
 /**
- * Create a map object as `{item[key]: item}` type.
+ * Create a map object as `{item[key]: item}` format.
  * @param array The array to generate map object.
  * @param key The key of items in array to get value as index keys.
  */
@@ -455,7 +455,7 @@ export function indexBy<T>(array: T[], keyOrFn: keyof T | ((value: T, index: num
 
 
 /**
- * Creates a map object composed of keys generated from the results of running each element of collecti
+ * Creates a map object composed of keys as running `keyOrFn` on each item, and values as item array share the same key.
  * @param array The array to group by. 
  * @param keyOrFn The key attribute name of each item whose related value will be used as key. or the function which accepts each item as argument and returns a key.
  */
@@ -481,7 +481,7 @@ export function groupBy<T>(array: T[], keyOrFn: CanSortKeys<T> | OrderFunction<T
 
 
 /**
- * Group and aggregate items in array by aggregate function
+ * Group and aggregate items in array by group function and aggregate function.
  * @param array The array to aggregate. 
  * @param keyOrFn The key attribute name of each item whose related value will be used as key. or the function which accepts each item as argument and returns a key.
  * @param aggregateFn The aggregate function which accepts grouped items and key as arguments, and returns aggregate value.
@@ -506,7 +506,7 @@ export function count(array: any[]): number {
 
 
 /**
- * Returns the sum of the array items.
+ * Returns the sum of all the numbers in `array`.
  * @param array The array of numbers.
  */
 export function sum(array: number[]): number {
@@ -515,7 +515,7 @@ export function sum(array: number[]): number {
 
 
 /**
- * Returns the average value of the array items. returns 0 if no items in array.
+ * Returns the average value of the numbers in `array`. Returns 0 if no items in `array`.
  * @param array The array of numbers.
  */
 export function avg(array: number[]): number {
@@ -527,7 +527,7 @@ export function avg(array: number[]): number {
 
 
 /**
- * Returns the minimal value of the array items. returns Infinity if no items in array.
+ * Returns the minimal value of the numbers in `array`. Returns `Infinity` if no items in `array`.
  * @param array The array of numbers.
  */
 export function min(array: number[]) {
@@ -536,7 +536,7 @@ export function min(array: number[]) {
 
 
 /**
- * Returns the maximun value of the array items. returns -Infinity if no items in array.
+ * Returns the maximun value of numbers in `array`. Returns `-Infinity` if no items in `array`.
  * @param array The array of numbers.
  */
 export function max(array: number[]) {
@@ -545,7 +545,7 @@ export function max(array: number[]) {
 
 
 /**
- * Returns the index of the minimal value of the array items. returns -1 if no items or all values are `Infinity`.
+ * Returns the index of the minimal value of the array items. Returns `-1` if no items or all values are `Infinity`.
  * @param array The array of data items.
  * @param map The map function to map each item to a number.
  */

@@ -21,18 +21,21 @@ interface EventItem {
 }
 
 
-/** An event emitter to listen and emit events. */
-export class Emitter<Events = any, K extends KeyOf<Events> = KeyOf<Events>> {
+/** 
+ * An event emitter as super class to listen and emit events.
+ * @typeparam E Event interface in `{eventName: (...args) => void}` format.
+ */
+export class Emitter<E = any> {
 
 	private __events: {[key: string]: EventItem[]} = {}
 
 	/**
-	 * Register listener for specified event name.
+	 * Registers an event `listener` to listen specified event `name`.
 	 * @param name The event name.
 	 * @param listener The event listener.
 	 * @param scope The scope will be binded to listener.
 	 */
-	on(name: K, listener: EventListener, scope?: object) {
+	on<K extends KeyOf<E>>(name: K, listener: EventListener, scope?: object) {
 		let events = this.__events[name] || (this.__events[name] = [])
 		
 		events.push({
@@ -43,12 +46,12 @@ export class Emitter<Events = any, K extends KeyOf<Events> = KeyOf<Events>> {
 	}
 
 	/**
-	 * Register listener for specified event name for only once.
+	 * Registers an event `listener` to listen specified event `name`, trigger for only once.
 	 * @param name The event name.
 	 * @param listener The event listener.
 	 * @param scope The scope will be binded to listener.
 	 */
-	once(name: K, listener: EventListener, scope?: object) {
+	once<K extends KeyOf<E>>(name: K, listener: EventListener, scope?: object) {
 		let events = this.__events[name] || (this.__events[name] = [])
 
 		events.push({
@@ -59,12 +62,12 @@ export class Emitter<Events = any, K extends KeyOf<Events> = KeyOf<Events>> {
 	}
 
 	/**
-	 * Stop listening specified event.
+	 * Remove `listener` from listening specified event `name`.
 	 * @param name The event name.
 	 * @param listener The event listener, only matched listener will be removed.
 	 * @param scope The scope binded to listener. If provided, remove listener only when scope match.
 	 */
-	off(name: K, listener: EventListener, scope?: object) {
+	off<K extends KeyOf<E>>(name: K, listener: EventListener, scope?: object) {
 		let events = this.__events[name]
 		if (events) {
 			for (let i = events.length - 1; i >= 0; i--) {
@@ -77,7 +80,7 @@ export class Emitter<Events = any, K extends KeyOf<Events> = KeyOf<Events>> {
 	}
 
 	/**
-	 * Check if registered listener for specified event.
+	 * Check if `listener` is the list of listening specified event `name`.
 	 * @param name The event name.
 	 * @param listener The event listener. If provided, will also check if the listener match.
 	 * @param scope The scope binded to listener. If provided, will additionally check if the scope match.
@@ -102,11 +105,11 @@ export class Emitter<Events = any, K extends KeyOf<Events> = KeyOf<Events>> {
 	}
 
 	/**
-	 * Emit specified event with followed arguments.
+	 * Emit specified event `name`, trigger all the listeners related with followed arguments.
 	 * @param name The event name.
 	 * @param args The arguments that will be passed to event listeners.
 	 */
-	emit(name: K, ...args: any[]) {
+	emit<K extends KeyOf<E>>(name: K, ...args: any[]) {
 		let events = this.__events[name]
 		if (events) {
 			for (let i = 0; i < events.length; i++) {
@@ -122,7 +125,7 @@ export class Emitter<Events = any, K extends KeyOf<Events> = KeyOf<Events>> {
 		}
 	}
 
-	/** Remove all event listeners */
+	/** Removes all the event listeners. */
 	removeAllListeners() {
 		this.__events = {}
 	}

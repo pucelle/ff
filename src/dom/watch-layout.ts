@@ -6,7 +6,7 @@ type WatchType = keyof typeof WATCH_STATE_FN
 type WatchCallback<T extends WatchType> = (state: ReturnType<(typeof WATCH_STATE_FN)[T]>) => void
 
 
-export const WATCH_STATE_FN = {
+const WATCH_STATE_FN = {
 
 	show (el: HTMLElement): boolean {
 		return el.offsetWidth > 0 || el.offsetHeight > 0

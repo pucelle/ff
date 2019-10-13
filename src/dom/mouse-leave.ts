@@ -15,10 +15,10 @@ export namespace MouseLeave {
 	/**
 	 * Make sure elements and all their ancestors can't trigger mouse leave callback and becomes invisible.
 	 * Used for contextmenu to keep parent popup showing.
-	 * @param elOrs Element or array of element.
+	 * @param elOrS Element or array of element.
 	 */
-	export function keep(elOrs: Element | Element[]): () => void {
-		let controller = getControllerContains(elOrs)
+	export function keep(elOrS: Element | Element[]): () => void {
+		let controller = getControllerContains(elOrS)
 		if (controller) {
 			controller.lock()
 		}
@@ -34,8 +34,8 @@ export namespace MouseLeave {
 	
 	// Contains but not equals, because trigger button or popup will be reused soon.
 	// If we allow them to equal, it will tell you popup1 contains popup1 and already in use.
-	function getControllerContains(elOrs: Element | Element[]): MouseLeaveController | null {
-		let els = Array.isArray(elOrs) ? elOrs : [elOrs]
+	function getControllerContains(elOrS: Element | Element[]): MouseLeaveController | null {
+		let els = Array.isArray(elOrS) ? elOrS : [elOrS]
 	
 		for (let controller of [...Controllers].reverse()) {
 			for (let el of els) {
@@ -67,12 +67,12 @@ export namespace MouseLeave {
 	/**
 	 * Call callback after mouse leaves all of the elements.
 	 * It's very usefull to handle mouse hover event in menu & submenu.
-	 * @param elOrs The element array to capture leave at.
+	 * @param elOrS The element array to capture leave at.
 	 * @param ms If mouse leaves all the element and don't enter elements again, call callback. Default value is 200.
 	 * @param callback The callback to call after mouse leaves all the elements.
 	 */
-	export function on(elOrs: Element | Element[], callback: () => void, ms: number = 200): () => void {
-		let controller = new MouseLeaveController(false, elOrs, callback, ms)
+	export function on(elOrS: Element | Element[], callback: () => void, ms: number = 200): () => void {
+		let controller = new MouseLeaveController(false, elOrS, callback, ms)
 		return () => controller.cancel()
 	}
 	
@@ -80,12 +80,12 @@ export namespace MouseLeave {
 	/**
 	 * Call callback after mouse leaves all of the elements only for once.
 	 * It's very usefull to handle mouse event in menu & submenu.
-	 * @param elOrs The element array to capture leave at.
+	 * @param elOrS The element array to capture leave at.
 	 * @param ms If mouse leaves all the element and don't enter elements again, call callback. Default value is 200.
 	 * @param callback The callback to call after mouse leaves all the elements.
 	 */
-	export function once(elOrs: Element | Element[], callback: () => void, ms: number = 200): () => void {
-		let controller = new MouseLeaveController(true, elOrs, callback, ms)
+	export function once(elOrS: Element | Element[], callback: () => void, ms: number = 200): () => void {
+		let controller = new MouseLeaveController(true, elOrS, callback, ms)
 		return () => controller.cancel()
 	}
 	
@@ -108,9 +108,9 @@ export namespace MouseLeave {
 		private timer: ReturnType<typeof setTimeout> | null = null
 		private unkeep: () => void
 	
-		constructor(isOnce: boolean, elOrs: Element | Element[], callback: () => void, ms: number) {
+		constructor(isOnce: boolean, elOrS: Element | Element[], callback: () => void, ms: number) {
 			this.isOnce = isOnce
-			this.els = Array.isArray(elOrs) ? elOrs : [elOrs]
+			this.els = Array.isArray(elOrS) ? elOrS : [elOrS]
 			this.callback = callback
 			this.ms = ms
 	
@@ -122,7 +122,7 @@ export namespace MouseLeave {
 				el.addEventListener('mouseleave', this.onMouseLeave, false)
 			}
 	
-			this.unkeep = keep(elOrs)
+			this.unkeep = keep(elOrS)
 			Controllers.add(this)
 		}
 	

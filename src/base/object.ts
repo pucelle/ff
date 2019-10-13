@@ -1,8 +1,8 @@
 /**
- * Assign object keys and values from source to target.
+ * Assign object keys and values from `source` to `target`, will cover values of `target` with same keys.
  * @param target The target that the sources assigned to.
  * @param sources The sources that will assigned to target by order.
- * @param keys If `keys` specified, only values whose keys are included will be assigned.
+ * @param keys If specified, only values whose keys are included will be assigned.
  */
 export function assign<T extends object, S extends object>(target: T, source: S, keys: (keyof S)[] = Object.keys(source) as (keyof S)[]): T {
 	for (let key of keys) {
@@ -17,10 +17,10 @@ export function assign<T extends object, S extends object>(target: T, source: S,
 
 
 /**
- * Assign object keys and values from source to target if each key not been set.
+ * Assign object keys and values from `source` to `target`, will not cover values of `target` with existing keys.
  * @param target The target that the sources assigned to.
  * @param sources The sources that will assigned to target by order.
- * @param keys If `keys` specified, only values whose keys are included will be assigned.
+ * @param keys If specified, only values whose keys are included will be assigned.
  */
 export function assignIf<T extends object, S extends object>(target: T, source: S, keys: (keyof S)[] = Object.keys(source) as (keyof S)[]): T {
 	for (let key of keys) {
@@ -36,9 +36,9 @@ export function assignIf<T extends object, S extends object>(target: T, source: 
 
 // 2x~3x faster than JSON methods, see https://jsperf.com/deep-clone-vs-json-clone
 /**
- * Deeply clone an object or value
- * @param source The source to be clone.
- * @param deep Max deep to clone
+ * Deeply clone an object, array or any value which can also be called with `JSON.stringify`.
+ * @param source The source to clone.
+ * @param deep Max deep to clone, default value is 10.
  */
 export function deepClone<T> (source: T, deep: number = 10): T {
 	if (typeof source !== 'object' || !source || deep === 0) {
@@ -69,10 +69,10 @@ export function deepClone<T> (source: T, deep: number = 10): T {
 
 // 1x faster than JSON methods, see https://jsperf.com/deep-equal-vs-json-compare
 /**
- * Deeply compare two objects or values
- * @param a left one
- * @param b right one
- * @param deep Max deep to compare
+ * Deeply compare two objects, arraies or any values.
+ * @param a Left value.
+ * @param b Right value.
+ * @param deep Max deep to compare, default value is 10.
  */
 export function deepEqual(a: unknown, b: unknown, deep: number = 10): boolean {
 	if (a === b) {

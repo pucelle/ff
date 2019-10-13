@@ -1,8 +1,8 @@
-export abstract class TimedFunction {
+abstract class TimingFunction {
 	
 	protected id: any = null
 
-	/** Returns if the timed function been canceled. */
+	/** Returns if current timing function has been canceled. */
 	canceled: boolean = false
 
 	/** Returns the binded function. */
@@ -22,7 +22,7 @@ export abstract class TimedFunction {
 }
 
 
-export abstract class WrappedTimedFunction<F extends Function> extends TimedFunction {
+abstract class WrappedTimedFunction<F extends Function> extends TimingFunction {
 
 	/** Returns the wrapped function, which was throttled or debounced. */
 	wrapped: F
@@ -39,7 +39,7 @@ export abstract class WrappedTimedFunction<F extends Function> extends TimedFunc
 }
 
 
-export class Timeout extends TimedFunction {
+export class Timeout extends TimingFunction {
 
 	/**
 	 * Just like setTimeout, call `fn` after `ms` millisecons.
@@ -91,7 +91,7 @@ export class Timeout extends TimedFunction {
 }
 
 /**
- * Just like setTimeout, call `fn` after `ms` millisecons.
+ * Just like `setTimeout`, call `fn` after `ms` millisecons.
  * @param fn The function to call later.
  * @param ms The timeout time in millisecons.
  */
@@ -100,7 +100,7 @@ export function timeout(fn: Function, ms: number = 0): Timeout {
 }
 
 
-export class Interval extends TimedFunction {
+export class Interval extends TimingFunction {
 
 	/**
 	 * Just like setInterval, call `fn` every `ms` millisecons.
@@ -150,7 +150,7 @@ export class Interval extends TimedFunction {
 }
 
 /**
- * Just like setInterval, call `fn` every `ms` millisecons.
+ * Just like `setInterval`, call `fn` every `ms` millisecons.
  * @param fn The function to call.
  * @param ms The interval time in millisecons.
  */
@@ -236,7 +236,8 @@ export class Throttle<F extends Function> extends WrappedTimedFunction<F> {
 }
 
 /**
- * Throttle function calls, call returned function twice in `ms` millisecons will only call `fn` for once. Returns a new function.
+ * Throttle function calls, call returned function for twice in `ms` milliseconds will only call `fn` for once.
+ * Returns a new function.
  * @param fn The function to throttle.
  * @param ms The time period in which only at most one call allowed.
  */
@@ -346,7 +347,8 @@ export class SmoothThrottle<F extends Function> extends WrappedTimedFunction<F> 
 }
 
 /**
- * Throttle function calls like `throttle`, but will call `fn` lazily and smooth. Returns a new function.
+ * Throttle function calls like `throttle`, but will call `fn` lazily and smooth.
+ * Returns a new function.
  * @param fn The function to throttle.
  * @param ms The time period in which only at most one call allowed.
  */
@@ -361,7 +363,9 @@ export class Debounce<F extends Function> extends WrappedTimedFunction<F> {
 	private lastThis: any = null
 
 	/**
-	 * Debounce function calls, call returned function for the second time in timeout period that specified by `ms` will not call `fn`. Will restart the timeout every time calling return function. Returns a new function.
+	 * Debounce function calls, call returned function will start a timeout to call `fn`,
+	 * But call returned function for the second time in `ms` milliseconds will reset timeout.
+	 * Returns a new function.
 	 * @param fn The function to debounce.
 	 * @param ms The timeout in milliseconds.
 	 */
@@ -439,7 +443,9 @@ export class Debounce<F extends Function> extends WrappedTimedFunction<F> {
 }
 
 /**
- * Debounce function calls, call returned function for the second time in timeout period that specified by `ms` will not call `fn`. Will restart the timeout every time calling return function. Returns a new function.
+ * Debounce function calls, call returned function will start a timeout to call `fn`,
+ * But call returned function for the second time in `ms` milliseconds will reset timeout.
+ * Returns a new function.
  * @param fn The function to debounce.
  * @param ms The timeout in milliseconds.
  */

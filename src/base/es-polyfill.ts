@@ -1,4 +1,4 @@
-/*Polyfill for parts of ECMAScript 2017+, which is not widely supported by modern browsers*/
+/* Polyfill for parts of ECMAScript 2017+, which is not widely supported by modern browsers */
 
 if (!String.prototype.padStart) {
 	Object.defineProperty(String.prototype, 'padStart', {

@@ -174,9 +174,13 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 			script.addEventListener('error', () => reject())
 		})
 	}
-
-	getAsBlobURL(url: string): string | null {
-		let blob = this.blobMap.get(this.getAbsoluteURL(url))
+	
+	/**
+	 * Get resource as blob URL.
+	 * @param name The defined resource name or base name of url.
+	 */
+	getAsBlobURL(name: string): string | null {
+		let blob = this.blobMap.get(name)
 		if (!blob) {
 			return null
 		}
@@ -184,9 +188,13 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 		return URL.createObjectURL(blob)
 	}
 	
-	getAsText(url: string): Promise<string | null> {
+	/**
+	 * Get resource as text.
+	 * @param name The defined resource name or base name of url.
+	 */
+	getAsText(name: string): Promise<string | null> {
 		return new Promise(resolve => {
-			let blob = this.blobMap.get(this.getAbsoluteURL(url))
+			let blob = this.blobMap.get(name)
 			if (!blob) {
 				return resolve(null)
 			}
@@ -199,8 +207,12 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 		})
 	}
 
-	async getAsHTML(url: string): Promise<HTMLDocument | null> {
-		let text = await this.getAsText(url)
+	/**
+	 * Get resource as HTML document.
+	 * @param name The defined resource name or base name of url.
+	 */
+	async getAsHTML(name: string): Promise<HTMLDocument | null> {
+		let text = await this.getAsText(name)
 		if (!text) {
 			return null
 		}
@@ -208,8 +220,12 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 		return new DOMParser().parseFromString(text, 'text/html')
 	}
 
-	async getAsJSON(url: string): Promise<any | null> {
-		let text = await this.getAsText(url)
+	/**
+	 * Get resource as JSON.
+	 * @param name The defined resource name or base name of url.
+	 */
+	async getAsJSON(name: string): Promise<any | null> {
+		let text = await this.getAsText(name)
 		if (!text) {
 			return null
 		}
@@ -217,9 +233,13 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 		return JSON.parse(text)
 	}
 
-	async getAsBuffer(url: string): Promise<ArrayBuffer | null> {
+	/**
+	 * Get resource as ArrayBuffer.
+	 * @param name The defined resource name or base name of url.
+	 */
+	async getAsBuffer(name: string): Promise<ArrayBuffer | null> {
 		return new Promise(resolve => {
-			let blob = this.blobMap.get(this.getAbsoluteURL(url))
+			let blob = this.blobMap.get(name)
 			if (!blob) {
 				return resolve(null)
 			}
@@ -232,9 +252,13 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 		})
 	}
 
-	async getAsImage(url: string): Promise<HTMLImageElement | null> {
+	/**
+	 * Get resource as Image.
+	 * @param name The defined resource name or base name of url.
+	 */
+	async getAsImage(name: string): Promise<HTMLImageElement | null> {
 		return new Promise(resolve => {
-			let blobURL = this.getAsBlobURL(url)
+			let blobURL = this.getAsBlobURL(name)
 			if (!blobURL) {
 				return resolve(null)
 			}

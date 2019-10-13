@@ -1,5 +1,5 @@
 import './es-polyfill'
-export * from './object'
+export {assign, assignIf, deepClone, deepEqual} from './object'
 export * from './array'
 export * from './string'
 export * from './number'
