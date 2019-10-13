@@ -3,10 +3,7 @@ import {Interval} from '../base'
 
 
 type WatchType = keyof typeof WATCH_STATE_FN
-type WatchCallback<Type extends WatchType> = (state: ReturnType<(typeof WATCH_STATE_FN)[Type]>) => void
-
-
-const ResizeObserver = (window as any).ResizeObserver
+type WatchCallback<T extends WatchType> = (state: ReturnType<(typeof WATCH_STATE_FN)[T]>) => void
 
 
 export const WATCH_STATE_FN = {
@@ -47,20 +44,8 @@ export const WATCH_STATE_FN = {
  * @param type The state to watch, can be `'show' | 'hide' | 'inview' | 'outview' | 'size' | 'rect'`.
  * @param callback The callback to call when state changed.
  */
-export function watchLayout<Type extends WatchType>(el: HTMLElement, type: Type, callback: WatchCallback<Type>): () => void {
-	return bindWatch(false, false, false, el, type, callback)
-}
-
-
-/**
- * Watch specified state, call callback in next animation frame with current state`. Returns a cancel function.
- * Note that this method may slow page speed and cause additional reflow.
- * @param el The element to watch.
- * @param type The state to watch, can be `'show' | 'hide' | 'inview' | 'outview' | 'size' | 'rect'`.
- * @param callback The callback to call when state changed.
- */
-export function watchLayoutImmediately<Type extends WatchType>(el: HTMLElement, type: Type, callback: WatchCallback<Type>): () => void {
-	return bindWatch(false, false, true, el, type, callback)
+export function watchLayout<T extends WatchType>(el: HTMLElement, type: T, callback: WatchCallback<T>): () => void {
+	return bindWatch(false, false, el, type, callback)
 }
 
 
@@ -71,8 +56,8 @@ export function watchLayoutImmediately<Type extends WatchType>(el: HTMLElement, 
  * @param type The state to watch, can be `'show' | 'hide' | 'inview' | 'outview' | 'size' | 'rect'`.
  * @param callback The callback to call when state changed.
  */
-export function watchLayoutOnce<Type extends WatchType>(el: HTMLElement, type: WatchType, callback: WatchCallback<Type>): () => void {
-	return bindWatch(true, false, false, el, type, callback)
+export function watchLayoutOnce<T extends WatchType>(el: HTMLElement, type: WatchType, callback: WatchCallback<T>): () => void {
+	return bindWatch(true, false, el, type, callback)
 }
 
 
@@ -83,12 +68,12 @@ export function watchLayoutOnce<Type extends WatchType>(el: HTMLElement, type: W
  * @param type The state to watch, can be `'show' | 'hide' | 'inview' | 'outview'`.
  * @param callback The callback to call when state becomes true.
  */
-export function watchLayoutUntil<Type extends 'show' | 'hide' | 'inview' | 'outview'>(el: HTMLElement, type: Type, callback: WatchCallback<Type>): () => void {
-	return bindWatch(true, true, false, el, type, callback)
+export function watchLayoutUntil<T extends 'show' | 'hide' | 'inview' | 'outview'>(el: HTMLElement, type: T, callback: WatchCallback<T>): () => void {
+	return bindWatch(true, true, el, type, callback)
 }
 
 
-function bindWatch(isOnce: boolean, untilTrue: boolean, immediate: boolean, el: HTMLElement, type: WatchType, callback: Function): () => void {
+function bindWatch(isOnce: boolean, untilTrue: boolean, el: HTMLElement, type: WatchType, callback: Function): () => void {
 	let getState = WATCH_STATE_FN[type]
 	let oldState: any
 	let interval: Interval | null = null
@@ -98,11 +83,12 @@ function bindWatch(isOnce: boolean, untilTrue: boolean, immediate: boolean, el: 
 		throw new Error(`Failed to watch, type "${type}" is not supported`)
 	}
 
-	afterAllTheThingsRendered(() => {
-		if (untilTrue || immediate) {
+	// When using with flit, it may cause relayout, so please make sure everything rendered already.
+	requestAnimationFrame(() => {
+		if (untilTrue) {
 			oldState = getState(el)
 
-			if (oldState && untilTrue || immediate) {
+			if (oldState && untilTrue) {
 				callback(oldState)
 			}
 		}
@@ -111,8 +97,8 @@ function bindWatch(isOnce: boolean, untilTrue: boolean, immediate: boolean, el: 
 			return
 		}
 
-		if (type === 'size' && typeof ResizeObserver === 'function') {
-			observer = new ResizeObserver(onResize)
+		if (type === 'size' && typeof (window as any).ResizeObserver === 'function') {
+			observer = new (window as any).ResizeObserver(onResize)
 			observer.observe(el)
 		}
 		else if ((type === 'inview' || type ===  'outview') && typeof IntersectionObserver === 'function') {
@@ -168,12 +154,6 @@ function bindWatch(isOnce: boolean, untilTrue: boolean, immediate: boolean, el: 
 	}
 
 	return unwatch
-}
-
-
-// When using with flit, it may cause relayout, so need to be delayed to next frame.
-function afterAllTheThingsRendered(callback: () => void) {
-	requestAnimationFrame(() => setTimeout(callback, 0))
 }
 
 
