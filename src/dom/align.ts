@@ -1,4 +1,4 @@
-import {getNumeric, setStyle, getStyle} from './css'
+import {getStyleAsNumber, setStyle, getStyle} from './css'
 import {Rect, getRect} from './node'
 import {getClosestFixedElement} from './util'
 
@@ -378,8 +378,8 @@ export class Aligner {
 
 			setStyle(trangle, {left: tx, right: '', top: '', bottom: ''})
 
-			let tTop = getNumeric(trangle, 'top')
-			let tBottom = getNumeric(trangle, 'bottom')
+			let tTop = getStyleAsNumber(trangle, 'top')
+			let tBottom = getStyleAsNumber(trangle, 'bottom')
 
 			if (tTop < 0 && this.direction.top) {
 				swapY = true
@@ -404,8 +404,8 @@ export class Aligner {
 
 			setStyle(trangle, {top: ty, bottom: '', left: '', right: ''})
 
-			let tLeft = getNumeric(trangle, 'left')
-			let tRight = getNumeric(trangle, 'right')
+			let tLeft = getStyleAsNumber(trangle, 'left')
+			let tRight = getStyleAsNumber(trangle, 'right')
 
 			if (tLeft < 0 && this.direction.left) {
 				swapX = true

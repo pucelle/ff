@@ -1,4 +1,4 @@
-import {getNumeric} from './css'
+import {getStyleAsNumber} from './css'
 
 
 /**
@@ -46,7 +46,7 @@ export function getElementIndex(el: Element): number {
 export function getInnerWidth(el: Element): number {
 	let w = el.clientWidth
 	if (w) {
-		return el.clientWidth - getNumeric(el, 'paddingLeft') - getNumeric(el, 'paddingRight')
+		return el.clientWidth - getStyleAsNumber(el, 'paddingLeft') - getStyleAsNumber(el, 'paddingRight')
 	}
 	else {
 		return 0
@@ -61,7 +61,7 @@ export function getInnerWidth(el: Element): number {
 export function getInnerHeight(el: Element): number {
 	let h = el.clientHeight
 	if (h) {
-		return h - getNumeric(el, 'paddingTop') - getNumeric(el, 'paddingBottom')
+		return h - getStyleAsNumber(el, 'paddingTop') - getStyleAsNumber(el, 'paddingBottom')
 	}
 	else {
 		return 0
@@ -76,7 +76,7 @@ export function getInnerHeight(el: Element): number {
 export function getOuterWidth(el: HTMLElement) {
 	let w = el.offsetWidth
 	if (w) {
-		return w + getNumeric(el, 'marginLeft') + getNumeric(el, 'marginRight')
+		return w + getStyleAsNumber(el, 'marginLeft') + getStyleAsNumber(el, 'marginRight')
 	}
 	else {
 		return 0
@@ -91,7 +91,7 @@ export function getOuterWidth(el: HTMLElement) {
 export function getOuterHeight(el: HTMLElement) {
 	let h = el.offsetHeight
 	if (h) {
-		return h + getNumeric(el, 'marginTop') + getNumeric(el, 'marginBottom')
+		return h + getStyleAsNumber(el, 'marginTop') + getStyleAsNumber(el, 'marginBottom')
 	}
 	else {
 		return 0

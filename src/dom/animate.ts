@@ -1,4 +1,4 @@
-import {getNumeric, StyleName, setStyle} from './css'
+import {getStyleAsNumber, StyleName, setStyle} from './css'
 import {normativeStyleObject} from "./util"
 
 
@@ -233,7 +233,7 @@ export function animatePropertyFrom(el: HTMLElement, property: AnimationName, st
 		endValue = el[property]
 	}
 	else {
-		endValue = getNumeric(el, property)
+		endValue = getStyleAsNumber(el, property)
 	}
 	
 	return animateProperty(el, property, startValue, endValue, duration, easing)
@@ -254,7 +254,7 @@ export function animatePropertyTo(el: HTMLElement, property: AnimationName, endV
 		startValue = el[property]
 	}
 	else {
-		startValue = getNumeric(el, property)
+		startValue = getStyleAsNumber(el, property)
 	}
 
 	return animateProperty(el, property, startValue, endValue, duration, easing)

@@ -8,9 +8,9 @@ export type StyleName = Exclude<string & keyof CSSStyleDeclaration, 'length' | '
  * @param el The element to get numeric value.
  * @param property The property name in camer case, `backgroundColor` as example.
  */
-export function getNumeric(el: Element, property: StyleName): number {
+export function getStyleAsNumber(el: Element, property: StyleName): number {
 	let value = getStyle(el, property)
-	return parseFloat(value) || 0
+	return value ? parseFloat(value) || 0 : 0
 }
 
 
