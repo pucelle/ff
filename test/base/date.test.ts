@@ -74,21 +74,21 @@ describe('Test date', () => {
 	})
 
 	test('formatDate', () => {
-		expect(ff.formatDate(new Date(2020, 0, 1))).toEqual('2020/01/01 00:00:00')
+		expect(ff.formatDate(new Date(2020, 0, 1))).toEqual('2020-01-01 00:00:00')
 		expect(ff.formatDate(new Date(2020, 0, 1), 'yyMMddhhmmss')).toEqual('20200101000000')
 	})
 
 	test('formatToShortTime', () => {
 		let n = ff.addDurationToDate(d, '1y')
-		expect(ff.formatToShort(n)).toEqual(ff.formatDate(n, 'yyyy/MM/dd hh:mm'))
+		expect(ff.formatToShortDate(n)).toEqual(ff.formatDate(n, 'yyyy-MM-dd hh:mm'))
 
 		n = ff.addDurationToDate(d, d.getMonth() > 6 ? '-1M' : '1M')
-		expect(ff.formatToShort(n)).toEqual(ff.formatDate(n, 'MM/dd hh:mm'))
+		expect(ff.formatToShortDate(n)).toEqual(ff.formatDate(n, 'MM-dd hh:mm'))
 
 		n = ff.addDurationToDate(d, d.getDate() > 15 ? '-1d' : '1d')
-		expect(ff.formatToShort(n)).toEqual(ff.formatDate(n, 'MM/dd hh:mm'))
+		expect(ff.formatToShortDate(n)).toEqual(ff.formatDate(n, 'MM-dd hh:mm'))
 
 		n = ff.addDurationToDate(d, d.getHours() > 12 ? '-1h' : '1h')
-		expect(ff.formatToShort(n)).toEqual(ff.formatDate(n, 'hh:mm'))
+		expect(ff.formatToShortDate(n)).toEqual(ff.formatDate(n, 'hh:mm'))
 	})
 })

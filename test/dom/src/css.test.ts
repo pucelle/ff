@@ -5,14 +5,14 @@ const assert = chai.assert
 
 
 describe('Test css', () => {
-	it('getNumeric', () => {
+	it('getStyleAsNumber', () => {
 		assert.equal(
-			ff.getNumeric(document.body, 'width'),
+			ff.getStyleAsNumber(document.body, 'width'),
 			parseFloat(getComputedStyle(document.body).width!)
 		)
 
 		assert.equal(
-			ff.getNumeric(document.body, 'display'),
+			ff.getStyleAsNumber(document.body, 'display'),
 			0
 		)
 	})

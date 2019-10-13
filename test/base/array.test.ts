@@ -1,8 +1,8 @@
-import * as ff from '../../out'
+import * as ff from '../..'
 
 
 describe('Test array', () => {
-	let a = (i: any) => [i]
+	let a = <T>(i: T) => [i]
 
 	test('add', () => {
 		expect(ff.add([1,2,3], 4)).toEqual([1,2,3,4])
@@ -77,8 +77,8 @@ describe('Test array', () => {
 		expect(new ff.Order([0, -1]).binaryInsert([3,2,1].map(a), [2])).toEqual([3,2,2,1].map(a))
 		expect(new ff.Order([0, -1]).binaryInsert([3,2,1].map(a), [2.5])).toEqual([3,2.5,2,1].map(a))
 
-		expect(new ff.Order(x=>-x).binaryInsert([3,2,1].map(a), [0])).toEqual([3,2,1,0].map(a))
-		expect(new ff.Order([x=>-x, -1]).binaryInsert([1,2,3].map(a), [0])).toEqual([0,1,2,3].map(a))
+		expect(new ff.Order((x: number[]) => -x[0]).binaryInsert([3,2,1].map(a), [0])).toEqual([3,2,1,0].map(a))
+		expect(new ff.Order([(x: number[]) => -x[0], -1]).binaryInsert([1,2,3].map(a), [0])).toEqual([0,1,2,3].map(a))
 
 		expect(new ff.Order('a').binaryInsert([{a:1}, {a:2}], {a:3})).toEqual([{a:1}, {a:2}, {a:3}])
 		expect(new ff.Order(['a', -1]).binaryInsert([{a:2}, {a:1}], {a:3})).toEqual([{a:3}, {a:2}, {a:1}])
@@ -102,11 +102,6 @@ describe('Test array', () => {
 		expect(ff.indexBy([1,2,3], (v) => [String(v), v])).toEqual({1:1, 2:2, 3:3})
 		expect(ff.indexBy([1,2,3], (v) => [String(v), v + v])).toEqual({1:2, 2:4, 3:6})
 		expect(ff.indexBy([1,2,3], (v) => [String(v), true])).toEqual({1:true, 2:true, 3:true})
-	})
-
-	test('keyBy', () => {
-		expect(ff.keyBy([1,2,3], (v) => v)).toEqual({1:1, 2:2, 3:3})
-		expect(ff.keyBy([1,2,3].map(a), 0)).toEqual({1:[1], 2:[2], 3:[3]})
 	})
 
 	test('groupBy', () => {

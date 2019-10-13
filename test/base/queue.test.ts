@@ -156,19 +156,17 @@ describe('Test queue', async () => {
 
 		q.start()
 		await ff.sleep(10)
-		expect(await q.clear()).toEqual(true)
-		expect(await q.clear()).toEqual(false)
+		expect(q.clear()).toEqual(true)
 		expect(q.getTotalCount()).toEqual(0)
 
 		q.push(...a)
 		q.pause()
-		expect(await q.clear()).toEqual(true)
+		expect(q.clear()).toEqual(true)
 	})
 
 	test('push and unshift', async () => {
 		let q = new ff.Queue({
 			concurrency: 2,
-			fifo: false,
 			tasks: a,
 			handler: () => undefined
 		})

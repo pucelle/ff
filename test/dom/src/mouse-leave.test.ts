@@ -16,8 +16,8 @@ let mouseLeave = (el: HTMLElement) => {
 }
 
 
-describe('Test onMouseLeaveAll', () => {
-	it('onMouseLeaveAll', async () => {
+describe('Test MouseLeave', () => {
+	it('on', async () => {
 		let fn = helper.fn()
 
 		let div1 = document.createElement('div')
@@ -28,7 +28,7 @@ describe('Test onMouseLeaveAll', () => {
 		div2.style.cssText = 'position: fixed; width: 100px; height: 100px; left: 0; top: 0;'
 		document.body.append(div2)
 
-		ff.onMouseLeaveAll([div1, div2], fn)
+		ff.MouseLeave.on([div1, div2], fn)
 		
 		mouseEnter(div1)
 		await ff.sleep(100)
@@ -47,7 +47,7 @@ describe('Test onMouseLeaveAll', () => {
 		div2.remove()
 	})
 
-	it('onceMouseLeaveAll', async () => {
+	it('once', async () => {
 		let calledTimes = 0
 		let fn = () => {
 			calledTimes++
@@ -57,7 +57,7 @@ describe('Test onMouseLeaveAll', () => {
 		div1.style.cssText = 'position: fixed; width: 100px; height: 100px; left: 0; top: 0;'
 		document.body.append(div1)
 
-		ff.onceMouseLeaveAll([div1], fn)
+		ff.MouseLeave.once([div1], fn)
 
 		mouseEnter(div1)
 		mouseLeave(div1)

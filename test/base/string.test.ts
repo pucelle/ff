@@ -21,22 +21,21 @@ describe('Test string', () => {
 		expect(ff.subMatchAt('123', /4/, 0)).toEqual('')
 		expect(ff.subMatchAt('123', /2/, 1)).toEqual('')
 
-		expect(ff.subMatchAt('123', /2/)).toEqual('2')
 		expect(ff.subMatchAt('123', /2/, 0)).toEqual('2')
 		expect(ff.subMatchAt('123', /(2)/, 1)).toEqual('2')
 
-		expect(ff.subMatchAt('1223', /4/g, 0)).toEqual([])
-		expect(ff.subMatchAt('1223', /2/g, 1)).toEqual(['', ''])
-		expect(ff.subMatchAt('1223', /2/g, 0)).toEqual(['2', '2'])
-		expect(ff.subMatchAt('1223', /(2)/g, 1)).toEqual(['2', '2'])
+		expect(ff.subMatchesAt('1223', /4/g, 0)).toEqual([])
+		expect(ff.subMatchesAt('1223', /2/g, 1)).toEqual(['', ''])
+		expect(ff.subMatchesAt('1223', /2/g, 0)).toEqual(['2', '2'])
+		expect(ff.subMatchesAt('1223', /(2)/g, 1)).toEqual(['2', '2'])
 	})
 
 	test('subMatches', () => {
 		expect(ff.subMatches('123', /4/)).toEqual([])
 
-		expect(ff.subMatches('123', /(2)/)).toEqual(['2'])
-		expect(ff.subMatches('123', /2/, 0)).toEqual(['2'])
-		expect(ff.subMatches('123', /(2)/, 1)).toEqual(['2'])
+		expect(ff.subMatches('123', /(2)/)).toEqual([['2']])
+		expect(ff.subMatches('123', /2/, 0)).toEqual([['2']])
+		expect(ff.subMatches('123', /(2)/, 1)).toEqual([['2']])
 
 		expect(ff.subMatches('123', /4/g)).toEqual([])
 		expect(ff.subMatches('1223', /2/g, 0)).toEqual([['2'], ['2']])
@@ -44,9 +43,9 @@ describe('Test string', () => {
 	})
 
 	test('format', () => {
-		expect(ff.format('a${0}${1}d', ['b','c'])).toEqual('abcd')
-		expect(ff.format('a${x}${y}d', {x:'b',y:'c'})).toEqual('abcd')
-		expect(ff.format('a${x}${y}d', {x:'b'})).toEqual('ab${y}d')
+		expect(ff.format('a{0}{1}d', ['b','c'])).toEqual('abcd')
+		expect(ff.format('a{x}{y}d', {x:'b',y:'c'})).toEqual('abcd')
+		expect(ff.format('a{x}{y}d', {x:'b'})).toEqual('ab{y}d')
 	})
 
 	test('other string methods', () => {

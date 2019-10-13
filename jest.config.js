@@ -4,7 +4,7 @@ module.exports = {
 		"^.+\\.tsx?$": "ts-jest"
 	},
 	"testMatch": [
-		"**/test/lib/**/*.test.ts"
+		"**/test/base/**/*.test.ts"
 	],
 	"moduleFileExtensions": [
 		"ts",
