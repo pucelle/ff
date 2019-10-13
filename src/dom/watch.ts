@@ -1,8 +1,12 @@
 import {isInview, getRect, Rect} from './node'
+import {Interval} from '../base'
 
 
 type WatchType = keyof typeof WATCH_STATE_FN
 type WatchCallback<Type extends WatchType> = (state: ReturnType<(typeof WATCH_STATE_FN)[Type]>) => void
+
+
+const ResizeObserver = (window as any).ResizeObserver
 
 
 export const WATCH_STATE_FN = {
@@ -87,15 +91,14 @@ export function watchLayoutUntil<Type extends 'show' | 'hide' | 'inview' | 'outv
 function bindWatch(isOnce: boolean, untilTrue: boolean, immediate: boolean, el: HTMLElement, type: WatchType, callback: Function): () => void {
 	let getState = WATCH_STATE_FN[type]
 	let oldState: any
-	let loop: WatchLayoutLoop | null = null
+	let interval: Interval | null = null
 	let observer: any = null
 
 	if (!getState) {
 		throw new Error(`Failed to watch, type "${type}" is not supported`)
 	}
 
-	// It may cause relayout, so need to be delayed to next frame.
-	requestAnimationFrame(() => {
+	afterAllTheThingsRendered(() => {
 		if (untilTrue || immediate) {
 			oldState = getState(el)
 
@@ -108,8 +111,8 @@ function bindWatch(isOnce: boolean, untilTrue: boolean, immediate: boolean, el: 
 			return
 		}
 
-		if (type === 'size' && typeof ((window as any).ResizeObserver) === 'function') {
-			observer = new (window as any).ResizeObserver(onResize)
+		if (type === 'size' && typeof ResizeObserver === 'function') {
+			observer = new ResizeObserver(onResize)
 			observer.observe(el)
 		}
 		else if ((type === 'inview' || type ===  'outview') && typeof IntersectionObserver === 'function') {
@@ -119,16 +122,19 @@ function bindWatch(isOnce: boolean, untilTrue: boolean, immediate: boolean, el: 
 		else {
 			oldState = getState(el)
 
-			loop = new AnimationFrameLoop(() => {
+			// `requestAnimationFrame` is better than `setInterval`,
+			// because `setInterval` will either lost frame or trigger multiple times betweens one frame.
+			// But check frequently will significantly affect rendering performance.
+			interval = new Interval(() => {
 				let newState = getState(el)
-				onChange(newState)
-			})
+				onNewState(newState)
+			}, 200)
 		}
 	})
 
 	function onResize(entries: any) {
 		for (let {contentRect} of entries) {
-			onChange({
+			onNewState({
 				width: contentRect.width,
 				height: contentRect.height
 			})
@@ -138,11 +144,11 @@ function bindWatch(isOnce: boolean, untilTrue: boolean, immediate: boolean, el: 
 	function onInviewChange(entries: IntersectionObserverEntry[]) {
 		for (let {intersectionRatio} of entries) {
 			let newState = type === 'inview' ? intersectionRatio > 0 : intersectionRatio === 0
-			onChange(newState)
+			onNewState(newState)
 		}
 	}
 
-	function onChange(newState: unknown) {
+	function onNewState(newState: unknown) {
 		if (!valueOrObjectEqual(newState, oldState)) {
 			callback(oldState = newState)
 
@@ -153,8 +159,8 @@ function bindWatch(isOnce: boolean, untilTrue: boolean, immediate: boolean, el: 
 	}
 
 	function unwatch() {
-		if (loop) {
-			loop.cancel()
+		if (interval) {
+			interval.cancel()
 		}
 		else if (observer) {
 			observer.unobserve(el)
@@ -162,6 +168,12 @@ function bindWatch(isOnce: boolean, untilTrue: boolean, immediate: boolean, el: 
 	}
 
 	return unwatch
+}
+
+
+// When using with flit, it may cause relayout, so need to be delayed to next frame.
+function afterAllTheThingsRendered(callback: () => void) {
+	requestAnimationFrame(() => setTimeout(callback, 0))
 }
 
 
@@ -195,58 +207,4 @@ function valueOrObjectEqual(a: unknown, b: unknown): boolean {
 	}
 
 	return true
-}
-
-
-export interface WatchLayoutLoopConstructor {
-	new(callback: () => void): WatchLayoutLoop
-}
-
-export interface WatchLayoutLoop {
-	cancel(): void
-}
-
-
-// Why not use `setInterval`:
-// `requestAnimationFrame` is better than `setInterval`
-// because `setInterval` will either lost frame or trigger for twice in one frame.
-
-// Is there any performance problem on the always running `requestAnimationFrame`?
-// Yes, it may be a problem. But if your watched elements are less than 1000 normally, there should be no problem.
-// It keeps running but will not cause your CPU usage high.
-// Otherwise, use `watch` only you definitely need it.
-
-// Is there some alternate ways to do so?
-// Yes, Especially when you are using one framework to manage all the UI updating work, just call callback after UI updated.
-// But there are some more work to do, Like capturing scroll event.
-// Note that scroll event is not bubblable, so you need to capture whell, mouse and keyboard evnets.
-// Otherwise make sure the events you want to capture are not stopped.
-
-// Why using `setTimeout` after `requestAnimationFrame`?
-// Because we meet a big problem when working with `flit`:
-// Every time when data changes in `flit` and still rendering,
-// Here it forces layout and causes reflow.
-
-const AnimationFrameLoop: WatchLayoutLoopConstructor = class AnimationFrameLoop implements WatchLayoutLoop {
-
-	private callback: () => void
-	private ended: boolean = false
-
-	constructor(callback: () => void) {
-		this.callback = callback
-		this.next()
-	}
-
-	private next() {
-		if (!this.ended) {
-			this.callback.call(null)
-			requestAnimationFrame(() => {
-				setTimeout(() => this.next(), 0)
-			})
-		}
-	}
-
-	cancel() {
-		this.ended = true
-	}
 }
