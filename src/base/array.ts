@@ -3,8 +3,8 @@
  * @param item The value to repeat.
  * @param count Count of times to repeat.
  */
-export function repeatTimes<Item>(item: Item, count: number): Item[] {
-	let items: Item[] = []
+export function repeatTimes<T>(item: T, count: number): T[] {
+	let items: T[] = []
 
 	for (let i = 0 ; i < count; i++) {
 		items.push(item)
@@ -19,7 +19,7 @@ export function repeatTimes<Item>(item: Item, count: number): Item[] {
  * @param array The array to add items.
  * @param items The items to add to array.
  */
-export function add<Item>(array: Item[], ...items: Item[]): Item[] {
+export function add<T>(array: T[], ...items: T[]): T[] {
 	for (let item of items) {
 		if (!array.includes(item)) {
 			array.push(item)
@@ -35,7 +35,7 @@ export function add<Item>(array: Item[], ...items: Item[]): Item[] {
  * @param array The array to remove items.
  * @param items The items to remove from array.
  */
-export function remove<Item>(array: Item[], ...items: Item[]): Item[] {
+export function remove<T>(array: T[], ...items: T[]): T[] {
 	let removed = []
 
 	for (let item of items) {
@@ -55,7 +55,7 @@ export function remove<Item>(array: Item[], ...items: Item[]): Item[] {
  * @param array The array to remove items.
  * @param fn The function which returns boolean values to determinae whether to remove item.
  */
-export function removeFirst<Item>(array: Item[], fn: (item: Item, index: number) => boolean): Item | undefined {
+export function removeFirst<T>(array: T[], fn: (item: T, index: number) => boolean): T | undefined {
 	for (let i = array.length - 1; i >= 0; i--) {
 		if (fn(array[i], i)) {
 			return array.splice(i, 1)[0]!
@@ -71,7 +71,7 @@ export function removeFirst<Item>(array: Item[], fn: (item: Item, index: number)
  * @param array The array to remove items.
  * @param fn The function which returns boolean values to determinae whether to remove item.
  */
-export function removeWhere<Item>(array: Item[], fn: (item: Item, index: number) => boolean): Item[] {
+export function removeWhere<T>(array: T[], fn: (item: T, index: number) => boolean): T[] {
 	let removed = []
 
 	for (let i = 0; i < array.length; i++) {
@@ -88,8 +88,8 @@ export function removeWhere<Item>(array: Item[], fn: (item: Item, index: number)
  * Returns a new array which has been removed duplicate items.
  * @param array The array to remove duplicate items.
  */
-export function unique<Item extends number | string>(array: Item[]): Item[] {
-	let set: Set<Item> = new Set(array)
+export function unique<T extends number | string>(array: T[]): T[] {
+	let set: Set<T> = new Set(array)
 	return [...set]
 }
 
@@ -98,8 +98,8 @@ export function unique<Item extends number | string>(array: Item[]): Item[] {
  * Creates an array of unique values from given arrays.
  * @param arrays The arrays to get union from.
  */
-export function union<Item extends number | string>(...arrays: Item[][]): Item[] {
-	let set: Set<Item> = new Set()
+export function union<T extends number | string>(...arrays: T[][]): T[] {
+	let set: Set<T> = new Set()
 
 	for (let array of arrays) {
 		for (let item of array) {
@@ -115,14 +115,14 @@ export function union<Item extends number | string>(...arrays: Item[][]): Item[]
  * Creates an array of unique values that are included in all given arrays.
  * @param arrays The arrays to get intersection from.
  */
-export function intersect<Item extends number | string>(...arrays: Item[][]): Item[] {
-	let interset: Item[] = []
+export function intersect<T extends number | string>(...arrays: T[][]): T[] {
+	let interset: T[] = []
 
 	if (!arrays.length) {
 		return interset
 	}
 
-	let map: Map<Item, number> = new Map()
+	let map: Map<T, number> = new Map()
 
 	for (let item of arrays[0]) {
 		map.set(item, 1)
@@ -151,8 +151,8 @@ export function intersect<Item extends number | string>(...arrays: Item[][]): It
  * @param array The array to include items.
  * @param excludeArrays The arrays to exclude items from.
  */
-export function difference<Item extends number | string>(array: Item[], ...excludeArrays: Item[][]): Item[] {
-	let set: Set<Item> = new Set(array)
+export function difference<T extends number | string>(array: T[], ...excludeArrays: T[][]): T[] {
+	let set: Set<T> = new Set(array)
 
 	for (let difArray of excludeArrays) {
 		for (let item of difArray) {
@@ -169,7 +169,7 @@ export function difference<Item extends number | string>(array: Item[], ...exclu
  * @param array The sorted array.
  * @param fn The function to accept item in array as argument and returns `-1` to move left, `1` to move right.
  */
-export function binaryFind<Item>(array: Item[], fn: (item: Item) => (0 | -1 | 1)): Item | undefined {
+export function binaryFind<T>(array: T[], fn: (item: T) => (0 | -1 | 1)): T | undefined {
 	let index = binaryFindIndex(array, fn)
 	return index === -1 ? undefined : array[index]
 }
@@ -180,7 +180,7 @@ export function binaryFind<Item>(array: Item[], fn: (item: Item) => (0 | -1 | 1)
  * @param array The sorted array.
  * @param fn The function to accept item in array as argument and returns `-1` to move left, `1` to move right.
  */
-export function binaryFindIndex<Item>(array: Item[], fn: (item: Item) => (0 | -1 | 1)): number {
+export function binaryFindIndex<T>(array: T[], fn: (item: T) => (0 | -1 | 1)): number {
 	if (array.length === 0) {
 		return -1
 	}
@@ -233,7 +233,7 @@ export function binaryFindIndex<Item>(array: Item[], fn: (item: Item) => (0 | -1
  * @param array The sorted array.
  * @param fn The function to accept item in array as argument and returns `-1` to move left, `1` to move right.
  */
-export function binaryFindIndexToInsert<Item>(array: Item[], fn: (item: Item) => (0 | -1 | 1)): number {
+export function binaryFindIndexToInsert<T>(array: T[], fn: (item: T) => (0 | -1 | 1)): number {
 	if (array.length === 0) {
 		return 0
 	}
@@ -277,21 +277,21 @@ export function binaryFindIndexToInsert<Item>(array: Item[], fn: (item: Item) =>
 
 
 export type OrderDirection = -1 | 1 | 'asc' | 'desc'
-export type OrderFunction<Item> = (item: Item) => string | number
-export type OrderTuple<Item, Key> = Key | OrderFunction<Item> | [Key | OrderFunction<Item>, OrderDirection]
-type NormativeOrderTuple<Item, Key> = [Key | OrderFunction<Item>, -1 | 1]
-type CanSortKeys<Item> = Extract<keyof Item, string | number>
+export type OrderFunction<T> = (item: T) => string | number
+export type OrderTuple<T, K> = K | OrderFunction<T> | [K | OrderFunction<T>, OrderDirection]
+type NormativeOrderTuple<T, Key> = [Key | OrderFunction<T>, -1 | 1]
+type CanSortKeys<T> = Extract<keyof T, string | number>
 
 
-export class Order<Item> {
+export class Order<T> {
 
-	private orders: NormativeOrderTuple<Item, string | number>[] = []
+	private orders: NormativeOrderTuple<T, string | number>[] = []
 
 	/**
 	 * Create an order rule, used in `orderBy`, and can also be used to binary search from or binary insert into array with object type items
 	 * @param orders Rest arguments of type `key` or `OrderFunction` which will return a `key`, or [`key` / `OrderFunction`, `OrderDirection`].
 	 */
-	constructor(firstOrder: OrderTuple<Item, string | number>, ...orders: OrderTuple<Item, string | number>[]) {
+	constructor(firstOrder: OrderTuple<T, string | number>, ...orders: OrderTuple<T, string | number>[]) {
 		for (let order of [firstOrder, ...orders]) {
 			if (['string', 'number', 'function'].includes(typeof order)) {
 				this.orders.push([order as any, 1])
@@ -309,7 +309,7 @@ export class Order<Item> {
 	 * Sort `array` inside by the order specified by current object.
 	 * @param array The array to sort.
 	 */
-	sortArray(array: Item[]) {
+	sortArray(array: T[]) {
 		array.sort((a, b) => this.compare(a, b))
 	}
 
@@ -320,7 +320,7 @@ export class Order<Item> {
 	 * @param a First item.
 	 * @param b Second item.
 	 */
-	compare(a: Item, b: Item): 0 | -1 | 1 {
+	compare(a: T, b: T): 0 | -1 | 1 {
 		for (let [keyOrFn, order] of this.orders) {
 			let ai: number | string
 			let bi: number | string
@@ -356,7 +356,7 @@ export class Order<Item> {
 	 * @param array The array to lookup.
 	 * @param item The item to search.
 	 */
-	binaryFind(array: Item[], item: Item): Item | undefined {
+	binaryFind(array: T[], item: T): T | undefined {
 		return binaryFind(array, i => this.compare(item, i))
 	}
 
@@ -366,21 +366,22 @@ export class Order<Item> {
 	 * @param array The array to lookup.
 	 * @param item The item to compare.
 	 */
-	binaryFindIndex(array: Item[], item: Item): number {
+	binaryFindIndex(array: T[], item: T): number {
 		return binaryFindIndex(array, i => this.compare(item, i))
 	}
 	
 	/**
-	 * Binary find the closest index in a sorted array in where to insert new item and keep current order.
+	 * Binary insert an `item` into `array` and keep current order.
 	 * @param array The array to lookup.
 	 * @param item The item to insert.
 	 */
 
 	// `splice` is very slower since it reallocate memory frequently.
 	// See https://jsperf.com/splice-vs-filter
-	binaryInsert(array: Item[], item: Item) {
+	binaryInsert(array: T[], item: T) {
 		let index = binaryFindIndexToInsert(array, i => this.compare(item, i))
 		array.splice(index, 0, item)
+		return array
 	}
 }
 
@@ -390,7 +391,7 @@ export class Order<Item> {
  * @param array The array to order.
  * @param order instantiated `ff.Order`.
  */
-export function orderBy<Item extends object>(array: Item[], order: Order<Item>): Item[]
+export function orderBy<T extends object>(array: T[], order: Order<T>): T[]
 
 /**
  * Sort items of object type inside array by a specified orders.
@@ -398,7 +399,7 @@ export function orderBy<Item extends object>(array: Item[], order: Order<Item>):
  * @param orders Rest argument of type `key` or `OrderFunction` which will return a `key`, or [`key` / `OrderFunction`, `OrderDirection`].
  */
 /*
-why `export function orderBy<Item extends object, Key extends CanSortKeys<Item>>...` not works:
+why `export function orderBy<T extends object, Key extends CanSortKeys<T>>...` not works:
 when <Key> appears multiple times at contexual, <Key> was inferred from multiple condidate types
 
 `orderBy([{a:1,b:2}], ['a', 1], 'b')` =>
@@ -408,9 +409,9 @@ when <Key> appears multiple times at contexual, <Key> was inferred from multiple
 
 	lower priority value `1` will be overwrited
 */
-export function orderBy<Item extends object>(array: Item[], ...orders: OrderTuple<Item, CanSortKeys<Item>>[]): Item[]
+export function orderBy<T extends object>(array: T[], ...orders: OrderTuple<T, CanSortKeys<T>>[]): T[]
 
-export function orderBy<Item extends object>(array: Item[], order: Order<Item> | OrderTuple<Item, CanSortKeys<Item>>, ...orders: OrderTuple<Item, CanSortKeys<Item>>[]): Item[] {
+export function orderBy<T extends object>(array: T[], order: Order<T> | OrderTuple<T, CanSortKeys<T>>, ...orders: OrderTuple<T, CanSortKeys<T>>[]): T[] {
 	order = order instanceof Order ? order : new Order(order, ...orders)
 	order.sortArray(array)
 	return array
@@ -422,17 +423,17 @@ export function orderBy<Item extends object>(array: Item[], order: Order<Item> |
  * @param array The array to generate map object.
  * @param fn The function to return `[key, value]` tuple for each item.
  */
-export function indexBy<Item, V>(array: Item[], fn: (value: Item, index: number) => [string | number, V]): {[key: string]: V}
+export function indexBy<T, V>(array: T[], fn: (value: T, index: number) => [string | number, V]): {[key: string]: V}
 
 /**
  * Create a map object as `{item[key]: item}` type.
  * @param array The array to generate map object.
  * @param key The key of items in array to get value as index keys.
  */
-export function indexBy<Item, K>(array: Item[], key: K): {[key: string]: Item}
+export function indexBy<T, K>(array: T[], key: K): {[key: string]: T}
 
 // Compar to map, object has same performance, and is more convinent to use, but will lose number key type.
-export function indexBy<Item>(array: Item[], keyOrFn: keyof Item | ((value: Item, index: number) => [string | number, any])): {[key: string]: any} {
+export function indexBy<T>(array: T[], keyOrFn: keyof T | ((value: T, index: number) => [string | number, any])): {[key: string]: any} {
 	let index: {[key: string]: any} = {}
 
 	if (typeof keyOrFn === 'function') {
@@ -458,8 +459,8 @@ export function indexBy<Item>(array: Item[], keyOrFn: keyof Item | ((value: Item
  * @param array The array to group by. 
  * @param keyOrFn The key attribute name of each item whose related value will be used as key. or the function which accepts each item as argument and returns a key.
  */
-export function groupBy<Item>(array: Item[], keyOrFn: CanSortKeys<Item> | OrderFunction<Item>): {[key: string]: Item[]} {
-	let index: {[key: string]: Item[]} = {}
+export function groupBy<T>(array: T[], keyOrFn: CanSortKeys<T> | OrderFunction<T>): {[key: string]: T[]} {
+	let index: {[key: string]: T[]} = {}
 
 	for (let item of array) {
 		let key: string | number
@@ -485,7 +486,7 @@ export function groupBy<Item>(array: Item[], keyOrFn: CanSortKeys<Item> | OrderF
  * @param keyOrFn The key attribute name of each item whose related value will be used as key. or the function which accepts each item as argument and returns a key.
  * @param aggregateFn The aggregate function which accepts grouped items and key as arguments, and returns aggregate value.
  */
-export function aggregate<Item, Value>(array: Item[], keyOrFn: CanSortKeys<Item> | OrderFunction<Item>, aggregateFn: (items: Item[], key?: string) => Value): {[key: string]: Value} {
+export function aggregate<T, Value>(array: T[], keyOrFn: CanSortKeys<T> | OrderFunction<T>, aggregateFn: (items: T[], key?: string) => Value): {[key: string]: Value} {
 	let index = groupBy(array, keyOrFn)
 
 	return indexBy(Object.keys(index), (key: string) => {
@@ -498,7 +499,7 @@ export function aggregate<Item, Value>(array: Item[], keyOrFn: CanSortKeys<Item>
  * Returns the length of the array.
  * @param array The array to count length.
  */
-// Can't use `array: unknown` here, or it will cause `Item` in `aggregate` was inferred as `unknown` and make `CanSortKeys<Item>` not working.
+// Can't use `array: unknown` here, or it will cause `T` in `aggregate` was inferred as `unknown` and make `CanSortKeys<T>` not working.
 export function count(array: any[]): number {
 	return array.length
 }

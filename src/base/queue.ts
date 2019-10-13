@@ -66,13 +66,13 @@ export interface QueueOptions<Task, Value> {
 	handler: QueueHandler<Task, Value>
 }
 
-type QueueHandler<Task, Value> = (task: Task) => {promise: Promise<Value>, abort: Function} | Promise<Value> | Value
+type QueueHandler<T, V> = (task: T) => {promise: Promise<V>, abort: Function} | Promise<V> | V
 
 
-export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, Value>> {
+export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 
 	/** If provided, can avoid adding duplicate tasks. */
-	key: keyof Task | null = null
+	key: keyof T | null = null
 
 	/** Specify how many tasks to run simultaneously. Default value is `5`. */
 	concurrency: number = 5
@@ -88,10 +88,10 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 	maxRetryTimes: number = 0
 
 	/** The task array which will be passed to handler in order. */
-	tasks: Task[] = []
+	tasks: T[] = []
 
 	/** The handler to handle each task. It should return a value when `capture` is true. */
-	handler!: QueueHandler<Task, Value>
+	handler!: QueueHandler<T, V>
 	
 	/** Returns current working state. */
 	state: QueueState = QueueState.Pending
@@ -99,12 +99,12 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 	private keyValues: Set<any> | null = null
 	private seed: number = 1
 	private handledCount: number = 0
-	private runningItems: QueueItem<Task>[] = []
-	private failedItems: QueueItem<Task>[] = []
+	private runningItems: QueueItem<T>[] = []
+	private failedItems: QueueItem<T>[] = []
 	private resumePromise: Promise<void> | null = null
 	private resumeResolve: (() => void) | null = null
 
-	constructor(options: QueueOptions<Task, Value>) {
+	constructor(options: QueueOptions<T, V>) {
 		super()
 
 		if (options.tasks) {
@@ -153,7 +153,7 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 	}
 
 	/** Returns the failed tasks. */
-	getFailedTasks(): Task[] {
+	getFailedTasks(): T[] {
 		return this.failedItems.map(v => v.task)
 	}
 
@@ -259,7 +259,7 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 		}
 	}
 
-	private handleItem(item: QueueItem<Task>) {
+	private handleItem(item: QueueItem<T>) {
 		let {task} = item
 		let onItemFinish = this.onItemFinish.bind(this, item)
 		let onItemError = this.onItemError.bind(this, item)
@@ -275,11 +275,11 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 			value.then(onItemFinish, onItemError)
 		}
 		else {
-			Promise.resolve().then(() => onItemFinish(<Value>value))
+			Promise.resolve().then(() => onItemFinish(<V>value))
 		}
 	}
 
-	private async onItemFinish(item: QueueItem<Task>, value: Value) {
+	private async onItemFinish(item: QueueItem<T>, value: V) {
 		await this.prepareItem(item)
 		
 		if (!this.removeFromRunning(item)) {
@@ -294,7 +294,7 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 		}
 	}
 
-	private async onItemError(item: QueueItem<Task>, err: Error | string | number) {
+	private async onItemError(item: QueueItem<T>, err: Error | string | number) {
 		await this.prepareItem(item)
 		
 		if (!this.removeFromRunning(item)) {
@@ -313,7 +313,7 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 	}
 
 	// Prepare until we can handle it, normally is the state changed from pause to resume.
-	private async prepareItem(item: QueueItem<Task>) {
+	private async prepareItem(item: QueueItem<T>) {
 		item.abort = null
 
 		if (this.resumePromise) {
@@ -321,7 +321,7 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 		}
 	}
 
-	private removeFromRunning(item: QueueItem<Task>) {
+	private removeFromRunning(item: QueueItem<T>) {
 		let index = this.runningItems.findIndex(v => v.id === item.id)
 		if (index > -1) {
 			this.runningItems.splice(index, 1)
@@ -378,7 +378,7 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 		this.runningItems = []
 	}
 
-	private abortItem(item: QueueItem<Task>) {
+	private abortItem(item: QueueItem<T>) {
 		let {task, abort} = item
 
 		if (abort) {
@@ -388,9 +388,12 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 		this.emit('taskabort', task)
 	}
 
-	/** End and finish queue, abort all running tasks and clear all tasks and handling records. */
+	/** 
+	 * End and finish queue, abort all running tasks and clear all tasks and handling records.
+	 * Returns if clear successfully.
+	 */
 	clear(): boolean {
-		if (!(this.state === QueueState.Running || this.state === QueueState.Paused || this.state === QueueState.Finish)) {
+		if (this.state === QueueState.Aborted) {
 			return false
 		}
 
@@ -417,7 +420,7 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 	}
 
 	/** Push tasks to queue. */
-	push(...tasks: Task[]) {
+	push(...tasks: T[]) {
 		if (this.keyValues) {
 			for (let task of tasks) {
 				this.keyValues.add(task[this.key!])
@@ -434,7 +437,7 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 	}
 
 	/** Unshift tasks to queue. */
-	unshift(...tasks: Task[]) {
+	unshift(...tasks: T[]) {
 		if (this.keyValues) {
 			for (let task of tasks) {
 				this.keyValues.add(task[this.key!])
@@ -450,7 +453,7 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 		this.mayHandleNextTask()
 	}
 
-	has(task: Task) {
+	has(task: T) {
 		if (this.keyValues) {
 			return this.keyValues.has(task[this.key!])
 		}
@@ -459,7 +462,7 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 		}
 	}
 
-	add(...tasks: Task[]) {
+	add(...tasks: T[]) {
 		tasks = tasks.filter(t => !this.has(t))
 
 		if (tasks.length > 0) {
@@ -467,7 +470,7 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 		}
 	}
 
-	addToStart(...tasks: Task[]) {
+	addToStart(...tasks: T[]) {
 		tasks = tasks.filter(t => !this.has(t))
 
 		if (tasks.length > 0) {
@@ -476,7 +479,7 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 	}
 
 	/** Find first matched task. */
-	find(fn: (task: Task) => boolean): Task | undefined {
+	find(fn: (task: T) => boolean): T | undefined {
 		let item = this.runningItems.find(item => fn(item.task))
 		if (item) {
 			return item.task
@@ -496,8 +499,8 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 	}
 
 	/** Remove tasks even the task is running, note that it's O(m * n) algorithm */
-	remove(...tasks: Task[]): Task[] {
-		let removed: Task[] = []
+	remove(...tasks: T[]): T[] {
+		let removed: T[] = []
 
 		for (let task of tasks) {
 			let index = this.runningItems.findIndex(item => item.task === task)
@@ -528,8 +531,8 @@ export class Queue<Task = any, Value = void> extends Emitter<QueueEvents<Task, V
 	}
 
 	/** Remove all matched tasks even the task is running. */
-	removeWhere(fn: (task: Task) => boolean): Task[] {
-		let removed: Task[] = []
+	removeWhere(fn: (task: T) => boolean): T[] {
+		let removed: T[] = []
 
 		let runningItems = removeWhere(this.runningItems, item => fn(item.task))
 		runningItems.forEach(item => this.abortItem(item))

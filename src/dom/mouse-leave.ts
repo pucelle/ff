@@ -141,7 +141,7 @@ export namespace MouseLeave {
 	
 		private startTimeout() {
 			this.clearTimeout()
-			this.timer = setTimeout(this.onTimeout, this.ms)
+			this.timer = setTimeout(() => this.onTimeout(), this.ms)
 		}
 
 		private onTimeout() {

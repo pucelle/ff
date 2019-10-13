@@ -368,6 +368,8 @@ export class Aligner {
 
 		if (this.direction.top || this.direction.bottom) {
 			let tx
+			let tTop = getStyleAsNumber(trangle, 'top')
+			let tBottom = getStyleAsNumber(trangle, 'bottom')
 
 			if (this.w >= this.targetRect.width) {
 				tx = this.targetRect.left + this.targetRect.width / 2 - this.x - trangle.offsetWidth / 2
@@ -376,24 +378,29 @@ export class Aligner {
 				tx = this.w / 2 - trangle.offsetWidth / 2
 			}
 
-			setStyle(trangle, {left: tx, right: '', top: '', bottom: ''})
+			setStyle(trangle, {left: tx, right: ''})
 
-			let tTop = getStyleAsNumber(trangle, 'top')
-			let tBottom = getStyleAsNumber(trangle, 'bottom')
-
-			if (tTop < 0 && this.direction.top) {
-				swapY = true
-				setStyle(trangle, {top: 'auto', bottom: tTop})
+			if (tTop < 0) {
+				if (this.direction.top) {
+					swapY = true
+					setStyle(trangle, {top: 'auto', bottom: tTop})
+				}
 			}
-
-			if (tBottom < 0 && this.direction.bottom) {
-				swapY = true
-				setStyle(trangle, {top: tBottom, bottom: 'auto'})
+			else if (tBottom < 0) {
+				if (this.direction.bottom) {
+					swapY = true
+					setStyle(trangle, {top: tBottom, bottom: 'auto'})
+				}
+			}
+			else {
+				setStyle(trangle, {top: '', bottom: ''})
 			}
 		}
 
 		if (this.direction.left || this.direction.right) {
 			let ty
+			let tLeft = getStyleAsNumber(trangle, 'left')
+			let tRight = getStyleAsNumber(trangle, 'right')
 
 			if (this.h >= this.targetRect.height) {
 				ty = this.targetRect.top + this.targetRect.height / 2 - this.y - trangle.offsetHeight / 2
@@ -402,19 +409,22 @@ export class Aligner {
 				ty = this.h / 2 - trangle.offsetHeight / 2
 			}
 
-			setStyle(trangle, {top: ty, bottom: '', left: '', right: ''})
+			setStyle(trangle, {top: ty, bottom: ''})
 
-			let tLeft = getStyleAsNumber(trangle, 'left')
-			let tRight = getStyleAsNumber(trangle, 'right')
-
-			if (tLeft < 0 && this.direction.left) {
-				swapX = true
-				setStyle(trangle, {left: 'auto', right: tLeft})
+			if (tLeft < 0) {
+				if (this.direction.left) {
+					swapX = true
+					setStyle(trangle, {left: 'auto', right: tLeft})
+				}
 			}
-
-			if (tRight < 0 && this.direction.right) {
-				swapX = true
-				setStyle(trangle, {left: tRight, right: 'auto'})
+			else if (tRight < 0) {
+				if (this.direction.right) {
+					swapX = true
+					setStyle(trangle, {left: tRight, right: 'auto'})
+				}
+			}
+			else {
+				setStyle(trangle, {left: '', right: ''})
 			}
 		}
 
