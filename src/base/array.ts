@@ -454,31 +454,6 @@ export function indexBy<Item>(array: Item[], keyOrFn: keyof Item | ((value: Item
 
 
 /**
- * Create a map object composed of keys generated from `keyOrFn` and original values.
- * @param array The array to generate key map object.
- * @param keyOrFn The key attribute name of each item whose related value will be used as key. or the function which accepts each item as argument and returns a key.
- */
-export function keyBy<Item>(array: Item[], keyOrFn: CanSortKeys<Item> | OrderFunction<Item>): {[key: string]: Item} {
-	let index: {[key: string]: Item} = {}
-
-	for (let item of array) {
-		let key: string | number
-
-		if (typeof keyOrFn === 'function') {
-			key = keyOrFn(item)
-		}
-		else {
-			key = item[keyOrFn] as unknown as string | number
-		}
-
-		index[key] = item
-	}
-
-	return index
-}
-
-
-/**
  * Creates a map object composed of keys generated from the results of running each element of collecti
  * @param array The array to group by. 
  * @param keyOrFn The key attribute name of each item whose related value will be used as key. or the function which accepts each item as argument and returns a key.
@@ -569,9 +544,9 @@ export function max(array: number[]) {
 
 
 /**
- * Returns the index of the minimal value of the array items. returns -1 if no items in array.
- * @param array The array of numbers.
- * @param map The map function to map item to a number.
+ * Returns the index of the minimal value of the array items. returns -1 if no items or all values are `Infinity`.
+ * @param array The array of data items.
+ * @param map The map function to map each item to a number.
  */
 export function minIndex<T>(array: T[], map?: (item: T, index: number) => number) {
 	let values: number[]
@@ -599,9 +574,9 @@ export function minIndex<T>(array: T[], map?: (item: T, index: number) => number
 
 
 /**
- * Returns the index of the maximun value of the array items. returns -1 if no items in array.
- * @param array The array of numbers.
- * @param map The map function to map item to a number.
+ * Returns the index of the maximun value of the array items. returns `-1` if no items or all values are `-Infinity`.
+ * @param array The array of data items.
+ * @param map The map function to map each item to a number.
  */
 export function maxIndex<T>(array: T[], map?: (item: T, index: number) => number) {
 	let values: number[]
