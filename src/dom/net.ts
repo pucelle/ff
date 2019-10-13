@@ -11,7 +11,7 @@ export interface ResourceLoaderOptions {
 	continueOnError?: boolean
 }
 
-interface ResourceLoaderEvents {
+export interface ResourceLoaderEvents {
 	progress: OnProgress
 }
 
