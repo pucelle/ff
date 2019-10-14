@@ -10,12 +10,9 @@
 // doesn't help much, because `Pick<>` will transfer class methods to class members, and have conflict when overwriting the methods.
 
 
-type KeyOf<T> = keyof T & string
-
-type EventListener = (...args: any[]) => void
 
 interface EventItem {
-	listener: EventListener
+	listener: (...args: any[]) => void
 	scope?: object,
 	once: boolean
 }
@@ -27,7 +24,16 @@ interface EventItem {
  */
 export class Emitter<E = any> {
 
-	private __events: {[key: string]: EventItem[]} = {}
+	private __events: Map<keyof E, EventItem[]> = new Map()
+
+	private __ensureEvents<K extends keyof E>(name: K): EventItem[] {
+		let events = this.__events.get(name)
+		if (!events) {
+			this.__events.set(name, events = [])
+		}
+
+		return events
+	}
 
 	/**
 	 * Registers an event `listener` to listen specified event `name`.
@@ -35,8 +41,8 @@ export class Emitter<E = any> {
 	 * @param listener The event listener.
 	 * @param scope The scope will be binded to listener.
 	 */
-	on<K extends KeyOf<E>>(name: K, listener: EventListener, scope?: object) {
-		let events = this.__events[name] || (this.__events[name] = [])
+	on<K extends keyof E>(name: K, listener: (...args: any[]) => void, scope?: object) {
+		let events = this.__ensureEvents(name)
 		
 		events.push({
 			listener,
@@ -51,8 +57,8 @@ export class Emitter<E = any> {
 	 * @param listener The event listener.
 	 * @param scope The scope will be binded to listener.
 	 */
-	once<K extends KeyOf<E>>(name: K, listener: EventListener, scope?: object) {
-		let events = this.__events[name] || (this.__events[name] = [])
+	once<K extends keyof E>(name: K, listener: (...args: any[]) => void, scope?: object) {
+		let events = this.__ensureEvents(name)
 
 		events.push({
 			listener,
@@ -67,8 +73,8 @@ export class Emitter<E = any> {
 	 * @param listener The event listener, only matched listener will be removed.
 	 * @param scope The scope binded to listener. If provided, remove listener only when scope match.
 	 */
-	off<K extends KeyOf<E>>(name: K, listener: EventListener, scope?: object) {
-		let events = this.__events[name]
+	off<K extends keyof E>(name: K, listener: (...args: any[]) => void, scope?: object) {
+		let events = this.__events.get(name)
 		if (events) {
 			for (let i = events.length - 1; i >= 0; i--) {
 				let event = events[i]
@@ -85,8 +91,8 @@ export class Emitter<E = any> {
 	 * @param listener The event listener. If provided, will also check if the listener match.
 	 * @param scope The scope binded to listener. If provided, will additionally check if the scope match.
 	 */
-	hasListener(name: string, listener?: EventListener, scope?: object) {
-		let events = this.__events[name]
+	hasListener(name: string, listener?: (...args: any[]) => void, scope?: object) {
+		let events = this.__events.get(name as any)
 
 		if (!listener) {
 			return !!events && events.length > 0
@@ -109,8 +115,8 @@ export class Emitter<E = any> {
 	 * @param name The event name.
 	 * @param args The arguments that will be passed to event listeners.
 	 */
-	emit<K extends KeyOf<E>>(name: K, ...args: any[]) {
-		let events = this.__events[name]
+	emit<K extends keyof E>(name: K, ...args: any[]) {
+		let events = this.__events.get(name)
 		if (events) {
 			for (let i = 0; i < events.length; i++) {
 				let event = events[i]
@@ -127,6 +133,6 @@ export class Emitter<E = any> {
 
 	/** Removes all the event listeners. */
 	removeAllListeners() {
-		this.__events = {}
+		this.__events = new Map()
 	}
 }
