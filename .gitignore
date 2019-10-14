@@ -1,5 +1,5 @@
 node_modules
 out
 coverage
-test/dom/bundle.js
-test/dom/bundle.js.map
+test/**/*.js
+test/**/*.js.map
