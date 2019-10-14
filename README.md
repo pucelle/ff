@@ -2,7 +2,7 @@
 
 ## About
 
-**ff** named from "Frequently-used Features", it's a small JavaScript utility library.
+**ff** named from "Frequently-used Features", it's a small JavaScript utility library for web programming.
 
 
 ## Features
