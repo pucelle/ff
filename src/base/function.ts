@@ -3,7 +3,7 @@ abstract class TimingFunction {
 	protected id: any = null
 
 	/** Returns if current timing function has been canceled. */
-	canceled: boolean = false
+	protected canceled: boolean = false
 
 	/** Returns the binded function. */
 	fn: Function
@@ -25,7 +25,7 @@ abstract class TimingFunction {
 abstract class WrappedTimedFunction<F extends Function> extends TimingFunction {
 
 	/** Returns the wrapped function, which was throttled or debounced. */
-	wrapped: F
+	protected wrapped: F
 
 	constructor(fn: F, ms: number) {
 		super(fn, ms)
