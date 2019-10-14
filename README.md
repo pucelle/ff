@@ -42,7 +42,7 @@ It includes two parts:
 
 ## Documentation
 
-The simple [documentation](https://github.com/pucelle/ff/docs) is here (Thanks to [typedoc](https://typedoc.org/)).
+Simple [documentation](https://pucelle.github.io/ff/) is here (Thanks to [typedoc](https://typedoc.org/)).
 
 
 ## License
