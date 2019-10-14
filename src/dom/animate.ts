@@ -87,15 +87,16 @@ export function getEasing(easing: AnimationEasing): string {
 
 /**
 F(t)  = (1-t)^3 * P0 + 3t(1-t)^2 * P1 + 3t^2(1-t)^2 * P2 + t^3 * P3, t in [0, 1]
+
 Cx(t) = 3t(1-t)^2 * x1 + 3t^2(1-t) * x2 + t^3
-		= (3x1 - 3x2 + 1) * t^3 + (-6x1 + 3x2) * t^2 + 3x1 * t
+	  = (3x1 - 3x2 + 1) * t^3 + (-6x1 + 3x2) * t^2 + 3x1 * t
 
 Cx(t) = x
-		=> (3x1 - 3x2 + 1) * t^3 + (-6x1 + 3x2) * t^2 + 3x1 * t = x
+	  => (3x1 - 3x2 + 1) * t^3 + (-6x1 + 3x2) * t^2 + 3x1 * t = x
 
 Cy(t) = 3t(1-t)^2 * y1 + 3t^2(1-t) * y2 + t^3 = y
 
-For any x between [0, 1], got t from Cx(t), then got y from Cy(t).
+For any `x` betweens [0, 1], got `t` from Cx(t), then got `y` from Cy(t).
 */
 function getCubicBezierEasingFunction(name: keyof typeof CUBIC_BEZIER_EASINGS) {
 	let [x1, y1, x2, y2] = CUBIC_BEZIER_EASINGS[name]
@@ -138,7 +139,7 @@ function getCubicBezierEasingFunction(name: keyof typeof CUBIC_BEZIER_EASINGS) {
 }
 
 
-function startIntervalAnimation(
+function playIntervalAnimation(
 	duration: number = defaultAnimationDuration,
 	easing: AnimationEasing = defaultAnimationEasing,
 	onInterval: (x: number) => void,
@@ -184,11 +185,12 @@ function startIntervalAnimation(
 
 
 /**
- * Animate numberic style property or `scrollLeft` and `scrollTop` using interval.
+ * Animate numberic style property or `scrollLeft` and `scrollTop` on `el`.
+ * Execute animation by setting values in `requestAnimationFrame`.
  * @param el The element to animate.
  * @param property The style property or `scrollLeft` and `scrollTop`.
- * @param startValue The start value.
- * @param endValue  The end value.
+ * @param startValue The start value of `property`.
+ * @param endValue  The end value of `property`.
  * @param duration The animation duration.
  * @param easing  The animation easing.
  */
@@ -196,7 +198,7 @@ export function animateProperty(el: HTMLElement, property: AnimationName, startV
 	let stop
 
 	let promise: Promise<boolean> = new Promise((resolve) => {
-		stop = startIntervalAnimation(
+		stop = playIntervalAnimation(
 			duration,
 			easing,
 			(y) => {
@@ -220,7 +222,8 @@ export function animateProperty(el: HTMLElement, property: AnimationName, startV
 
 
 /**
- * Animate numberic style property or `scrollLeft` and `scrollTop` using interval.
+ * Animate numberic style property or `scrollLeft` and `scrollTop` on `el`.
+ * Execute animation by setting values in `requestAnimationFrame`.
  * @param el The element to animate.
  * @param property The style property or `scrollLeft` and `scrollTop`.
  * @param startValue The start value.
@@ -241,7 +244,8 @@ export function animatePropertyFrom(el: HTMLElement, property: AnimationName, st
 
 
 /**
- * Animate numberic style property or `scrollLeft` and `scrollTop` using interval.
+ * Animate numberic style property or `scrollLeft` and `scrollTop` on `el`.
+ * Execute animation by setting values in `requestAnimationFrame`.
  * @param el The element to animate.
  * @param property The style property or `scrollLeft` and `scrollTop`.
  * @param endValue The end value.
@@ -262,7 +266,7 @@ export function animatePropertyTo(el: HTMLElement, property: AnimationName, endV
 
 
 /**
- * Animate by a function using interval.
+ * Animate by a value range, `fn` recives current value as argument.
  * @param fn The function which will got a current state number value as argument.
  * @param startValue The start value.
  * @param endValue  The end value.
@@ -273,7 +277,7 @@ export function animateByFunction(fn: (y: number) => void, startValue: number, e
 	let stop
 
 	let promise: Promise<boolean> = new Promise((resolve) => {
-		stop = startIntervalAnimation(duration, easing,
+		stop = playIntervalAnimation(duration, easing,
 			(y) => {
 				fn(startValue + (endValue - startValue) * y)
 			},
@@ -289,7 +293,8 @@ export function animateByFunction(fn: (y: number) => void, startValue: number, e
 
 
 /**
- * Execute standard web animation on element. After animation end, the state of element will go back to the start state.
+ * Execute standard web animation on element.
+ * After animation end, the state of element will go back to the start state.
  * @param el The element to execute web animation.
  * @param startFrame The start frame.
  * @param endFrame The end frame.
@@ -336,7 +341,7 @@ const DEFAULT_STYLE: {[key: string]: string} = {
 
 
 /**
- * Execute standard web animation on element with start frame specified, the end frame will be specified as zero values.
+ * Execute standard web animation on element with start frame specified, the end frame will be set as zero or empty values.
  * @param el The element to execute web animation.
  * @param startFrame The start frame.
  * @param duration The animation duration.
@@ -355,7 +360,7 @@ export function animateFrom(el: HTMLElement, startFrame: AnimationFrame, duratio
 
 
 /**
- * Execute standard web animation on element with end frame specified, the end frame will be specified as current state values.
+ * Execute standard web animation on element with end frame specified, the end frame will be specified as values of current state.
  * After animation executed, will apply end frame values to element.
  * @param el The element to execute web animation.
  * @param endFrame The end frame.
@@ -387,7 +392,7 @@ export async function animateTo(el: HTMLElement, endFrame: AnimationFrame, durat
 }
 
 
-/** Capture current states as start frame, and later states as end frame 
+/** Execute standard web animation, capture current state as start frame, and capture a new state later as end frame.
  * @param el The element to execute web animation.
  * @param properties The style properties to capture.
  * @param duration The animation duration.
@@ -420,7 +425,7 @@ export function animateToNextFrame(el: HTMLElement, properties: StyleName[] | St
 
 
 /**
- * Stop animation on element.
+ * Stop executing animation on element.
  * @param el The element to stop animation on.
  */
 export function stopAnimation(el: HTMLElement) {

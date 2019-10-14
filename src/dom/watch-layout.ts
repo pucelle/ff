@@ -38,7 +38,8 @@ const WATCH_STATE_FN = {
 
 
 /**
- * Watch specified state. Returns a cancel function.
+ * Watch specified state, trigger `callback` if state changed.
+ * Returns a cancel function.
  * Note that this method may slow page speed and cause additional reflow.
  * @param el The element to watch.
  * @param type The state to watch, can be `'show' | 'hide' | 'inview' | 'outview' | 'size' | 'rect'`.
@@ -50,7 +51,8 @@ export function watchLayout<T extends WatchType>(el: HTMLElement, type: T, callb
 
 
 /**
- * Watch specified state until it changed. Returns a cancel function.
+ * Watch specified state, trigger `callback` if it changed for only once.
+ * Returns a cancel function.
  * Note that this method may slow page speed and cause additional reflow.
  * @param el The element to watch.
  * @param type The state to watch, can be `'show' | 'hide' | 'inview' | 'outview' | 'size' | 'rect'`.
@@ -62,7 +64,8 @@ export function watchLayoutOnce<T extends WatchType>(el: HTMLElement, type: Watc
 
 
 /**
- * Watch specified state until it becomes true. Returns a cancel function.
+ * Watch specified state, trigger `callback` if the state becomes `true` and never trigger again.
+ * Returns a cancel function.
  * Note that this method may slow page speed and cause additional reflow.
  * @param el The element to watch.
  * @param type The state to watch, can be `'show' | 'hide' | 'inview' | 'outview'`.

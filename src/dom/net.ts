@@ -7,7 +7,11 @@ type ResourceType = 'css' | 'js' | 'blob'
 type OnProgress = (loaded: number, total: number) => void
 
 export interface ResourceLoaderOptions {
+
+	/** URL base. */
 	base?: string
+
+	/** If `true`, will continue request other resource if error occurs, default value is `false` */
 	continueOnError?: boolean
 }
 
@@ -17,15 +21,19 @@ export interface ResourceLoaderEvents {
 
 
 /**
- * Preload resources specified by urls and their specified types.
+ * Preload resources from their urls, and get total progress notifications.
  * Please beware of the CORS settings at the server.
  * If you want the progress working, please makesure the `content-length` response header.
  */
 export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 
+	/** URL base. */
 	base: string = ''
+
+	/** If `true`, will continue request other resource if error occurs, default value is `false` */
 	continueOnError: boolean = false
-	blobMap: Map<string, Blob> = new Map()
+
+	private blobMap: Map<string, Blob> = new Map()
 
 	constructor(options: ResourceLoaderOptions = {}) {
 		super()

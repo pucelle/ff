@@ -1,5 +1,7 @@
 /**
- * Download url as a file.
+ * Download url as a file with specified `fileName`.
+ * Not that `fileName` may not working for cross domain resources.
+ * The final behavior depends on browser.
  * @param url The URL to download.
  * @param fileName The file name.
  */
@@ -19,7 +21,7 @@ export function downloadURL(url: string, fileName: string) {
 
 
 /**
- * Download string as a file.
+ * Download string as a file with specified `fileName`.
  * @param fileName The file name.
  * @param text The text to download.
  * @param mime The MIME type of file.
@@ -44,7 +46,7 @@ export function downloadText(fileName: string, text: string, type: string = 'tex
 
 
 /**
- * Select single files by `<input type="file">` match MIME type.
+ * Select single file match MIME type by `<input type="file">`.
  * @param The MIME type of files.
  */
 export function selectFile(mime: string): Promise<File | null> {
@@ -53,7 +55,7 @@ export function selectFile(mime: string): Promise<File | null> {
 
 
 /**
- * Select multiple files by `<input type="file">` match MIME type.
+ * Select multiple files match MIME type by `<input type="file" multiple">`.
  * @param The MIME type of files.
  */
 export function selectMultipleFile(mime: string): Promise<File[] | null> {
@@ -62,7 +64,7 @@ export function selectMultipleFile(mime: string): Promise<File[] | null> {
 
 
 /**
- * Select single folder by `<input type="file">` match MIME type.
+ * Select single folder by `<input type="file"directory>`.
  */
 export function selectFolder(): Promise<File | null> {
 	return selectFileOrFolder("*", true, false) as Promise<File | null>
@@ -70,7 +72,7 @@ export function selectFolder(): Promise<File | null> {
 
 
 /**
- * Select multiple folder by `<input type="file">` match MIME type.
+ * Select multiple folder by `<input type="file" directory multiple>`.
  */
 export function selectMultipleFolder(): Promise<File[] | null> {
 	return selectFileOrFolder("*", true, true) as Promise<File[] | null>
@@ -114,7 +116,8 @@ function selectFileOrFolder(mime: string, isFolder: boolean, isMultiple: boolean
 
 
 /**
- * Get files from transfoer in drop event. Only supported by Chrome.
+ * Get files in DataTransfer object captured from drop event.
+ * Only work on Chrome.
  * @param transfer The ` DataTransfer` object from drop event.
  */
 export async function getFilesFromTransfer(transfer: DataTransfer): Promise<File[]> {

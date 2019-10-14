@@ -1,5 +1,5 @@
 /**
- * Parse URL search part to a query parameter object.
+ * Parse `url` search part to a query parameter object.
  * @param url The url to parse query parameter.
  */
 export function parseQuery(url: string): {[key: string]: string} {
@@ -20,7 +20,7 @@ export function parseQuery(url: string): {[key: string]: string} {
 
 
 /**
- * Build URL and query parameter object to a new URL.
+ * Combine base `url` and `query` parameters to a new URL.
  * @param url The base url.
  * @param query The query parameter object.
  */

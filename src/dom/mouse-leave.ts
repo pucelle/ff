@@ -1,20 +1,20 @@
 /**
- * It's common that popup2 triggered from one existing popup1,
- * Later when mouse moved to popup2, popup1 will disappear.
- * This is not correct, so we implement a popup stack:
- *   When popup2 generated, we check the trigger if it was contained (not equal) in elements of existing popups.
- *   If so, we lock the exist popup until the current popup disappeared.
+ * It's common that popup2 triggered from an existing popup1,
+ * later when mouse moved to popup2, popup1 will disappear because mouse leaves.
  * 
- * Caution: never forget to unregister mouse leave before elements were disconnected.
+ * This is not correct, so we implement a mouse leave stack:
+ *   1. When popup2 generated, we check the trigger element if it was contained (not equal) in elements of existing popups.
+ *   2. If so, we lock the exist popup until popup2 disappeared.
+ * 
+ * Caution: never forget to unregister mouse leave binding before elements disconnected.
  */
-
 export namespace MouseLeave {
 
 	const Controllers: Set<MouseLeaveController> = new Set()
 
 	/**
 	 * Make sure elements and all their ancestors can't trigger mouse leave callback and becomes invisible.
-	 * Used for contextmenu to keep parent popup showing.
+	 * Normally used for contextmenu to keep parent popup showing.
 	 * @param elOrS Element or array of element.
 	 */
 	export function keep(elOrS: Element | Element[]): () => void {
@@ -50,7 +50,9 @@ export namespace MouseLeave {
 	
 	
 	/**
-	 * Check if element or any of it's ancestors was kept to be visible. It allows `el` equals to controller element.
+	 * Check if element or any of it's ancestors was kept to be visible.
+	 * If element is not been kept, you can destroy or reuse it immediately.
+	 * It allows `el` equals to controller element.
 	 * @param el Element to check.
 	 */
 	export function isKeeping(el: Element): boolean {
@@ -65,7 +67,7 @@ export namespace MouseLeave {
 	
 	
 	/**
-	 * Call callback after mouse leaves all of the elements.
+	 * Call `callback` after mouse leaves all of the elements for `ms` milliseconds.
 	 * It's very usefull to handle mouse hover event in menu & submenu.
 	 * @param elOrS The element array to capture leave at.
 	 * @param ms If mouse leaves all the element and don't enter elements again, call callback. Default value is 200.
@@ -78,7 +80,7 @@ export namespace MouseLeave {
 	
 	
 	/**
-	 * Call callback after mouse leaves all of the elements only for once.
+	 * Call `callback` after mouse leaves all of the elements for `ms` milliseconds, only trigger `callback` for once.
 	 * It's very usefull to handle mouse event in menu & submenu.
 	 * @param elOrS The element array to capture leave at.
 	 * @param ms If mouse leaves all the element and don't enter elements again, call callback. Default value is 200.

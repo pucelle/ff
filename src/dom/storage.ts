@@ -12,7 +12,8 @@ class JSONStorage {
 	}
 
 	/**
-	 * Test if localStorage is supported. Will return false in private mode. 
+	 * Test if localStorage is supported.
+	 * Will return `false` in private mode. 
 	 */
 	isSupported(): boolean {
 		if (this.supported !== null) {
@@ -31,8 +32,8 @@ class JSONStorage {
 	}
 
 	/**
-	 * Test if has set key in localStorage.
-	 * @param key 
+	 * Test if has set `key` in localStorage.
+	 * @param key The key of the data item.
 	 */
 	has(key: string): boolean | null {
 		if (!this.isSupported()) {
@@ -45,14 +46,14 @@ class JSONStorage {
 
 	/**
 	 * Get json data from localStorage by `key`.
-	 * @param key The string type key.
+	 * @param key The key of the data item.
 	 * @param defaultValue The default value to return when data havn't been storaged.
 	 */
 	get<T>(key: string, defaultValue: T): InferFromDefault<T>
 
 	/**
 	 * Get json data from localStorage by `key`.
-	 * @param key The string type key.
+	 * @param key The key of the data item.
 	 */
 	get(key: string): any
 
@@ -91,8 +92,9 @@ class JSONStorage {
 	}
 
 	/**
-	 * Cache json data into localStorage by `key`. Returns if cached. 
-	 * @param key The string type key.
+	 * Cache json data into localStorage by `key`.
+	 * Returns `true` if cached. 
+	 * @param key The key of the data item.
 	 * @param value The json data to cache.
 	 * @param expires An optional expire time in second.
 	 */
@@ -112,8 +114,9 @@ class JSONStorage {
 	}
 
 	/**
-	 * Delete cached json data in localStorage by `key`. Returns if deleted.
-	 * @param key The string type key.
+	 * Delete cached json data in localStorage with specified `key`.
+	 * Returns `true` if deleted.
+	 * @param key The key of the data item.
 	 */
 	delete(key: string): boolean | null {
 		if (!this.isSupported()) {
@@ -127,12 +130,14 @@ class JSONStorage {
 	}
 
 	/**
-	 * Returns a new storage to cache data using `namespace` as namespace.
-	 * @param key The string type key.
+	 * Returns a new storage to cache data using `namespace` as prefix of keys.
+	 * @param namespace The prefix of keys.
 	 */
 	group(namespace: string) {
-		return new JSONStorage(this.prefix + namespace)
+		return new JSONStorage(this.prefix + '_' + namespace)
 	}
 }
 
+
+/** Like `LocalStorage` very much, except here it read and write JSON datas. */
 export const storage = new JSONStorage('_ff_')

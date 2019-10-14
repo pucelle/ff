@@ -18,12 +18,26 @@ function replaceMatchTags(template: string, match: RegExpExecArray | RegExpMatch
 
 
 /**
- * Select sub matches from `string` by `re`, then format a `template` with sub matches. returns the format result or results.
+ * Select sub matches from `string` by matching `re`, then format a `template` with sub matches.
+ * Returns the format result.
  * @param string The string to select sub matches.
  * @param re The RegExp to execute on string.
  * @param template Replace `$i` or `$<name>` to corresponding match.
  */
-export function select(string: string, re: RegExp, template: string): string | string[] {
+export function select(string: string, re: RegExp, template: string): string {
+	let match: RegExpExecArray |  null = re.exec(string)
+	return match ? replaceMatchTags(template, match) : ''
+}
+
+
+/**
+ * Select sub matches from `string` by matching `re`, then format a `template` with sub matches.
+ * Returns the format results.
+ * @param string The string to select sub matches.
+ * @param re The RegExp to execute on string.
+ * @param template Replace `$i` or `$<name>` to corresponding match.
+ */
+export function selectAll(string: string, re: RegExp, template: string): string[] {
 	if (re.global) {
 		let match: RegExpExecArray |  null
 		let matches: string[] = []
@@ -35,20 +49,20 @@ export function select(string: string, re: RegExp, template: string): string | s
 	else {
 		let match: RegExpMatchArray | null = string.match(re)
 		if (match) {
-			return replaceMatchTags(template, match)
+			return [replaceMatchTags(template, match)]
 		}
 		else {
-			return ''
+			return []
 		}
 	}
 }
 
 
 /**
- * Returns specified index of sub match in `string` from executing `re`.
+ * Returns specified `index` of sub matches from executing `re` on `string`.
  * @param string The string to select sub match.
  * @param re The RegExp to execute on string.
- * @param index Select the sub match in the index from each match result or results.
+ * @param index Select the sub match in the index from match resul.
  */
 export function subMatchAt(string: string, re: RegExp, index: number): string {
 	let match = re.exec(string)
@@ -62,7 +76,7 @@ export function subMatchAt(string: string, re: RegExp, index: number): string {
 
 
 /**
- * Returns the first sub match in `string` from executing `re`.
+ * Returns the first sub match from executing `re` on `string`.
  * @param string The string to select sub match.
  * @param re The RegExp to execute on string.
  */
@@ -72,10 +86,10 @@ export function firstMatch(string: string, re: RegExp): string {
 
 
 /**
- * Returns specified index of sub matches in `string` from executing `re`. Returns an array of matches.
+ * For each match result from executing `re` on `string`, picks specified `index` of sub matches, returns array of them.
  * @param string The string to select sub match.
  * @param re The RegExp to execute on string.
- * @param index Select the sub match in the index from each match result or results.
+ * @param index Select the sub match in the index from each match result.
  */
 export function subMatchesAt(string: string, re: RegExp, index: number): string[] {
 	if (re.global) {
@@ -99,10 +113,10 @@ export function subMatchesAt(string: string, re: RegExp, index: number): string[
 
 
 /**
- * Returns all sub matches in `string` from executing `re`. Returns an array that includes sub matches when `re` is global.
+ * Returns array of sub matches from executing `re` on `string`.
  * @param string The string to select sub matches.
  * @param re The RegExp to execute on string.
- * @param sliceIndex Slice each match results from, specify to 0 to include whole match, 1 to only include sub matches. Default value is 1.
+ * @param sliceIndex Slice each match result from, specify to `0` to include whole match, `1` to only include sub matches, default value is `1`.
  */
 export function subMatches(string: string, re: RegExp, sliceIndex: number = 1): string[][] {
 	if (re.global) {
@@ -126,7 +140,8 @@ export function subMatches(string: string, re: RegExp, sliceIndex: number = 1): 
 
 
 /**
- * Format string to replace placeholders `{key}` in `template` to `args[key]`. will keep the placeholders if no match found.
+ * Format string to replace placeholders like `{key}` in `template` to `args[key]`.
+ * Will keep the placeholder if no match found.
  * @param template String to format
  * @param args The arguments to replace ${...} to.
  */
@@ -142,7 +157,7 @@ export function format(template: string, args: {[key: string]: string | number} 
 
 
 /**
- * Get the left part of string before substring.
+ * Get the left part of `string` before `substring`.
  * @param string The string to search substring.
  * @param substring The sub part to search in string.
  * @param greedy If true, when substring can't be found in string, returns the whole string.
@@ -160,7 +175,7 @@ export function before(string: string, substring: string, greedy: boolean = fals
 
 
 /**
- * Get the right part of string before substring.
+ * Get the right part of `string` before `substring`.
  * @param string The string to search substring.
  * @param substring The sub part to search in string.
  * @param greedy If true, when substring can't be found in string, returns the whole string.
@@ -178,7 +193,7 @@ export function after(string: string, substring: string, greedy: boolean = false
 
 
 /**
- * Get the left part of string before the last substring.
+ * Get the left part of `string` before the last matched `substring`.
  * @param string The string to search substring.
  * @param substring The sub part to search in string.
  * @param greedy If true, when substring can't be found in string, returns the whole string.
@@ -196,7 +211,7 @@ export function beforeLast(string: string, substring: string, greedy: boolean = 
 
 
 /**
- * Get the right part of string before the last substring.
+ * Get the right part of `string` before the last matched `substring`.
  * @param string The string to search substring.
  * @param substring The sub part to search in string.
  * @param greedy If true, when substring can't be found in string, returns the whole string.
@@ -214,7 +229,7 @@ export function afterLast(string: string, substring: string, greedy: boolean = f
 
 
 /**
- * Uppercase the first character.
+ * Uppercase the first character of `string`.
  * @param string The string to be capitalized.
  */
 export function capitalize(string: string): string {
@@ -223,7 +238,7 @@ export function capitalize(string: string): string {
 
 
 /**
- * Transform the string to camer case type.
+ * Transform `string` to camer case type.
  * @param string The string to transform.
  */
 export function toCamerCase(string: string): string {
@@ -232,7 +247,7 @@ export function toCamerCase(string: string): string {
 
 
 /**
- * Transform the string to dash case by spliting words with `-`.
+ * Transform `string` to dash case type by spliting words with `-`.
  * @param string The string to transform.
  */
 export function toDashCase(string: string): string {
@@ -249,7 +264,7 @@ export function toDashCase(string: string): string {
 
 
 /**
- * Transform the string to dash case by spliting words with `_`.
+ * Transform `string` to dash case by spliting words with `_`.
  * @param string The string to transform.
  */
 export function toUnderscoreCase(string: string): string {

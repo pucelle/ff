@@ -16,6 +16,7 @@ export function repeatTimes<T>(item: T, count: number): T[] {
 
 /**
  * Add items to `array`, duplicate items will not be added.
+ * This method use `includes` to test if an item in array, so it doesn't fit for adding many items to a big array.
  * @param array The array to add items.
  * @param items The items to add to array.
  */
@@ -32,6 +33,7 @@ export function add<T>(array: T[], ...items: T[]): T[] {
 
 /**
  * Remove items from `array`. Returns the removed items.
+ * Note that this method uses `splice` to remove items, so using `array.filter` to filter out multiple items would be better.
  * @param array The array to remove items.
  * @param items The items removed from array.
  */
@@ -68,6 +70,7 @@ export function removeFirst<T>(array: T[], fn: (item: T, index: number) => boole
 
 /**
  * Remove all the items match `fn` from `array`. Returns the removed items.
+ * Note that this method uses `splice` to remove items, so using `array.filter` to filter out multiple items would be better.
  * @param array The array to remove items.
  * @param fn The function which returns boolean values to determinae whether to remove item.
  */

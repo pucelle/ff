@@ -5,7 +5,7 @@ export type Rect = {-readonly [key in keyof ClientRect]: number }
 
 
 /**
- * Returns the index of node in it's node silbings.
+ * Returns the index of node in it's node siblings.
  * @param node The node.
  */
 export function getNodeIndex(node: Node): number {
@@ -24,7 +24,7 @@ export function getNodeIndex(node: Node): number {
 
 
 /**
- * Returns the index of element in it's element silbings.
+ * Returns the index of element in it's element siblings.
  * @param el The node.
  */
 export function getElementIndex(el: Element): number {
@@ -44,7 +44,7 @@ export function getElementIndex(el: Element): number {
 
 /**
  * Returns inner width of element, which equals `clientWidth - paddingWidths` or `width - paddingWidths - scrollbarWidth`.
- * Note that this may cause page reflow.
+ * Note that this method may cause page reflow.
  * @param el The element to get width.
  */
 export function getInnerWidth(el: Element): number {
@@ -60,7 +60,7 @@ export function getInnerWidth(el: Element): number {
 
 /**
  * Returns inner height of element, which equals to `clientHeight - paddingHeights` or `height - paddingHeights - scrollbarHeight`.
- * Note that this may cause page reflow.
+ * Note that this method may cause page reflow.
  * @param el The element to get height.
  */
 export function getInnerHeight(el: Element): number {
@@ -76,7 +76,7 @@ export function getInnerHeight(el: Element): number {
 
 /**
  * Returns outer width of element, which equals `offsetWidth + marginWidths`.
- * Note that this may cause page reflow.
+ * Note that this method may cause page reflow.
  * @param el The element to get width.
  */
 export function getOuterWidth(el: HTMLElement) {
@@ -92,7 +92,7 @@ export function getOuterWidth(el: HTMLElement) {
 
 /**
  * Returns inner height of element, which equals `offsetHeight + marginHeights`.
- * Note that this may cause page reflow.
+ * Note that this method may cause page reflow.
  * @param el The element to get height.
  */
 export function getOuterHeight(el: HTMLElement) {
@@ -107,8 +107,8 @@ export function getOuterHeight(el: HTMLElement) {
 
 
 /**
- * Returns an object like `getBoundingClientRect`, the didderence is it always returns the visible part for `<html>`.
- * Note that this may cause page reflow.
+ * Returns an object like `getBoundingClientRect`, the didderence is it always returns the rect of visible part for `<html>`.
+ * Note that this method may cause page reflow.
  * @param el The element to get rect size.
  */
 export function getRect(el: Element): Rect {
@@ -142,7 +142,7 @@ export function getRect(el: Element): Rect {
 
 /**
  * Check if element is visible in current viewport.
- * Note that this may cause page reflow.
+ * Note that this method may cause page reflow.
  * @param el The element to check if is in view.
  * @param percentage Specify how much percentage of el size implies in view.
  */

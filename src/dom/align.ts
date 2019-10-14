@@ -5,7 +5,7 @@ import {getClosestFixedElement} from './util'
 
 export interface AlignOptions {
 
- 	/** The margin as gap betweens el and target. can be a number or string composed of 1-4 numbers. */
+ 	/** The margin as gaps betweens align element and target, can be a number or string composed of 1-4 numbers. */
 	margin?: number | number[]
 
 	/** If true, when el contains high content and should be cutted in viewport, it will be shrinked and with `overflow: y` set. */
@@ -16,7 +16,8 @@ export interface AlignOptions {
 }
 
 /**
- * Align element to target element by specified position.
+ * Align `el` to `target` element by specified position.
+ * If no enough space, will adjust align position automatically.
  * Note that this mathod will always cause reflow.
  * @param el The element to align, it's position should be fixed or absolute.
  * @param target The target element to align to.
@@ -85,8 +86,11 @@ function completeAlignPosition(pos: string): string {
 }
 
 
-/** Used to get main align direction from align position string and then set trangle styles. */
-export function getAlignDirection(pos: string): 't' | 'b' | 'l' | 'r' | 'c' | '' {
+/** 
+ * Get main align direction from align position string, can be used to set trangle styles. 
+ * @param pos Align position like `t`, `tc`, `bc-tc`.
+ */
+export function getMainAlignDirection(pos: string): 't' | 'b' | 'l' | 'r' | 'c' | '' {
 	let position = parseAlignPosition(pos)
 
 	if (position[0].includes('b') && position[1].includes('t')) {

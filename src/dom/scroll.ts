@@ -3,7 +3,9 @@ import {animatePropertyTo, AnimationEasing} from './animate'
 
 /**
  * Returns if element can scroll.
- * @param el The element to check scrolling. Note that this method may cause reflow.
+ * May return `true` although element has no scroll bar.
+ * Note that this method may cause reflow.
+ * @param el The element to check scrolling.
  */
 export function isContentOverflow(el: HTMLElement) {
 	return el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth
@@ -13,8 +15,9 @@ export function isContentOverflow(el: HTMLElement) {
 let scrollBarWidth: number | null = null
 
 /**
- * Get scroll bar width. after first running, the returned value will keep unchanged.
- * Note that this method will cause page reflow for the first time.
+ * Get scroll bar width.
+ * After first running, the returned value will keep unchanged.
+ * Note that this method will cause reflow for the first time.
  */
 export function getScrollbarWidth(): number {
 	if (scrollBarWidth !== null) {
@@ -33,8 +36,10 @@ export function getScrollbarWidth(): number {
 
 
 /**
- * Find the closest scroll wrapper, which may have `overflow: auto / scroll`. Note that this method may cause reflow.
- *  */
+ * Find the closest scroll wrapper, which has `overflow: auto / scroll` set.
+ * Note that this method may cause reflow.
+ * @param el The element to check scrolling from.
+ */
 export function getClosestScrollWrapper(el: HTMLElement): HTMLElement | null {
 	while (el
 		&& el.scrollWidth <= el.clientWidth
@@ -47,7 +52,8 @@ export function getClosestScrollWrapper(el: HTMLElement): HTMLElement | null {
 
 
 /**
- * Scroll scrollbars in closest scroll wrapper for minimal distance to let element enter into the viewport area. Returns if scrolled.
+ * Scroll scrollbars in closest scroll wrapper for minimal distance to let element enter into the viewport area.
+ * Returns `true` if scrolled.
  * @param el The element you want to see.
  * @param gap Keep a little distance from the element's edge to the viewport's edge.
  * @param duration If specified, will run an animation when scrolling.
@@ -175,7 +181,8 @@ export function getScrollOffset(el: HTMLElement, wrapper: HTMLElement, direction
 
 
 /**
- * Scroll scrollbars to let element in the top of the viewport area. Returns if scrolled.
+ * Scroll scrollbars to let element in the top of the viewport area.
+ * Returns true if scrolled.
  * @param el The element you want to see.
  * @param gap Keep a little distance from the element's edge to the viewport's edge.
  * @param duration If specified, will run an animation when scrolling.

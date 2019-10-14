@@ -1,5 +1,4 @@
 import {assign} from './object'
-import {removeWhere} from './array'
 import {Emitter} from './emitter'
 
 
@@ -89,7 +88,7 @@ type QueueHandler<T, V> = (task: T) => {promise: Promise<V>, abort: Function} | 
 /**
  * Class to queue tasks and transfer them to handler in specified concurrency.
  * @typeparam T: Type of task.
- * @typeparam V: Type of returned values from handler. This can be inferred from handler normally.
+ * @typeparam V: Type of returned values from handler. This can be inferred from `handler` option normally.
  */
 export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 
@@ -502,7 +501,7 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 		}
 	}
 
-	/** Push task if not found same key task. */
+	/** Push tasks to queue, if not found same key task. */
 	add(...tasks: T[]) {
 		tasks = tasks.filter(t => !this.has(t))
 
@@ -511,7 +510,7 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 		}
 	}
 
-	/** Unshift task if not found same key task. */
+	/** Unshift tasks to queue, if not found same key task. */
 	addToStart(...tasks: T[]) {
 		tasks = tasks.filter(t => !this.has(t))
 
@@ -556,9 +555,35 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 	removeWhere(fn: (task: T) => boolean): T[] {
 		let toRemove: T[] = []
 
-		toRemove.push(...removeWhere(this.runningItems, item => fn(item.task)).map(item => item.task))
-		toRemove.push(...removeWhere(this.failedItems, item => fn(item.task)).map(item => item.task))
-		toRemove.push(...removeWhere(this.tasks, task => fn(task)))
+		this.runningItems = this.runningItems.filter(item => {
+			if (fn(item.task)) {
+				toRemove.push(item.task)
+				return false
+			}
+			else {
+				return true
+			}
+		})
+
+		this.failedItems = this.failedItems.filter(item => {
+			if (fn(item.task)) {
+				toRemove.push(item.task)
+				return false
+			}
+			else {
+				return true
+			}
+		})
+
+		this.tasks = this.tasks.filter(task => {
+			if (fn(task)) {
+				toRemove.push(task)
+				return false
+			}
+			else {
+				return true
+			}
+		})
 
 		this.mayHandleNextTask()
 
@@ -653,5 +678,5 @@ export function queueEvery<Task>(tasks: Task[], handler: (task: Task) => Promise
 		tasks,
 		async (task: Task) => !(await handler(task)),
 		concurrency
-	).then(value => !value)
+	).then(value => !value) as Promise<boolean>
 }
