@@ -1,0 +1,18 @@
+{
+	"src": "src",
+	"mode": "modules",
+	"readme": "README.md",
+	"out": "docs",
+	"exclude": [
+		"src/index.ts",
+		"src/base/es-polyfill.ts",
+		"src/dom/index.ts",
+		"src/dom/util.ts"
+	],
+	"includeDeclarations": true,
+	"excludePrivate": true,
+	"excludeProtected": true,
+	"excludeExternals": true,
+	"excludeNotExported": true,
+	"ignoreCompilerErrors": true
+}

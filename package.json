@@ -1,18 +1,25 @@
 {
-	"name": "ff",
-	"version": "1.0.0",
+	"name": "@pucelle/ff",
+	"version": "1.0.2",
 	"description": "A small JavaScript utility library, to make web programming easier.",
+	"author": "pucelle",
+	"license": "MIT",
+	"homepage": "https://github.com/pucelle/ff",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/pucelle/ff.git"
+	},
 	"main": "out/index.js",
+	"types": "out/index.d.ts",
 	"scripts": {
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
 		"test": "npm run test-base && npm run text-dom",
 		"test-base": "jest",
 		"test-dom": "gulp test && start test/dom/index.html",
-		"postinstall": "cd test/dom && npm install"
+		"prepublish": "tsc -b",
+		"doc": "typedoc --out docs src --exclude src/"
 	},
-	"author": "pucelle",
-	"license": "MIT",
 	"devDependencies": {
 		"@types/jest": "^24.0.9",
 		"browserify": "^16.2.3",
@@ -24,7 +31,7 @@
 		"mocha": "^6.0.2",
 		"ts-jest": "^24.0.0",
 		"tsify": "^4.0.1",
-		"typescript": "^3.6.0",
+		"typescript": "^3.6.4",
 		"vinyl-source-stream": "^2.0.0",
 		"watchify": "^3.11.1"
 	}

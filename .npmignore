@@ -1,0 +1,12 @@
+node_modules
+.vscode
+coverage
+docs
+src
+test
+gulpfile.js
+jest.config.js
+tsconfig.json
+typedoc.json
+README.md
+*.tgz
