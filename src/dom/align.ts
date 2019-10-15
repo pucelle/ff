@@ -5,7 +5,7 @@ import {getClosestFixedElement} from './util'
 
 export interface AlignOptions {
 
- 	/** The margin as gaps betweens align element and target, can be a number or string composed of 1-4 numbers. */
+ 	/** The margin as gaps betweens align element and target, can be a number or a number array composed of 1-4 numbers. */
 	margin?: number | number[]
 
 	/** If true, when el contains high content and should be cutted in viewport, it will be shrinked and with `overflow: y` set. */

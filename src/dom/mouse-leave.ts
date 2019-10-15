@@ -55,7 +55,7 @@ export namespace MouseLeave {
 	 * It allows `el` equals to controller element.
 	 * @param el Element to check.
 	 */
-	export function isKeeping(el: Element): boolean {
+	export function inUse(el: Element): boolean {
 		for (let controller of [...Controllers].reverse()) {
 			if (controller.els.some(controllerEl => controllerEl.contains(el))) {
 				return controller.mouseIn
