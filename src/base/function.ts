@@ -3,7 +3,7 @@ abstract class TimingFunction {
 	protected id: any = null
 
 	/** Returns if current timing function has been canceled. */
-	protected canceled: boolean = false
+	canceled: boolean = false
 
 	/** Returns the binded function. */
 	fn: Function
@@ -22,10 +22,10 @@ abstract class TimingFunction {
 }
 
 
-abstract class WrappedTimedFunction<F extends Function> extends TimingFunction {
+abstract class WrappedTimingFunction<F extends Function> extends TimingFunction {
 
 	/** Returns the wrapped function, which was throttled or debounced. */
-	protected wrapped: F
+	wrapped: F
 
 	constructor(fn: F, ms: number) {
 		super(fn, ms)
@@ -159,7 +159,7 @@ export function interval(fn: Function, ms: number): Interval {
 }
 
 
-export class Throttle<F extends Function> extends WrappedTimedFunction<F> {
+export class Throttle<F extends Function> extends WrappedTimingFunction<F> {
 
 	/**
 	 * Throttle function calls, call returned function twice in `ms` millisecons will only call `fn` for once. Returns a new function.
@@ -246,7 +246,7 @@ export function throttle<F extends Function>(fn: F, ms: number = 0): Throttle<F>
 }
 
 
-export class SmoothThrottle<F extends Function> extends WrappedTimedFunction<F> {
+export class SmoothThrottle<F extends Function> extends WrappedTimingFunction<F> {
 	
 	private lastArgs: any[] | null = null
 	private lastThis: any = null
@@ -357,7 +357,7 @@ export function smoothThrottle<F extends Function>(fn: F, ms: number): SmoothThr
 }
 
 
-export class Debounce<F extends Function> extends WrappedTimedFunction<F> {
+export class Debounce<F extends Function> extends WrappedTimingFunction<F> {
 
 	private lastArgs: any[] | null = null
 	private lastThis: any = null
