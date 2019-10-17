@@ -24,7 +24,7 @@ export interface AlignOptions {
  * @param position The position that aligning according to, `[Y of el][X of el]-[Y of target][X of target]` or `[Touch][Align]` or `[Touch]`.
  * @param options Additional options.
  */
-export function align(el: HTMLElement, target: HTMLElement, position: string, options: AlignOptions = {}) {
+export function align(el: HTMLElement, target: Element, position: string, options: AlignOptions = {}) {
 	new Aligner(el, target, position, options)
 }
 
@@ -117,7 +117,7 @@ export function getMainAlignDirection(pos: string): 't' | 'b' | 'l' | 'r' | 'c' 
 export class Aligner {
 
 	private el: HTMLElement
-	private target: HTMLElement
+	private target: Element
 	private trangle: HTMLElement | null
 	private position: [string, string]
 	private margin: [number, number, number, number]
@@ -129,7 +129,7 @@ export class Aligner {
 	private x: number = 0
 	private y: number = 0
 
-	constructor(el: HTMLElement, target: HTMLElement, position: string, options: AlignOptions = {}) {
+	constructor(el: HTMLElement, target: Element, position: string, options: AlignOptions = {}) {
 		this.el = el
 		this.target = target
 		this.trangle = options.trangle || null
@@ -151,6 +151,7 @@ export class Aligner {
 	}
 
 	align() {
+		// If target not affected by document scrolling, el should same
 		if (getClosestFixedElement(this.target)) {
 			setStyle(this.el, 'position', 'fixed')
 		}
@@ -203,10 +204,8 @@ export class Aligner {
 	}
 
 	/** top [right] [bottom] [left] -> [t, r, b, l]. */
-	parseMargin(margin: number | number[]): [number, number, number, number] {
-		if (typeof margin === 'number') {
-			margin = [margin]
-		}
+	parseMargin(marginOption: number | number[]): [number, number, number, number] {
+		let margin: number[] = Array.isArray(marginOption) ? [...marginOption] : [marginOption]
 
 		margin[0] = margin[0] || 0
 		margin[1] = margin[1] !== undefined ? margin[1] || 0 : margin[0]
@@ -372,8 +371,8 @@ export class Aligner {
 
 		if (this.direction.top || this.direction.bottom) {
 			let tx
-			let tTop = getStyleAsNumber(trangle, 'top')
-			let tBottom = getStyleAsNumber(trangle, 'bottom')
+			let top = getStyleAsNumber(trangle, 'top')
+			let bottom = getStyleAsNumber(trangle, 'bottom')
 
 			if (this.w >= this.targetRect.width) {
 				tx = this.targetRect.left + this.targetRect.width / 2 - this.x - trangle.offsetWidth / 2
@@ -384,16 +383,16 @@ export class Aligner {
 
 			setStyle(trangle, {left: tx, right: ''})
 
-			if (tTop < 0) {
+			if (top < 0) {
 				if (this.direction.top) {
 					swapY = true
-					setStyle(trangle, {top: 'auto', bottom: tTop})
+					setStyle(trangle, {top: 'auto', bottom: top})
 				}
 			}
-			else if (tBottom < 0) {
+			else if (bottom < 0) {
 				if (this.direction.bottom) {
 					swapY = true
-					setStyle(trangle, {top: tBottom, bottom: 'auto'})
+					setStyle(trangle, {top: bottom, bottom: 'auto'})
 				}
 			}
 			else {
@@ -432,22 +431,24 @@ export class Aligner {
 			}
 		}
 
+
 		if (swapX || swapY) {
-			let transform = ''
+			let oldTransform = trangle.style.transform
+			let newTransform = ''
 
 			if (swapX) {
-				transform += 'rotateY(180deg)'
+				newTransform = 'rotateY(180deg)'
 			}
 
 			if (swapY) {
-				transform += swapX ? ' ' : ''
-				transform += 'rotateX(180deg)'
+				newTransform = 'rotateX(180deg)'
 			}
 
-			setStyle(trangle, 'transform', transform)
-		}
-		else {
-			setStyle(trangle, 'transform', '')
+			if (newTransform === oldTransform) {
+				newTransform = ''
+			}
+
+			setStyle(trangle, 'transform', newTransform)
 		}
 	}
 }

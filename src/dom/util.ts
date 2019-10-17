@@ -16,7 +16,7 @@ export function normativeStyleObject(styleObject: {[key: string]: string | numbe
 }
 
 
-export function getClosestFixedElement(el: HTMLElement): HTMLElement | null {
+export function getClosestFixedElement(el: Element): HTMLElement | null {
 	while (el && el !== document.documentElement) {
 		if (getComputedStyle(el).position === 'fixed') {
 			break
@@ -24,5 +24,5 @@ export function getClosestFixedElement(el: HTMLElement): HTMLElement | null {
 		el = el.parentElement!
 	}
 
-	return el === document.documentElement ? null : el
+	return el === document.documentElement ? null : el as HTMLElement
 }
