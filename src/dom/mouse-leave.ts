@@ -1,3 +1,9 @@
+export interface MouseLeaveOptions {
+	delay?: number
+	mouseIn?: boolean
+}
+
+
 /**
  * It's common that popup2 triggered from an existing popup1,
  * later when mouse moved to popup2, popup1 will disappear because mouse leaves.
@@ -30,16 +36,23 @@ export namespace MouseLeave {
 			}
 		}
 	}
+
+	/** Keep parent elements visible. */
+	function keepParents(elOrS: Element | Element[]) {
+		let els = Array.isArray(elOrS) ? elOrS : [elOrS]
+		let parents = els.map(el => el.parentElement).filter(el => el && el !== document.body) as Element[]
+
+		return keep(parents)
+	}
 	
 	
-	// Contains but not equals, because trigger button or popup will be reused soon.
-	// If we allow them to equal, it will tell you popup1 contains popup1 and already in use.
+	/** Get Controller whose related elements contains and or equal one of specified elements. */
 	function getControllerContains(elOrS: Element | Element[]): MouseLeaveController | null {
 		let els = Array.isArray(elOrS) ? elOrS : [elOrS]
 	
 		for (let controller of [...Controllers].reverse()) {
 			for (let el of els) {
-				if (controller.els.some(controllerEl => controllerEl.contains(el) && controllerEl !== el)) {
+				if (controller.els.some(controllerEl => controllerEl.contains(el))) {
 					return controller
 				}
 			}
@@ -73,8 +86,8 @@ export namespace MouseLeave {
 	 * @param ms If mouse leaves all the element and don't enter elements again, call callback. Default value is 200.
 	 * @param callback The callback to call after mouse leaves all the elements.
 	 */
-	export function on(elOrS: Element | Element[], callback: () => void, ms: number = 200): () => void {
-		let controller = new MouseLeaveController(false, elOrS, callback, ms)
+	export function on(elOrS: Element | Element[], callback: () => void, options?: MouseLeaveOptions): () => void {
+		let controller = new MouseLeaveController(false, elOrS, callback, options)
 		return () => controller.cancel()
 	}
 	
@@ -86,8 +99,8 @@ export namespace MouseLeave {
 	 * @param ms If mouse leaves all the element and don't enter elements again, call callback. Default value is 200.
 	 * @param callback The callback to call after mouse leaves all the elements.
 	 */
-	export function once(elOrS: Element | Element[], callback: () => void, ms: number = 200): () => void {
-		let controller = new MouseLeaveController(true, elOrS, callback, ms)
+	export function once(elOrS: Element | Element[], callback: () => void, options?: MouseLeaveOptions): () => void {
+		let controller = new MouseLeaveController(true, elOrS, callback, options)
 		return () => controller.cancel()
 	}
 	
@@ -105,16 +118,19 @@ export namespace MouseLeave {
 	
 		private isOnce: boolean
 		private callback: () => void
-		private ms: number
+		private delay: number = 200
 		private ended: boolean = false
 		private timer: ReturnType<typeof setTimeout> | null = null
 		private unkeep: () => void
 	
-		constructor(isOnce: boolean, elOrS: Element | Element[], callback: () => void, ms: number) {
+		constructor(isOnce: boolean, elOrS: Element | Element[], callback: () => void, options?: MouseLeaveOptions) {
 			this.isOnce = isOnce
 			this.els = Array.isArray(elOrS) ? elOrS : [elOrS]
 			this.callback = callback
-			this.ms = ms
+			
+			if (options) {
+				Object.assign(this, options)
+			}
 	
 			this.onMouseEnter = this.onMouseEnter.bind(this)
 			this.onMouseLeave = this.onMouseLeave.bind(this)
@@ -124,7 +140,7 @@ export namespace MouseLeave {
 				el.addEventListener('mouseleave', this.onMouseLeave, false)
 			}
 	
-			this.unkeep = keep(elOrS)
+			this.unkeep = keepParents(elOrS)
 			Controllers.add(this)
 		}
 	
@@ -143,7 +159,7 @@ export namespace MouseLeave {
 	
 		private startTimeout() {
 			this.clearTimeout()
-			this.timer = setTimeout(() => this.onTimeout(), this.ms)
+			this.timer = setTimeout(() => this.onTimeout(), this.delay)
 		}
 
 		private onTimeout() {
