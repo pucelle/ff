@@ -50,6 +50,7 @@ export class Aligner {
 	private direction: {[key in 'top' | 'right' | 'bottom' | 'left']: boolean}
 	private rect: Rect
 	private targetRect: Rect
+	private targetInViewport: boolean
 	private fixTrangle: boolean
 	private x: number = 0
 	private y: number = 0
@@ -72,6 +73,7 @@ export class Aligner {
 		this.direction = this.getDirections()
 		this.margin = this.parseMargin(options.margin || 0)
 		this.targetRect = this.getExtendedRect()
+		this.targetInViewport = inViewport(this.targetRect)
 	
 		if (this.canShrinkInY) {
 			this.rect.height = this.getNaturalHeight()
@@ -246,43 +248,45 @@ export class Aligner {
 		let h = this.rect.height
 		let y = this.y
 
-		if (this.direction.top || this.direction.bottom) {
-			if (this.direction.top && y < 0 && spaceTop < spaceBottom) {
-				y = this.targetRect.bottom
-				this.direction.top = false
-				this.direction.bottom = true
+		if (this.targetInViewport) {
+			if (this.direction.top || this.direction.bottom) {
+				if (this.direction.top && y < 0 && spaceTop < spaceBottom) {
+					y = this.targetRect.bottom
+					this.direction.top = false
+					this.direction.bottom = true
+				}
+				else if (y + h > dh && spaceTop > spaceBottom) {
+					y = this.targetRect.top - h
+					this.direction.top = true
+					this.direction.bottom = false
+				}
 			}
-			else if (y + h > dh && spaceTop > spaceBottom) {
-				y = this.targetRect.top - h
-				this.direction.top = true
-				this.direction.bottom = false
-			}
-		}
-		else {
-			if (y + h > dh) {
-				y = dh - h
+			else {
+				if (y + h > dh) {
+					y = dh - h
+				}
+
+				if (y < 0) {
+					y = 0
+				}
 			}
 
 			if (y < 0) {
-				y = 0
+				if (this.direction.top && this.canShrinkInY) {
+					y = 0
+					this.el.style.height = spaceTop + 'px'
+					overflowYSet = true
+				}
 			}
-		}
+			else if (this.direction.bottom && y + h > dh) {
+				if (this.canShrinkInY) {
+					this.el.style.height = spaceBottom + 'px'
+					overflowYSet = true
+				}
+			}
 
-		if (y < 0) {
-			if (this.direction.top && this.canShrinkInY) {
-				y = 0
-				this.el.style.height = spaceTop + 'px'
-				overflowYSet = true
-			}
+			this.y = y
 		}
-		else if (this.direction.bottom && y + h > dh) {
-			if (this.canShrinkInY) {
-				this.el.style.height = spaceBottom + 'px'
-				overflowYSet = true
-			}
-		}
-
-		this.y = y
 
 		return overflowYSet
 	}
@@ -294,29 +298,31 @@ export class Aligner {
 		let w = this.rect.width
 		let x = this.x
 
-		if (this.direction.left || this.direction.right) {
-			if (this.direction.left && x < 0 && spaceLeft < spaceRight) {
-				x = this.targetRect.right
-				this.direction.left = false
-				this.direction.right = true
+		if (this.targetInViewport) {
+			if (this.direction.left || this.direction.right) {
+				if (this.direction.left && x < 0 && spaceLeft < spaceRight) {
+					x = this.targetRect.right
+					this.direction.left = false
+					this.direction.right = true
+				}
+				else if (this.direction.right && x > dw - w && spaceLeft > spaceRight) {
+					x = this.targetRect.left - w
+					this.direction.left = true
+					this.direction.right = false
+				}
 			}
-			else if (this.direction.right && x > dw - w && spaceLeft > spaceRight) {
-				x = this.targetRect.left - w
-				this.direction.left = true
-				this.direction.right = false
-			}
-		}
-		else {
-			if (x + w > dw) {
-				x = dw - w
+			else {
+				if (x + w > dw) {
+					x = dw - w
+				}
+
+				if (x < 0) {
+					x = 0
+				}
 			}
 
-			if (x < 0) {
-				x = 0
-			}
+			this.x = x
 		}
-
-		this.x = x
 	}
 
 	private alignTrangle() {
@@ -331,10 +337,18 @@ export class Aligner {
 			trangle.style.bottom = -rect.height + 'px'
 			transforms.push('rotateX(180deg)')
 		}
+		else if (this.direction.bottom) {
+			trangle.style.top = -rect.height + 'px'
+			trangle.style.bottom = ''
+		}
 		else if(this.direction.left) {
 			trangle.style.left = 'auto'
 			trangle.style.right = -rect.width + 'px'
 			transforms.push('rotateY(180deg)')
+		}
+		else if(this.direction.right) {
+			trangle.style.left = -rect.width + 'px'
+			trangle.style.right = ''
 		}
 
 		if (this.direction.top || this.direction.bottom) {
@@ -356,6 +370,8 @@ export class Aligner {
 			else {
 				trangle.style.left = x + 'px'
 			}
+
+			trangle.style.right = ''
 		}
 
 		if (this.direction.left || this.direction.right) {
@@ -375,6 +391,8 @@ export class Aligner {
 			else {
 				trangle.style.top = y + 'px'
 			}
+
+			trangle.style.bottom = ''
 		}
 	
 		trangle.style.transform = transforms.join(' ')
@@ -464,6 +482,14 @@ export function getMainAlignDirection(pos: string): 't' | 'b' | 'l' | 'r' | 'c' 
 	else {
 		return ''
 	}
+}
+
+
+function inViewport(rect: Rect) {
+	let w = document.documentElement.clientWidth
+	let h = document.documentElement.clientHeight
+
+	return rect.left < w && rect.right > 0 && rect.top < h && rect.bottom > 0 
 }
 
 
