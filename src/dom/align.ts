@@ -1,11 +1,14 @@
-import {getStyleAsNumber, setStyle, getStyle} from './css'
+import {getStyle} from './css'
 import {Rect, getRect} from './node'
 import {getClosestFixedElement} from './util'
 
 
 export interface AlignOptions {
 
- 	/** The margin as gaps betweens align element and target, can be a number or a number array composed of 1-4 numbers. */
+ 	/** 
+	  * The margin as gaps betweens align element and target, can be a number or a number array composed of 1-4 numbers.
+	  * Unique number will only work in main direction.
+	  */
 	margin?: number | number[]
 
 	/** If true, when el contains high content and should be cutted in viewport, it will be shrinked and with `overflow: y` set. */
@@ -13,6 +16,12 @@ export interface AlignOptions {
 
 	/** The trangle element in el, which should set will be adjusted left or top to the middle of the touched place of el and target. */
 	trangle?: HTMLElement | undefined
+
+	/** 
+	 * Should align trangle in a fixed position.
+	 * Default value is `false`, means trangle will be adjusted to be in the center of the edge of el or target.
+	 */
+	fixTrangle?: boolean
 }
 
 /**
@@ -26,6 +35,350 @@ export interface AlignOptions {
  */
 export function align(el: HTMLElement, target: Element, position: string, options: AlignOptions = {}) {
 	new Aligner(el, target, position, options)
+}
+
+
+export class Aligner {
+
+	private el: HTMLElement
+	private target: Element
+	private trangle: HTMLElement | null
+	private trangleRect: Rect | null = null
+	private canShrinkInY: boolean
+	private position: [string, string]
+	private margin: [number, number, number, number]
+	private direction: {[key in 'top' | 'right' | 'bottom' | 'left']: boolean}
+	private rect: Rect
+	private targetRect: Rect
+	private fixTrangle: boolean
+	private x: number = 0
+	private y: number = 0
+
+	constructor(el: HTMLElement, target: Element, position: string, options: AlignOptions = {}) {
+		this.el = el
+		this.target = target
+		this.trangle = options.trangle || null
+		this.canShrinkInY = !!options.canShrinkInY
+		this.fixTrangle = !!options.fixTrangle
+
+		if (this.trangle) {
+			this.trangle.style.transform = ''
+			this.trangleRect = this.trangle ? getRect(this.trangle) : null
+		}
+
+		this.rect = getRect(this.el)
+
+		this.position = parseAlignPosition(position)
+		this.direction = this.getDirections()
+		this.margin = this.parseMargin(options.margin || 0)
+		this.targetRect = this.getExtendedRect()
+	
+		if (this.canShrinkInY) {
+			this.rect.height = this.getNaturalHeight()
+		}
+
+		this.align()
+	}
+
+	private align() {
+		// If target not affected by document scrolling, el should same
+		if (getClosestFixedElement(this.target)) {
+			this.el.style.position = 'fixed'
+		}
+
+		let anchor1 = this.getElRelativeAnchor()
+		let anchor2 = this.getTargetAbsoluteAnchor()
+
+		this.y = anchor2[1] - anchor1[1]
+		let overflowYSet = this.alignVertical()
+
+		// If scrollbar appeared, width of el may change
+		if (overflowYSet) {
+			this.rect = getRect(this.el)
+			anchor1 = this.getElRelativeAnchor()
+		}
+
+		this.x = anchor2[0] - anchor1[0]
+		this.alignHerizontal()
+
+		// Handle trangle position
+		if (this.trangle) {
+			this.alignTrangle()
+		}
+
+		// If is not fixed, minus coordinates relative to offsetParent
+		if (getComputedStyle(this.el).position !== 'fixed' && this.target !== document.body && this.target !== document.documentElement) {
+			var offsetParent = this.el.offsetParent as HTMLElement
+
+			// If we use body's top postion, it will cause a bug when body has a margin top (even from margin collapse)
+			if (offsetParent) {
+				var parentRect = offsetParent.getBoundingClientRect()
+				this.x -= parentRect.left
+				this.y -= parentRect.top
+			}
+		}
+
+		this.el.style.left = this.x + 'px'
+		this.el.style.top = this.y + 'px'
+	}
+
+	/** Zero, one or two values be `true`. */
+	private getDirections() {
+		return {
+			top    : this.position[0].includes('b') && this.position[1].includes('t'),
+			right  : this.position[0].includes('l') && this.position[1].includes('r'),
+			bottom : this.position[0].includes('t') && this.position[1].includes('b'),
+			left   : this.position[0].includes('r') && this.position[1].includes('l'),
+		}
+	}
+
+	/** 
+	 * top [right] [bottom] [left] -> [t, r, b, l].
+	 * If align to a top position of target, unique number will be parsed as 0 in left and right position. 
+	 */
+	private parseMargin(marginOption: number | number[]): [number, number, number, number] {
+		let margin: number[] = []
+
+		if (typeof marginOption === 'number') {
+			margin[0] = this.direction.top || this.direction.bottom ? marginOption : 0
+			margin[1] = this.direction.left || this.direction.right ? marginOption : 0
+		}
+		else {
+			margin.push(...marginOption)
+		}
+
+		margin[0] = margin[0] || 0
+		margin[1] = margin[1] !== undefined ? margin[1] || 0 : margin[0]
+		margin[2] = margin[2] !== undefined ? margin[2] || 0 : margin[0]
+		margin[3] = margin[3] !== undefined ? margin[3] || 0 : margin[1]
+
+		if (this.trangleRect) {
+			if (this.direction.top || this.direction.bottom) {
+				margin[0] += this.trangleRect.height
+				margin[2] += this.trangleRect.height
+			}
+
+			if (this.direction.left || this.direction.right) {
+				margin[1] += this.trangleRect.width
+				margin[3] += this.trangleRect.width
+			}
+		}
+
+		return margin as [number, number, number, number]
+	}
+
+	private getExtendedRect(): Rect {
+		let rect = getRect(this.target)
+		rect.top    -= this.margin[0]
+		rect.height += this.margin[0] + this.margin[2]
+		rect.bottom = rect.top + rect.height
+		rect.left   -= this.margin[3]
+		rect.width  += this.margin[1] + this.margin[3]
+		rect.right  = rect.left + rect.width
+		
+		return rect
+	}
+
+	/** 
+	 * When el can be scrolled, if we just expend it to test its natural height, it's scrolled position will lost.
+	 * So we get `scrollHeight - clientHeight` as a diff and add it to it's current height as it's natural height.
+	 * Note that the `trangle` will cause `scrollHeight` plus for it's height.
+	 * Otherwise may not el but child is scrolled.
+	 */
+	private getNaturalHeight(): number {
+		let h = this.rect.height
+
+		let diffHeight = this.el.scrollHeight - this.el.clientHeight
+		let maxAllowdDiffWhenNotScrolled = this.trangleRect ? this.trangleRect.height : 0
+		
+		if (diffHeight <= maxAllowdDiffWhenNotScrolled) {
+			diffHeight = Math.max(...[...this.el.children].map(child => child.scrollHeight - child.clientHeight))
+		}
+		
+		if (diffHeight > 0) {
+			h = h + diffHeight
+		}
+		else {
+			this.el.style.height = ''
+			h = this.el.offsetHeight
+		}
+
+		return h
+	}
+
+	/** get relative anchor position of the axis of an element. */
+	private getElRelativeAnchor(): [number, number] {
+		let rect = this.rect
+		let anchor = this.position[0]
+		let x = anchor.includes('l') ? 0 : anchor.includes('r') ? rect.width : rect.width / 2
+		let y = anchor.includes('t') ? 0 : anchor.includes('b') ? rect.height : rect.height / 2
+
+		if (this.fixTrangle && this.trangleRect) {
+			if ((this.direction.top || this.direction.bottom) && this.position[1][1] === 'c') {
+				x = this.trangleRect.left + this.trangleRect.width / 2 - rect.left
+			}
+			else if ((this.direction.left || this.direction.right) && this.position[1][0] === 'c') {
+				y = this.trangleRect.top + this.trangleRect.height / 2 - rect.top
+			}
+		}
+
+		return [x, y]
+	}
+
+	/** get absolute anchor position in scrolling page */
+	private getTargetAbsoluteAnchor(): [number, number] {
+		let rect = this.targetRect
+		let anchor = this.position[1]
+		let x = anchor.includes('l') ? 0 : anchor.includes('r') ? rect.width  : rect.width  / 2
+		let y = anchor.includes('t') ? 0 : anchor.includes('b') ? rect.height : rect.height / 2
+
+		x += rect.left
+		y += rect.top
+
+		return [x, y]
+	}
+
+	private alignVertical(): boolean {
+		let dh = document.documentElement.clientHeight
+		let spaceTop = this.targetRect.top
+		let spaceBottom = dh - this.targetRect.bottom
+		let overflowYSet = false
+		let h = this.rect.height
+		let y = this.y
+
+		if (this.direction.top || this.direction.bottom) {
+			if (this.direction.top && y < 0 && spaceTop < spaceBottom) {
+				y = this.targetRect.bottom
+				this.direction.top = false
+				this.direction.bottom = true
+			}
+			else if (y + h > dh && spaceTop > spaceBottom) {
+				y = this.targetRect.top - h
+				this.direction.top = true
+				this.direction.bottom = false
+			}
+		}
+		else {
+			if (y + h > dh) {
+				y = dh - h
+			}
+
+			if (y < 0) {
+				y = 0
+			}
+		}
+
+		if (y < 0) {
+			if (this.direction.top && this.canShrinkInY) {
+				y = 0
+				this.el.style.height = spaceTop + 'px'
+				overflowYSet = true
+			}
+		}
+		else if (this.direction.bottom && y + h > dh) {
+			if (this.canShrinkInY) {
+				this.el.style.height = spaceBottom + 'px'
+				overflowYSet = true
+			}
+		}
+
+		this.y = y
+
+		return overflowYSet
+	}
+
+	private alignHerizontal() {
+		let dw = document.documentElement.clientWidth
+		let spaceLeft  = this.targetRect.left
+		let spaceRight = dw - this.targetRect.right
+		let w = this.rect.width
+		let x = this.x
+
+		if (this.direction.left || this.direction.right) {
+			if (this.direction.left && x < 0 && spaceLeft < spaceRight) {
+				x = this.targetRect.right
+				this.direction.left = false
+				this.direction.right = true
+			}
+			else if (this.direction.right && x > dw - w && spaceLeft > spaceRight) {
+				x = this.targetRect.left - w
+				this.direction.left = true
+				this.direction.right = false
+			}
+		}
+		else {
+			if (x + w > dw) {
+				x = dw - w
+			}
+
+			if (x < 0) {
+				x = 0
+			}
+		}
+
+		this.x = x
+	}
+
+	private alignTrangle() {
+		let trangle = this.trangle!
+		let rect = this.trangleRect!
+		let transforms: string[] = []
+		let w = this.rect.width
+		let h = this.rect.height
+
+		if (this.direction.top) {
+			trangle.style.top = 'auto'
+			trangle.style.bottom = -rect.height + 'px'
+			transforms.push('rotateX(180deg)')
+		}
+		else if(this.direction.left) {
+			trangle.style.left = 'auto'
+			trangle.style.right = -rect.width + 'px'
+			transforms.push('rotateY(180deg)')
+		}
+
+		if (this.direction.top || this.direction.bottom) {
+			let x: number
+
+			// Trangle in the center of the edge of target
+			if (w >= this.targetRect.width || this.fixTrangle && this.position[1][1] === 'c') {
+				x = this.targetRect.left + this.targetRect.width / 2 - this.x - rect.width / 2
+			}
+			// Trangle in the center of the edge of el
+			else {
+				x = w / 2 - rect.width / 2
+			}
+
+			if (this.fixTrangle) {
+				x -= rect.left - this.rect.left
+				transforms.push(`translateX(${x}px)`)
+			}
+			else {
+				trangle.style.left = x + 'px'
+			}
+		}
+
+		if (this.direction.left || this.direction.right) {
+			let y: number
+
+			if (h >= this.targetRect.height || this.fixTrangle && this.position[1][0] === 'c') {
+				y = this.targetRect.top + this.targetRect.height / 2 - this.y - rect.height / 2
+			}
+			else {
+				y = h / 2 - rect.height / 2
+			}
+
+			if (this.fixTrangle) {
+				y -= rect.top - this.rect.top
+				transforms.push(`translateY(${y}px)`)
+			}
+			else {
+				trangle.style.top = y + 'px'
+			}
+		}
+	
+		trangle.style.transform = transforms.join(' ')
+	}
 }
 
 
@@ -91,7 +444,7 @@ function completeAlignPosition(pos: string): string {
  * @param pos Align position like `t`, `tc`, `bc-tc`.
  */
 export function getMainAlignDirection(pos: string): 't' | 'b' | 'l' | 'r' | 'c' | '' {
-	let position = parseAlignPosition(pos)
+	let position = pos.length < 5 ? parseAlignPosition(pos) : pos
 
 	if (position[0].includes('b') && position[1].includes('t')) {
 		return 't'
@@ -110,346 +463,6 @@ export function getMainAlignDirection(pos: string): 't' | 'b' | 'l' | 'r' | 'c' 
 	}
 	else {
 		return ''
-	}
-}
-
-
-export class Aligner {
-
-	private el: HTMLElement
-	private target: Element
-	private trangle: HTMLElement | null
-	private position: [string, string]
-	private margin: [number, number, number, number]
-	private direction: {[key in 'top' | 'right' | 'bottom' | 'left']: boolean}
-	private targetRect: Rect
-	private canShrinkInY: boolean
-	private w: number
-	private h: number
-	private x: number = 0
-	private y: number = 0
-
-	constructor(el: HTMLElement, target: Element, position: string, options: AlignOptions = {}) {
-		this.el = el
-		this.target = target
-		this.trangle = options.trangle || null
-		this.position = parseAlignPosition(position)
-		this.canShrinkInY = !!options.canShrinkInY
-		this.direction = this.getDirections()
-		this.margin = this.parseMargin(options.margin || 0)
-		this.targetRect = this.getExtendedRect()
-		this.w  = this.el.offsetWidth
-
-		if (this.canShrinkInY) {
-			this.h = this.getNaturalHeight()
-		}
-		else {
-			this.h  = this.el.offsetHeight
-		}
-
-		this.align()
-	}
-
-	align() {
-		// If target not affected by document scrolling, el should same
-		if (getClosestFixedElement(this.target)) {
-			setStyle(this.el, 'position', 'fixed')
-		}
-
-		let anchor1 = this.getFixedAnchor(this.w, this.h, this.position[0])
-		let anchor2 = this.getAbsoluteAnchor(this.targetRect, this.position[1])
-
-		this.y = anchor2[1] - anchor1[1]
-		let overflowYSet = this.alignVertical()
-
-		// If scrollbar appeared, width of el may change
-		if (overflowYSet) {
-			this.w = this.el.offsetWidth
-			anchor1 = this.getFixedAnchor(this.w, this.h, this.position[0])
-		}
-
-		this.x = anchor2[0] - anchor1[0]
-		this.alignHerizontal()
-
-		// Handle trangle position
-		if (this.trangle) {
-			this.alignTrangle()
-		}
-
-		// If is not fixed, minus coordinates relative to offsetParent
-		if (getComputedStyle(this.el).position !== 'fixed' && this.target !== document.body && this.target !== document.documentElement) {
-			var offsetParent = this.el.offsetParent as HTMLElement
-
-			// If we use body's top postion, it will cause a bug when body has a margin top (even from margin collapse)
-			if (offsetParent) {
-				var parentRect = offsetParent.getBoundingClientRect()
-				this.x -= parentRect.left
-				this.y -= parentRect.top
-			}
-		}
-
-		setStyle(this.el, {
-			left: Math.round(this.x),
-			top:  Math.round(this.y),
-		})
-	}
-
-	getDirections() {
-		return {
-			top    : this.position[0].includes('b') && this.position[1].includes('t'),
-			right  : this.position[0].includes('l') && this.position[1].includes('r'),
-			bottom : this.position[0].includes('t') && this.position[1].includes('b'),
-			left   : this.position[0].includes('r') && this.position[1].includes('l'),
-		}
-	}
-
-	/** top [right] [bottom] [left] -> [t, r, b, l]. */
-	parseMargin(marginOption: number | number[]): [number, number, number, number] {
-		let margin: number[] = Array.isArray(marginOption) ? [...marginOption] : [marginOption]
-
-		margin[0] = margin[0] || 0
-		margin[1] = margin[1] !== undefined ? margin[1] || 0 : margin[0]
-		margin[2] = margin[2] !== undefined ? margin[2] || 0 : margin[0]
-		margin[3] = margin[3] !== undefined ? margin[3] || 0 : margin[1]
-
-		if (this.trangle) {
-			if (this.direction.top || this.direction.bottom) {
-				margin[0] += this.trangle.offsetHeight
-				margin[2] += this.trangle.offsetHeight
-			}
-
-			if (this.direction.left || this.direction.right) {
-				margin[1] += this.trangle.offsetWidth
-				margin[3] += this.trangle.offsetWidth
-			}
-		}
-
-		return margin as [number, number, number, number]
-	}
-
-	getExtendedRect(): Rect {
-		let rect = getRect(this.target)
-		rect.top    -= this.margin[0]
-		rect.height += this.margin[0] + this.margin[2]
-		rect.bottom = rect.top + rect.height
-		rect.left   -= this.margin[3]
-		rect.width  += this.margin[1] + this.margin[3]
-		rect.right  = rect.left + rect.width
-		
-		return rect
-	}
-
-	/** 
-	 * When el can be scrolled, if we just expend it to test its natural height, it's scrolled position will lost.
-	 * So we get `scrollHeight - clientHeight` as a diff and add it to it's current height as it's natural height.
-	 * Note that the `trangle` will cause `scrollHeight` plus for it's height.
-	 * Otherwise may not el but child is scrolled.
-	 */
-	getNaturalHeight(): number {
-		let h = this.el.offsetHeight
-
-		let diffHeight = this.el.scrollHeight - this.el.clientHeight
-		let maxAllowdDiffWhenNotScrolled = this.trangle ? this.trangle.offsetHeight : 0
-		
-		if (diffHeight <= maxAllowdDiffWhenNotScrolled) {
-			diffHeight = Math.max(...[...this.el.children].map(child => child.scrollHeight - child.clientHeight))
-		}
-		
-		if (diffHeight > 0) {
-			h = h + diffHeight
-		}
-		else {
-			setStyle(this.el, 'height', '')
-			h = this.el.offsetHeight
-		}
-
-		return h
-	}
-
-	/** get fixed anchor position in viewport */
-	getFixedAnchor(w: number, h: number, anchor: string): [number, number] {
-		let x = anchor.includes('l') ? 0 : anchor.includes('r') ? w : w / 2
-		let y = anchor.includes('t') ? 0 : anchor.includes('b') ? h : h / 2
-
-		return [x, y]
-	}
-
-	/** get absolute anchor position in scrolling page */
-	getAbsoluteAnchor(rect: Rect, anchor: string): [number, number] {
-		let x = anchor.includes('l') ? 0 : anchor.includes('r') ? rect.width  : rect.width  / 2
-		let y = anchor.includes('t') ? 0 : anchor.includes('b') ? rect.height : rect.height / 2
-
-		x += rect.left
-		y += rect.top
-
-		return [x, y]
-	}
-
-	alignVertical(): boolean {
-		let dh = document.documentElement.clientHeight
-		let spaceTop = this.targetRect.top
-		let spaceBottom = dh - this.targetRect.bottom
-		let overflowYSet = false
-		let y = this.y
-
-		if (this.direction.top || this.direction.bottom) {
-			if (this.direction.top && y < 0 && spaceTop < spaceBottom) {
-				y = this.targetRect.bottom
-				this.direction.top = false
-				this.direction.bottom = true
-			}
-			else if (y + this.h > dh && spaceTop > spaceBottom) {
-				y = this.targetRect.top - this.h
-				this.direction.top = true
-				this.direction.bottom = false
-			}
-		}
-		else {
-			if (y + this.h > dh) {
-				y = dh - this.h
-			}
-
-			if (y < 0) {
-				y = 0
-			}
-		}
-
-		if (y < 0) {
-			if (this.direction.top && this.canShrinkInY) {
-				y = 0
-				setStyle(this.el, 'height', spaceTop)
-				overflowYSet = true
-			}
-		}
-		else if (this.direction.bottom && y + this.h > dh) {
-			if (this.canShrinkInY) {
-				setStyle(this.el, 'height', spaceBottom)
-				overflowYSet = true
-			}
-		}
-
-		this.y = y
-
-		return overflowYSet
-	}
-
-	alignHerizontal() {
-		let dw = document.documentElement.clientWidth
-		let spaceLeft  = this.targetRect.left
-		let spaceRight = dw - this.targetRect.right
-		let x = this.x
-
-		if (this.direction.left || this.direction.right) {
-			if (this.direction.left && x < 0 && spaceLeft < spaceRight) {
-				x = this.targetRect.right
-				this.direction.left = false
-				this.direction.right = true
-			}
-			else if (this.direction.right && x > dw - this.w && spaceLeft > spaceRight) {
-				x = this.targetRect.left - this.w
-				this.direction.left = true
-				this.direction.right = false
-			}
-		}
-		else {
-			if (x + this.w > dw) {
-				x = dw - this.w
-			}
-
-			if (x < 0) {
-				x = 0
-			}
-		}
-
-		this.x = x
-	}
-
-	alignTrangle() {
-		let swapX = false
-		let swapY = false
-		let trangle = this.trangle!
-
-		if (this.direction.top || this.direction.bottom) {
-			let tx
-			let top = getStyleAsNumber(trangle, 'top')
-			let bottom = getStyleAsNumber(trangle, 'bottom')
-
-			if (this.w >= this.targetRect.width) {
-				tx = this.targetRect.left + this.targetRect.width / 2 - this.x - trangle.offsetWidth / 2
-			}
-			else {
-				tx = this.w / 2 - trangle.offsetWidth / 2
-			}
-
-			setStyle(trangle, {left: tx, right: ''})
-
-			if (top < 0) {
-				if (this.direction.top) {
-					swapY = true
-					setStyle(trangle, {top: 'auto', bottom: top})
-				}
-			}
-			else if (bottom < 0) {
-				if (this.direction.bottom) {
-					swapY = true
-					setStyle(trangle, {top: bottom, bottom: 'auto'})
-				}
-			}
-			else {
-				setStyle(trangle, {top: '', bottom: ''})
-			}
-		}
-
-		if (this.direction.left || this.direction.right) {
-			let ty
-			let tLeft = getStyleAsNumber(trangle, 'left')
-			let tRight = getStyleAsNumber(trangle, 'right')
-
-			if (this.h >= this.targetRect.height) {
-				ty = this.targetRect.top + this.targetRect.height / 2 - this.y - trangle.offsetHeight / 2
-			}
-			else {
-				ty = this.h / 2 - trangle.offsetHeight / 2
-			}
-
-			setStyle(trangle, {top: ty, bottom: ''})
-
-			if (tLeft < 0) {
-				if (this.direction.left) {
-					swapX = true
-					setStyle(trangle, {left: 'auto', right: tLeft})
-				}
-			}
-			else if (tRight < 0) {
-				if (this.direction.right) {
-					swapX = true
-					setStyle(trangle, {left: tRight, right: 'auto'})
-				}
-			}
-			else {
-				setStyle(trangle, {left: '', right: ''})
-			}
-		}
-
-
-		if (swapX || swapY) {
-			let oldTransform = trangle.style.transform
-			let newTransform = ''
-
-			if (swapX) {
-				newTransform = 'rotateY(180deg)'
-			}
-
-			if (swapY) {
-				newTransform = 'rotateX(180deg)'
-			}
-
-			if (newTransform === oldTransform) {
-				newTransform = ''
-			}
-
-			setStyle(trangle, 'transform', newTransform)
-		}
 	}
 }
 
@@ -482,8 +495,6 @@ export function alignToEvent(el: HTMLElement, event: MouseEvent, offset: [number
 		y = dh - h
 	}
 
-	setStyle(el, {
-		left: Math.round(x),
-		top:  Math.round(y),
-	})
+	el.style.left = Math.round(x) + 'px'
+	el.style.top = Math.round(y) + 'px'
 }
