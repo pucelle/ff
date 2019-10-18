@@ -263,11 +263,13 @@ export class Aligner {
 			}
 			else {
 				if (y + h > dh) {
-					y = dh - h
+					let minY = this.targetRect.top + this.margin[1] + (this.trangleRect ? this.trangleRect.height : 0) - h
+					y = Math.max(dh - h, minY)
 				}
 
 				if (y < 0) {
-					y = 0
+					let maxY = this.targetRect.bottom - this.margin[2] - (this.trangleRect ? this.trangleRect.height : 0)
+					y = Math.min(0, maxY)
 				}
 			}
 
@@ -313,11 +315,13 @@ export class Aligner {
 			}
 			else {
 				if (x + w > dw) {
-					x = dw - w
+					let minX = this.targetRect.left + this.margin[3] + (this.trangleRect ? this.trangleRect.width : 0) - w
+					x = Math.max(dw - w, minX)
 				}
 
 				if (x < 0) {
-					x = 0
+					let minX = this.targetRect.right - this.margin[1] - (this.trangleRect ? this.trangleRect.width : 0)
+					x = Math.min(0, minX)
 				}
 			}
 
@@ -327,44 +331,48 @@ export class Aligner {
 
 	private alignTrangle() {
 		let trangle = this.trangle!
-		let rect = this.trangleRect!
+		let trangleRect = this.trangleRect!
 		let transforms: string[] = []
 		let w = this.rect.width
 		let h = this.rect.height
 
 		if (this.direction.top) {
 			trangle.style.top = 'auto'
-			trangle.style.bottom = -rect.height + 'px'
+			trangle.style.bottom = -trangleRect.height + 'px'
 			transforms.push('rotateX(180deg)')
 		}
 		else if (this.direction.bottom) {
-			trangle.style.top = -rect.height + 'px'
+			trangle.style.top = -trangleRect.height + 'px'
 			trangle.style.bottom = ''
 		}
 		else if(this.direction.left) {
 			trangle.style.left = 'auto'
-			trangle.style.right = -rect.width + 'px'
+			trangle.style.right = -trangleRect.width + 'px'
 			transforms.push('rotateY(180deg)')
 		}
 		else if(this.direction.right) {
-			trangle.style.left = -rect.width + 'px'
+			trangle.style.left = -trangleRect.width + 'px'
 			trangle.style.right = ''
 		}
 
 		if (this.direction.top || this.direction.bottom) {
+			let halfTrangleWidth = trangleRect.width / 2
 			let x: number
 
 			// Trangle in the center of the edge of target
 			if (w >= this.targetRect.width || this.fixTrangle && this.position[1][1] === 'c') {
-				x = this.targetRect.left + this.targetRect.width / 2 - this.x - rect.width / 2
+				x = this.targetRect.left + this.targetRect.width / 2 - this.x - halfTrangleWidth
 			}
 			// Trangle in the center of the edge of el
 			else {
-				x = w / 2 - rect.width / 2
+				x = w / 2 - halfTrangleWidth
 			}
 
+			x = Math.max(x, halfTrangleWidth)
+			x = Math.min(x, this.rect.width - trangleRect.width - halfTrangleWidth)
+
 			if (this.fixTrangle) {
-				x -= rect.left - this.rect.left
+				x -= trangleRect.left - this.rect.left
 				transforms.push(`translateX(${x}px)`)
 			}
 			else {
@@ -375,17 +383,21 @@ export class Aligner {
 		}
 
 		if (this.direction.left || this.direction.right) {
+			let halfTrangleHeight = trangleRect.height / 2
 			let y: number
 
 			if (h >= this.targetRect.height || this.fixTrangle && this.position[1][0] === 'c') {
-				y = this.targetRect.top + this.targetRect.height / 2 - this.y - rect.height / 2
+				y = this.targetRect.top + this.targetRect.height / 2 - this.y - halfTrangleHeight
 			}
 			else {
-				y = h / 2 - rect.height / 2
+				y = h / 2 - halfTrangleHeight
 			}
 
+			y = Math.max(y, halfTrangleHeight)
+			y = Math.min(y, this.rect.height - trangleRect.height - halfTrangleHeight)
+
 			if (this.fixTrangle) {
-				y -= rect.top - this.rect.top
+				y -= trangleRect.top - this.rect.top
 				transforms.push(`translateY(${y}px)`)
 			}
 			else {
