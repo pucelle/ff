@@ -1,4 +1,4 @@
-export * from './css'
+export * from './style'
 export * from './node'
 export * from './align'
 export * from './scroll'

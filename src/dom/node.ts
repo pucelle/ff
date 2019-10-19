@@ -1,4 +1,4 @@
-import {getStyleAsNumber} from './css'
+import {getStyleAsNumber} from './style'
 
 
 export type Rect = {-readonly [key in keyof ClientRect]: number }

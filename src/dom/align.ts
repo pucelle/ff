@@ -1,4 +1,4 @@
-import {getStyle} from './css'
+import {getStyle} from './style'
 import {Rect, getRect} from './node'
 import {getClosestFixedElement} from './util'
 

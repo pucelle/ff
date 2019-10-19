@@ -1,4 +1,4 @@
-import {getStyleAsNumber, StyleName, setStyle} from './css'
+import {getStyleAsNumber, StyleName, setStyle} from './style'
 import {normativeStyleObject} from "./util"
 
 
