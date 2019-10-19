@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ResourceLoaderOptions | @pucelle/ff</title>
+	<title>MouseLeaveOptions | @pucelle/ff</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -52,13 +52,13 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="../modules/_dom_net_.html">&quot;dom/net&quot;</a>
+					<a href="../modules/_dom_mouse_leave_.html">&quot;dom/mouse-leave&quot;</a>
 				</li>
 				<li>
-					<a href="_dom_net_.resourceloaderoptions.html">ResourceLoaderOptions</a>
+					<a href="_dom_mouse_leave_.mouseleaveoptions.html">MouseLeaveOptions</a>
 				</li>
 			</ul>
-			<h1>Interface ResourceLoaderOptions</h1>
+			<h1>Interface MouseLeaveOptions</h1>
 		</div>
 	</div>
 </header>
@@ -69,7 +69,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">ResourceLoaderOptions</span>
+						<span class="target">MouseLeaveOptions</span>
 					</li>
 				</ul>
 			</section>
@@ -80,8 +80,8 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_dom_net_.resourceloaderoptions.html#base" class="tsd-kind-icon">base</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_dom_net_.resourceloaderoptions.html#continueonerror" class="tsd-kind-icon">continue<wbr>OnError</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_dom_mouse_leave_.mouseleaveoptions.html#delay" class="tsd-kind-icon">delay</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_dom_mouse_leave_.mouseleaveoptions.html#mousein" class="tsd-kind-icon">mouse<wbr>In</a></li>
 							</ul>
 						</section>
 					</div>
@@ -90,34 +90,24 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="base" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> base</h3>
-					<div class="tsd-signature tsd-kind-icon">base<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></div>
+					<a name="delay" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> delay</h3>
+					<div class="tsd-signature tsd-kind-icon">delay<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/pucelle/ff/blob/3e76332/src/dom/net.ts#L12">dom/net.ts:12</a></li>
+							<li>Defined in <a href="https://github.com/pucelle/ff/blob/3e76332/src/dom/mouse-leave.ts#L2">dom/mouse-leave.ts:2</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>URL base.</p>
-						</div>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="continueonerror" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> continue<wbr>OnError</h3>
-					<div class="tsd-signature tsd-kind-icon">continue<wbr>OnError<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span></div>
+					<a name="mousein" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> mouse<wbr>In</h3>
+					<div class="tsd-signature tsd-kind-icon">mouse<wbr>In<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/pucelle/ff/blob/3e76332/src/dom/net.ts#L15">dom/net.ts:15</a></li>
+							<li>Defined in <a href="https://github.com/pucelle/ff/blob/3e76332/src/dom/mouse-leave.ts#L3">dom/mouse-leave.ts:3</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>If <code>true</code>, will continue request other resource if error occurs, default value is <code>false</code></p>
-						</div>
-					</div>
 				</section>
 			</section>
 		</div>
@@ -172,10 +162,15 @@
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/_dom_html_.html">"dom/html"</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_dom_mouse_leave_.html">"dom/mouse-<wbr>leave"</a>
-					</li>
 					<li class="current tsd-kind-external-module">
+						<a href="../modules/_dom_mouse_leave_.html">"dom/mouse-<wbr>leave"</a>
+						<ul>
+							<li class=" tsd-kind-module tsd-parent-kind-external-module">
+								<a href="../modules/_dom_mouse_leave_.mouseleave.html">Mouse<wbr>Leave</a>
+							</li>
+						</ul>
+					</li>
+					<li class=" tsd-kind-external-module">
 						<a href="../modules/_dom_net_.html">"dom/net"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -200,22 +195,16 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/_dom_net_.resourceloader.html" class="tsd-kind-icon">Resource<wbr>Loader</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="_dom_net_.resourceloaderevents.html" class="tsd-kind-icon">Resource<wbr>Loader<wbr>Events</a>
-					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="_dom_net_.resourceloaderoptions.html" class="tsd-kind-icon">Resource<wbr>Loader<wbr>Options</a>
+						<a href="_dom_mouse_leave_.mouseleaveoptions.html" class="tsd-kind-icon">Mouse<wbr>Leave<wbr>Options</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="_dom_net_.resourceloaderoptions.html#base" class="tsd-kind-icon">base</a>
+								<a href="_dom_mouse_leave_.mouseleaveoptions.html#delay" class="tsd-kind-icon">delay</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="_dom_net_.resourceloaderoptions.html#continueonerror" class="tsd-kind-icon">continue<wbr>OnError</a>
+								<a href="_dom_mouse_leave_.mouseleaveoptions.html#mousein" class="tsd-kind-icon">mouse<wbr>In</a>
 							</li>
 						</ul>
 					</li>

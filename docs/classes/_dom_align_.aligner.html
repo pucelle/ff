@@ -83,21 +83,6 @@
 								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="_dom_align_.aligner.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
-						<section class="tsd-index-section ">
-							<h3>Methods</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dom_align_.aligner.html#align" class="tsd-kind-icon">align</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dom_align_.aligner.html#alignherizontal" class="tsd-kind-icon">align<wbr>Herizontal</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dom_align_.aligner.html#aligntrangle" class="tsd-kind-icon">align<wbr>Trangle</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dom_align_.aligner.html#alignvertical" class="tsd-kind-icon">align<wbr>Vertical</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dom_align_.aligner.html#getabsoluteanchor" class="tsd-kind-icon">get<wbr>Absolute<wbr>Anchor</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dom_align_.aligner.html#getdirections" class="tsd-kind-icon">get<wbr>Directions</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dom_align_.aligner.html#getextendedrect" class="tsd-kind-icon">get<wbr>Extended<wbr>Rect</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dom_align_.aligner.html#getfixedanchor" class="tsd-kind-icon">get<wbr>Fixed<wbr>Anchor</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dom_align_.aligner.html#getnaturalheight" class="tsd-kind-icon">get<wbr>Natural<wbr>Height</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_dom_align_.aligner.html#parsemargin" class="tsd-kind-icon">parse<wbr>Margin</a></li>
-							</ul>
-						</section>
 					</div>
 				</section>
 			</section>
@@ -107,13 +92,13 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Aligner<span class="tsd-signature-symbol">(</span>el<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span>, target<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span>, position<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, options<span class="tsd-signature-symbol">?: </span><a href="../interfaces/_dom_align_.alignoptions.html" class="tsd-signature-type">AlignOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_dom_align_.aligner.html" class="tsd-signature-type">Aligner</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Aligner<span class="tsd-signature-symbol">(</span>el<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span>, target<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span>, position<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, options<span class="tsd-signature-symbol">?: </span><a href="../interfaces/_dom_align_.alignoptions.html" class="tsd-signature-type">AlignOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_dom_align_.aligner.html" class="tsd-signature-type">Aligner</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/87839b4/src/dom/align.ts#L130">dom/align.ts:130</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/3e76332/src/dom/align.ts#L56">dom/align.ts:56</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -122,7 +107,7 @@
 									<h5>el: <span class="tsd-signature-type">HTMLElement</span></h5>
 								</li>
 								<li>
-									<h5>target: <span class="tsd-signature-type">HTMLElement</span></h5>
+									<h5>target: <span class="tsd-signature-type">Element</span></h5>
 								</li>
 								<li>
 									<h5>position: <span class="tsd-signature-type">string</span></h5>
@@ -132,231 +117,6 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="_dom_align_.aligner.html" class="tsd-signature-type">Aligner</a></h4>
-						</li>
-					</ul>
-				</section>
-			</section>
-			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Methods</h2>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="align" class="tsd-anchor"></a>
-					<h3>align</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">align<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/87839b4/src/dom/align.ts#L153">dom/align.ts:153</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="alignherizontal" class="tsd-anchor"></a>
-					<h3>align<wbr>Herizontal</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">align<wbr>Herizontal<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/87839b4/src/dom/align.ts#L337">dom/align.ts:337</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="aligntrangle" class="tsd-anchor"></a>
-					<h3>align<wbr>Trangle</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">align<wbr>Trangle<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/87839b4/src/dom/align.ts#L368">dom/align.ts:368</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="alignvertical" class="tsd-anchor"></a>
-					<h3>align<wbr>Vertical</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">align<wbr>Vertical<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/87839b4/src/dom/align.ts#L289">dom/align.ts:289</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="getabsoluteanchor" class="tsd-anchor"></a>
-					<h3>get<wbr>Absolute<wbr>Anchor</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Absolute<wbr>Anchor<span class="tsd-signature-symbol">(</span>rect<span class="tsd-signature-symbol">: </span><a href="../modules/_dom_node_.html#rect" class="tsd-signature-type">Rect</a>, anchor<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/87839b4/src/dom/align.ts#L279">dom/align.ts:279</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>get absolute anchor position in scrolling page</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>rect: <a href="../modules/_dom_node_.html#rect" class="tsd-signature-type">Rect</a></h5>
-								</li>
-								<li>
-									<h5>anchor: <span class="tsd-signature-type">string</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="getdirections" class="tsd-anchor"></a>
-					<h3>get<wbr>Directions</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Directions<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/87839b4/src/dom/align.ts#L196">dom/align.ts:196</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
-							<ul class="tsd-parameters">
-							</ul>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="getextendedrect" class="tsd-anchor"></a>
-					<h3>get<wbr>Extended<wbr>Rect</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Extended<wbr>Rect<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/_dom_node_.html#rect" class="tsd-signature-type">Rect</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/87839b4/src/dom/align.ts#L231">dom/align.ts:231</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <a href="../modules/_dom_node_.html#rect" class="tsd-signature-type">Rect</a></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="getfixedanchor" class="tsd-anchor"></a>
-					<h3>get<wbr>Fixed<wbr>Anchor</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Fixed<wbr>Anchor<span class="tsd-signature-symbol">(</span>w<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, h<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, anchor<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/87839b4/src/dom/align.ts#L271">dom/align.ts:271</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>get fixed anchor position in viewport</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>w: <span class="tsd-signature-type">number</span></h5>
-								</li>
-								<li>
-									<h5>h: <span class="tsd-signature-type">number</span></h5>
-								</li>
-								<li>
-									<h5>anchor: <span class="tsd-signature-type">string</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="getnaturalheight" class="tsd-anchor"></a>
-					<h3>get<wbr>Natural<wbr>Height</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Natural<wbr>Height<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/87839b4/src/dom/align.ts#L249">dom/align.ts:249</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>When el can be scrolled, if we just expend it to test its natural height, it&#39;s scrolled position will lost.
-										So we get <code>scrollHeight - clientHeight</code> as a diff and add it to it&#39;s current height as it&#39;s natural height.
-										Note that the <code>trangle</code> will cause <code>scrollHeight</code> plus for it&#39;s height.
-									Otherwise may not el but child is scrolled.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="parsemargin" class="tsd-anchor"></a>
-					<h3>parse<wbr>Margin</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">parse<wbr>Margin<span class="tsd-signature-symbol">(</span>margin<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/87839b4/src/dom/align.ts#L206">dom/align.ts:206</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>top [right] [bottom] [left] -&gt; [t, r, b, l].</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>margin: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -408,9 +168,6 @@
 						<a href="../modules/_dom_animate_.html">"dom/animate"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="../modules/_dom_css_.html">"dom/css"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
 						<a href="../modules/_dom_file_.html">"dom/file"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -435,6 +192,9 @@
 						<a href="../modules/_dom_storage_.html">"dom/storage"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
+						<a href="../modules/_dom_style_.html">"dom/style"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
 						<a href="../modules/_dom_watch_layout_.html">"dom/watch-<wbr>layout"</a>
 					</li>
 				</ul>
@@ -448,36 +208,6 @@
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class">
 								<a href="_dom_align_.aligner.html#constructor" class="tsd-kind-icon">constructor</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_dom_align_.aligner.html#align" class="tsd-kind-icon">align</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_dom_align_.aligner.html#alignherizontal" class="tsd-kind-icon">align<wbr>Herizontal</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_dom_align_.aligner.html#aligntrangle" class="tsd-kind-icon">align<wbr>Trangle</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_dom_align_.aligner.html#alignvertical" class="tsd-kind-icon">align<wbr>Vertical</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_dom_align_.aligner.html#getabsoluteanchor" class="tsd-kind-icon">get<wbr>Absolute<wbr>Anchor</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_dom_align_.aligner.html#getdirections" class="tsd-kind-icon">get<wbr>Directions</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_dom_align_.aligner.html#getextendedrect" class="tsd-kind-icon">get<wbr>Extended<wbr>Rect</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_dom_align_.aligner.html#getfixedanchor" class="tsd-kind-icon">get<wbr>Fixed<wbr>Anchor</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_dom_align_.aligner.html#getnaturalheight" class="tsd-kind-icon">get<wbr>Natural<wbr>Height</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_dom_align_.aligner.html#parsemargin" class="tsd-kind-icon">parse<wbr>Margin</a>
 							</li>
 						</ul>
 					</li>

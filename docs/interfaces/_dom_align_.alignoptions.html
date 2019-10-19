@@ -81,6 +81,7 @@
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_dom_align_.alignoptions.html#canshrinkiny" class="tsd-kind-icon">can<wbr>Shrink<wbr>InY</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_dom_align_.alignoptions.html#fixtrangle" class="tsd-kind-icon">fix<wbr>Trangle</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_dom_align_.alignoptions.html#margin" class="tsd-kind-icon">margin</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_dom_align_.alignoptions.html#trangle" class="tsd-kind-icon">trangle</a></li>
 							</ul>
@@ -96,7 +97,7 @@
 					<div class="tsd-signature tsd-kind-icon">can<wbr>Shrink<wbr>InY<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/pucelle/ff/blob/87839b4/src/dom/align.ts#L12">dom/align.ts:12</a></li>
+							<li>Defined in <a href="https://github.com/pucelle/ff/blob/3e76332/src/dom/align.ts#L15">dom/align.ts:15</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -106,17 +107,34 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="fixtrangle" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> fix<wbr>Trangle</h3>
+					<div class="tsd-signature tsd-kind-icon">fix<wbr>Trangle<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/pucelle/ff/blob/3e76332/src/dom/align.ts#L24">dom/align.ts:24</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Should align trangle in a fixed position.
+							Default value is <code>false</code>, means trangle will be adjusted to be in the center of the edge of el or target.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="margin" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> margin</h3>
 					<div class="tsd-signature tsd-kind-icon">margin<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/pucelle/ff/blob/87839b4/src/dom/align.ts#L9">dom/align.ts:9</a></li>
+							<li>Defined in <a href="https://github.com/pucelle/ff/blob/3e76332/src/dom/align.ts#L12">dom/align.ts:12</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>The margin as gaps betweens align element and target, can be a number or a number array composed of 1-4 numbers.</p>
+							<p>The margin as gaps betweens align element and target, can be a number or a number array composed of 1-4 numbers.
+							Unique number will only work in main direction.</p>
 						</div>
 					</div>
 				</section>
@@ -126,7 +144,7 @@
 					<div class="tsd-signature tsd-kind-icon">trangle<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLElement</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/pucelle/ff/blob/87839b4/src/dom/align.ts#L15">dom/align.ts:15</a></li>
+							<li>Defined in <a href="https://github.com/pucelle/ff/blob/3e76332/src/dom/align.ts#L18">dom/align.ts:18</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -183,9 +201,6 @@
 						<a href="../modules/_dom_animate_.html">"dom/animate"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="../modules/_dom_css_.html">"dom/css"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
 						<a href="../modules/_dom_file_.html">"dom/file"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -210,6 +225,9 @@
 						<a href="../modules/_dom_storage_.html">"dom/storage"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
+						<a href="../modules/_dom_style_.html">"dom/style"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
 						<a href="../modules/_dom_watch_layout_.html">"dom/watch-<wbr>layout"</a>
 					</li>
 				</ul>
@@ -226,6 +244,9 @@
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="_dom_align_.alignoptions.html#canshrinkiny" class="tsd-kind-icon">can<wbr>Shrink<wbr>InY</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_dom_align_.alignoptions.html#fixtrangle" class="tsd-kind-icon">fix<wbr>Trangle</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="_dom_align_.alignoptions.html#margin" class="tsd-kind-icon">margin</a>
