@@ -1,4 +1,4 @@
-import {isInview, getRect, Rect} from './node'
+import {isInview, getRect, Rect} from './element'
 import {Interval} from '../base'
 
 
@@ -39,6 +39,7 @@ const WATCH_STATE_FN = {
 
 /**
  * Watch specified state, trigger `callback` if state changed.
+ * Please makesure everything was rendered before call this.
  * Returns a cancel function.
  * Note that this method may slow page speed and cause additional reflow.
  * @param el The element to watch.
@@ -52,6 +53,7 @@ export function watchLayout<T extends WatchType>(el: HTMLElement, type: T, callb
 
 /**
  * Watch specified state, trigger `callback` if it changed for only once.
+ * Please makesure everything was rendered before call this.
  * Returns a cancel function.
  * Note that this method may slow page speed and cause additional reflow.
  * @param el The element to watch.
@@ -65,6 +67,7 @@ export function watchLayoutOnce<T extends WatchType>(el: HTMLElement, type: Watc
 
 /**
  * Watch specified state, trigger `callback` if the state becomes `true` and never trigger again.
+ * Please makesure everything was rendered before call this.
  * Returns a cancel function.
  * Note that this method may slow page speed and cause additional reflow.
  * @param el The element to watch.
@@ -86,40 +89,37 @@ function bindWatch(isOnce: boolean, untilTrue: boolean, el: HTMLElement, type: W
 		throw new Error(`Failed to watch, type "${type}" is not supported`)
 	}
 
-	// When using with flit, it may cause relayout, so please make sure everything rendered already.
-	requestAnimationFrame(() => {
-		if (untilTrue) {
-			oldState = getState(el)
+	if (untilTrue) {
+		oldState = getState(el)
 
-			if (oldState && untilTrue) {
-				callback(oldState)
-			}
+		if (oldState && untilTrue) {
+			callback(oldState)
 		}
-		
-		if (untilTrue && oldState) {
-			return
-		}
+	}
+	
+	if (untilTrue && oldState) {
+		return unwatch
+	}
 
-		if (type === 'size' && typeof (window as any).ResizeObserver === 'function') {
-			observer = new (window as any).ResizeObserver(onResize)
-			observer.observe(el)
-		}
-		else if ((type === 'inview' || type ===  'outview') && typeof IntersectionObserver === 'function') {
-			observer = new IntersectionObserver(onInviewChange)
-			observer.observe(el)
-		}
-		else {
-			oldState = getState(el)
+	if (type === 'size' && typeof (window as any).ResizeObserver === 'function') {
+		observer = new (window as any).ResizeObserver(onResize)
+		observer.observe(el)
+	}
+	else if ((type === 'inview' || type ===  'outview') && typeof IntersectionObserver === 'function') {
+		observer = new IntersectionObserver(onInviewChange)
+		observer.observe(el)
+	}
+	else {
+		oldState = getState(el)
 
-			// `requestAnimationFrame` is better than `setInterval`,
-			// because `setInterval` will either lost frame or trigger multiple times betweens one frame.
-			// But check frequently will significantly affect rendering performance.
-			interval = new Interval(() => {
-				let newState = getState(el)
-				onNewState(newState)
-			}, 200)
-		}
-	})
+		// `requestAnimationFrame` is better than `setInterval`,
+		// because `setInterval` will either lost frame or trigger multiple times betweens one frame.
+		// But check frequently will significantly affect rendering performance.
+		interval = new Interval(() => {
+			let newState = getState(el)
+			onNewState(newState)
+		}, 200)
+	}
 
 	function onResize(entries: any) {
 		for (let {contentRect} of entries) {

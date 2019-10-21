@@ -1,5 +1,5 @@
 import {getStyle} from './style'
-import {Rect, getRect} from './node'
+import {Rect, getRect} from './element'
 import {getClosestFixedElement} from './util'
 
 
