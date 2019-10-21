@@ -141,19 +141,28 @@ export function getRect(el: Element): Rect {
 
 
 /**
- * Check if element is visible in current viewport.
+ * Check if element is visible in current viewport, Otherwise element can't be covered.
  * Note that this method may cause page reflow.
  * @param el The element to check if is in view.
  * @param percentage Specify how much percentage of el size implies in view.
  */
-export function isInview(el: Element, percentage: number = 0.5): boolean {
+export function isInViewport(el: Element, percentage: number = 0.5): boolean {
 	let dw = document.documentElement.clientWidth
 	let dh = document.documentElement.clientHeight
-	let box = getRect(el)
+	let rect = getRect(el)
 
-	let xIntersect = Math.min(dw, box.right)  - Math.max(0, box.left)
-	let yIntersect = Math.min(dh, box.bottom) - Math.max(0, box.top)
+	let xIntersect = Math.min(dw, rect.right)  - Math.max(0, rect.left)
+	let yIntersect = Math.min(dh, rect.bottom) - Math.max(0, rect.top)
 
-	return xIntersect / Math.min(box.width , dw) > percentage
-		&& yIntersect / Math.min(box.height, dh) > percentage
+	let inRange = xIntersect / Math.min(rect.width , dw) > percentage
+		&& yIntersect / Math.min(rect.height, dh) > percentage
+
+	if (inRange) {
+		let notBeenCovered = el.contains(document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2))
+		if (notBeenCovered) {
+			return true
+		}
+	}
+
+	return false
 }

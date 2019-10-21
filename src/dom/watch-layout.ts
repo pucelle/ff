@@ -1,4 +1,4 @@
-import {isInview, getRect, Rect} from './element'
+import {isInViewport, getRect, Rect} from './element'
 import {Interval} from '../base'
 
 
@@ -17,11 +17,11 @@ const WATCH_STATE_FN = {
 	},
 
 	inview (el: HTMLElement): boolean {
-		return isInview(el)
+		return isInViewport(el)
 	},
 
 	outview (el: HTMLElement): boolean {
-		return !isInview(el)
+		return !isInViewport(el)
 	},
 
 	size (el: HTMLElement): {width: number, height: number} {
