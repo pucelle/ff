@@ -15,7 +15,7 @@ export function toDecimal(number: number, decimalCount = 0): number {
  */
 export function toPower(number: number, power = 0): number {
 	if (number < 0) {
-		return - toPower(-number)
+		return - toPower(-number, power)
 	}
 
 	if (number === 0) {
