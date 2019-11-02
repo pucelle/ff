@@ -88,15 +88,13 @@ export function getEasing(easing: AnimationEasing): string {
 /**
 F(t)  = (1-t)^3 * P0 + 3t(1-t)^2 * P1 + 3t^2(1-t)^2 * P2 + t^3 * P3, t in [0, 1]
 
+Get the x axis projecting function, and knows x0 = 0, x3 = 1, got:
 Cx(t) = 3t(1-t)^2 * x1 + 3t^2(1-t) * x2 + t^3
 	  = (3x1 - 3x2 + 1) * t^3 + (-6x1 + 3x2) * t^2 + 3x1 * t
 
-Cx(t) = x
-	  => (3x1 - 3x2 + 1) * t^3 + (-6x1 + 3x2) * t^2 + 3x1 * t = x
+From Cx(t) = x, got t by binary iteration algorithm, then pass it to y axis projecting function:
+Cy(t) = (3y1 - 3y2 + 1) * t^3 + (-6y1 + 3y2) * t^2 + 3y1 * t
 
-Cy(t) = 3t(1-t)^2 * y1 + 3t^2(1-t) * y2 + t^3 = y
-
-For any `x` betweens [0, 1], got `t` from Cx(t), then got `y` from Cy(t).
 */
 function getCubicBezierEasingFunction(name: keyof typeof CUBIC_BEZIER_EASINGS) {
 	let [x1, y1, x2, y2] = CUBIC_BEZIER_EASINGS[name]
