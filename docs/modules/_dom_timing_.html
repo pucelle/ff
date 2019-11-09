@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>&quot;dom/html&quot; | @pucelle/ff</title>
+	<title>&quot;dom/timing&quot; | @pucelle/ff</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -52,10 +52,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="_dom_html_.html">&quot;dom/html&quot;</a>
+					<a href="_dom_timing_.html">&quot;dom/timing&quot;</a>
 				</li>
 			</ul>
-			<h1>External module &quot;dom/html&quot;</h1>
+			<h1>External module &quot;dom/timing&quot;</h1>
 		</div>
 	</div>
 </header>
@@ -69,8 +69,8 @@
 						<section class="tsd-index-section ">
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_dom_html_.html#decodehtml" class="tsd-kind-icon">decodeHTML</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_dom_html_.html#encodehtml" class="tsd-kind-icon">encodeHTML</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_dom_timing_.html#ensuredocumentcomplete" class="tsd-kind-icon">ensure<wbr>Document<wbr>Complete</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_dom_timing_.html#ensurewindowloaded" class="tsd-kind-icon">ensure<wbr>Window<wbr>Loaded</a></li>
 							</ul>
 						</section>
 					</div>
@@ -79,64 +79,48 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Functions</h2>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
-					<a name="decodehtml" class="tsd-anchor"></a>
-					<h3>decodeHTML</h3>
+					<a name="ensuredocumentcomplete" class="tsd-anchor"></a>
+					<h3>ensure<wbr>Document<wbr>Complete</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">decodeHTML<span class="tsd-signature-symbol">(</span>code<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+						<li class="tsd-signature tsd-kind-icon">ensure<wbr>Document<wbr>Complete<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/3dc5513/src/dom/html.ts#L15">dom/html.ts:15</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/3dc5513/src/dom/timing.ts#L22">dom/timing.ts:22</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Decode HTML codes which includes <code>&amp;...</code> to mapped readable characters.</p>
+									<p>Returns a promise which will be resolved after document completed,
+									Or resolved immediately if document already completed.</p>
 								</div>
 							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>code: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>Encoded HTML codes.</p>
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
-					<a name="encodehtml" class="tsd-anchor"></a>
-					<h3>encodeHTML</h3>
+					<a name="ensurewindowloaded" class="tsd-anchor"></a>
+					<h3>ensure<wbr>Window<wbr>Loaded</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">encodeHTML<span class="tsd-signature-symbol">(</span>code<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+						<li class="tsd-signature tsd-kind-icon">ensure<wbr>Window<wbr>Loaded<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/3dc5513/src/dom/html.ts#L6">dom/html.ts:6</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/3dc5513/src/dom/timing.ts#L5">dom/timing.ts:5</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Encode <code>&lt;&gt;</code> to <code>&amp;...</code> to makesure HTML codes safe to append into document.</p>
+									<p>Returns a promise which will be resolved after window loaded,
+									Or resolved immediately if window already loaded.</p>
 								</div>
 							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>code: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>Text to be encoded.</p>
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -193,7 +177,7 @@
 					<li class=" tsd-kind-external-module">
 						<a href="_dom_file_.html">"dom/file"</a>
 					</li>
-					<li class="current tsd-kind-external-module">
+					<li class=" tsd-kind-external-module">
 						<a href="_dom_html_.html">"dom/html"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -214,7 +198,7 @@
 					<li class=" tsd-kind-external-module">
 						<a href="_dom_style_.html">"dom/style"</a>
 					</li>
-					<li class=" tsd-kind-external-module">
+					<li class="current tsd-kind-external-module">
 						<a href="_dom_timing_.html">"dom/timing"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -225,10 +209,10 @@
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 					<li class=" tsd-kind-function tsd-parent-kind-external-module">
-						<a href="_dom_html_.html#decodehtml" class="tsd-kind-icon">decodeHTML</a>
+						<a href="_dom_timing_.html#ensuredocumentcomplete" class="tsd-kind-icon">ensure<wbr>Document<wbr>Complete</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module">
-						<a href="_dom_html_.html#encodehtml" class="tsd-kind-icon">encodeHTML</a>
+						<a href="_dom_timing_.html#ensurewindowloaded" class="tsd-kind-icon">ensure<wbr>Window<wbr>Loaded</a>
 					</li>
 				</ul>
 			</nav>
