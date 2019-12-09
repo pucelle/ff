@@ -21,9 +21,6 @@ export function toPower(number: number, power = 0): number {
 	if (number === 0) {
 		return 0
 	}
-	
-	let maxPower = Math.floor(Math.log(number) / Math.log(10))
-	power = Math.min(maxPower, power)
 
 	if (power > 0) {
 		let n = Math.pow(10, power)
