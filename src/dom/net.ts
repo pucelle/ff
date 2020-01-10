@@ -246,16 +246,22 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 	 * @param name The defined resource name or base name of url.
 	 */
 	async getAsBuffer(name: string): Promise<ArrayBuffer | null> {
-		return new Promise(resolve => {
+		return new Promise((resolve, reject) => {
 			let blob = this.blobMap.get(name)
 			if (!blob) {
 				return resolve(null)
 			}
 
 			let reader = new FileReader()
+
 			reader.onload = () => {
 				resolve(reader.result as ArrayBuffer)
 			}
+
+			reader.onerror = err => {
+				reject(err)
+			}
+
 			reader.readAsArrayBuffer(blob)
 		})
 	}
@@ -265,7 +271,7 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 	 * @param name The defined resource name or base name of url.
 	 */
 	async getAsImage(name: string): Promise<HTMLImageElement | null> {
-		return new Promise(resolve => {
+		return new Promise((resolve, reject) => {
 			let blobURL = this.getAsBlobURL(name)
 			if (!blobURL) {
 				return resolve(null)
@@ -274,6 +280,59 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 			let img = new Image()
 			img.src = blobURL
 			img.onload = () => resolve(img)
+			img.onerror = err => reject(err)
+		})
+	}
+
+	/**
+	 * Get resource as Video Element.
+	 * @param name The defined resource name or base name of url.
+	 */
+	async getAsVideo(name: string): Promise<HTMLVideoElement | null> {
+		return new Promise((resolve, reject) => {
+			let blobURL = this.getAsBlobURL(name)
+			if (!blobURL) {
+				return resolve(null)
+			}
+
+			let video = document.createElement('video')
+			video.preload = 'auto'
+
+			video.oncanplaythrough = () => {
+				resolve(video)
+			}
+
+			video.onerror = err => {
+				reject(err)
+			}
+
+			video.src = blobURL
+		})
+	}
+
+	/**
+	 * Get resource as Audio Element.
+	 * @param name The defined resource name or base name of url.
+	 */
+	async getAsAudio(name: string): Promise<HTMLAudioElement | null> {
+		return new Promise((resolve, reject) => {
+			let blobURL = this.getAsBlobURL(name)
+			if (!blobURL) {
+				return resolve(null)
+			}
+
+			let audio = document.createElement('audio')
+			audio.preload = 'auto'
+
+			audio.oncanplaythrough = () => {
+				resolve(audio)
+			}
+
+			audio.onerror = err => {
+				reject(err)
+			}
+
+			audio.src = blobURL
 		})
 	}
 }
