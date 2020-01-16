@@ -242,7 +242,7 @@ export function capitalize(string: string): string {
  * @param string The string to transform.
  */
 export function toCamerCase(string: string): string {
-	return string.replace(/[-_ ][a-z]/g, m0 => m0[1].toUpperCase())
+	return string.replace(/[-_ ][a-z]/gi, m0 => m0[1].toUpperCase())
 }
 
 
