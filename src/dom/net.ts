@@ -139,7 +139,7 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 			xhr.onloadend = () => {
 				if (xhr.status >= 200 && xhr.status < 400) {
 					this.blobMap.set(name, xhr.response)
-					this.blobMap.set(absloteURL, xhr.response)
+					this.blobMap.set(url, xhr.response)
 					resolve(xhr.response)
 				}
 				else {
