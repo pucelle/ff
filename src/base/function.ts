@@ -163,7 +163,7 @@ export class Throttle<F extends Function> extends WrappedTimingFunction<F> {
 
 	/**
 	 * Throttle function calls, call returned function twice in `ms` millisecons will only call `fn` for once.
-	 * It doesn't ensure the last calling.
+	 * Note that it doesn't ensure the last calling.
 	 * @param fn The function to throttle.
 	 * @param ms The time period in which only at most one call allowed. If omitted, using `requestAnimationFrame` to throttle.
 	 */
@@ -247,7 +247,7 @@ export function throttle<F extends Function>(fn: F, ms: number = 0): Throttle<F>
 }
 
 
-export class SmoothThrottle<F extends Function> extends WrappedTimingFunction<F> {
+export class LazilyThrottle<F extends Function> extends WrappedTimingFunction<F> {
 	
 	private lastArgs: any[] | null = null
 	private lastThis: any = null
@@ -354,8 +354,8 @@ export class SmoothThrottle<F extends Function> extends WrappedTimingFunction<F>
  * @param fn The function to throttle.
  * @param ms The time period in which only at most one call allowed.
  */
-export function smoothThrottle<F extends Function>(fn: F, ms: number): SmoothThrottle<F> {
-	return new SmoothThrottle(fn, ms)
+export function lazilyThrottle<F extends Function>(fn: F, ms: number): LazilyThrottle<F> {
+	return new LazilyThrottle(fn, ms)
 }
 
 
