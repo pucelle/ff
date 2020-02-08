@@ -14,10 +14,12 @@ function task(name) {
 		//debug: true,
 		entries: glob.sync(__dirname + '/test/dom/**/*.test.ts')
 	})
+
 	browser.plugin(tsify, {
 		typeRoots: ['test/dom/node_modules/@types'],
 		types: ['mocha', 'chai']
 	})
+
 	browser.on('log', gutil.log)
 
 	if (name === 'test-watch') {
@@ -30,6 +32,7 @@ function task(name) {
 	function bundle() {
 		return browser
 			.bundle()
+			.on('error', (err) => gutil.log(err.message))
 			//.pipe(exorcist(__dirname + '/test/dom/bundle.js.map'))
 			.pipe(source('bundle.js'))
 			.pipe(gulp.dest('test/dom'))
