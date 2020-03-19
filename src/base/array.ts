@@ -281,21 +281,21 @@ export function binaryFindIndexToInsert<T>(array: T[], fn: (item: T) => (0 | -1 
 
 export type OrderDirection = -1 | 1 | 'asc' | 'desc'
 export type OrderFunction<T> = (item: T) => string | number
-export type OrderTuple<T, K> = K | OrderFunction<T> | [K | OrderFunction<T>, OrderDirection]
-type NormativeOrderTuple<T, Key> = [Key | OrderFunction<T>, -1 | 1]
-type CanSortKeys<T> = Extract<keyof T, string | number>
+export type OrderTuple<T> = CanSortKeys<T> | OrderFunction<T> | [CanSortKeys<T> | OrderFunction<T>, OrderDirection]
+export type CanSortKeys<T> = Extract<keyof T, string | number>
+type NormativeOrderTuple<T> = [CanSortKeys<T> | OrderFunction<T>, -1 | 1]
 
 
 export class Order<T> {
 
-	private orders: NormativeOrderTuple<T, string | number>[] = []
+	private orders: NormativeOrderTuple<T>[] = []
 
 	/**
 	 * Create an order rule, used in `orderBy`, and can also be used to binary search from or binary insert into array with object type items
 	 * @param orders Rest arguments of type `key` or `OrderFunction` which will return a `key`, or [`key` / `OrderFunction`, `OrderDirection`].
 	 */
-	constructor(firstOrder: OrderTuple<T, string | number>, ...orders: OrderTuple<T, string | number>[]) {
-		for (let order of [firstOrder, ...orders]) {
+	constructor(...orders: OrderTuple<T>[]) {
+		for (let order of orders) {
 			if (['string', 'number', 'function'].includes(typeof order)) {
 				this.orders.push([order as any, 1])
 			}
@@ -412,9 +412,9 @@ when <Key> appears multiple times at contexual, <Key> was inferred from multiple
 
 	lower priority value `1` will be overwrited
 */
-export function orderBy<T extends object>(array: T[], ...orders: OrderTuple<T, CanSortKeys<T>>[]): T[]
+export function orderBy<T extends object>(array: T[], ...orders: OrderTuple<T>[]): T[]
 
-export function orderBy<T extends object>(array: T[], order: Order<T> | OrderTuple<T, CanSortKeys<T>>, ...orders: OrderTuple<T, CanSortKeys<T>>[]): T[] {
+export function orderBy<T extends object>(array: T[], order: Order<T> | OrderTuple<T>, ...orders: OrderTuple<T>[]): T[] {
 	order = order instanceof Order ? order : new Order(order, ...orders)
 	order.sortArray(array)
 	return array
