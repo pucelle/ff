@@ -1,5 +1,6 @@
 /**
  * Assign object keys and values from `source` to `target`, will cover values of `target` with same keys.
+ * will ignore `undefined` values in `source`.
  * @param target The target that the sources assigned to.
  * @param sources The sources that will assigned to target by order.
  * @param keys If specified, only values whose keys are included will be assigned.
@@ -18,6 +19,7 @@ export function assign<T extends object, S extends object>(target: T, source: S,
 
 /**
  * Assign object keys and values from `source` to `target`, will not cover values of `target` with existing keys.
+ * will ignore `undefined` values in `source`,  and `undefined` values in `target` will be treated as not exist.
  * @param target The target that the sources assigned to.
  * @param sources The sources that will assigned to target by order.
  * @param keys If specified, only values whose keys are included will be assigned.
