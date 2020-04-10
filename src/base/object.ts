@@ -5,7 +5,7 @@
  * @param sources The sources that will assigned to target by order.
  * @param keys If specified, only values whose keys are included will be assigned.
  */
-export function assign<T extends object, S extends object>(target: T, source: S, keys: (keyof S)[] = Object.keys(source) as (keyof S)[]): T {
+export function assign<T extends object, S extends object>(target: T, source: S, keys: (keyof S)[] = Object.keys(source) as (keyof S)[]): T & S {
 	for (let key of keys) {
 		let value = source[key]
 		if (value !== undefined) {
@@ -13,7 +13,7 @@ export function assign<T extends object, S extends object>(target: T, source: S,
 		}
 	}
 
-	return target
+	return target as T & S
 }
 
 
@@ -24,7 +24,7 @@ export function assign<T extends object, S extends object>(target: T, source: S,
  * @param sources The sources that will assigned to target by order.
  * @param keys If specified, only values whose keys are included will be assigned.
  */
-export function assignIf<T extends object, S extends object>(target: T, source: S, keys: (keyof S)[] = Object.keys(source) as (keyof S)[]): T {
+export function assignIf<T extends object, S extends object>(target: T, source: S, keys: (keyof S)[] = Object.keys(source) as (keyof S)[]): T & S {
 	for (let key of keys) {
 		let value = source[key]
 		if (value !== undefined && target[key as unknown as keyof T] === undefined) {
@@ -32,7 +32,7 @@ export function assignIf<T extends object, S extends object>(target: T, source: 
 		}
 	}
 
-	return target
+	return target as T & S
 }
 
 
