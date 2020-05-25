@@ -14,14 +14,14 @@ export interface AlignOptions {
 	/** If true, when el contains high content and should be cutted in viewport, it will be shrinked and with `overflow: y` set. */
 	canShrinkInY?: boolean
 
-	/** The trangle element in el, which should set will be adjusted left or top to the middle of the touched place of el and target. */
-	trangle?: HTMLElement | undefined
+	/** The triangle element in el, which should set will be adjusted left or top to the middle of the touched place of el and target. */
+	triangle?: HTMLElement | undefined
 
 	/** 
-	 * Should align trangle in a fixed position.
-	 * Default value is `false`, means trangle will be adjusted to be in the center of the edge of el or target.
+	 * Should align triangle in a fixed position.
+	 * Default value is `false`, means triangle will be adjusted to be in the center of the edge of el or target.
 	 */
-	fixTrangle?: boolean
+	fixTriangle?: boolean
 }
 
 /**
@@ -42,8 +42,8 @@ export class Aligner {
 
 	private el: HTMLElement
 	private target: Element
-	private trangle: HTMLElement | null
-	private trangleRect: Rect | null = null
+	private triangle: HTMLElement | null
+	private triangleRect: Rect | null = null
 	private canShrinkInY: boolean
 	private position: [string, string]
 	private margin: [number, number, number, number]
@@ -51,20 +51,20 @@ export class Aligner {
 	private rect: Rect
 	private targetRect: Rect
 	private targetInViewport: boolean
-	private fixTrangle: boolean
+	private fixTriangle: boolean
 	private x: number = 0
 	private y: number = 0
 
 	constructor(el: HTMLElement, target: Element, position: string, options: AlignOptions = {}) {
 		this.el = el
 		this.target = target
-		this.trangle = options.trangle || null
+		this.triangle = options.triangle || null
 		this.canShrinkInY = !!options.canShrinkInY
-		this.fixTrangle = !!options.fixTrangle
+		this.fixTriangle = !!options.fixTriangle
 
-		if (this.trangle) {
-			this.trangle.style.transform = ''
-			this.trangleRect = this.trangle ? getRect(this.trangle) : null
+		if (this.triangle) {
+			this.triangle.style.transform = ''
+			this.triangleRect = this.triangle ? getRect(this.triangle) : null
 		}
 
 		this.rect = getRect(this.el)
@@ -75,7 +75,7 @@ export class Aligner {
 		this.targetRect = this.getExtendedRect()
 		this.targetInViewport = inViewport(this.targetRect)
 	
-		if (this.canShrinkInY) {
+		if (this.canShrinkInY && !this.triangle) {
 			this.rect.height = this.getNaturalHeight()
 		}
 
@@ -103,9 +103,9 @@ export class Aligner {
 		this.x = anchor2[0] - anchor1[0]
 		this.alignHerizontal()
 
-		// Handle trangle position
-		if (this.trangle) {
-			this.alignTrangle()
+		// Handle triangle position
+		if (this.triangle) {
+			this.alignTriangle()
 		}
 
 		// If is not fixed, minus coordinates relative to offsetParent
@@ -154,15 +154,15 @@ export class Aligner {
 		margin[2] = margin[2] !== undefined ? margin[2] || 0 : margin[0]
 		margin[3] = margin[3] !== undefined ? margin[3] || 0 : margin[1]
 
-		if (this.trangleRect) {
+		if (this.triangleRect) {
 			if (this.direction.top || this.direction.bottom) {
-				margin[0] += this.trangleRect.height
-				margin[2] += this.trangleRect.height
+				margin[0] += this.triangleRect.height
+				margin[2] += this.triangleRect.height
 			}
 
 			if (this.direction.left || this.direction.right) {
-				margin[1] += this.trangleRect.width
-				margin[3] += this.trangleRect.width
+				margin[1] += this.triangleRect.width
+				margin[3] += this.triangleRect.width
 			}
 		}
 
@@ -184,14 +184,14 @@ export class Aligner {
 	/** 
 	 * When el can be scrolled, if we just expend it to test its natural height, it's scrolled position will lost.
 	 * So we get `scrollHeight - clientHeight` as a diff and add it to it's current height as it's natural height.
-	 * Note that the `trangle` will cause `scrollHeight` plus for it's height.
+	 * Note that the `triangle` will cause `scrollHeight` plus for it's height.
 	 * Otherwise may not el but child is scrolled.
 	 */
 	private getNaturalHeight(): number {
 		let h = this.rect.height
 
 		let diffHeight = this.el.scrollHeight - this.el.clientHeight
-		let maxAllowdDiffWhenNotScrolled = this.trangleRect ? this.trangleRect.height : 0
+		let maxAllowdDiffWhenNotScrolled = this.triangleRect ? this.triangleRect.height : 0
 		
 		if (diffHeight <= maxAllowdDiffWhenNotScrolled) {
 			diffHeight = Math.max(...[...this.el.children].map(child => child.scrollHeight - child.clientHeight))
@@ -215,12 +215,12 @@ export class Aligner {
 		let x = anchor.includes('l') ? 0 : anchor.includes('r') ? rect.width : rect.width / 2
 		let y = anchor.includes('t') ? 0 : anchor.includes('b') ? rect.height : rect.height / 2
 
-		if (this.fixTrangle && this.trangleRect) {
+		if (this.fixTriangle && this.triangleRect) {
 			if ((this.direction.top || this.direction.bottom) && this.position[1][1] === 'c') {
-				x = this.trangleRect.left + this.trangleRect.width / 2 - rect.left
+				x = this.triangleRect.left + this.triangleRect.width / 2 - rect.left
 			}
 			else if ((this.direction.left || this.direction.right) && this.position[1][0] === 'c') {
-				y = this.trangleRect.top + this.trangleRect.height / 2 - rect.top
+				y = this.triangleRect.top + this.triangleRect.height / 2 - rect.top
 			}
 		}
 
@@ -263,12 +263,12 @@ export class Aligner {
 			}
 			else {
 				if (y + h > dh) {
-					let minY = this.targetRect.top + this.margin[1] + (this.trangleRect ? this.trangleRect.height : 0) - h
+					let minY = this.targetRect.top + this.margin[1] + (this.triangleRect ? this.triangleRect.height : 0) - h
 					y = Math.max(dh - h, minY)
 				}
 
 				if (y < 0) {
-					let maxY = this.targetRect.bottom - this.margin[2] - (this.trangleRect ? this.trangleRect.height : 0)
+					let maxY = this.targetRect.bottom - this.margin[2] - (this.triangleRect ? this.triangleRect.height : 0)
 					y = Math.min(0, maxY)
 				}
 			}
@@ -315,12 +315,12 @@ export class Aligner {
 			}
 			else {
 				if (x + w > dw) {
-					let minX = this.targetRect.left + this.margin[3] + (this.trangleRect ? this.trangleRect.width : 0) - w
+					let minX = this.targetRect.left + this.margin[3] + (this.triangleRect ? this.triangleRect.width : 0) - w
 					x = Math.max(dw - w, minX)
 				}
 
 				if (x < 0) {
-					let minX = this.targetRect.right - this.margin[1] - (this.trangleRect ? this.trangleRect.width : 0)
+					let minX = this.targetRect.right - this.margin[1] - (this.triangleRect ? this.triangleRect.width : 0)
 					x = Math.min(0, minX)
 				}
 			}
@@ -329,85 +329,85 @@ export class Aligner {
 		}
 	}
 
-	private alignTrangle() {
-		let trangle = this.trangle!
-		let trangleRect = this.trangleRect!
+	private alignTriangle() {
+		let triangle = this.triangle!
+		let triangleRect = this.triangleRect!
 		let transforms: string[] = []
 		let w = this.rect.width
 		let h = this.rect.height
 
 		if (this.direction.top) {
-			trangle.style.top = 'auto'
-			trangle.style.bottom = -trangleRect.height + 'px'
+			triangle.style.top = 'auto'
+			triangle.style.bottom = -triangleRect.height + 'px'
 			transforms.push('rotateX(180deg)')
 		}
 		else if (this.direction.bottom) {
-			trangle.style.top = -trangleRect.height + 'px'
-			trangle.style.bottom = ''
+			triangle.style.top = -triangleRect.height + 'px'
+			triangle.style.bottom = ''
 		}
 		else if(this.direction.left) {
-			trangle.style.left = 'auto'
-			trangle.style.right = -trangleRect.width + 'px'
+			triangle.style.left = 'auto'
+			triangle.style.right = -triangleRect.width + 'px'
 			transforms.push('rotateY(180deg)')
 		}
 		else if(this.direction.right) {
-			trangle.style.left = -trangleRect.width + 'px'
-			trangle.style.right = ''
+			triangle.style.left = -triangleRect.width + 'px'
+			triangle.style.right = ''
 		}
 
 		if (this.direction.top || this.direction.bottom) {
-			let halfTrangleWidth = trangleRect.width / 2
+			let halfTriangleWidth = triangleRect.width / 2
 			let x: number
 
-			// Trangle in the center of the edge of target
-			if (w >= this.targetRect.width || this.fixTrangle && this.position[1][1] === 'c') {
-				x = this.targetRect.left + this.targetRect.width / 2 - this.x - halfTrangleWidth
+			// Triangle in the center of the edge of target
+			if (w >= this.targetRect.width || this.fixTriangle && this.position[1][1] === 'c') {
+				x = this.targetRect.left + this.targetRect.width / 2 - this.x - halfTriangleWidth
 			}
-			// Trangle in the center of the edge of el
+			// Triangle in the center of the edge of el
 			else {
-				x = w / 2 - halfTrangleWidth
+				x = w / 2 - halfTriangleWidth
 			}
 
-			x = Math.max(x, halfTrangleWidth)
-			x = Math.min(x, this.rect.width - trangleRect.width - halfTrangleWidth)
+			x = Math.max(x, halfTriangleWidth)
+			x = Math.min(x, this.rect.width - triangleRect.width - halfTriangleWidth)
 
-			if (this.fixTrangle) {
-				x -= trangleRect.left - this.rect.left
+			if (this.fixTriangle) {
+				x -= triangleRect.left - this.rect.left
 				transforms.push(`translateX(${x}px)`)
 			}
 			else {
-				trangle.style.left = x + 'px'
+				triangle.style.left = x + 'px'
 			}
 
-			trangle.style.right = ''
+			triangle.style.right = ''
 		}
 
 		if (this.direction.left || this.direction.right) {
-			let halfTrangleHeight = trangleRect.height / 2
+			let halfTriangleHeight = triangleRect.height / 2
 			let y: number
 
-			if (h >= this.targetRect.height || this.fixTrangle && this.position[1][0] === 'c') {
-				y = this.targetRect.top + this.targetRect.height / 2 - this.y - halfTrangleHeight
+			if (h >= this.targetRect.height || this.fixTriangle && this.position[1][0] === 'c') {
+				y = this.targetRect.top + this.targetRect.height / 2 - this.y - halfTriangleHeight
 			}
 			else {
-				y = h / 2 - halfTrangleHeight
+				y = h / 2 - halfTriangleHeight
 			}
 
-			y = Math.max(y, halfTrangleHeight)
-			y = Math.min(y, this.rect.height - trangleRect.height - halfTrangleHeight)
+			y = Math.max(y, halfTriangleHeight)
+			y = Math.min(y, this.rect.height - triangleRect.height - halfTriangleHeight)
 
-			if (this.fixTrangle) {
-				y -= trangleRect.top - this.rect.top
+			if (this.fixTriangle) {
+				y -= triangleRect.top - this.rect.top
 				transforms.push(`translateY(${y}px)`)
 			}
 			else {
-				trangle.style.top = y + 'px'
+				triangle.style.top = y + 'px'
 			}
 
-			trangle.style.bottom = ''
+			triangle.style.bottom = ''
 		}
 	
-		trangle.style.transform = transforms.join(' ')
+		triangle.style.transform = transforms.join(' ')
 	}
 }
 
@@ -470,7 +470,7 @@ function completeAlignPosition(pos: string): string {
 
 
 /** 
- * Get main align direction from align position string, can be used to set trangle styles. 
+ * Get main align direction from align position string, can be used to set triangle styles. 
  * @param pos Align position like `t`, `tc`, `bc-tc`.
  */
 export function getMainAlignDirection(pos: string): 't' | 'b' | 'l' | 'r' | 'c' | '' {
