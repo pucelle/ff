@@ -360,7 +360,7 @@ export class Aligner {
 			let x: number
 
 			// Triangle in the center of the edge of target
-			if (w >= this.targetRect.width || this.fixTriangle && this.position[1][1] === 'c') {
+			if ((w >= this.targetRect.width || this.fixTriangle) && this.position[1][1] === 'c') {
 				x = this.targetRect.left + this.targetRect.width / 2 - this.x - halfTriangleWidth
 			}
 			// Triangle in the center of the edge of el
@@ -386,7 +386,7 @@ export class Aligner {
 			let halfTriangleHeight = triangleRect.height / 2
 			let y: number
 
-			if (h >= this.targetRect.height || this.fixTriangle && this.position[1][0] === 'c') {
+			if ((h >= this.targetRect.height || this.fixTriangle) && this.position[1][0] === 'c') {
 				y = this.targetRect.top + this.targetRect.height / 2 - this.y - halfTriangleHeight
 			}
 			else {
