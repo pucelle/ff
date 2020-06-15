@@ -314,12 +314,10 @@ export function animate(el: HTMLElement, startFrame: AnimationFrame, endFrame: A
 		duration,
 	})
 
-	el.style.pointerEvents = 'none'
 	ElementAnimationMap.set(el, animation)
 
 	return new Promise((resolve) => {
 		animation.addEventListener('finish', () => {
-			el.style.pointerEvents = ''
 			ElementAnimationMap.delete(el)
 			resolve(true)
 		}, false)
@@ -424,13 +422,22 @@ export function animateToNextFrame(el: HTMLElement, properties: StyleName[] | St
 
 /**
  * Stop executing animation on element.
- * @param el The element to stop animation on.
+ * @param el The element to stop animation.
  */
 export function stopAnimation(el: HTMLElement) {
 	let animation = ElementAnimationMap.get(el)
 	if (animation) {
 		animation.cancel()
-		el.style.pointerEvents = ''
 		ElementAnimationMap.delete(el)
 	}
+}
+
+
+/**
+ * Test if element is playing an animation.
+ * @param el The element to test animation.
+ */
+export function isPlayingAnimation(el: HTMLElement) {
+	let animation = ElementAnimationMap.get(el)
+	return !!animation
 }
