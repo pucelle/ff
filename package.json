@@ -12,7 +12,7 @@
 	"main": "out/index.js",
 	"types": "out/index.d.ts",
 	"scripts": {
-		"compile": "tsc -b",
+		"build": "tsc -b",
 		"watch": "tsc -b -w",
 		"test": "npm run test-base && npm run text-dom",
 		"test-base": "jest",
@@ -22,7 +22,7 @@
 	},
 	"devDependencies": {
 		"@types/jest": "^24.0.9",
-		"browserify": "^16.2.3",
+		"browserify": "^16.5.1",
 		"chai": "^4.2.0",
 		"exorcist": "^1.0.1",
 		"gulp": "^4.0.0",

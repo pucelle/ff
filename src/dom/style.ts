@@ -22,7 +22,7 @@ export function getStyleAsNumber(el: Element, property: StyleName): number {
  * @param property The property name in camer case, `backgroundColor` as example.
  */
 export function getStyle(el: Element, property: StyleName): string {
-	return getComputedStyle(el)[property as keyof CSSStyleDeclaration]
+	return getComputedStyle(el)[property as any]
 }
 
 
