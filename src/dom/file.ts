@@ -1,3 +1,5 @@
+import {sleep} from "../base"
+
 /**
  * Download url as a file with specified `fileName`.
  * Not that `fileName` may not working for cross domain resources.
@@ -101,7 +103,8 @@ function selectFileOrFolder(mime: string, isFolder: boolean, isMultiple: boolean
 			}
 		}
 
-		function onDomFocus() {
+		async function onDomFocus() {
+			await sleep(1000)
 			document.removeEventListener('focus', onDomFocus, false)
 			input.onchange = null
 			input.remove()
