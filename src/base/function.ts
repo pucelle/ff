@@ -240,7 +240,7 @@ export class Throttle<F extends Function> extends WrappedTimingFunction<F> {
  * Throttle function calls, call returned function for twice in `ms` milliseconds will only call `fn` for once.
  * It doesn't ensure the last calling.
  * @param fn The function to throttle.
- * @param ms The time period in which only at most one call allowed.
+ * @param ms The time period in which only at most one call allowed. If omitted, using `requestAnimationFrame` to throttle.
  */
 export function throttle<F extends Function>(fn: F, ms: number = 0): Throttle<F> {
 	return new Throttle(fn, ms)
@@ -256,7 +256,7 @@ export class LazilyThrottle<F extends Function> extends WrappedTimingFunction<F>
 	 * Throttle function calls like `throttle`, but will calls `fn` lazily and smooth.
 	 * It ensures the last calling.
 	 * @param fn The function to throttle.
-	 * @param ms The time period in which only at most one call allowed.
+	 * @param ms The time period in which only at most one call allowed. If omitted, using `requestAnimationFrame` to throttle.
 	 */
 	constructor(fn: F, ms: number) {
 		super(fn, ms)
@@ -352,7 +352,7 @@ export class LazilyThrottle<F extends Function> extends WrappedTimingFunction<F>
  * Throttle function calls like `throttle`, but will call `fn` lazily and smooth.
  * It ensures the last calling.
  * @param fn The function to throttle.
- * @param ms The time period in which only at most one call allowed.
+ * @param ms The time period in which only at most one call allowed. If omitted, using `requestAnimationFrame` to throttle.
  */
 export function lazilyThrottle<F extends Function>(fn: F, ms: number): LazilyThrottle<F> {
 	return new LazilyThrottle(fn, ms)
