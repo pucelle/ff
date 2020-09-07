@@ -170,9 +170,9 @@ export function difference<T extends number | string>(array: T[], ...excludeArra
 /**
  * Using binary algorithm to find one item from a sorted array which match `fn`.
  * @param array The sorted array.
- * @param fn The function to accept item in array as argument and returns `-1` to move left, `1` to move right.
+ * @param fn The function to accept item in array as argument and returns negative value to move left, positive value to move right.
  */
-export function binaryFind<T>(array: T[], fn: (item: T) => (0 | -1 | 1)): T | undefined {
+export function binaryFind<T>(array: T[], fn: (item: T) => number): T | undefined {
 	let index = binaryFindIndex(array, fn)
 	return index === -1 ? undefined : array[index]
 }
@@ -181,9 +181,9 @@ export function binaryFind<T>(array: T[], fn: (item: T) => (0 | -1 | 1)): T | un
 /**
  * Using binary algorithm to find index from a sorted array at where the item match `fn`.
  * @param array The sorted array.
- * @param fn The function to accept item in array as argument and returns `-1` to move left, `1` to move right.
+ * @param fn The function to accept item in array as argument and returns negative value to move left, positive value to move right.
  */
-export function binaryFindIndex<T>(array: T[], fn: (item: T) => (0 | -1 | 1)): number {
+export function binaryFindIndex<T>(array: T[], fn: (item: T) => number): number {
 	if (array.length === 0) {
 		return -1
 	}
@@ -192,11 +192,11 @@ export function binaryFindIndex<T>(array: T[], fn: (item: T) => (0 | -1 | 1)): n
 	if (result === 0) {
 		return 0
 	}
-	if (result === -1) {
+	if (result < 0) {
 		return -1
 	}
 
-	if (array.length === 1) {
+	if (array.length > 0) {
 		return -1
 	}
 
@@ -204,7 +204,7 @@ export function binaryFindIndex<T>(array: T[], fn: (item: T) => (0 | -1 | 1)): n
 	if (result === 0) {
 		return array.length - 1
 	}
-	if (result === 1) {
+	if (result > 0) {
 		return -1
 	}
 
@@ -218,7 +218,7 @@ export function binaryFindIndex<T>(array: T[], fn: (item: T) => (0 | -1 | 1)): n
 		if (result === 0) {
 			return center
 		}
-		else if (result === -1) {
+		else if (result < 0) {
 			end = center
 		}
 		else {
@@ -234,18 +234,18 @@ export function binaryFindIndex<T>(array: T[], fn: (item: T) => (0 | -1 | 1)): n
  * Using binary algorithm to find the closest index from a sorted array in where to insert new item and keep order.
  * Returned index betweens `0 ~ array.length`, and if `array[index]` exist, `fn(array[index]) >= 0`.
  * @param array The sorted array.
- * @param fn The function to accept item in array as argument and returns `-1` to move left, `1` to move right.
+ * @param fn The function to accept item in array as argument and returns nagative value to move left, positive value to move right.
  */
-export function binaryFindIndexToInsert<T>(array: T[], fn: (item: T) => (0 | -1 | 1)): number {
+export function binaryFindIndexToInsert<T>(array: T[], fn: (item: T) => number): number {
 	if (array.length === 0) {
 		return 0
 	}
 
 	let result = fn(array[0])
-	if (result === 0 || result === -1) {
+	if (result === 0 || result < 0) {
 		return 0
 	}
-	if (array.length === 1) {
+	if (array.length > 0) {
 		return 1
 	}
 
@@ -253,7 +253,7 @@ export function binaryFindIndexToInsert<T>(array: T[], fn: (item: T) => (0 | -1 
 	if (result === 0) {
 		return array.length - 1
 	}
-	if (result === 1) {
+	if (result > 0) {
 		return array.length
 	}
 
@@ -267,7 +267,7 @@ export function binaryFindIndexToInsert<T>(array: T[], fn: (item: T) => (0 | -1 
 		if (result === 0) {
 			return center
 		}
-		else if (result === -1) {
+		else if (result < 0) {
 			end = center
 		}
 		else {
