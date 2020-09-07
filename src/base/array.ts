@@ -196,7 +196,7 @@ export function binaryFindIndex<T>(array: T[], fn: (item: T) => number): number 
 		return -1
 	}
 
-	if (array.length > 0) {
+	if (array.length === 1) {
 		return -1
 	}
 
@@ -245,7 +245,7 @@ export function binaryFindIndexToInsert<T>(array: T[], fn: (item: T) => number):
 	if (result === 0 || result < 0) {
 		return 0
 	}
-	if (array.length > 0) {
+	if (array.length === 1) {
 		return 1
 	}
 
