@@ -71,7 +71,7 @@ export function deepClone<T> (source: T, deep: number = 10): T {
 
 // 1x faster than JSON methods, see https://jsperf.com/deep-equal-vs-json-compare
 /**
- * Deeply compare two objects, arraies or any values.
+ * Deeply compare two objects, arrays or any other values.
  * @param a Left value.
  * @param b Right value.
  * @param deep Max deep to compare, default value is 10.
@@ -93,25 +93,36 @@ export function deepEqual(a: unknown, b: unknown, deep: number = 10): boolean {
 		return false
 	}
 
-	let keysA = Object.keys(a)
-	let keysB = Object.keys(b)
-	
-	if (keysA.length !== keysB.length) {
-		return false
+	if (Array.isArray(a) && Array.isArray(b)) {
+		if (a.length !== b.length) {
+			return false
+		}
+		
+		return a.every((ai, index) => {
+			return deepEqual(ai, b[index], deep - 1)
+		})
 	}
-
-	for (let key of keysA) {
-		if (!b.hasOwnProperty(key)) {
+	else {
+		let keysA = Object.keys(a)
+		let keysB = Object.keys(b)
+		
+		if (keysA.length !== keysB.length) {
 			return false
 		}
 
-		let valueA = (a as any)[key]
-		let valueB = (b as any)[key]
+		for (let key of keysA) {
+			if (!b.hasOwnProperty(key)) {
+				return false
+			}
 
-		if (!deepEqual(valueA, valueB, deep - 1)) {
-			return false
+			let valueA = (a as any)[key]
+			let valueB = (b as any)[key]
+
+			if (!deepEqual(valueA, valueB, deep - 1)) {
+				return false
+			}
 		}
-	}
 
-	return true
+		return true
+	}
 }
