@@ -1,7 +1,7 @@
 /**
- * Like `number.toFixed`, but alway returns a number.
+ * Like `number.toFixed`, but alway return a number. e.g., `toPower(12.345, 2) = 12.34`.
  * @param number The number to fix.
- * @param decimalCount The decimal count that `number` will correct to, default value is 0.
+ * @param decimalCount The decimal count that `number` will correct to, default value is `0`.
  */
 export function toDecimal(number: number, decimalCount = 0): number {
 	return toPower(number, -decimalCount)
@@ -9,9 +9,9 @@ export function toDecimal(number: number, decimalCount = 0): number {
 
 
 /**
- * Like the opposite of `number.toFixed`, but always returns a number. e.g., `toPower(1234, 2) = 1200`.
+ * Like `number.toFixed`, but always returns a number. e.g., `toPower(1234, 2) = 1200`.
  * @param number The number to fix.
- * @param power The power that `number` will correct to, default value is 0.
+ * @param power The power that `number` will correct to, default value is `0`.
  */
 export function toPower(number: number, power = 0): number {
 	if (number < 0) {
@@ -36,9 +36,9 @@ export function toPower(number: number, power = 0): number {
 
 
 /**
- * Nearly same with `number.toPrecision`, except here always returns a number.
+ * Nearly same with `number.toPrecision`, except it always return a number.
  * @param number The number to transfer to specified precision.
- * @param precision The precision value betweens 1-21, default value is 1.
+ * @param precision The precision value betweens `1-21`, default value is `1`.
  */
 export function toPrecision(number: number,  precision: number = 1): number {
 	return Number(number.toPrecision(precision))

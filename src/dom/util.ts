@@ -8,11 +8,11 @@ export function normativeStyleValue(property: string, value: string | number): s
 	return value
 }
 
-export function normativeStyleObject(styleObject: {[key: string]: string | number}): {[key: string]: string} {
+export function normativeStyleObject(styleObject: Record<string, string | number>): Record<string, string> {
 	for (let property of Object.keys(styleObject)) {
 		styleObject[property] = normativeStyleValue(property, styleObject[property])
 	}
-	return styleObject as {[key: string]: string}
+	return styleObject as Record<string, string>
 }
 
 

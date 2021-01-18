@@ -2,11 +2,14 @@ import {subMatches} from './string'
 import {DateUnit} from './date'
 
 
-export type DateObject = {[key in DateUnit]: number}
+/** Data object with units as key. */
+export type DateObject = Record<DateUnit, number>
 
 
+/** All data units from year to seconds. */
 const DateUnits = 'yMdhms'
 
+/** Date units and their mapped seconds. */
 const DATE_UNIT_SECONDS: DateObject & {w: number} = {
 	y: 365 * 24 * 60 * 60,
 	M: 30 * 24 * 60 * 60,
@@ -19,7 +22,7 @@ const DATE_UNIT_SECONDS: DateObject & {w: number} = {
 
 
 /**
- * Parse `duration` string like `1h1m` or `01:01:00` to object `{y, M, d, h, m, s}`.
+ * Parse `duration` string like `1h1m` or `01:01:00` to date object `{y, M, d, h, m, s}`.
  * @param duration string like `1h1m` or `01:01:00`.
  */
 export function parseDurationToObject(duration: string): DateObject {
@@ -69,11 +72,11 @@ export function parseDurationToSeconds(duration: string): number {
 
 
 /**
- * Parse second count to duration object `{y, M, d, h, m, s}`.
+ * Parse second count to date object `{y, M, d, h, m, s}`.
  * @param seconds The second count.
  * @param units The unit to use when parsing, default value is `yMdhms`.
  */
-export function parseSecondsToDurationObject (seconds: number, units = DateUnits): DateObject {
+export function parseSecondsToDateObject (seconds: number, units = DateUnits): DateObject {
 	let o = {
 		y: 0,
 		M: 0,
@@ -103,7 +106,7 @@ export function parseSecondsToDurationObject (seconds: number, units = DateUnits
  * @param maxOutputUnitCount Maximun unit count of the duration string. E.g., sepcify to `2` to output like `1y1M`, `1M1d`, `1d1h`, `1s`.
  */
 export function formatSecondsToDuration (seconds: number, units: string = DateUnits, maxOutputUnitCount: number = units.length): string {
-	let o = parseSecondsToDurationObject(seconds, units)
+	let o = parseSecondsToDateObject(seconds, units)
 	let duration = ''
 	let outputUnitCount = 0
 

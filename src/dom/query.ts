@@ -2,10 +2,10 @@
  * Parse `url` search part to a query parameter object.
  * @param url The url to parse query parameter.
  */
-export function parseQuery(url: string): {[key: string]: string} {
+export function parseQuery(url: string): Record<string, string> {
 	let match = url.match(/\?(.+)/)
 	let pieces = match ? match[1].split('&') : []
-	let q: {[key: string]: string} = {}
+	let q: Record<string, string> = {}
 
 	for (let piece of pieces) {
 		let [key, value] = piece.split('=')
@@ -24,7 +24,7 @@ export function parseQuery(url: string): {[key: string]: string} {
  * @param url The base url.
  * @param query The query parameter object.
  */
-export function useQuery(url: string, query: {[key: string]: string}): string {
+export function useQuery(url: string, query: Record<string, string>): string {
 	let hasQuery = url.includes('?')
 
 	if (typeof query === 'string') {

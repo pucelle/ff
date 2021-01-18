@@ -1,13 +1,16 @@
 import {parseDurationToObject} from './duration'
 
 
+/** Data units from year to seconds. */
 export type DateUnit = 'y' | 'M' | 'd' | 'h' | 'm' | 's'
 
+
+/** All data units from year to seconds. */
 const DateUnits = 'yMdhms'
 
 
 /**
- * Get one of the date values according to specified `unit`.
+ * Get one of the date values from `date` according to specified `unit`.
  * @param date The date object to get value from.
  * @param unit The unit type, must be one of `'y', 'M', 'd', 'h', 'm', 's'`.
  */
@@ -38,7 +41,7 @@ export function getDateByUnit(date: Date, unit: DateUnit): number {
 
 
 /**
- * Set one of the date values according to specified `unit`.
+ * Set one of the date values for `date` according to specified `unit`.
  * @param date The date object to set value.
  * @param value The date value to set.
  * @param unit The unit type, must be one of `'y', 'M', 'd', 'h', 'm', 's'`.
@@ -70,7 +73,7 @@ export function setDateByUnit(date: Date, value: number, unit: DateUnit): number
 
 
 /**
- * Returns if date values from year to seconds are associated with a real date.
+ * Returns whether date values from year to second are associated with a real date.
  * @param y Year count.
  * @param M Month count.
  * @param d Date count.
@@ -91,7 +94,7 @@ export function isValidDate(y: number, M: number, d: number = 1, h: number = 0, 
 
 
 /**
- * Returns if the year of `date` is a leap year, which contains 366 days.
+ * Returns whether the year of `date` is a leap year, which contains 366 days.
  * @param date The date to test.
  */
 export function isLeapYear(date: Date): boolean {
@@ -101,7 +104,7 @@ export function isLeapYear(date: Date): boolean {
 
 
 /**
- * Returns the days in the year from `date`, which is 366 for leap year, 365 otherwise.
+ * Returns the days in the year from `date`, which is `366` for leap year, and is `365` otherwise.
  * @param date The date to get days from.
  */
 export function getDaysOfYear(date: Date): number {
@@ -110,7 +113,7 @@ export function getDaysOfYear(date: Date): number {
 
 
 /**
- * Returns the days in the month from a `date`, which betweens 28-31.
+ * Returns the days in the month from a `date`, which betweens `28-31`.
  * @param date The date to get days from.
  */
 export function getDaysOfMonth(date: Date): number {
@@ -121,8 +124,8 @@ export function getDaysOfMonth(date: Date): number {
 
 
 /**
- * Clone a date.
- * Can specify `units` to partly clone, values whose unit is included in `units` will be set to minimal value.
+ * Clones a date object.
+ * Can specify `units` to partly clone, `units` not includeded parts will be set to minimal value.
  * @param date The date to clone, default value is current date.
  * @param units The units to partly clone, default value is `yMdhms`.
  */
@@ -148,7 +151,7 @@ export function cloneDate(date: Date = new Date(), units: string = DateUnits): D
 
 
 /**
- * Add `duration` string to a `date` and returns the new date.
+ * Add `duration` string as a time offset to a `date` and returns a new date.
  * @param date The date to add duration.
  * @param duration The duration string to add to date. like `1d1h`.
  */

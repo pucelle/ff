@@ -54,7 +54,7 @@ const CUBIC_BEZIER_EASINGS = {
 }
 
 
-const easingFns: {[key: string]: (x: number) => number} = {
+const easingFns: Record<string, (x: number) => number> = {
 	linear: function(x: number): number {
 		return x
 	}
@@ -331,7 +331,7 @@ export function animate(el: HTMLElement, startFrame: AnimationFrame, endFrame: A
 
 
 /** The default style of element, which is not 0 */
-const DEFAULT_STYLE: {[key: string]: string} = {
+const DEFAULT_STYLE: Record<string, string> = {
 	transform: 'none'
 }
 

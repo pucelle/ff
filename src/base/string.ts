@@ -18,7 +18,7 @@ function replaceMatchTags(template: string, match: RegExpExecArray | RegExpMatch
 
 
 /**
- * Select sub matches from `string` by matching `re`, then format a `template` with sub matches.
+ * Select sub matches from `string` by matching `re`, then format with a `template` string.
  * Returns the format result.
  * @param string The string to select sub matches.
  * @param re The RegExp to execute on string.
@@ -26,13 +26,13 @@ function replaceMatchTags(template: string, match: RegExpExecArray | RegExpMatch
  */
 export function select(string: string, re: RegExp, template: string): string {
 	let match: RegExpExecArray |  null = re.exec(string)
+
 	return match ? replaceMatchTags(template, match) : ''
 }
 
 
 /**
- * Select sub matches from `string` by matching `re`, then format a `template` with sub matches.
- * Returns the format results.
+ * Select all the sub matches from `string` by matching `re`, then format with a `template` string.
  * @param string The string to select sub matches.
  * @param re The RegExp to execute on string.
  * @param template Replace `$i` or `$<name>` to corresponding match.
@@ -41,11 +41,14 @@ export function selectAll(string: string, re: RegExp, template: string): string[
 	if (re.global) {
 		let match: RegExpExecArray |  null
 		let matches: string[] = []
+
 		while (match = re.exec(string)) {
 			matches.push(replaceMatchTags(template, match))
 		}
+
 		return matches
 	}
+
 	else {
 		let match: RegExpMatchArray | null = string.match(re)
 		if (match) {
@@ -59,19 +62,13 @@ export function selectAll(string: string, re: RegExp, template: string): string[
 
 
 /**
- * Returns specified `index` of sub matches from executing `re` on `string`.
+ * Returns the sub match in specified `index` from executing `re` on `string`.
  * @param string The string to select sub match.
  * @param re The RegExp to execute on string.
  * @param index Select the sub match in the index from match resul.
  */
 export function subMatchAt(string: string, re: RegExp, index: number): string {
-	let match = re.exec(string)
-	if (match) {
-		return match[index] || ''
-	}
-	else {
-		return ''
-	}
+	return re.exec(string)?.[index] || ''
 }
 
 
@@ -86,7 +83,8 @@ export function firstMatch(string: string, re: RegExp): string {
 
 
 /**
- * For each match result from executing `re` on `string`, picks specified `index` of sub matches, returns array of them.
+ * For each match result from executing `re` on `string`, picks specified `index` of sub matches.
+ * Rreturns array of picked items.
  * @param string The string to select sub match.
  * @param re The RegExp to execute on string.
  * @param index Select the sub match in the index from each match result.
@@ -95,9 +93,11 @@ export function subMatchesAt(string: string, re: RegExp, index: number): string[
 	if (re.global) {
 		let match: RegExpExecArray |  null
 		let matches: string[] = []
+
 		while (match = re.exec(string)) {
 			matches.push(match[index] || '')
 		}
+
 		return matches
 	}
 	else {
@@ -113,7 +113,7 @@ export function subMatchesAt(string: string, re: RegExp, index: number): string[
 
 
 /**
- * Returns array of sub matches from executing `re` on `string`.
+ * Returns array of all the sub matches from executing `re` on `string`.
  * @param string The string to select sub matches.
  * @param re The RegExp to execute on string.
  * @param sliceIndex Slice each match result from, specify to `0` to include whole match, `1` to only include sub matches, default value is `1`.
@@ -122,9 +122,11 @@ export function subMatches(string: string, re: RegExp, sliceIndex: number = 1): 
 	if (re.global) {
 		let match: RegExpExecArray |  null
 		let matches: string[][] = []
+
 		while (match = re.exec(string)) {
 			matches.push([...match].slice(sliceIndex))
 		}
+
 		return matches
 	}
 	else {
@@ -141,11 +143,11 @@ export function subMatches(string: string, re: RegExp, sliceIndex: number = 1): 
 
 /**
  * Format string to replace placeholders like `{key}` in `template` to `args[key]`.
- * Will keep the placeholder if no match found.
- * @param template String to format
- * @param args The arguments to replace ${...} to.
+ * Will keep the placeholder when no match found.
+ * @param template String to format.
+ * @param args The arguments to find and replace `{...}` with.
  */
-export function format(template: string, args: {[key: string]: string | number} | (string | number)[]): string {
+export function format(template: string, args: Record<string, string | number> | (string | number)[]): string {
 	return template.replace(/\{(\w+)\}/g, (m0: string, m1: string) => {
 		let value = (args as any)[m1]
 		if (value === undefined) {
@@ -157,10 +159,10 @@ export function format(template: string, args: {[key: string]: string | number} 
 
 
 /**
- * Get the left part of `string` before `substring`.
+ * Get the left part of `string` before the first matched `substring`.
  * @param string The string to search substring.
  * @param substring The sub part to search in string.
- * @param greedy If true, when substring can't be found in string, returns the whole string.
+ * @param greedy If `true`, when substring can't be found, returns the whole string.
  */
 export function before(string: string, substring: string, greedy: boolean = false): string {
 	let index = string.indexOf(substring)
@@ -175,10 +177,10 @@ export function before(string: string, substring: string, greedy: boolean = fals
 
 
 /**
- * Get the right part of `string` before `substring`.
+ * Get the right part of `string` before the first matched `substring`.
  * @param string The string to search substring.
  * @param substring The sub part to search in string.
- * @param greedy If true, when substring can't be found in string, returns the whole string.
+ * @param greedy If `true`, when substring can't be found, returns the whole string.
  */
 export function after(string: string, substring: string, greedy: boolean = false): string {
 	let index = string.indexOf(substring)
@@ -196,7 +198,7 @@ export function after(string: string, substring: string, greedy: boolean = false
  * Get the left part of `string` before the last matched `substring`.
  * @param string The string to search substring.
  * @param substring The sub part to search in string.
- * @param greedy If true, when substring can't be found in string, returns the whole string.
+ * @param greedy If `true`, when substring can't be found, returns the whole string.
  */
 export function beforeLast(string: string, substring: string, greedy: boolean = false): string {
 	let index = string.lastIndexOf(substring)
@@ -214,7 +216,7 @@ export function beforeLast(string: string, substring: string, greedy: boolean = 
  * Get the right part of `string` before the last matched `substring`.
  * @param string The string to search substring.
  * @param substring The sub part to search in string.
- * @param greedy If true, when substring can't be found in string, returns the whole string.
+ * @param greedy If `true`, when substring can't be found, returns the whole string.
  */
 export function afterLast(string: string, substring: string, greedy: boolean = false): string {
 	let index = string.lastIndexOf(substring)
@@ -247,7 +249,7 @@ export function toCamerCase(string: string): string {
 
 
 /**
- * Transform `string` to dash case type by spliting words with `-`.
+ * Transform `string` to dash case type by joining words with `-`.
  * @param string The string to transform.
  */
 export function toDashCase(string: string): string {
@@ -264,7 +266,7 @@ export function toDashCase(string: string): string {
 
 
 /**
- * Transform `string` to dash case by spliting words with `_`.
+ * Transform `string` to dash case by joining words with `_`.
  * @param string The string to transform.
  */
 export function toUnderscoreCase(string: string): string {

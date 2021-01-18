@@ -2,7 +2,9 @@ import {assign} from './object'
 import {Emitter} from './emitter'
 
 
+/** Running state of queue. */
 export enum QueueState {
+
 	/** Not started. */
 	Pending,
 
@@ -19,16 +21,17 @@ export enum QueueState {
 	Aborted,
 }
 
+/** Events of queue. */
 interface QueueEvents<T, V> {
 
-	/** Emitted after a task handled successfully. */
+	/** Emitted after a task processed successfully. */
 	taskfinish(task: T, value: V): void
 
-	/** Emitted after error occured when handling a task or called `abort()` on task. */
+	/** Emitted after error occured when processing a task or called `abort()` on task. */
 	taskabort(task: T): void
 
 	/**
-	 * Emitted after error occured when handling task.
+	 * Emitted after error occured when processing task.
 	 * If `continueOnError` is `false` and `maxRetryTimes` equals `0`, queue will be aborted.
 	 */
 	error(task: T, err: Error | string | number): void
@@ -49,6 +52,7 @@ interface QueueEvents<T, V> {
 	end(err: Error | null): void
 }
 
+/** Cache item of queue, each caches one task. */
 interface QueueItem<T> {
 	id: number
 	task: T
@@ -56,32 +60,34 @@ interface QueueItem<T> {
 	abort: Function | null
 }
 
+/** Options of queue. */
 export interface QueueOptions<T, V> {
 
 	/** If provided, can avoid adding duplicate tasks with same keys. */
 	key?: string
 
-	/** Specify how many tasks to run simultaneously, default value is `5`. */
+	/** Specifies how many tasks to run simultaneously, default value is `5`. */
 	concurrency?: number
 
-	/** If true, will continue handling tasks after error occurred. */
+	/** If `true`, will continue processing tasks after error occurred. */
 	continueOnError?: boolean
 
 	/**
 	 * Specifies how many times to retry before one task success.
 	 * If one task's retry times execeed, it will never retry automatically,
 	 * but you can still retry all failed tasks by calling `retry()` manually.
-	 * Setting this option to values `> 0` implies `continueOnError` is true.
+	 * Setting this option to values `> 0` implies `continueOnError` is `true`.
 	 */
 	maxRetryTimes?: number
 
 	/** The start task array which will be passed to `handler` in order. */
 	tasks?: T[]
 
-
+	/** Handler to process each task. */
 	handler: QueueHandler<T, V>
 }
 
+/** Queue handler, can returns a promise, a value or {promise, abort}.*/
 type QueueHandler<T, V> = (task: T) => {promise: Promise<V>, abort: Function} | Promise<V> | V
 
 
@@ -93,37 +99,50 @@ type QueueHandler<T, V> = (task: T) => {promise: Promise<V>, abort: Function} | 
 export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 
 	/** If provided, can avoid adding duplicate tasks with same keys. */
-	key: keyof T | null = null
+	readonly key: keyof T | null = null
 
-	/** Specify how many tasks to run simultaneously, default value is `5`. */
+	/** Specifies how many tasks to run simultaneously, default value is `5`. */
 	concurrency: number = 5
 
-	/** If true, will continue handling tasks after error occurred. */
+	/** If true, will continue processing tasks after error occurred. */
 	continueOnError: boolean = false
 
 	/**
 	 * Specifies how many times to retry before one task success.
 	 * If one task's retry times execeed, it will never retry automatically,
 	 * but you can still retry all failed tasks by calling `retry()` manually.
-	 * Setting this option to values `> 0` implies `continueOnError` is true.
+	 * Setting this option to values `> 0` implies `continueOnError` is `true`.
 	 */
 	maxRetryTimes: number = 0
 
 	/** The start task array which will be passed to `handler` in order. */
 	tasks: T[] = []
 
-	/** The handler to handle each task. It may return a value which will transfer to `taskfinish` event. */
-	handler!: QueueHandler<T, V>
+	/** Handler to process each task. */
+	readonly handler!: QueueHandler<T, V>
 	
 	/** Returns current working state. */
 	state: QueueState = QueueState.Pending
 
+	/** All keys found from tasks. */
 	private keysFound: Set<any> | null = null
+
+	/** To generate unique numeric id. */
 	private seed: number = 1
-	private handledCount: number = 0
+
+	/** Count of processed tasks. */
+	private processedCount: number = 0
+
+	/** All running items. */
 	private runningItems: QueueItem<T>[] = []
+
+	/** All failed items. */
 	private failedItems: QueueItem<T>[] = []
+
+	/** Promise to be resolved after resume. */
 	private resumePromise: Promise<void> | null = null
+
+	/** Resolve function for `resumePromise`. */
 	private resumeResolve: (() => void) | null = null
 
 	constructor(options: QueueOptions<T, V>) {
@@ -139,18 +158,18 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 		}
 	}
 
-	/** Returns the tount of total tasks, included handled and unhandled and failed. */
+	/** Returns the tount of total tasks, included processed and unprocessed and failed. */
 	getTotalCount() {
-		return this.getHandledCount() + this.getUnhandledCount() + this.getFailedCount()
+		return this.getProcessedCount() + this.getUnprocessedCount() + this.getFailedCount()
 	}
 
-	/** Returns the count of handled tasks. */
-	getHandledCount() {
-		return this.handledCount
+	/** Returns the count of processed tasks. */
+	getProcessedCount() {
+		return this.processedCount
 	}
 
-	/** Returns the count of unhandled tasks, not include failed tasks. */
-	getUnhandledCount() {
+	/** Returns the count of unprocessed tasks, not include failed tasks. */
+	getUnprocessedCount() {
 		return this.tasks.length + this.getRunningCount()
 	}
 
@@ -164,8 +183,8 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 		return this.failedItems.length
 	}
 
-	/** Returns the unhandled tasks. */
-	getUnhandledTasks() {
+	/** Returns the unprocessed tasks. */
+	getUnprocessedTasks() {
 		return [...this.getRunningTasks(), ...this.tasks]
 	}
 
@@ -180,7 +199,7 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 	}
 
 	/**
-	 * Start handling tasks. Will emit `finish` event in next tick if no task to run.
+	 * Start processing tasks. Will emit `finish` event in next tick if no task to run.
 	 * Returns `true` if queue started.
 	 */
 	start() {
@@ -189,7 +208,7 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 		}
 		else if (this.tasks.length > 0) {
 			this.state = QueueState.Running
-			this.mayHandleNextTask()
+			this.tryHandleNextTask()
 		}
 		else {
 			Promise.resolve().then(() => this.onFinish())
@@ -198,11 +217,9 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 		return this.state === QueueState.Running
 	}
 
-	/**
-	 * Returns a promise which will be resolved after all tasks finished, or be rejected if error happens.
-	 */
+	/** Returns a promise which will be resolved after all tasks finished, or be rejected if error happens. */
 	untilFinish(): Promise<void> {
-		if (this.getUnhandledCount() > 0) {
+		if (this.getUnprocessedCount() > 0) {
 			return new Promise((resolve, reject) => {
 				this.once('end', err => err ? reject(err) : resolve())
 			})
@@ -213,7 +230,7 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 	}
 
 	/** 
-	 * Stop handling tasks, running tasks will not be aborted, but will be locked until `resume()`.
+	 * Stop processing tasks, running tasks will not be aborted, but will be locked until `resume()`.
 	 * Returns `true` if paused from running state.
 	 */
 	pause(): boolean {
@@ -222,6 +239,7 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 		}
 
 		this.state = QueueState.Paused
+
 		this.resumePromise = new Promise(resolve => {
 			this.resumeResolve = () => {
 				this.resumeResolve = null
@@ -236,7 +254,7 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 	}
 
 	/** 
-	 * Resume handling tasks.
+	 * Resume processing tasks.
 	 * Returns `true` if resumed from paused state.
 	 */
 	resume(): boolean {
@@ -251,12 +269,12 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 		}
 
 		this.emit('resume')
-		this.mayHandleNextTask()
+		this.tryHandleNextTask()
 
 		return true
 	}
 
-	private mayHandleNextTask() {
+	private tryHandleNextTask() {
 		// State may change after in event handler, so we need to test state here.
 		if (this.state !== QueueState.Running) {
 			return
@@ -265,7 +283,7 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 		while (this.getRunningCount() < this.concurrency && this.tasks.length > 0) {
 			let task = this.tasks.shift()!
 
-			this.handleItem({
+			this.handleEachItem({
 				id: this.seed++,
 				task,
 				retriedTimes: 0,
@@ -279,7 +297,7 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 				if (item.retriedTimes < this.maxRetryTimes) {
 					item.retriedTimes++
 					this.failedItems.splice(i--, 1)
-					this.handleItem(item)
+					this.handleEachItem(item)
 
 					if (this.getRunningCount() >= this.concurrency) {
 						break
@@ -293,15 +311,15 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 		}
 	}
 
-	private handleItem(item: QueueItem<T>) {
+	private handleEachItem(item: QueueItem<T>) {
 		let {task} = item
 		let onItemFinish = this.onItemFinish.bind(this, item)
 		let onItemError = this.onItemError.bind(this, item)
-		
+		let value = this.handler(task)
+	
 		this.runningItems.push(item)
 
-		let value = this.handler(task)
-		if (value && typeof value === 'object' && (value as any).promise instanceof Promise && typeof (value as any).abort === 'function') {
+		if (this.isPromiseAbortObject(value)) {
 			(value as any).promise.then(onItemFinish, onItemError)
 			item.abort = (value as any).abort
 		}
@@ -313,25 +331,32 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 		}
 	}
 
+	private isPromiseAbortObject(value: any): value is {promise: Promise<V>, abort: Function} {
+		return value
+			&& typeof value === 'object'
+			&& value.promise instanceof Promise
+			&& typeof value.abort === 'function'
+	}
+
 	private async onItemFinish(item: QueueItem<T>, value: V) {
 		await this.prepareItem(item)
 		
-		if (!this.removeFromRunning(item)) {
+		if (!this.removeFromRunningItems(item)) {
 			return
 		}
 
-		this.handledCount++
+		this.processedCount++
 
 		if (this.state === QueueState.Running) {
 			this.emit('taskfinish', item.task, value)
-			this.mayHandleNextTask()
+			this.tryHandleNextTask()
 		}
 	}
 
 	private async onItemError(item: QueueItem<T>, err: Error | string | number) {
 		await this.prepareItem(item)
 		
-		if (!this.removeFromRunning(item)) {
+		if (!this.removeFromRunningItems(item)) {
 			return
 		}
 
@@ -342,11 +367,11 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 			this.onFatalError(err)
 		}
 		else {
-			this.mayHandleNextTask()
+			this.tryHandleNextTask()
 		}
 	}
 
-	// Prepare until we can handle it, normally is the state changed from pause to resume.
+	/** Prepare and ensure all loading for item is completed. */ 
 	private async prepareItem(item: QueueItem<T>) {
 		item.abort = null
 
@@ -355,7 +380,7 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 		}
 	}
 
-	private removeFromRunning(item: QueueItem<T>) {
+	private removeFromRunningItems(item: QueueItem<T>) {
 		let index = this.runningItems.findIndex(v => v.id === item.id)
 		if (index > -1) {
 			this.runningItems.splice(index, 1)
@@ -427,8 +452,8 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 	}
 
 	/** 
-	 * End and finish queue, abort all running tasks and clear all tasks and handling records.
-	 * Returns `true` if queue clear successfully.
+	 * End and finish queue, abort all running tasks and clear all tasks and processing records.
+	 * Returns `true` if queue was cleared successfully.
 	 */
 	clear(): boolean {
 		if (this.state === QueueState.Aborted) {
@@ -438,7 +463,7 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 		this.state = QueueState.Finish
 		this.tasks = []
 		this.failedItems = []
-		this.handledCount = 0
+		this.processedCount = 0
 		this.abortRunningItems()
 		this.emit('finish')
 		this.emit('end')
@@ -450,11 +475,11 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 		return true
 	}
 
-	/** Remove all not running tasks. */
+	/** Remove all not running tasks and keeps not running tasks and processing records. */
 	clearNotRunning() {
 		this.tasks = []
 		this.failedItems = []
-		this.handledCount = 0
+		this.processedCount = 0
 	}
 
 	/** Push tasks to queue. */
@@ -471,7 +496,7 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 			this.start()
 		}
 
-		this.mayHandleNextTask()
+		this.tryHandleNextTask()
 	}
 
 	/** Unshift tasks to queue. */
@@ -488,10 +513,13 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 			this.start()
 		}
 
-		this.mayHandleNextTask()
+		this.tryHandleNextTask()
 	}
 
-	/** Returns true if found same key task. */
+	/** 
+	 * Returns true if found same key task.
+	 * Only available when `key` specified.
+	 */
 	has(task: T) {
 		if (this.keysFound) {
 			return this.keysFound.has(task[this.key!])
@@ -501,7 +529,10 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 		}
 	}
 
-	/** Push tasks to queue, if not found same key task. */
+	/** 
+	 * Push each task to queue, if not found duplicate task with same key.
+	 * Only available when `key` specified.
+	 */
 	add(...tasks: T[]) {
 		tasks = tasks.filter(t => !this.has(t))
 
@@ -510,7 +541,10 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 		}
 	}
 
-	/** Unshift tasks to queue, if not found same key task. */
+	/** 
+	 * Unshift each task to queue, if not found duplicate task with same key.
+	 * Only available when `key` specified.
+	 */
 	addToStart(...tasks: T[]) {
 		tasks = tasks.filter(t => !this.has(t))
 
@@ -519,7 +553,10 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 		}
 	}
 
-	/** Find first task match `fn`, handled tasks can't be found. */
+	/** 
+	 * Find first task match test function `fn`.
+	 * Processed tasks will not be found.
+	 */
 	find(fn: (task: T) => boolean): T | undefined {
 		let item = this.runningItems.find(item => fn(item.task))
 		if (item) {
@@ -541,7 +578,8 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 
 	/** 
 	 * Removes tasks included in `tasksToRemove` list.
-	 * Only tasks that are running or not been handled can be removed.
+	 * Processed tasks will not be removed.
+	 * Returns the removed tasks.
 	 */
 	remove(...tasksToRemove: T[]): T[] {
 		let taskSet: Set<T> = new Set(tasksToRemove)
@@ -549,8 +587,9 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 	}
 
 	/** 
-	 * Removes all tasks that matched `fn`.
-	 * Only tasks that are running or not been handled can be removed.
+	 * Removes all tasks that match test function `fn`.
+	 * Processed tasks will not be removed.
+	 * Returns the removed tasks.
 	 */
 	removeWhere(fn: (task: T) => boolean): T[] {
 		let toRemove: T[] = []
@@ -585,7 +624,7 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 			}
 		})
 
-		this.mayHandleNextTask()
+		this.tryHandleNextTask()
 
 		return toRemove
 	}
@@ -593,10 +632,11 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 
 
 /**
- * Run tasks in queue, returns a promise which will be resolved after queue finished.
+ * Run eash task of `tasks` in a queue.
+ * Returns a promise which will be resolved after queue finished.
  * @param tasks The task array which will be passed to handler in order. 
  * @param handler The handler to handle each task.
- * @param concurrency Specify how many tasks to run simultaneously.
+ * @param concurrency Specifies how many tasks to run simultaneously.
  */
 export function queueEach<Task>(tasks: Task[], handler: (task: Task) => Promise<void> | void, concurrency?: number): Promise<void> {
 	return new Promise((resolve, reject) => {
@@ -614,10 +654,11 @@ export function queueEach<Task>(tasks: Task[], handler: (task: Task) => Promise<
 
 
 /**
- * Run tasks in queue, returns a promise which will be resolved with returned values from handler after queue finished.
+ * Run eash task of `tasks` in a queue.
+ * Returns a promise which will be resolved with returned values from `handler` after queue finished.
  * @param tasks The task array which will be passed to handler in order. 
  * @param handler The handler to handle each task. It should returns a value.
- * @param concurrency Specify how many tasks to run simultaneously.
+ * @param concurrency Specifies how many tasks to run simultaneously.
  */
 export function queueMap<Task, Value>(tasks: Task[], handler: (task: Task) => Promise<Value> | Value, concurrency?: number): Promise<Value[]> {
 	return new Promise((resolve, reject) => {
@@ -640,10 +681,11 @@ export function queueMap<Task, Value>(tasks: Task[], handler: (task: Task) => Pr
 
 
 /**
- * Run tasks in queue, returns a promise which will be resolved if some tasks match handler.
+ * Run eash task of `tasks` in a queue.
+ * Returns a promise which will be resolved if some tasks match `handler`.
  * @param tasks The task array which will be passed to handler in order. 
  * @param handler The handler to handle each task. It should returns a boolean value.
- * @param concurrency Specify how many tasks to run simultaneously.
+ * @param concurrency Specifies how many tasks to run simultaneously.
  */
 export function queueSome<Task>(tasks: Task[], handler: (task: Task) => Promise<boolean> | boolean, concurrency?: number): Promise<boolean> {
 	return new Promise((resolve, reject) => {
@@ -668,10 +710,11 @@ export function queueSome<Task>(tasks: Task[], handler: (task: Task) => Promise<
 
 
 /**
- * Run tasks in queue, returns a promise which will be resolved if every tasks match handler.
+ * Run eash task of `tasks` in a queue.
+ * Returns a promise which will be resolved if every tasks match `handler`.
  * @param tasks The task array which will be passed to handler in order. 
  * @param handler The handler to handle each task. It should returns a boolean value.
- * @param concurrency Specify how many tasks to run simultaneously.
+ * @param concurrency Specifies how many tasks to run simultaneously.
  */
 export function queueEvery<Task>(tasks: Task[], handler: (task: Task) => Promise<boolean> | boolean, concurrency?: number): Promise<boolean> {
 	return queueSome(

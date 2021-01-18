@@ -1,16 +1,15 @@
-// At beginning, we implement a good Emitter by inferring listener arguments and emitting arguments.
-// But then we meet a big problem when extending the class, described by:
+// At beginning, I implement a good Emitter by inferring listener arguments and emitting arguments.
+// But then I meet a big problem when extending the class, described by:
 // https://stackoverflow.com/questions/55813041/problems-on-typescript-event-interface-extends
-// We are trying to merge event listener interfaces but failed,
-// Guess the main reason is when one of the the event listener interface is generic argument,
-// we can't merge two event listener interfaces and infer types of listener arguments for one listener,
-// The type of listener becomes `resolved Listener A & unresolved Listener B`, arguments of it can't be inferred.
 
-// Solution in https://stackoverflow.com/questions/55763701/extensible-strongly-typed-event-emitter-interface-in-typescript/55789081
-// doesn't help much, because `Pick<>` will transfer class methods to class members, and have conflict when overwriting the methods.
+// I are trying to merge event listener interfaces but failed,
+// Guess the main reason is when one of the the event listener interface is generic argument and not known yet,
+// TS can't merge two event listener interfaces and infer types of listener arguments for one listener,
+// The type of listener becomes `resolved Listener A & unresolved Listener B`, it's arguments can't be inferred.
 
 
 
+/** Cache each registered event. */
 interface EventItem {
 	listener: (...args: any[]) => void
 	scope?: object,
@@ -19,13 +18,15 @@ interface EventItem {
 
 
 /** 
- * An event emitter as super class to listen and emit events.
+ * Event emitter as super class to listen and emit custom events.
  * @typeparam E Event interface in `{eventName: (...args) => void}` format.
  */
 export class Emitter<E = any> {
 
+	/** Registered events. */
 	private __events: Map<keyof E, EventItem[]> = new Map()
 
+	/** Ensure event cache items to cache item. */
 	private __ensureEvents<K extends keyof E>(name: K): EventItem[] {
 		let events = this.__events.get(name)
 		if (!events) {
@@ -36,7 +37,7 @@ export class Emitter<E = any> {
 	}
 
 	/**
-	 * Registers an event `listener` to listen specified event `name`.
+	 * Registers an event `listener` to listen event with specified `name`.
 	 * @param name The event name.
 	 * @param listener The event listener.
 	 * @param scope The scope will be binded to listener.
@@ -52,7 +53,7 @@ export class Emitter<E = any> {
 	}
 
 	/**
-	 * Registers an event `listener` to listen specified event `name`, trigger for only once.
+	 * Registers an event `listener` to listen event with specified `name`, triggers for only once.
 	 * @param name The event name.
 	 * @param listener The event listener.
 	 * @param scope The scope will be binded to listener.
@@ -68,7 +69,7 @@ export class Emitter<E = any> {
 	}
 
 	/**
-	 * Remove `listener` from listening specified event `name`.
+	 * Removes the `listener` that is listening specified event `name`.
 	 * @param name The event name.
 	 * @param listener The event listener, only matched listener will be removed.
 	 * @param scope The scope binded to listener. If provided, remove listener only when scope match.
@@ -86,18 +87,14 @@ export class Emitter<E = any> {
 	}
 
 	/**
-	 * Check if `listener` is the list of listening specified event `name`.
+	 * Check whether `listener` is in the list for listening specified event `name`.
 	 * @param name The event name.
-	 * @param listener The event listener. If provided, will also check if the listener match.
-	 * @param scope The scope binded to listener. If provided, will additionally check if the scope match.
+	 * @param listener The event listener to check.
+	 * @param scope The scope binded to listener. If provided, will additionally check whether the scope match.
 	 */
-	hasListener(name: string, listener?: (...args: any[]) => void, scope?: object) {
+	hasListener(name: string, listener: (...args: any[]) => void, scope?: object) {
 		let events = this.__events.get(name as any)
-
-		if (!listener) {
-			return !!events && events.length > 0
-		}
-		else if (events && listener) {
+		if (events) {
 			for (let i = 0, len = events.length; i < len; i++) {
 				let event = events[i]
 
@@ -111,7 +108,16 @@ export class Emitter<E = any> {
 	}
 
 	/**
-	 * Emit specified event `name`, trigger all the listeners related with followed arguments.
+	 * Check whether any `listener` is listening specified event `name`.
+	 * @param name The event name.
+	 */
+	hasListenersOfName(name: string) {
+		let events = this.__events.get(name as any)
+		return !!events && events.length > 0
+	}
+
+	/**
+	 * Emit specified event with event `name` and arguments.
 	 * @param name The event name.
 	 * @param args The arguments that will be passed to event listeners.
 	 */

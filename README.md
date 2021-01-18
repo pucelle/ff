@@ -2,7 +2,9 @@
 
 ## About
 
-**ff** named from "Frequently-used Features", it's a small JavaScript utility library for web programming.
+**ff** named from "Frequently-used Functions", it's a small JavaScript utility library for Web or NodeJs programming.
+
+Every function work independently and have no dependency, so you can also copy one or some to your projects when required.
 
 
 ## Features

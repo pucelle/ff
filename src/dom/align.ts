@@ -420,7 +420,7 @@ export class Aligner {
  * E.g.: `lt` is short for `tr-tl`, which means align el to the left-top of target.
  */
 function parseAlignPosition(position: string): [string, string] {
-	const ALIGN_POS_OPPOSITE: {[key: string]: string} = {
+	const ALIGN_POS_OPPOSITE: Record<string, string> = {
 		t: 'b',
 		b: 't',
 		c: 'c',

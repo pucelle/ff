@@ -2,13 +2,13 @@ abstract class TimingFunction {
 	
 	protected id: any = null
 
-	/** Returns if current timing function has been canceled. */
+	/** Whether current timing function has been canceled. */
 	canceled: boolean = false
 
-	/** Returns the binded function. */
+	/** The original function. */
 	fn: Function
 
-	/** Get or set the associated time in milliseconds. You should `reset()` after set it. */
+	/** Get or set the associated time interval in milliseconds. */
 	ms: number
 
 	constructor(fn: Function, ms: number) {
@@ -24,15 +24,15 @@ abstract class TimingFunction {
 
 abstract class WrappedTimingFunction<F extends Function> extends TimingFunction {
 
-	/** Returns the wrapped function, which was throttled or debounced. */
-	wrapped: F
+	/** The wrapped function. */
+	wrapped: F & {__original: F}
 
 	constructor(fn: F, ms: number) {
 		super(fn, ms)
-		this.wrapped = this.wrap()
+		this.wrapped = this.wrap() as  F & {__original: F}
 
-		// To track original handler so that we can unregister the wrapped in event listener.
-		;(this.wrapped as any).__original = fn
+		// To track original handler so that we can unregister the wrapped function in event listener.
+		this.wrapped.__original = fn
 	}
 
 	protected abstract wrap(): F
@@ -41,23 +41,19 @@ abstract class WrappedTimingFunction<F extends Function> extends TimingFunction 
 
 export class Timeout extends TimingFunction {
 
-	/**
-	 * Just like setTimeout, call `fn` after `ms` millisecons.
-	 * @param fn The function to call later.
-	 * @param ms The timeout time in millisecons.
-	 */
 	constructor(fn: Function, ms: number) {
 		super(fn, ms)
 		this.reset()
 	}
 
-	/** Restart timeout, although it was been called. always returns true. */
-	reset(): boolean {
+	/** Restart timeout, although it was called. */
+	reset(): true {
 		if (this.id) {
 			clearTimeout(this.id)
 		}
 
 		this.id = setTimeout(this.onTimeout.bind(this), this.ms)
+
 		return true
 	}
 
@@ -66,7 +62,10 @@ export class Timeout extends TimingFunction {
 		this.fn()
 	}
 
-	/** Call deferred function immediately if it wasn't been called and returns true. otherwise returns false. */
+	/** 
+	 * Call deferred function immediately if it wasn't been called.
+	 * Returns `true` if not called yet.
+	 */
 	flush(): boolean {
 		if (!this.id) {
 			return false
@@ -75,10 +74,14 @@ export class Timeout extends TimingFunction {
 		clearTimeout(this.id)
 		this.id = null
 		this.fn()
+
 		return true
 	}
 
-	/** Cancel deferred function, returns if it was canceled before been called. */
+	/** 
+	 * Cancel deferred function.
+	 * Returns `true` if it was not been canceled.
+	 */
 	cancel(): boolean {
 		if (!this.id) {
 			return false
@@ -86,6 +89,7 @@ export class Timeout extends TimingFunction {
 
 		clearTimeout(this.id)
 		this.id = null
+
 		return true
 	}
 }
@@ -102,23 +106,19 @@ export function timeout(fn: Function, ms: number = 0): Timeout {
 
 export class Interval extends TimingFunction {
 
-	/**
-	 * Just like setInterval, call `fn` every `ms` millisecons.
-	 * @param fn The function to call.
-	 * @param ms The interval time in millisecons.
-	 */
 	constructor(fn: Function, ms: number) {
 		super(fn, ms)
 		this.reset()
 	}
 
-	/** Restart interval, although it was been canceled. always returns true. */
-	reset(): boolean {
+	/** Restart interval, although it was canceled. */
+	reset(): true {
 		if (this.id) {
 			clearInterval(this.id)
 		}
 
 		this.id = setInterval(this.onInterval.bind(this), this.ms)
+
 		return true
 	}
 
@@ -126,7 +126,7 @@ export class Interval extends TimingFunction {
 		this.fn()
 	}
 
-	/** Call interval function immediately if it wasn't been canceled and returns true. otherwise returns false. */
+	/** Call interval function immediately if it wasn't canceled. returns whether it was not benn canceled. */
 	flush(): boolean {
 		if (!this.id) {
 			return false
@@ -134,10 +134,14 @@ export class Interval extends TimingFunction {
 
 		this.fn()
 		this.reset()
+
 		return true
 	}
 
-	/** Cancel interval function, returns if it was canceled before been called. */
+	/** 
+	 * Cancel interval function.
+	 * Returns `true` if it was not been canceled.
+	 */
 	cancel(): boolean {
 		if (!this.id) {
 			return false
@@ -145,6 +149,7 @@ export class Interval extends TimingFunction {
 
 		clearInterval(this.id)
 		this.id = null
+
 		return true
 	}
 }
@@ -161,18 +166,9 @@ export function interval(fn: Function, ms: number): Interval {
 
 export class Throttle<F extends Function> extends WrappedTimingFunction<F> {
 
-	/**
-	 * Throttle function calls, call returned function twice in `ms` millisecons will only call `fn` for once.
-	 * Note that it doesn't ensure the last calling.
-	 * @param fn The function to throttle.
-	 * @param ms The time period in which only at most one call allowed. If omitted, using `requestAnimationFrame` to throttle.
-	 */
-	constructor(fn: F, ms: number = 0) {
-		super(fn, ms)
-	}
-
 	protected wrap() {
 		let me = this
+
 		return function(this: any, ...args: any) {
 			if (me.canceled) {
 				me.fn.apply(this, args)
@@ -199,13 +195,14 @@ export class Throttle<F extends Function> extends WrappedTimingFunction<F> {
 		this.id = null
 	}
 
-	/** Reset throttle timeout, function will be called immediately next time. Will restart throttle if been canceled. */
-	reset(): boolean {
+	/** Reset throttle timeout, Will restart throttle timeout when next time calling `fn` and calls `fn` immediately. */
+	reset(): true {
 		if (this.id) {
 			this.clearThrottle()
 		}
 
 		this.canceled = false
+
 		return true
 	}
 
@@ -220,27 +217,34 @@ export class Throttle<F extends Function> extends WrappedTimingFunction<F> {
 		this.id = null
 	}
 
-	/** Do nothing, always return false. */
-	flush(): boolean {
-		return false
+	/** Call `fn` immediately and reset throttle timeout. */
+	flush(): true {
+		this.reset()
+		this.fn()
+
+		return true
 	}
 
-	/** Cancel throttle, function will be called without limit. Returns true if is not canceled before. */
+	/** 
+	 * Cancel throttle, function will be called without limit.
+	 * Returns `true` if is not canceled before.
+	 */
 	cancel(): boolean {
 		if (this.canceled) {
 			return false
 		}
 
 		this.canceled = true
+
 		return true
 	}
 }
 
 /**
- * Throttle function calls, call returned function for twice in `ms` milliseconds will only call `fn` for once.
- * It doesn't ensure the last calling.
+ * Throttle function calls, `fn` will not be called for twice in each `ms` millisecons
+ * Note that it doesn't ensure the last calling.
  * @param fn The function to throttle.
- * @param ms The time period in which only at most one call allowed. If omitted, using `requestAnimationFrame` to throttle.
+ * @param ms The time period in which allows at most one calling. If omitted, uses `requestAnimationFrame` to throttle.
  */
 export function throttle<F extends Function>(fn: F, ms: number = 0): Throttle<F> {
 	return new Throttle(fn, ms)
@@ -252,19 +256,9 @@ export class LazilyThrottle<F extends Function> extends WrappedTimingFunction<F>
 	private lastArgs: any[] | null = null
 	private lastThis: any = null
 
-	/**
-	 * Throttle function calls like `throttle`, but will calls `fn` lazily and smooth.
-	 * It ensures the last calling.
-	 * @param fn The function to throttle.
-	 * @param ms The time period in which only at most one call allowed. If omitted, using `requestAnimationFrame` to throttle.
-	 */
-	constructor(fn: F, ms: number) {
-		super(fn, ms)
-		this.wrapped = this.wrap()
-	}
-
 	protected wrap(): F {
 		let me = this
+		
 		return function(this: any, ...args: any) {
 			if (me.canceled) {
 				me.fn.apply(this, args)
@@ -301,8 +295,8 @@ export class LazilyThrottle<F extends Function> extends WrappedTimingFunction<F>
 		}
 	}
 
-	/** Reset throttle timeout and discard deferred call, Will restart throttle if been canceled. */
-	reset(): boolean {
+	/** Reset throttle timeout and discard deferred calling, will restart throttle if been canceled. */
+	reset(): true {
 		if (this.id) {
 			this.clearThrottle()
 		}
@@ -310,16 +304,18 @@ export class LazilyThrottle<F extends Function> extends WrappedTimingFunction<F>
 		this.lastArgs = null
 		this.lastThis = null
 		this.canceled = false
+
 		return true
 	}
 
-	/** Call function immediately if there is a deferred call, and restart throttle timeout. */
+	/** Call function immediately if there is a deferred calling, and restart throttle timeout. */
 	flush(): boolean {
 		if (this.lastArgs) {
 			this.setThrottle()
 			this.fn.apply(this.lastThis, this.lastArgs)
 			this.lastArgs = null
 			this.lastThis = null
+
 			return true
 		}
 
@@ -337,22 +333,26 @@ export class LazilyThrottle<F extends Function> extends WrappedTimingFunction<F>
 		this.id = null
 	}
 
-	/** Cancel throttle, function will be called without limit. Returns true if is not canceled before. */
+	/**
+	 * Cancel throttle, function will be called without limit.
+	 * Returns `true` if is not canceled before.
+	 */
 	cancel(): boolean {
 		if (this.canceled) {
 			return false
 		}
 
 		this.canceled = true
+
 		return true
 	}
 }
 
 /**
- * Throttle function calls like `throttle`, but will call `fn` lazily and smooth.
- * It ensures the last calling.
+ * Throttle function calls, `fn` will not be called for twice in each `ms` millisecons.
+ * Different from `ff.throttle`, `fn` will be called lazily and smooth, and it ensures the last calling.
  * @param fn The function to throttle.
- * @param ms The time period in which only at most one call allowed. If omitted, using `requestAnimationFrame` to throttle.
+ * @param ms The time period which allows at most one calling. If omitted, uses `requestAnimationFrame` to throttle.
  */
 export function lazilyThrottle<F extends Function>(fn: F, ms: number): LazilyThrottle<F> {
 	return new LazilyThrottle(fn, ms)
@@ -364,19 +364,9 @@ export class Debounce<F extends Function> extends WrappedTimingFunction<F> {
 	private lastArgs: any[] | null = null
 	private lastThis: any = null
 
-	/**
-	 * Debounce function calls, call returned function will start a timeout to call `fn`,
-	 * But call returned function for the second time in `ms` milliseconds will reset timeout.
-	 * @param fn The function to debounce.
-	 * @param ms The timeout in milliseconds.
-	 */
-	constructor(fn: F, ms: number) {
-		super(fn, ms)
-		this.wrapped = this.wrap()
-	}
-
 	protected wrap(): F {
 		let me = this
+
 		return function(this: any, ...args: any) {
 			if (me.canceled) {
 				me.fn.apply(this, args)
@@ -403,8 +393,8 @@ export class Debounce<F extends Function> extends WrappedTimingFunction<F> {
 		}
 	}
 
-	/** Reset debounce timeout and discard deferred call. Will restart debounce if been canceled. */
-	reset(): boolean {
+	/** Reset debounce timeout and discard deferred calling, will restart debounce if been canceled. */
+	reset(): true {
 		if (this.id) {
 			clearTimeout(this.id)
 			this.id = null
@@ -412,10 +402,11 @@ export class Debounce<F extends Function> extends WrappedTimingFunction<F> {
 		
 		this.lastArgs = null
 		this.lastThis = null
+
 		return true
 	}
 
-	/** Call function immediately there is a deferred call, and restart debounce timeout. */
+	/** Call function immediately if there is a deferred calling, and restart debounce timeout. */
 	flush(): boolean {
 		if (this.id) {
 			clearTimeout(this.id)
@@ -426,13 +417,17 @@ export class Debounce<F extends Function> extends WrappedTimingFunction<F> {
 			this.fn.apply(this.lastThis, this.lastArgs)
 			this.lastArgs = null
 			this.lastThis = null
+
 			return true
 		}
 
 		return false
 	}
 
-	/** Cancel debounce, function will be called without limit. Returns true if is not canceled before. */
+	/**
+	 * Cancel debounce, function will be called without limit.
+	 * Returns `true` if is not canceled before.
+	 */
 	cancel(): boolean {
 		if (this.canceled) {
 			return false
@@ -444,8 +439,8 @@ export class Debounce<F extends Function> extends WrappedTimingFunction<F> {
 }
 
 /**
- * Debounce function calls, call returned function will start a timeout to call `fn`,
- * But call returned function for the second time in `ms` milliseconds will reset timeout.
+ * Debounce function calls, calls returned function continuously in a short time will pause calling `fn`.
+ * It can be used to only send search request after user stops inputting.
  * @param fn The function to debounce.
  * @param ms The timeout in milliseconds.
  */

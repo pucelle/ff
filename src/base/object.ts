@@ -1,6 +1,6 @@
 /**
  * Assign object keys and values from `source` to `target`, will cover values of `target` with same keys.
- * will ignore `undefined` values in `source`.
+ * will ignore `undefined` values and their keys in `source`.
  * @param target The target that the sources assigned to.
  * @param sources The sources that will assigned to target by order.
  * @param keys If specified, only values whose keys are included will be assigned.
@@ -19,7 +19,7 @@ export function assign<T extends object, S extends object>(target: T, source: S,
 
 /**
  * Assign object keys and values from `source` to `target`, will not cover values of `target` with existing keys.
- * will ignore `undefined` values in `source`,  and `undefined` values in `target` will be treated as not exist.
+ * will ignore `undefined` values and their keys in `source`,  and `undefined` values in `target` will be treated as not exist.
  * @param target The target that the sources assigned to.
  * @param sources The sources that will assigned to target by order.
  * @param keys If specified, only values whose keys are included will be assigned.
@@ -36,9 +36,9 @@ export function assignIf<T extends object, S extends object>(target: T, source: 
 }
 
 
-// 2x~3x faster than JSON methods, see https://jsperf.com/deep-clone-vs-json-clone
 /**
- * Deeply clone an object, array or any value which can also be called with `JSON.stringify`.
+ * Deeply clone an object, array or any value.
+ * 2x~3x faster than JSON stringify and parse methods
  * @param source The source to clone.
  * @param deep Max deep to clone, default value is 10.
  */
@@ -48,7 +48,7 @@ export function deepClone<T> (source: T, deep: number = 10): T {
 	}
 
 	if (Array.isArray(source)) {
-		return source.map(value => {
+		return (source as any[]).map(value => {
 			if (typeof value !== 'object' || !value) {
 				return value
 			}
@@ -69,9 +69,9 @@ export function deepClone<T> (source: T, deep: number = 10): T {
 }
 
 
-// 1x faster than JSON methods, see https://jsperf.com/deep-equal-vs-json-compare
 /**
  * Deeply compare two objects, arrays or any other values.
+ * 1x faster than JSON stringify methods.
  * @param a Left value.
  * @param b Right value.
  * @param deep Max deep to compare, default value is 10.
