@@ -18,7 +18,7 @@
 		"test-base": "jest",
 		"test-dom": "gulp test && start test/dom/index.html",
 		"prepublish": "tsc -b",
-		"doc": "typedoc --out docs src --exclude src/"
+		"doc": "typedoc src/index.ts"
 	},
 	"devDependencies": {
 		"@types/jest": "^24.9.1",
