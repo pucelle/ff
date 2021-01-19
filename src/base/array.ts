@@ -173,7 +173,7 @@ export function difference<T extends number | string>(array: T[], ...excludeArra
 /**
  * Using binary algorithm to find one item from a sorted array that matches test function `fn`.
  * @param array The sorted array to find items from.
- * @param fn The function to accept 2 items in array as arguments and returns negative value to move left, positive value to move right.
+ * @param fn The function to accept 2 items in array as parameters and returns negative value to move left, positive value to move right.
  */
 export function binaryFind<T>(array: T[], fn: (item: T) => number): T | undefined {
 	let index = binaryFindIndex(array, fn)
@@ -184,7 +184,7 @@ export function binaryFind<T>(array: T[], fn: (item: T) => number): T | undefine
 /**
  * Using binary algorithm to find index from a sorted array at where the item match `fn`.
  * @param array The sorted array.
- * @param fn The function to accept item in array as argument and returns negative value to move left, positive value to move right.
+ * @param fn The function to accept item in array as parameter and returns negative value to move left, positive value to move right.
  */
 export function binaryFindIndex<T>(array: T[], fn: (item: T) => number): number {
 	if (array.length === 0) {
@@ -237,7 +237,7 @@ export function binaryFindIndex<T>(array: T[], fn: (item: T) => number): number 
  * Using binary algorithm to find the closest index from a sorted array in where to insert new item and keep order.
  * Returned index betweens `0 ~ array.length`, and if `array[index]` exist, `fn(array[index]) >= 0`.
  * @param array The sorted array.
- * @param fn The function to accept item in array as argument and returns nagative value to move left, positive value to move right.
+ * @param fn The function to accept item in array as parameter and returns nagative value to move left, positive value to move right.
  */
 export function binaryFindIndexToInsert<T>(array: T[], fn: (item: T) => number): number {
 	if (array.length === 0) {
@@ -306,7 +306,7 @@ export class Order<T> {
 
 	/**
 	 * Create an order rule, used in `orderBy`, and can also be used to binary search from or binary insert into array with object type items
-	 * @param orders Rest arguments of type `key` or `OrderFunction` which will return a `key`, or [`key` / `OrderFunction`, `OrderDirection`].
+	 * @param orders Rest parameters of type `key` or `OrderFunction` which will return a `key`, or [`key` / `OrderFunction`, `OrderDirection`].
 	 */
 	constructor(...orders: OrderRule<T>[]) {
 		for (let order of orders) {
@@ -411,7 +411,7 @@ export function orderBy<T extends object>(array: T[], order: Order<T>): T[]
 /**
  * Sort items of object type inside array by a specified orders.
  * @param array The array to order.
- * @param orders Rest arguments of type `key` or `OrderFunction` which will return a `key`, or `[key / OrderFunction, OrderDirection]`.
+ * @param orders Rest parameters of type `key` or `OrderFunction` which will return a `key`, or `[key / OrderFunction, OrderDirection]`.
  */
 export function orderBy<T extends object>(array: T[], ...orders: OrderRule<T>[]): T[]
 
@@ -424,7 +424,7 @@ export function orderBy<T extends object>(array: T[], order: Order<T> | OrderRul
 
 
 /**
- * Create a object from `[key, value]` tuples that returned from `fn` with each item of `items` as argument.
+ * Create a object from `[key, value]` tuples that returned from `fn` with each item of `items` as parameter.
  * @param array The array to make object.
  * @param fn The function to return `[key, value]` tuple for each item.
  */
@@ -463,7 +463,7 @@ export function indexBy<T>(array: T[], keyOrFn: keyof T | ((value: T, index: num
 /**
  * Creates an object from grouping by key results returned from running `keyOrFn` with each item of `items`.
  * @param array The array to group by. 
- * @param keyOrFn The property name of each item, it's mapped value will be used for sorting. Or a function that accepts each item as argument and returns a value for sorting.
+ * @param keyOrFn The property name of each item, it's mapped value will be used for sorting. Or a function that accepts each item as parameter and returns a value for sorting.
  */
 export function groupBy<T>(array: T[], keyOrFn: CanSortKeys<T> | OrderFunction<T>): Record<string, T[]> {
 	let index: Record<string, T[]> = {}
@@ -489,8 +489,8 @@ export function groupBy<T>(array: T[], keyOrFn: CanSortKeys<T> | OrderFunction<T
 /**
  * Group and aggregate items by group by function and aggregate function.
  * @param array The array to aggregate. 
- * @param groupKeyOrFn The property name of each item, it's mapped value will be used for sorting. Or a function that accepts each item as argument and returns a value for sorting.
- * @param aggregateFn The aggregate function, it accepts grouped items and each grouped `key` as arguments, and returns aggregated value.
+ * @param groupKeyOrFn The property name of each item, it's mapped value will be used for sorting. Or a function that accepts each item as parameter and returns a value for sorting.
+ * @param aggregateFn The aggregate function, it accepts grouped items and each grouped `key` as parameters, and returns aggregated value.
  */
 export function aggregate<T, Value>(array: T[], groupKeyOrFn: CanSortKeys<T> | OrderFunction<T>, aggregateFn: (items: T[], key?: string) => Value): Record<string, Value> {
 	let index = groupBy(array, groupKeyOrFn)

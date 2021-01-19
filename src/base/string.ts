@@ -145,7 +145,7 @@ export function subMatches(string: string, re: RegExp, sliceIndex: number = 1): 
  * Format string to replace placeholders like `{key}` in `template` to `args[key]`.
  * Will keep the placeholder when no match found.
  * @param template String to format.
- * @param args The arguments to find and replace `{...}` with.
+ * @param args The parameters to find and replace `{...}` with.
  */
 export function format(template: string, args: Record<string, string | number> | (string | number)[]): string {
 	return template.replace(/\{(\w+)\}/g, (m0: string, m1: string) => {

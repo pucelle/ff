@@ -1,4 +1,4 @@
-import {animatePropertyTo, AnimationEasing} from './animate'
+import {animateStyleValueTo, AnimationEasing} from './animate'
 
 
 /**
@@ -92,7 +92,7 @@ export function scrollToView(el: HTMLElement, gap: number = 0, duration: number 
 
 		if (newScrollY !== null && newScrollY !== oldScrollY) {
 			if (duration) {
-				animatePropertyTo(wrapper, 'scrollTop', newScrollY, duration, easing)
+				animateStyleValueTo(wrapper, 'scrollTop', newScrollY, duration, easing)
 			}
 			else {
 				wrapper.scrollTop = newScrollY
@@ -120,7 +120,7 @@ export function scrollToView(el: HTMLElement, gap: number = 0, duration: number 
 
 		if (newScrollX !== scrollX) {
 			if (duration) {
-				animatePropertyTo(wrapper, 'scrollLeft', newScrollX, duration, easing)
+				animateStyleValueTo(wrapper, 'scrollLeft', newScrollX, duration, easing)
 			}
 			else {
 				wrapper.scrollLeft = newScrollX
@@ -200,7 +200,7 @@ export function scrollToTop(el: HTMLElement, gap: number = 0, duration: number =
 
 	if (newScrollY !== oldScrollY) {
 		if (duration) {
-			animatePropertyTo(wrapper, 'scrollTop', newScrollY, duration, easing)
+			animateStyleValueTo(wrapper, 'scrollTop', newScrollY, duration, easing)
 		}
 		else {
 			wrapper.scrollTop = newScrollY

@@ -12,7 +12,7 @@ export interface MouseLeaveOptions {
 /**
  * It's common that popup2 triggered from an existing popup1,
  * later when mouse moved to popup2, popup1 should disappear because mouse leaves.
- * This is not correct, so we implement a mouse popup stack and keep parent visible when child still having mouse inside.
+ * This is not correct, so we implemented a mouse popup stack and keep parent visible when child still having mouse inside.
  * 
  * Caution: never forget to unregister mouse leave binding before elements disconnected.
  */

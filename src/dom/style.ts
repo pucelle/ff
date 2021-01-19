@@ -34,7 +34,7 @@ export function getStyleValue(el: Element, propertyName: StylePropertyName): str
  * @param propertyName The property name in camel case. `backgroundColor` as example.
  * @param value The value in string or number type. E.g.: value `100` for `width` property wil be fixed to `100px`. 
  */
-export function setStyleValue(el: HTMLElement, propertyName: StylePropertyName, value : number | string) {
+export function setStyleValue(el: HTMLElement | SVGElement, propertyName: StylePropertyName, value : number | string) {
 	el.style.setProperty(propertyName, normativeStyleValue(propertyName, value))
 }
 
@@ -44,7 +44,7 @@ export function setStyleValue(el: HTMLElement, propertyName: StylePropertyName, 
  * @param el The element to set CSS values.
  * @param propertyMap The property name in camel case, `backgroundColor` as example.
  */
-export function setStyleValues(el: HTMLElement, propertyMap: {[key in StylePropertyName]?: string | number}) {
+export function setStyleValues(el: HTMLElement | SVGElement, propertyMap: {[key in StylePropertyName]?: string | number}) {
 	for (let prop of Object.keys(propertyMap)) {
 		setStyleValue(el, prop as StylePropertyName, propertyMap[prop as StylePropertyName]!)
 	}

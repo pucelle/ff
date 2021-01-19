@@ -1,11 +1,11 @@
-// At beginning, I implement a good Emitter by inferring listener arguments and emitting arguments.
+// At beginning, I implemented a good Emitter by inferring listener parameters and emitting parameters.
 // But then I meet a big problem when extending the class, described by:
 // https://stackoverflow.com/questions/55813041/problems-on-typescript-event-interface-extends
 
 // I'm trying to merge event listener interfaces but failed,
-// Guess the main reason is when one of the the event listener interface is generic argument and not known yet,
-// TS can't merge two event listener interfaces and infer types of listener arguments for one listener,
-// The type of listener becomes `resolved Listener A & unresolved Listener B`, it's arguments can't be inferred.
+// Guess the main reason is when one of the the event listener interface is generic parameter and not known yet,
+// TS can't merge two event listener interfaces and infer types of listener parameters for one listener,
+// The type of listener becomes `resolved Listener A & unresolved Listener B`, it's parameters can't be inferred.
 
 
 /** Cache each registered event. */
@@ -119,9 +119,9 @@ export class EventEmitter<E = any> {
 	}
 
 	/**
-	 * Emit specified event with event `name` and arguments.
+	 * Emit specified event with event `name` and parameters.
 	 * @param name The event name.
-	 * @param args The arguments that will be passed to event listeners.
+	 * @param args The parameters that will be passed to event listeners.
 	 */
 	emit<K extends keyof E>(name: K, ...args: any[]) {
 		let events = this.__events.get(name)
