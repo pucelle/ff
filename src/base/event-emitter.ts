@@ -2,29 +2,28 @@
 // But then I meet a big problem when extending the class, described by:
 // https://stackoverflow.com/questions/55813041/problems-on-typescript-event-interface-extends
 
-// I are trying to merge event listener interfaces but failed,
+// I'm trying to merge event listener interfaces but failed,
 // Guess the main reason is when one of the the event listener interface is generic argument and not known yet,
 // TS can't merge two event listener interfaces and infer types of listener arguments for one listener,
 // The type of listener becomes `resolved Listener A & unresolved Listener B`, it's arguments can't be inferred.
 
 
-
 /** Cache each registered event. */
 interface EventItem {
 	listener: any
-	scope?: object,
+	scope?: object
 	once: boolean
 }
 
-/** Infer E[K] as a function. */
-type InferFunctionMember<E, K extends keyof E> = E[K] extends (...args: any[]) => void ? E[K] : (args: any[]) => void
+/** Event handler. */
+type EventHandler = (...args: any[]) => void
 
 
 /** 
  * Event emitter as super class to listen and emit custom events.
  * @typeparam E Event interface in `{eventName: (...args) => void}` format.
  */
-export class Emitter<E = any> {
+export class EventEmitter<E = any> {
 
 	/** Registered events. */
 	private __events: Map<keyof E, EventItem[]> = new Map()
@@ -45,7 +44,7 @@ export class Emitter<E = any> {
 	 * @param listener The event listener.
 	 * @param scope The scope will be binded to listener.
 	 */
-	on<K extends keyof E>(name: K, listener: InferFunctionMember<E, K>, scope?: object) {
+	on<K extends keyof E>(name: K, listener: EventHandler, scope?: object) {
 		let events = this.__ensureEvents(name)
 		
 		events.push({
@@ -61,7 +60,7 @@ export class Emitter<E = any> {
 	 * @param listener The event listener.
 	 * @param scope The scope will be binded to listener.
 	 */
-	once<K extends keyof E>(name: K, listener: InferFunctionMember<E, K>, scope?: object) {
+	once<K extends keyof E>(name: K, listener: EventHandler, scope?: object) {
 		let events = this.__ensureEvents(name)
 
 		events.push({
@@ -77,7 +76,7 @@ export class Emitter<E = any> {
 	 * @param listener The event listener, only matched listener will be removed.
 	 * @param scope The scope binded to listener. If provided, remove listener only when scope match.
 	 */
-	off<K extends keyof E>(name: K, listener: InferFunctionMember<E, K>, scope?: object) {
+	off<K extends keyof E>(name: K, listener: EventHandler, scope?: object) {
 		let events = this.__events.get(name)
 		if (events) {
 			for (let i = events.length - 1; i >= 0; i--) {
@@ -114,7 +113,7 @@ export class Emitter<E = any> {
 	 * Check whether any `listener` is listening specified event `name`.
 	 * @param name The event name.
 	 */
-	hasListenersOfName(name: string) {
+	hasListeners(name: string) {
 		let events = this.__events.get(name as any)
 		return !!events && events.length > 0
 	}
@@ -124,7 +123,7 @@ export class Emitter<E = any> {
 	 * @param name The event name.
 	 * @param args The arguments that will be passed to event listeners.
 	 */
-	emit<K extends keyof E>(name: K, ...args: Parameters<InferFunctionMember<E, K>>) {
+	emit<K extends keyof E>(name: K, ...args: any[]) {
 		let events = this.__events.get(name)
 		if (events) {
 			for (let i = 0; i < events.length; i++) {

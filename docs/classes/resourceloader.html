@@ -76,7 +76,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<a href="emitter.html" class="tsd-signature-type" data-tsd-kind="Class">Emitter</a><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/resourceloaderevents.html" class="tsd-signature-type" data-tsd-kind="Interface">ResourceLoaderEvents</a><span class="tsd-signature-symbol">&gt;</span>
+						<a href="eventemitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/resourceloaderevents.html" class="tsd-signature-type" data-tsd-kind="Interface">ResourceLoaderEvents</a><span class="tsd-signature-symbol">&gt;</span>
 						<ul class="tsd-hierarchy">
 							<li>
 								<span class="target">ResourceLoader</span>
@@ -115,7 +115,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="resourceloader.html#getastext" class="tsd-kind-icon">get<wbr>AsText</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="resourceloader.html#getasvideo" class="tsd-kind-icon">get<wbr>AsVideo</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="resourceloader.html#haslistener" class="tsd-kind-icon">has<wbr>Listener</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="resourceloader.html#haslistenersofname" class="tsd-kind-icon">has<wbr>Listeners<wbr>OfName</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="resourceloader.html#haslisteners" class="tsd-kind-icon">has<wbr>Listeners</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="resourceloader.html#load" class="tsd-kind-icon">load</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited"><a href="resourceloader.html#off" class="tsd-kind-icon">off</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited"><a href="resourceloader.html#on" class="tsd-kind-icon">on</a></li>
@@ -137,9 +137,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="emitter.html">Emitter</a>.<a href="emitter.html#constructor">constructor</a></p>
+								<p>Inherited from <a href="eventemitter.html">EventEmitter</a>.<a href="eventemitter.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/dom/net.ts#L46">dom/net.ts:46</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/dom/net.ts#L46">dom/net.ts:46</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -161,7 +161,7 @@
 					<div class="tsd-signature tsd-kind-icon">base<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &#x27;&#x27;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/dom/net.ts#L41">dom/net.ts:41</a></li>
+							<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/dom/net.ts#L41">dom/net.ts:41</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -176,7 +176,7 @@
 					<div class="tsd-signature tsd-kind-icon">continue<wbr>OnError<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/dom/net.ts#L44">dom/net.ts:44</a></li>
+							<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/dom/net.ts#L44">dom/net.ts:44</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -192,14 +192,14 @@
 					<a name="emit" class="tsd-anchor"></a>
 					<h3>emit</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">emit&lt;K&gt;<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">K</span>, <span class="tsd-signature-symbol">...</span>args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Parameters</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">InferFunctionMember</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/resourceloaderevents.html" class="tsd-signature-type" data-tsd-kind="Interface">ResourceLoaderEvents</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">emit&lt;K&gt;<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">K</span>, <span class="tsd-signature-symbol">...</span>args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Parameters</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">InferEventMember</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/resourceloaderevents.html" class="tsd-signature-type" data-tsd-kind="Interface">ResourceLoaderEvents</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="emitter.html">Emitter</a>.<a href="emitter.html#emit">emit</a></p>
+								<p>Inherited from <a href="eventemitter.html">EventEmitter</a>.<a href="eventemitter.html#emit">emit</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/emitter.ts#L127">base/emitter.ts:127</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/event-emitter.ts#L118">base/event-emitter.ts:118</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -222,7 +222,7 @@
 									</div>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagRest">Rest</span> <span class="tsd-signature-symbol">...</span>args: <span class="tsd-signature-type">Parameters</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">InferFunctionMember</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/resourceloaderevents.html" class="tsd-signature-type" data-tsd-kind="Interface">ResourceLoaderEvents</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5><span class="tsd-flag ts-flagRest">Rest</span> <span class="tsd-signature-symbol">...</span>args: <span class="tsd-signature-type">Parameters</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">InferEventMember</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/resourceloaderevents.html" class="tsd-signature-type" data-tsd-kind="Interface">ResourceLoaderEvents</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The arguments that will be passed to event listeners.</p>
 									</div>
@@ -242,7 +242,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/dom/net.ts#L338">dom/net.ts:338</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/dom/net.ts#L338">dom/net.ts:338</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -273,7 +273,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/dom/net.ts#L211">dom/net.ts:211</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/dom/net.ts#L211">dom/net.ts:211</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -304,7 +304,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/dom/net.ts#L269">dom/net.ts:269</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/dom/net.ts#L269">dom/net.ts:269</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -335,7 +335,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/dom/net.ts#L243">dom/net.ts:243</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/dom/net.ts#L243">dom/net.ts:243</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -366,7 +366,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/dom/net.ts#L294">dom/net.ts:294</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/dom/net.ts#L294">dom/net.ts:294</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -397,7 +397,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/dom/net.ts#L256">dom/net.ts:256</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/dom/net.ts#L256">dom/net.ts:256</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -428,7 +428,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/dom/net.ts#L224">dom/net.ts:224</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/dom/net.ts#L224">dom/net.ts:224</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -459,7 +459,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/dom/net.ts#L312">dom/net.ts:312</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/dom/net.ts#L312">dom/net.ts:312</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -489,9 +489,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="emitter.html">Emitter</a>.<a href="emitter.html#haslistener">hasListener</a></p>
+								<p>Inherited from <a href="eventemitter.html">EventEmitter</a>.<a href="eventemitter.html#haslistener">hasListener</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/emitter.ts#L98">base/emitter.ts:98</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/event-emitter.ts#L89">base/event-emitter.ts:89</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -525,17 +525,17 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-					<a name="haslistenersofname" class="tsd-anchor"></a>
-					<h3>has<wbr>Listeners<wbr>OfName</h3>
+					<a name="haslisteners" class="tsd-anchor"></a>
+					<h3>has<wbr>Listeners</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">has<wbr>Listeners<wbr>OfName<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon">has<wbr>Listeners<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="emitter.html">Emitter</a>.<a href="emitter.html#haslistenersofname">hasListenersOfName</a></p>
+								<p>Inherited from <a href="eventemitter.html">EventEmitter</a>.<a href="eventemitter.html#haslisteners">hasListeners</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/emitter.ts#L117">base/emitter.ts:117</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/event-emitter.ts#L108">base/event-emitter.ts:108</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -566,7 +566,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/dom/net.ts#L54">dom/net.ts:54</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/dom/net.ts#L54">dom/net.ts:54</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -588,14 +588,14 @@
 					<a name="off" class="tsd-anchor"></a>
 					<h3>off</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">off&lt;K&gt;<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">K</span>, listener<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">InferFunctionMember</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/resourceloaderevents.html" class="tsd-signature-type" data-tsd-kind="Interface">ResourceLoaderEvents</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span>, scope<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">off&lt;K&gt;<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">K</span>, listener<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">InferEventMember</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/resourceloaderevents.html" class="tsd-signature-type" data-tsd-kind="Interface">ResourceLoaderEvents</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span>, scope<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="emitter.html">Emitter</a>.<a href="emitter.html#off">off</a></p>
+								<p>Inherited from <a href="eventemitter.html">EventEmitter</a>.<a href="eventemitter.html#off">off</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/emitter.ts#L80">base/emitter.ts:80</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/event-emitter.ts#L71">base/event-emitter.ts:71</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -618,7 +618,7 @@
 									</div>
 								</li>
 								<li>
-									<h5>listener: <span class="tsd-signature-type">InferFunctionMember</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/resourceloaderevents.html" class="tsd-signature-type" data-tsd-kind="Interface">ResourceLoaderEvents</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>listener: <span class="tsd-signature-type">InferEventMember</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/resourceloaderevents.html" class="tsd-signature-type" data-tsd-kind="Interface">ResourceLoaderEvents</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The event listener, only matched listener will be removed.</p>
 									</div>
@@ -638,14 +638,14 @@
 					<a name="on" class="tsd-anchor"></a>
 					<h3>on</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">on&lt;K&gt;<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">K</span>, listener<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">InferFunctionMember</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/resourceloaderevents.html" class="tsd-signature-type" data-tsd-kind="Interface">ResourceLoaderEvents</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span>, scope<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">on&lt;K&gt;<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">K</span>, listener<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">InferEventMember</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/resourceloaderevents.html" class="tsd-signature-type" data-tsd-kind="Interface">ResourceLoaderEvents</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span>, scope<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="emitter.html">Emitter</a>.<a href="emitter.html#on">on</a></p>
+								<p>Inherited from <a href="eventemitter.html">EventEmitter</a>.<a href="eventemitter.html#on">on</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/emitter.ts#L48">base/emitter.ts:48</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/event-emitter.ts#L39">base/event-emitter.ts:39</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -668,7 +668,7 @@
 									</div>
 								</li>
 								<li>
-									<h5>listener: <span class="tsd-signature-type">InferFunctionMember</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/resourceloaderevents.html" class="tsd-signature-type" data-tsd-kind="Interface">ResourceLoaderEvents</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>listener: <span class="tsd-signature-type">InferEventMember</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/resourceloaderevents.html" class="tsd-signature-type" data-tsd-kind="Interface">ResourceLoaderEvents</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The event listener.</p>
 									</div>
@@ -688,14 +688,14 @@
 					<a name="once" class="tsd-anchor"></a>
 					<h3>once</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">once&lt;K&gt;<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">K</span>, listener<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">InferFunctionMember</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/resourceloaderevents.html" class="tsd-signature-type" data-tsd-kind="Interface">ResourceLoaderEvents</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span>, scope<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">once&lt;K&gt;<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">K</span>, listener<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">InferEventMember</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/resourceloaderevents.html" class="tsd-signature-type" data-tsd-kind="Interface">ResourceLoaderEvents</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span>, scope<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="emitter.html">Emitter</a>.<a href="emitter.html#once">once</a></p>
+								<p>Inherited from <a href="eventemitter.html">EventEmitter</a>.<a href="eventemitter.html#once">once</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/emitter.ts#L64">base/emitter.ts:64</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/event-emitter.ts#L55">base/event-emitter.ts:55</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -718,7 +718,7 @@
 									</div>
 								</li>
 								<li>
-									<h5>listener: <span class="tsd-signature-type">InferFunctionMember</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/resourceloaderevents.html" class="tsd-signature-type" data-tsd-kind="Interface">ResourceLoaderEvents</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>listener: <span class="tsd-signature-type">InferEventMember</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/resourceloaderevents.html" class="tsd-signature-type" data-tsd-kind="Interface">ResourceLoaderEvents</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The event listener.</p>
 									</div>
@@ -743,9 +743,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="emitter.html">Emitter</a>.<a href="emitter.html#removealllisteners">removeAllListeners</a></p>
+								<p>Inherited from <a href="eventemitter.html">EventEmitter</a>.<a href="eventemitter.html#removealllisteners">removeAllListeners</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/emitter.ts#L144">base/emitter.ts:144</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/event-emitter.ts#L135">base/event-emitter.ts:135</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -814,7 +814,7 @@
 								<a href="resourceloader.html#haslistener" class="tsd-kind-icon">has<wbr>Listener</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="resourceloader.html#haslistenersofname" class="tsd-kind-icon">has<wbr>Listeners<wbr>OfName</a>
+								<a href="resourceloader.html#haslisteners" class="tsd-kind-icon">has<wbr>Listeners</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="resourceloader.html#load" class="tsd-kind-icon">load</a>

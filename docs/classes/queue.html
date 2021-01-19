@@ -93,7 +93,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<a href="emitter.html" class="tsd-signature-type" data-tsd-kind="Class">Emitter</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">QueueEvents</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">V</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span>
+						<a href="eventemitter.html" class="tsd-signature-type" data-tsd-kind="Class">EventEmitter</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">QueueEvents</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">V</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span>
 						<ul class="tsd-hierarchy">
 							<li>
 								<span class="target">Queue</span>
@@ -144,7 +144,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="queue.html#getunprocessedtasks" class="tsd-kind-icon">get<wbr>Unprocessed<wbr>Tasks</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="queue.html#has" class="tsd-kind-icon">has</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="queue.html#haslistener" class="tsd-kind-icon">has<wbr>Listener</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="queue.html#haslistenersofname" class="tsd-kind-icon">has<wbr>Listeners<wbr>OfName</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="queue.html#haslisteners" class="tsd-kind-icon">has<wbr>Listeners</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited"><a href="queue.html#off" class="tsd-kind-icon">off</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited"><a href="queue.html#on" class="tsd-kind-icon">on</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited"><a href="queue.html#once" class="tsd-kind-icon">once</a></li>
@@ -174,9 +174,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="emitter.html">Emitter</a>.<a href="emitter.html#constructor">constructor</a></p>
+								<p>Inherited from <a href="eventemitter.html">EventEmitter</a>.<a href="eventemitter.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L146">base/queue.ts:146</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L146">base/queue.ts:146</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -207,7 +207,7 @@
 					<div class="tsd-signature tsd-kind-icon">concurrency<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 5</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L105">base/queue.ts:105</a></li>
+							<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L105">base/queue.ts:105</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -222,7 +222,7 @@
 					<div class="tsd-signature tsd-kind-icon">continue<wbr>OnError<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L108">base/queue.ts:108</a></li>
+							<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L108">base/queue.ts:108</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -237,7 +237,7 @@
 					<div class="tsd-signature tsd-kind-icon">handler<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">QueueHandler</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">V</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L122">base/queue.ts:122</a></li>
+							<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L122">base/queue.ts:122</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -252,7 +252,7 @@
 					<div class="tsd-signature tsd-kind-icon">key<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> = null</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L102">base/queue.ts:102</a></li>
+							<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L102">base/queue.ts:102</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -267,7 +267,7 @@
 					<div class="tsd-signature tsd-kind-icon">max<wbr>Retry<wbr>Times<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 0</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L116">base/queue.ts:116</a></li>
+							<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L116">base/queue.ts:116</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -285,7 +285,7 @@
 					<div class="tsd-signature tsd-kind-icon">state<span class="tsd-signature-symbol">:</span> <a href="../enums/queuestate.html" class="tsd-signature-type" data-tsd-kind="Enumeration">QueueState</a><span class="tsd-signature-symbol"> = ...</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L125">base/queue.ts:125</a></li>
+							<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L125">base/queue.ts:125</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -300,7 +300,7 @@
 					<div class="tsd-signature tsd-kind-icon">tasks<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = ...</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L119">base/queue.ts:119</a></li>
+							<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L119">base/queue.ts:119</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -322,7 +322,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L426">base/queue.ts:426</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L426">base/queue.ts:426</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -352,7 +352,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L536">base/queue.ts:536</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L536">base/queue.ts:536</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -381,7 +381,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L548">base/queue.ts:548</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L548">base/queue.ts:548</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -410,7 +410,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L458">base/queue.ts:458</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L458">base/queue.ts:458</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -433,7 +433,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L479">base/queue.ts:479</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L479">base/queue.ts:479</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -449,14 +449,14 @@
 					<a name="emit" class="tsd-anchor"></a>
 					<h3>emit</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">emit&lt;K&gt;<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">K</span>, <span class="tsd-signature-symbol">...</span>args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Parameters</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">InferFunctionMember</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">QueueEvents</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">V</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">emit&lt;K&gt;<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">K</span>, <span class="tsd-signature-symbol">...</span>args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Parameters</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">InferEventMember</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">QueueEvents</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">V</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="emitter.html">Emitter</a>.<a href="emitter.html#emit">emit</a></p>
+								<p>Inherited from <a href="eventemitter.html">EventEmitter</a>.<a href="eventemitter.html#emit">emit</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/emitter.ts#L127">base/emitter.ts:127</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/event-emitter.ts#L118">base/event-emitter.ts:118</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -479,7 +479,7 @@
 									</div>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagRest">Rest</span> <span class="tsd-signature-symbol">...</span>args: <span class="tsd-signature-type">Parameters</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">InferFunctionMember</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">QueueEvents</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">V</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5><span class="tsd-flag ts-flagRest">Rest</span> <span class="tsd-signature-symbol">...</span>args: <span class="tsd-signature-type">Parameters</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">InferEventMember</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">QueueEvents</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">V</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The arguments that will be passed to event listeners.</p>
 									</div>
@@ -499,7 +499,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L560">base/queue.ts:560</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L560">base/queue.ts:560</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -546,7 +546,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L182">base/queue.ts:182</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L182">base/queue.ts:182</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -568,7 +568,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L197">base/queue.ts:197</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L197">base/queue.ts:197</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -590,7 +590,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L167">base/queue.ts:167</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L167">base/queue.ts:167</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -612,7 +612,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L177">base/queue.ts:177</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L177">base/queue.ts:177</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -634,7 +634,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L192">base/queue.ts:192</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L192">base/queue.ts:192</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -656,7 +656,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L162">base/queue.ts:162</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L162">base/queue.ts:162</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -678,7 +678,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L172">base/queue.ts:172</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L172">base/queue.ts:172</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -700,7 +700,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L187">base/queue.ts:187</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L187">base/queue.ts:187</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -722,7 +722,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L523">base/queue.ts:523</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L523">base/queue.ts:523</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -750,9 +750,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="emitter.html">Emitter</a>.<a href="emitter.html#haslistener">hasListener</a></p>
+								<p>Inherited from <a href="eventemitter.html">EventEmitter</a>.<a href="eventemitter.html#haslistener">hasListener</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/emitter.ts#L98">base/emitter.ts:98</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/event-emitter.ts#L89">base/event-emitter.ts:89</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -786,17 +786,17 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-					<a name="haslistenersofname" class="tsd-anchor"></a>
-					<h3>has<wbr>Listeners<wbr>OfName</h3>
+					<a name="haslisteners" class="tsd-anchor"></a>
+					<h3>has<wbr>Listeners</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">has<wbr>Listeners<wbr>OfName<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon">has<wbr>Listeners<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="emitter.html">Emitter</a>.<a href="emitter.html#haslistenersofname">hasListenersOfName</a></p>
+								<p>Inherited from <a href="eventemitter.html">EventEmitter</a>.<a href="eventemitter.html#haslisteners">hasListeners</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/emitter.ts#L117">base/emitter.ts:117</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/event-emitter.ts#L108">base/event-emitter.ts:108</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -821,14 +821,14 @@
 					<a name="off" class="tsd-anchor"></a>
 					<h3>off</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">off&lt;K&gt;<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">K</span>, listener<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">InferFunctionMember</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">QueueEvents</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">V</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span>, scope<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">off&lt;K&gt;<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">K</span>, listener<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">InferEventMember</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">QueueEvents</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">V</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span>, scope<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="emitter.html">Emitter</a>.<a href="emitter.html#off">off</a></p>
+								<p>Inherited from <a href="eventemitter.html">EventEmitter</a>.<a href="eventemitter.html#off">off</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/emitter.ts#L80">base/emitter.ts:80</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/event-emitter.ts#L71">base/event-emitter.ts:71</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -851,7 +851,7 @@
 									</div>
 								</li>
 								<li>
-									<h5>listener: <span class="tsd-signature-type">InferFunctionMember</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">QueueEvents</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">V</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>listener: <span class="tsd-signature-type">InferEventMember</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">QueueEvents</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">V</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The event listener, only matched listener will be removed.</p>
 									</div>
@@ -871,14 +871,14 @@
 					<a name="on" class="tsd-anchor"></a>
 					<h3>on</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">on&lt;K&gt;<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">K</span>, listener<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">InferFunctionMember</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">QueueEvents</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">V</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span>, scope<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">on&lt;K&gt;<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">K</span>, listener<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">InferEventMember</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">QueueEvents</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">V</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span>, scope<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="emitter.html">Emitter</a>.<a href="emitter.html#on">on</a></p>
+								<p>Inherited from <a href="eventemitter.html">EventEmitter</a>.<a href="eventemitter.html#on">on</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/emitter.ts#L48">base/emitter.ts:48</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/event-emitter.ts#L39">base/event-emitter.ts:39</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -901,7 +901,7 @@
 									</div>
 								</li>
 								<li>
-									<h5>listener: <span class="tsd-signature-type">InferFunctionMember</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">QueueEvents</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">V</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>listener: <span class="tsd-signature-type">InferEventMember</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">QueueEvents</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">V</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The event listener.</p>
 									</div>
@@ -921,14 +921,14 @@
 					<a name="once" class="tsd-anchor"></a>
 					<h3>once</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">once&lt;K&gt;<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">K</span>, listener<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">InferFunctionMember</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">QueueEvents</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">V</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span>, scope<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">once&lt;K&gt;<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">K</span>, listener<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">InferEventMember</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">QueueEvents</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">V</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span>, scope<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="emitter.html">Emitter</a>.<a href="emitter.html#once">once</a></p>
+								<p>Inherited from <a href="eventemitter.html">EventEmitter</a>.<a href="eventemitter.html#once">once</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/emitter.ts#L64">base/emitter.ts:64</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/event-emitter.ts#L55">base/event-emitter.ts:55</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -951,7 +951,7 @@
 									</div>
 								</li>
 								<li>
-									<h5>listener: <span class="tsd-signature-type">InferFunctionMember</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">QueueEvents</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">V</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>listener: <span class="tsd-signature-type">InferEventMember</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">QueueEvents</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">V</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">K</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The event listener.</p>
 									</div>
@@ -977,7 +977,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L236">base/queue.ts:236</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L236">base/queue.ts:236</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1000,7 +1000,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L486">base/queue.ts:486</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L486">base/queue.ts:486</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1028,7 +1028,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L584">base/queue.ts:584</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L584">base/queue.ts:584</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1057,9 +1057,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="emitter.html">Emitter</a>.<a href="emitter.html#removealllisteners">removeAllListeners</a></p>
+								<p>Inherited from <a href="eventemitter.html">EventEmitter</a>.<a href="eventemitter.html#removealllisteners">removeAllListeners</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/emitter.ts#L144">base/emitter.ts:144</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/event-emitter.ts#L135">base/event-emitter.ts:135</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1081,7 +1081,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L594">base/queue.ts:594</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L594">base/queue.ts:594</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1129,7 +1129,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L260">base/queue.ts:260</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L260">base/queue.ts:260</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1152,7 +1152,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L409">base/queue.ts:409</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L409">base/queue.ts:409</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1175,7 +1175,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L205">base/queue.ts:205</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L205">base/queue.ts:205</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1198,7 +1198,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L503">base/queue.ts:503</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L503">base/queue.ts:503</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1226,7 +1226,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/pucelle/ff/blob/6a4d048/src/base/queue.ts#L221">base/queue.ts:221</a></li>
+									<li>Defined in <a href="https://github.com/pucelle/ff/blob/f0f8ddc/src/base/queue.ts#L221">base/queue.ts:221</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1331,7 +1331,7 @@
 								<a href="queue.html#haslistener" class="tsd-kind-icon">has<wbr>Listener</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="queue.html#haslistenersofname" class="tsd-kind-icon">has<wbr>Listeners<wbr>OfName</a>
+								<a href="queue.html#haslisteners" class="tsd-kind-icon">has<wbr>Listeners</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited">
 								<a href="queue.html#off" class="tsd-kind-icon">off</a>
