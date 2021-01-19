@@ -1,11 +1,18 @@
 import {firstMatch} from '../base/string'
 import {Emitter, sum} from '../base'
 
-type Resources = (string | {name?: string, url: string, type?: ResourceType})[]
-type NormalizedResources = {name: string, url: string, type: ResourceType}[]
-type ResourceType = 'css' | 'js' | 'blob'
-type OnProgress = (loaded: number, total: number) => void
 
+/** Input resource parameter. */
+type ResourceParameter = (string | {name?: string, url: string, type?: ResourceType})
+
+/** Normalized resource as internal cache. */
+type NormalizedResource = {name: string, url: string, type: ResourceType}
+
+/** Can loaded resource types. */
+type ResourceType = 'css' | 'js' | 'blob'
+
+
+/** Options of resource loader. */
 export interface ResourceLoaderOptions {
 
 	/** URL base. */
@@ -15,15 +22,18 @@ export interface ResourceLoaderOptions {
 	continueOnError?: boolean
 }
 
+/** Events of resource loader. */
 export interface ResourceLoaderEvents {
-	progress: OnProgress
+
+	/** Emit after loading progress updated. */
+	progress: (loaded: number, total: number) => void
 }
 
 
 /**
  * Preload resources from their urls, and get total progress notifications.
  * Please beware of the CORS settings at the server.
- * If you want the progress working, please makesure the `content-length` response header.
+ * If you want the progress working, please makesure the `content-length` response header is available.
  */
 export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 
@@ -40,9 +50,10 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 		Object.assign(this, options)
 	}
 
-	async load(urls: Resources): Promise<void> {
+	/** Load bunch of resources. */
+	async load(urls: ResourceParameter[]): Promise<void> {
 		let normalized = this.normalizeResources(urls)
-		let sizes = (await this.getTotalSizes(normalized.map(v => v.url))).map(v => v || 0)
+		let sizes = (await this.getURLSizes(normalized.map(v => v.url))).map(v => v || 0)
 		let totalSize = sum(sizes)
 		let completedSize = 0
 
@@ -66,7 +77,8 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 		}
 	}
 
-	private async getTotalSizes(urls: string[]): Promise<(number | null)[]> {
+	/** Get sizes of all the resources. */
+	private async getURLSizes(urls: string[]): Promise<(number | null)[]> {
 		let promises: Promise<number | null>[] = []
 		for (let url of urls) {
 			promises.push(this.getURLSize(url))
@@ -74,13 +86,15 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 		return await Promise.all(promises)
 	}
 
+	/** Get size of one resource. */
 	private async getURLSize(url: string): Promise<number | null> {
 		let res = await fetch(this.getAbsoluteURL(url), {method: 'HEAD'})
 		let length = res.headers.get('content-length')
 		return length === null ? null : Number(length) || null
 	}
 
-	private getAbsoluteURL(url: string) {
+	/** Convert relative URL to absolute type. */
+	private getAbsoluteURL(url: string): string {
 		if (/^(?:https?:|\/\/)/.test(url) || !this.base) {
 			return url
 		}
@@ -88,7 +102,8 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 		return this.base + url
 	}
 
-	private normalizeResources(resources: Resources): NormalizedResources {
+	/** Normalize to standard resource object. */
+	private normalizeResources(resources: ResourceParameter[]): NormalizedResource[] {
 		return resources.map(r => {
 			if (typeof r === 'string') {
 				return {
@@ -107,10 +122,12 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 		})
 	}
 
-	private getBaseNameFromURL(url: string) {
+	/** Get resource readable basename from url. */
+	private getBaseNameFromURL(url: string): string {
 		return firstMatch(url, /([^\/]+)$/).replace(/\.\w+$/, '')
 	}
 
+	/** Guess resource type from URL. */
 	private inferResourceTypeFromURL(url: string): ResourceType {
 		let ext = firstMatch(url, /\.(\w+)(?:\?.*?)?$/).toLowerCase()
 
@@ -121,8 +138,9 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 			return 'blob'
 		}
 	}
-		
-	private async loadOne(name: string, url: string, onprogress: OnProgress): Promise<Blob | null> {
+	
+	/** Load one resource. */
+	private async loadOne(name: string, url: string, onprogress: (loaded: number, total: number) => void): Promise<Blob | null> {
 		let absloteURL = this.getAbsoluteURL(url)
 
 		return new Promise((resolve, reject) => {
@@ -151,6 +169,7 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 		})
 	}
 
+	/** Handle resource returned blob data. */
 	private async handleBlob(type: ResourceType, blob: Blob): Promise<void> {
 		if (type === 'css') {
 			await this.loadStyle(blob)
@@ -160,6 +179,7 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 		}
 	}
 
+	/** Load style resource as a style tag. */
 	private loadStyle(blob: Blob): Promise<void> {
 		return new Promise((resolve, reject) => {
 			let link = document.createElement('link')
@@ -171,6 +191,7 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 		})
 	}
 
+	/** Load script resource as a script tag. */
 	private loadScript(blob: Blob): Promise<void> {
 		return new Promise((resolve, reject) => {
 			let script = document.createElement('script')
@@ -185,7 +206,7 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 	
 	/**
 	 * Get resource as blob URL.
-	 * @param name The defined resource name or base name of url.
+	 * @param name The defined resource name or resource base name in the url.
 	 */
 	getAsBlobURL(name: string): string | null {
 		let blob = this.blobMap.get(name)
@@ -198,7 +219,7 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 	
 	/**
 	 * Get resource as text.
-	 * @param name The defined resource name or base name of url.
+	 * @param name The defined resource name or resource base name in the url.
 	 */
 	getAsText(name: string): Promise<string | null> {
 		return new Promise(resolve => {
@@ -217,7 +238,7 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 
 	/**
 	 * Get resource as HTML document.
-	 * @param name The defined resource name or base name of url.
+	 * @param name The defined resource name or resource base name in the url.
 	 */
 	async getAsHTML(name: string): Promise<HTMLDocument | null> {
 		let text = await this.getAsText(name)
@@ -230,7 +251,7 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 
 	/**
 	 * Get resource as JSON.
-	 * @param name The defined resource name or base name of url.
+	 * @param name The defined resource name or resource base name in the url.
 	 */
 	async getAsJSON(name: string): Promise<any | null> {
 		let text = await this.getAsText(name)
@@ -242,8 +263,8 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 	}
 
 	/**
-	 * Get resource as ArrayBuffer.
-	 * @param name The defined resource name or base name of url.
+	 * Get resource as array buffer.
+	 * @param name The defined resource name or resource base name in the url.
 	 */
 	async getAsBuffer(name: string): Promise<ArrayBuffer | null> {
 		return new Promise((resolve, reject) => {
@@ -267,8 +288,8 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 	}
 
 	/**
-	 * Get resource as Image.
-	 * @param name The defined resource name or base name of url.
+	 * Get resource as image.
+	 * @param name The defined resource name or resource base name in the url.
 	 */
 	async getAsImage(name: string): Promise<HTMLImageElement | null> {
 		return new Promise((resolve, reject) => {
@@ -285,8 +306,8 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 	}
 
 	/**
-	 * Get resource as Video Element.
-	 * @param name The defined resource name or base name of url.
+	 * Get resource as video element.
+	 * @param name The defined resource name or resource base name in the url.
 	 */
 	async getAsVideo(name: string): Promise<HTMLVideoElement | null> {
 		return new Promise((resolve, reject) => {
@@ -311,8 +332,8 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 	}
 
 	/**
-	 * Get resource as Audio Element.
-	 * @param name The defined resource name or base name of url.
+	 * Get resource as audio element.
+	 * @param name The defined resource name or resource base name in the url.
 	 */
 	async getAsAudio(name: string): Promise<HTMLAudioElement | null> {
 		return new Promise((resolve, reject) => {

@@ -251,7 +251,7 @@ export function throttle<F extends Function>(fn: F, ms: number = 0): Throttle<F>
 }
 
 
-export class LazilyThrottle<F extends Function> extends WrappedTimingFunction<F> {
+export class SmoothThrottle<F extends Function> extends WrappedTimingFunction<F> {
 	
 	private lastArgs: any[] | null = null
 	private lastThis: any = null
@@ -354,8 +354,8 @@ export class LazilyThrottle<F extends Function> extends WrappedTimingFunction<F>
  * @param fn The function to throttle.
  * @param ms The time period which allows at most one calling. If omitted, uses `requestAnimationFrame` to throttle.
  */
-export function lazilyThrottle<F extends Function>(fn: F, ms: number): LazilyThrottle<F> {
-	return new LazilyThrottle(fn, ms)
+export function smoothThrottle<F extends Function>(fn: F, ms: number): SmoothThrottle<F> {
+	return new SmoothThrottle(fn, ms)
 }
 
 

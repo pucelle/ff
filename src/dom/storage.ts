@@ -3,8 +3,13 @@ type InferFromDefault<T> = T extends null | undefined ? any : T
 
 class JSONStorage {
 
+	/** Key prefix to identify self set local storage properties. */
 	private prefix: string = ''
+
+	/** Expire suffix of properties to mark expire time. */
 	private expireSuffix: string = '_expires_'
+
+	/** Supported state cache. */
 	private supported: boolean | null = null
 
 	constructor(prefix: string) {
@@ -12,8 +17,8 @@ class JSONStorage {
 	}
 
 	/**
-	 * Test if localStorage is supported.
-	 * Will return `false` in private mode. 
+	 * Test whether local storage is supported.
+	 * Will return `false` in browser's private mode. 
 	 */
 	isSupported(): boolean {
 		if (this.supported !== null) {
@@ -32,7 +37,7 @@ class JSONStorage {
 	}
 
 	/**
-	 * Test if has set `key` in localStorage.
+	 * Test whether has set `key` in local storage.
 	 * @param key The key of the data item.
 	 */
 	has(key: string): boolean | null {
@@ -45,14 +50,14 @@ class JSONStorage {
 	}
 
 	/**
-	 * Get json data from localStorage by `key`.
+	 * Get json data from local storage by `key`.
 	 * @param key The key of the data item.
-	 * @param defaultValue The default value to return when data havn't been storaged.
+	 * @param defaultValue The default value to return when no data stored yet.
 	 */
 	get<T>(key: string, defaultValue: T): InferFromDefault<T>
 
 	/**
-	 * Get json data from localStorage by `key`.
+	 * Get json data from local storage by `key`.
 	 * @param key The key of the data item.
 	 */
 	get(key: string): any
@@ -92,7 +97,7 @@ class JSONStorage {
 	}
 
 	/**
-	 * Cache json data into localStorage by `key`.
+	 * Cache json data into local storage by `key`.
 	 * Returns `true` if cached. 
 	 * @param key The key of the data item.
 	 * @param value The json data to cache.
@@ -114,7 +119,7 @@ class JSONStorage {
 	}
 
 	/**
-	 * Delete cached json data in localStorage with specified `key`.
+	 * Delete cached json data in localStorage by `key`.
 	 * Returns `true` if deleted.
 	 * @param key The key of the data item.
 	 */
@@ -130,7 +135,7 @@ class JSONStorage {
 	}
 
 	/**
-	 * Returns a new storage to cache data using `namespace` as prefix of keys.
+	 * Returns a new storage to cache data using `namespace` as prefix.
 	 * @param namespace The prefix of keys.
 	 */
 	group(namespace: string) {

@@ -1,6 +1,6 @@
 {
 	"name": "@pucelle/ff",
-	"version": "1.2.3",
+	"version": "1.2.4",
 	"description": "A small JavaScript utility library, to make web programming easier.",
 	"author": "pucelle",
 	"license": "MIT",
@@ -21,18 +21,19 @@
 		"doc": "typedoc --out docs src --exclude src/"
 	},
 	"devDependencies": {
-		"@types/jest": "^24.0.9",
+		"@types/jest": "^24.9.1",
 		"browserify": "^16.5.1",
 		"chai": "^4.2.0",
 		"exorcist": "^1.0.1",
-		"gulp": "^4.0.0",
+		"gulp": "^4.0.2",
 		"gulp-util": "^3.0.8",
-		"jest": "^24.1.0",
+		"jest": "^26.6.3",
 		"mocha": "^6.0.2",
-		"ts-jest": "^24.0.0",
+		"ts-jest": "^26.4.4",
 		"tsify": "^4.0.1",
 		"typescript": "^3.9.5",
 		"vinyl-source-stream": "^2.0.0",
 		"watchify": "^3.11.1"
-	}
+	},
+	"dependencies": {}
 }

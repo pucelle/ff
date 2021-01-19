@@ -1,6 +1,6 @@
 /** 
  * Returns a promise which will be resolved after window loaded,
- * Or resolved immediately if window already loaded.
+ * or resolved immediately if window is already loaded.
  */
 export function ensureWindowLoaded() {
 	return new Promise(resolve => {
@@ -11,13 +11,13 @@ export function ensureWindowLoaded() {
 		else {
 			window.addEventListener('load', () => resolve())
 		}
-	})
+	}) as Promise<void>
 }
 
 
 /** 
  * Returns a promise which will be resolved after document completed,
- * Or resolved immediately if document already completed.
+ * or resolved immediately if document is already completed.
  */
 export function ensureDocumentComplete() {
 	return new Promise(resolve => {
@@ -28,5 +28,5 @@ export function ensureDocumentComplete() {
 		else {
 			document.addEventListener('DOMContentLoaded', () => resolve(), false)
 		}
-	})
+	}) as Promise<void>
 }

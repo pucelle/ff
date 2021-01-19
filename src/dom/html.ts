@@ -1,6 +1,6 @@
 
 /**
- * Encode `<>` to `&...` to makesure HTML codes safe to append into document.
+ * Encode `<>` to `&...` to makesure HTML codes are safely to be appended into document.
  * @param code Text to be encoded.
  */
 export function encodeHTML(code: string): string {
@@ -9,7 +9,7 @@ export function encodeHTML(code: string): string {
 
 
 /**
- * Decode HTML codes which includes `&...` to mapped readable characters.
+ * Decode HTML codes which includes `&...` to be readable characters.
  * @param code Encoded HTML codes.
  */
 export function decodeHTML(code: string): string {

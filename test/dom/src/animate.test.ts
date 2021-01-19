@@ -12,17 +12,17 @@ describe('Test animate', () => {
 
 		let d = Date.now()
 		await ff.animateProperty(div, 'left', 0, 100, 100).promise
-		assert.equal(ff.getStyleAsNumber(div, 'left'), 100)
+		assert.equal(ff.getStyleValueAsNumber(div, 'left'), 100)
 		assert.closeTo(Date.now() - d, 100, 50)
 
 		d = Date.now()
 		await ff.animatePropertyTo(div, 'left', 200, 100).promise
-		assert.equal(ff.getStyleAsNumber(div, 'left'), 200)
+		assert.equal(ff.getStyleValueAsNumber(div, 'left'), 200)
 		assert.closeTo(Date.now() - d, 100, 50)
 
 		d = Date.now()
 		await ff.animatePropertyFrom(div, 'left', 100, 100).promise
-		assert.equal(ff.getStyleAsNumber(div, 'left'), 200)
+		assert.equal(ff.getStyleValueAsNumber(div, 'left'), 200)
 		assert.closeTo(Date.now() - d, 100, 50)
 
 		assert.isBelow(ff.getEasingFunction('ease-in')(0.5), ff.getEasingFunction('linear')(0.5))
@@ -37,18 +37,18 @@ describe('Test animate', () => {
 		document.body.append(div)
 
 		let d = Date.now()
-		await ff.animateByFunction((value) => {ff.setStyle(div, 'left', value)}, 0, 100, 100).promise
-		assert.equal(ff.getStyleAsNumber(div, 'left'), 100)
+		await ff.animateByFunction((value) => {ff.setStyleValue(div, 'left', value)}, 0, 100, 100).promise
+		assert.equal(ff.getStyleValueAsNumber(div, 'left'), 100)
 		assert.closeTo(Date.now() - d, 100, 50)
 
 		d = Date.now()
-		await ff.animateByFunction((value) => {ff.setStyle(div, 'left', value)}, 100, 200, 100).promise
-		assert.equal(ff.getStyleAsNumber(div, 'left'), 200)
+		await ff.animateByFunction((value) => {ff.setStyleValue(div, 'left', value)}, 100, 200, 100).promise
+		assert.equal(ff.getStyleValueAsNumber(div, 'left'), 200)
 		assert.closeTo(Date.now() - d, 100, 50)
 
 		d = Date.now()
-		await ff.animateByFunction((value) => {ff.setStyle(div, 'left', value)}, 200, 100, 100).promise
-		assert.equal(ff.getStyleAsNumber(div, 'left'), 100)
+		await ff.animateByFunction((value) => {ff.setStyleValue(div, 'left', value)}, 200, 100, 100).promise
+		assert.equal(ff.getStyleValueAsNumber(div, 'left'), 100)
 		assert.closeTo(Date.now() - d, 100, 50)
 
 		div.remove()
@@ -61,24 +61,24 @@ describe('Test animate', () => {
 
 		let d = Date.now()
 		await ff.animate(div, {left: 0}, {left: 100}, 100)
-		assert.equal(ff.getStyleAsNumber(div, 'left'), 0)
+		assert.equal(ff.getStyleValueAsNumber(div, 'left'), 0)
 		assert.closeTo(Date.now() - d, 100, 50)
 
 		d = Date.now()
 		await ff.animateTo(div, {left: 200}, 100)
-		assert.equal(ff.getStyleAsNumber(div, 'left'), 200)
+		assert.equal(ff.getStyleValueAsNumber(div, 'left'), 200)
 		assert.closeTo(Date.now() - d, 100, 50)
 
 		d = Date.now()
 		await ff.animateFrom(div, {left: 100}, 100)
-		assert.equal(ff.getStyleAsNumber(div, 'left'), 200)
+		assert.equal(ff.getStyleValueAsNumber(div, 'left'), 200)
 		assert.closeTo(Date.now() - d, 100, 50)
 
 		d = Date.now()
 		let promise = ff.animateToNextFrame(div, 'left', 100)
 		div.style.left = '300px'
 		await promise
-		assert.equal(ff.getStyleAsNumber(div, 'left'), 300)
+		assert.equal(ff.getStyleValueAsNumber(div, 'left'), 300)
 		assert.closeTo(Date.now() - d, 100, 50)
 
 		div.remove()

@@ -1,21 +1,21 @@
 /**
  * Parse `url` search part to a query parameter object.
- * @param url The url to parse query parameter.
+ * @param url The url to parse query parameters.
  */
 export function parseQuery(url: string): Record<string, string> {
 	let match = url.match(/\?(.+)/)
 	let pieces = match ? match[1].split('&') : []
-	let q: Record<string, string> = {}
+	let query: Record<string, string> = {}
 
 	for (let piece of pieces) {
 		let [key, value] = piece.split('=')
 		if (key) {
 			value = decodeURIComponent(value || '')
-			q[key] = value
+			query[key] = value
 		}
 	}
 
-	return q
+	return query
 }
 
 

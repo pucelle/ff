@@ -49,7 +49,7 @@ interface QueueEvents<T, V> {
 	abort(err: Error | string | number): void
 
 	/** End after `finish` or `abort` event. */
-	end(err: Error | null): void
+	end(err: Error | string | number | null): void
 }
 
 /** Cache item of queue, each caches one task. */
@@ -466,7 +466,7 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 		this.processedCount = 0
 		this.abortRunningItems()
 		this.emit('finish')
-		this.emit('end')
+		this.emit('end', null)
 		
 		if (this.resumeResolve) {
 			this.resumeResolve()

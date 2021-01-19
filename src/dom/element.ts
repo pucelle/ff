@@ -1,11 +1,12 @@
-import {getStyleAsNumber} from './style'
+import {getStyleValueAsNumber} from './style'
 
 
+/** Rect box size and location, all properties are writable. */
 export type Rect = {-readonly [key in keyof ClientRect]: number }
 
 
 /**
- * Returns the index of node in it's node siblings.
+ * Get the index of node in it's node siblings.
  * @param node The node.
  */
 export function getNodeIndex(node: Node): number {
@@ -24,7 +25,7 @@ export function getNodeIndex(node: Node): number {
 
 
 /**
- * Returns the index of element in it's element siblings.
+ * Get the index of element in it's element siblings.
  * @param el The node.
  */
 export function getElementIndex(el: Element): number {
@@ -43,14 +44,14 @@ export function getElementIndex(el: Element): number {
 
 
 /**
- * Returns inner width of element, which equals `clientWidth - paddingWidths` or `width - paddingWidths - scrollbarWidth`.
+ * Get inner width of element, which equals `clientWidth - paddingWidths` or `width - paddingWidths - scrollbarWidth`.
  * Note that this method may cause page reflow.
  * @param el The element to get width.
  */
 export function getInnerWidth(el: Element): number {
 	let w = el.clientWidth
 	if (w) {
-		return el.clientWidth - getStyleAsNumber(el, 'paddingLeft') - getStyleAsNumber(el, 'paddingRight')
+		return el.clientWidth - getStyleValueAsNumber(el, 'paddingLeft') - getStyleValueAsNumber(el, 'paddingRight')
 	}
 	else {
 		return 0
@@ -59,14 +60,14 @@ export function getInnerWidth(el: Element): number {
 
 
 /**
- * Returns inner height of element, which equals to `clientHeight - paddingHeights` or `height - paddingHeights - scrollbarHeight`.
+ * Get inner height of element, which equals to `clientHeight - paddingHeights` or `height - paddingHeights - scrollbarHeight`.
  * Note that this method may cause page reflow.
  * @param el The element to get height.
  */
 export function getInnerHeight(el: Element): number {
 	let h = el.clientHeight
 	if (h) {
-		return h - getStyleAsNumber(el, 'paddingTop') - getStyleAsNumber(el, 'paddingBottom')
+		return h - getStyleValueAsNumber(el, 'paddingTop') - getStyleValueAsNumber(el, 'paddingBottom')
 	}
 	else {
 		return 0
@@ -75,14 +76,14 @@ export function getInnerHeight(el: Element): number {
 
 
 /**
- * Returns outer width of element, which equals `offsetWidth + marginWidths`.
+ * Get outer width of element, which equals `offsetWidth + marginWidths`.
  * Note that this method may cause page reflow.
  * @param el The element to get width.
  */
 export function getOuterWidth(el: HTMLElement) {
 	let w = el.offsetWidth
 	if (w) {
-		return w + getStyleAsNumber(el, 'marginLeft') + getStyleAsNumber(el, 'marginRight')
+		return w + getStyleValueAsNumber(el, 'marginLeft') + getStyleValueAsNumber(el, 'marginRight')
 	}
 	else {
 		return 0
@@ -91,14 +92,14 @@ export function getOuterWidth(el: HTMLElement) {
 
 
 /**
- * Returns inner height of element, which equals `offsetHeight + marginHeights`.
+ * Get inner height of element, which equals `offsetHeight + marginHeights`.
  * Note that this method may cause page reflow.
  * @param el The element to get height.
  */
 export function getOuterHeight(el: HTMLElement) {
 	let h = el.offsetHeight
 	if (h) {
-		return h + getStyleAsNumber(el, 'marginTop') + getStyleAsNumber(el, 'marginBottom')
+		return h + getStyleValueAsNumber(el, 'marginTop') + getStyleValueAsNumber(el, 'marginBottom')
 	}
 	else {
 		return 0
@@ -107,7 +108,8 @@ export function getOuterHeight(el: HTMLElement) {
 
 
 /**
- * Returns an object like `getBoundingClientRect`, the didderence is it always returns the rect of visible part for `<html>`.
+ * Get an rect object just like `getBoundingClientRect`.
+ * The didderence is it always returns the rect of visible part for `<html>`, and properties are writable.
  * Note that this method may cause page reflow.
  * @param el The element to get rect size.
  */
@@ -141,12 +143,12 @@ export function getRect(el: Element): Rect {
 
 
 /**
- * Check if element is visible in current viewport, Otherwise element can't be covered.
+ * Check if element is visible in current viewport, element must also be not fully covered.
  * Note that this method may cause page reflow.
  * @param el The element to check if is in view.
  * @param percentage Specify how much percentage of el size implies in view.
  */
-export function isInViewport(el: Element, percentage: number = 0.5): boolean {
+export function isVisibleInViewport(el: Element, percentage: number = 0.5): boolean {
 	let dw = document.documentElement.clientWidth
 	let dh = document.documentElement.clientHeight
 	let rect = getRect(el)
@@ -162,8 +164,8 @@ export function isInViewport(el: Element, percentage: number = 0.5): boolean {
 			return true
 		}
 		
-		let notBeenCovered = el.contains(document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2))
-		if (notBeenCovered) {
+		let notBeCovered = el.contains(document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2))
+		if (notBeCovered) {
 			return true
 		}
 	}

@@ -19,9 +19,9 @@ describe('Test duration', () => {
 	})
 
 	test('parseSecondsToDurationObject', () => {
-		expect(ff.parseSecondsToDurationObject(1 * 365 * 24 * 60 * 60 + 30 * 24 * 60 * 60 + 1 * 24 * 60 * 60)).toEqual({y: 1, d: 1, M:1, h: 0, m:0, s: 0})
-		expect(ff.parseSecondsToDurationObject(1 * 60 * 60 + 1 * 60 + 1)).toEqual({y: 0, d: 0, M:0, h: 1, m: 1, s:1})
-		expect(ff.parseSecondsToDurationObject(1 * 60 + 1)).toEqual({y: 0, d: 0, M:0, h: 0, m: 1, s:1})
+		expect(ff.parseSecondsToDateObject(1 * 365 * 24 * 60 * 60 + 30 * 24 * 60 * 60 + 1 * 24 * 60 * 60)).toEqual({y: 1, d: 1, M:1, h: 0, m:0, s: 0})
+		expect(ff.parseSecondsToDateObject(1 * 60 * 60 + 1 * 60 + 1)).toEqual({y: 0, d: 0, M:0, h: 1, m: 1, s:1})
+		expect(ff.parseSecondsToDateObject(1 * 60 + 1)).toEqual({y: 0, d: 0, M:0, h: 0, m: 1, s:1})
 	})
 
 	test('formatSecondsToDuration', () => {

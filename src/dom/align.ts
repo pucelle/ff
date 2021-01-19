@@ -1,8 +1,9 @@
-import {getStyle} from './style'
+import {getStyleValue} from './style'
 import {Rect, getRect} from './element'
 import {getClosestFixedElement} from './util'
 
 
+/** Option for aligning element. */
 export interface AlignOptions {
 
  	/** 
@@ -24,16 +25,73 @@ export interface AlignOptions {
 	fixTriangle?: boolean
 }
 
+/** Align Where of current element to where of the target. */
+export type AlignPosition = 't'
+	| 'b'
+	| 't'
+	| 'l'
+	| 'r'
+	| 'c'
+
+	| 'bl'
+	| 'bc'
+	| 'br'
+	| 'tl'
+	| 'tc'
+	| 'tr'
+	| 'cc'
+
+	| 'lb'
+	| 'lt'
+	| 'rb'
+	| 'rt'
+
+	| 'b-b'
+	| 'b-t'
+
+	| 't-t'
+	| 't-b'
+
+	| 'l-l'
+	| 'l-r'
+
+	| 'r-r'
+	| 'r-l'
+
+	| 'c-c'
+
+	| 'bl-bl'
+	| 'bl-br'
+	| 'bl-tl'
+	| 'bl-tr'
+	| 'br-br'
+	| 'br-bl'
+	| 'br-br'
+	| 'br-tl'
+
+	| 'tl-tl'
+	| 'tl-tr'
+	| 'tl-bl'
+	| 'tl-br'
+	| 'tr-tr'
+	| 'tr-tl'
+	| 'tr-tr'
+	| 'tr-bl'
+
+	| 'cl-cr'
+	| 'cr-cl'
+
+
 /**
  * Align `el` to `target` element by specified position.
  * If no enough space, will adjust align position automatically.
  * Note that this mathod will always cause reflow.
  * @param el The element to align, it's position should be fixed or absolute.
  * @param target The target element to align to.
- * @param position The position that aligning according to, `[Y of el][X of el]-[Y of target][X of target]` or `[Touch][Align]` or `[Touch]`.
+ * @param position Align Where of `el` to where of the `target`, e.g., `tl-br` means align top-left position of `el` to bottom-right of `target`.
  * @param options Additional options.
  */
-export function align(el: HTMLElement, target: Element, position: string, options: AlignOptions = {}) {
+export function align(el: HTMLElement, target: Element, position: AlignPosition, options: AlignOptions = {}) {
 	new Aligner(el, target, position, options)
 }
 
@@ -47,7 +105,7 @@ export class Aligner {
 	private canShrinkInY: boolean
 	private position: [string, string]
 	private margin: [number, number, number, number]
-	private direction: {[key in 'top' | 'right' | 'bottom' | 'left']: boolean}
+	private direction: Record<'top' | 'right' | 'bottom' | 'left', boolean>
 	private rect: Rect
 	private targetRect: Rect
 	private targetInViewport: boolean
@@ -72,8 +130,8 @@ export class Aligner {
 		this.position = parseAlignPosition(position)
 		this.direction = this.getDirections()
 		this.margin = this.parseMargin(options.margin || 0)
-		this.targetRect = this.getExtendedRect()
-		this.targetInViewport = inViewport(this.targetRect)
+		this.targetRect = this.getExtendedRect(target)
+		this.targetInViewport = isIntersectWithViewport(this.targetRect)
 	
 		if (this.canShrinkInY && !this.triangle) {
 			this.rect.height = this.getNaturalHeight()
@@ -82,6 +140,7 @@ export class Aligner {
 		this.align()
 	}
 
+	/** Do aligning from `el` to `target`. */
 	private align() {
 		// If target not affected by document scrolling, el should same
 		if (getClosestFixedElement(this.target)) {
@@ -124,8 +183,8 @@ export class Aligner {
 		this.el.style.top = this.y + 'px'
 	}
 
-	/** Zero, one or two values be `true`. */
-	private getDirections() {
+	/** Parse align direction. */
+	private getDirections(): Record<'top' | 'right' | 'bottom' | 'left', boolean> {
 		return {
 			top    : this.position[0].includes('b') && this.position[1].includes('t'),
 			right  : this.position[0].includes('l') && this.position[1].includes('r'),
@@ -169,8 +228,10 @@ export class Aligner {
 		return margin as [number, number, number, number]
 	}
 
-	private getExtendedRect(): Rect {
-		let rect = getRect(this.target)
+	/** Extend rect with margins. */
+	private getExtendedRect(target: Element): Rect {
+		let rect = getRect(target)
+
 		rect.top    -= this.margin[0]
 		rect.height += this.margin[0] + this.margin[2]
 		rect.bottom = rect.top + rect.height
@@ -227,7 +288,7 @@ export class Aligner {
 		return [x, y]
 	}
 
-	/** get absolute anchor position in scrolling page */
+	/** get absolute anchor position in scrolling page. */
 	private getTargetAbsoluteAnchor(): [number, number] {
 		let rect = this.targetRect
 		let anchor = this.position[1]
@@ -240,6 +301,7 @@ export class Aligner {
 		return [x, y]
 	}
 
+	/** Do vertical aligning. */
 	private alignVertical(): boolean {
 		let dh = document.documentElement.clientHeight
 		let spaceTop = this.targetRect.top
@@ -293,6 +355,7 @@ export class Aligner {
 		return overflowYSet
 	}
 
+	/** Do herizontal aligning. */
 	private alignHerizontal() {
 		let dw = document.documentElement.clientWidth
 		let spaceLeft  = this.targetRect.left
@@ -329,6 +392,7 @@ export class Aligner {
 		}
 	}
 
+	/** Align `triangle` relative to `el`. */
 	private alignTriangle() {
 		let triangle = this.triangle!
 		let triangleRect = this.triangleRect!
@@ -460,6 +524,8 @@ function parseAlignPosition(position: string): [string, string] {
 	return [completeAlignPosition(posArray[0]), completeAlignPosition(posArray[1])]
 }
 
+
+/** Complete align position from one char to two, e.g., `t-b` -> `tc-bc`. */
 function completeAlignPosition(pos: string): string {
 	if (pos.length === 1) {
 		pos = 'tb'.includes(pos) ? pos + 'c' : 'c' + pos
@@ -497,7 +563,8 @@ export function getMainAlignDirection(pos: string): 't' | 'b' | 'l' | 'r' | 'c' 
 }
 
 
-function inViewport(rect: Rect) {
+/** Check if rect box intersect with viewport. */
+function isIntersectWithViewport(rect: Rect) {
 	let w = document.documentElement.clientWidth
 	let h = document.documentElement.clientHeight
 
@@ -509,10 +576,10 @@ function inViewport(rect: Rect) {
  * Align element to a mouse event.
  * @param el A fixed position element to align.
  * @param event A mouse event to align to.
- * @param offset `[x, y]` offset to adjust align position. 
+ * @param offset `[x, y]` offset relative to current mouse position. 
  */
 export function alignToEvent(el: HTMLElement, event: MouseEvent, offset: [number, number] = [0, 0]) {
-	if (getStyle(el, 'position') !== 'fixed') {
+	if (getStyleValue(el, 'position') !== 'fixed') {
 		throw new Error(`Element to call "alignToEvent" must be fixed layout`)
 	}
 

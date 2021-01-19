@@ -289,7 +289,7 @@ export type OrderDirection = -1 | 1
 export type OrderFunction<T> = (item: T) => string | number
 
 /** Order key or function, or `[order key or function, order direction]` tuple. */
-export type OrderUsed<T> = CanSortKeys<T> | OrderFunction<T> | [CanSortKeys<T> | OrderFunction<T>, OrderDirection]
+export type OrderRule<T> = CanSortKeys<T> | OrderFunction<T> | [CanSortKeys<T> | OrderFunction<T>, OrderDirection]
 
 /** Extract sortable keys from type `T`. */
 export type CanSortKeys<T> = Extract<keyof T, string | number>
@@ -298,16 +298,17 @@ export type CanSortKeys<T> = Extract<keyof T, string | number>
 type NormativeOrderTuple<T> = [CanSortKeys<T> | OrderFunction<T>, -1 | 1]
 
 
-/** Class to do ordering. */
+/** Class to do multiple columns object array ordering. */
 export class Order<T> {
 
+	/** Order tuple for ordering one by one. */
 	private orders: NormativeOrderTuple<T>[] = []
 
 	/**
 	 * Create an order rule, used in `orderBy`, and can also be used to binary search from or binary insert into array with object type items
 	 * @param orders Rest arguments of type `key` or `OrderFunction` which will return a `key`, or [`key` / `OrderFunction`, `OrderDirection`].
 	 */
-	constructor(...orders: OrderUsed<T>[]) {
+	constructor(...orders: OrderRule<T>[]) {
 		for (let order of orders) {
 			if (['string', 'number', 'function'].includes(typeof order)) {
 				this.orders.push([order as any, 1])
@@ -412,9 +413,9 @@ export function orderBy<T extends object>(array: T[], order: Order<T>): T[]
  * @param array The array to order.
  * @param orders Rest arguments of type `key` or `OrderFunction` which will return a `key`, or `[key / OrderFunction, OrderDirection]`.
  */
-export function orderBy<T extends object>(array: T[], ...orders: OrderUsed<T>[]): T[]
+export function orderBy<T extends object>(array: T[], ...orders: OrderRule<T>[]): T[]
 
-export function orderBy<T extends object>(array: T[], order: Order<T> | OrderUsed<T>, ...orders: OrderUsed<T>[]): T[] {
+export function orderBy<T extends object>(array: T[], order: Order<T> | OrderRule<T>, ...orders: OrderRule<T>[]): T[] {
 	order = order instanceof Order ? order : new Order(order, ...orders)
 	order.sortArray(array)
 

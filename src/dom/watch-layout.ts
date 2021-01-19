@@ -1,8 +1,11 @@
-import {isInViewport, getRect, Rect} from './element'
+import {isVisibleInViewport, getRect, Rect} from './element'
 import {Interval} from '../base'
 
 
+/** Can watch types. */
 type WatchType = keyof typeof WATCH_STATE_FN
+
+/** Watch callback. */
 type WatchCallback<T extends WatchType> = (state: ReturnType<(typeof WATCH_STATE_FN)[T]>) => void
 
 
@@ -17,11 +20,11 @@ const WATCH_STATE_FN = {
 	},
 
 	inview (el: HTMLElement): boolean {
-		return isInViewport(el)
+		return isVisibleInViewport(el)
 	},
 
 	outview (el: HTMLElement): boolean {
-		return !isInViewport(el)
+		return !isVisibleInViewport(el)
 	},
 
 	size (el: HTMLElement): {width: number, height: number} {

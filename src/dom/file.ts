@@ -2,13 +2,13 @@ import {sleep} from "../base"
 
 /**
  * Download url as a file with specified `fileName`.
- * Not that `fileName` may not working for cross domain resources.
- * The final behavior depends on browser.
+ * Not that `fileName` may not work for crossed domain resources in some browsers.
  * @param url The URL to download.
  * @param fileName The file name.
  */
 export function downloadURL(url: string, fileName: string) {
 	let a = document.createElement('a')
+
 	a.hidden = true
 	a.href = url
 
@@ -24,6 +24,7 @@ export function downloadURL(url: string, fileName: string) {
 
 /**
  * Download string as a file with specified `fileName`.
+ * Not that `fileName` may not work for crossed domain resources in some browsers.
  * @param fileName The file name.
  * @param text The text to download.
  * @param mime The MIME type of file.
@@ -48,7 +49,7 @@ export function downloadText(fileName: string, text: string, type: string = 'tex
 
 
 /**
- * Select single file match MIME type by `<input type="file">`.
+ * Select a single file that matches `MIME` type from clicking a `<input type="file">`.
  * @param The MIME type of files.
  */
 export function selectFile(mime: string): Promise<File | null> {
@@ -57,7 +58,7 @@ export function selectFile(mime: string): Promise<File | null> {
 
 
 /**
- * Select multiple files match MIME type by `<input type="file" multiple">`.
+ * Select multiple files match `MIME` type from clicking a `<input type="file" multiple>`.
  * @param The MIME type of files.
  */
 export function selectMultipleFile(mime: string): Promise<File[] | null> {
@@ -65,22 +66,19 @@ export function selectMultipleFile(mime: string): Promise<File[] | null> {
 }
 
 
-/**
- * Select single folder by `<input type="file"directory>`.
- */
+/** Select a single folder from clicking a `<input type="file" directory>`. */
 export function selectFolder(): Promise<File | null> {
 	return selectFileOrFolder("*", true, false) as Promise<File | null>
 }
 
 
-/**
- * Select multiple folder by `<input type="file" directory multiple>`.
- */
-export function selectMultipleFolder(): Promise<File[] | null> {
+/** Select multiple folders from clicking a `<input type="file" directory multiple>`. */
+export function selectMultipleFolders(): Promise<File[] | null> {
 	return selectFileOrFolder("*", true, true) as Promise<File[] | null>
 }
 
 
+/** Select file or folder, multiple or not. */
 function selectFileOrFolder(mime: string, isFolder: boolean, isMultiple: boolean): Promise<File[] | File | null> {
 	return new Promise((resolve) => {
 		let input = document.createElement('input')
@@ -119,7 +117,7 @@ function selectFileOrFolder(mime: string, isFolder: boolean, isMultiple: boolean
 
 
 /**
- * Get files in DataTransfer object captured from drop event.
+ * Get files in `DataTransfer` object that captured from drop event.
  * Only work on Chrome.
  * @param transfer The ` DataTransfer` object from drop event.
  */
@@ -150,12 +148,13 @@ export async function getFilesFromTransfer(transfer: DataTransfer): Promise<File
 }
 
 
+/** Read files from a file entry. */
 async function readFilesFromEntry(entry: any): Promise<File[]> {
 	let files: File[] = []
 
 	return new Promise(async (resolve, reject) => {
 		if (!entry) {
-			resolve()
+			resolve([])
 		}
 		else if (entry.isFile) {
 			entry.file((file: any) => {
@@ -186,6 +185,7 @@ async function readFilesFromEntry(entry: any): Promise<File[]> {
 }
 
 
+/** Read files from a directory reader. */
 function readFilesFromDirectoryReader(reader: any): Promise<File[]> {
 	return new Promise((resolve, reject) => {
 		let files: File[] = []

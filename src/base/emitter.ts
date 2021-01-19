@@ -11,10 +11,13 @@
 
 /** Cache each registered event. */
 interface EventItem {
-	listener: (...args: any[]) => void
+	listener: any
 	scope?: object,
 	once: boolean
 }
+
+/** Infer E[K] as a function. */
+type InferFunctionMember<E, K extends keyof E> = E[K] extends (...args: any[]) => void ? E[K] : (args: any[]) => void
 
 
 /** 
@@ -42,7 +45,7 @@ export class Emitter<E = any> {
 	 * @param listener The event listener.
 	 * @param scope The scope will be binded to listener.
 	 */
-	on<K extends keyof E>(name: K, listener: (...args: any[]) => void, scope?: object) {
+	on<K extends keyof E>(name: K, listener: InferFunctionMember<E, K>, scope?: object) {
 		let events = this.__ensureEvents(name)
 		
 		events.push({
@@ -58,7 +61,7 @@ export class Emitter<E = any> {
 	 * @param listener The event listener.
 	 * @param scope The scope will be binded to listener.
 	 */
-	once<K extends keyof E>(name: K, listener: (...args: any[]) => void, scope?: object) {
+	once<K extends keyof E>(name: K, listener: InferFunctionMember<E, K>, scope?: object) {
 		let events = this.__ensureEvents(name)
 
 		events.push({
@@ -74,7 +77,7 @@ export class Emitter<E = any> {
 	 * @param listener The event listener, only matched listener will be removed.
 	 * @param scope The scope binded to listener. If provided, remove listener only when scope match.
 	 */
-	off<K extends keyof E>(name: K, listener: (...args: any[]) => void, scope?: object) {
+	off<K extends keyof E>(name: K, listener: InferFunctionMember<E, K>, scope?: object) {
 		let events = this.__events.get(name)
 		if (events) {
 			for (let i = events.length - 1; i >= 0; i--) {
@@ -92,7 +95,7 @@ export class Emitter<E = any> {
 	 * @param listener The event listener to check.
 	 * @param scope The scope binded to listener. If provided, will additionally check whether the scope match.
 	 */
-	hasListener(name: string, listener: (...args: any[]) => void, scope?: object) {
+	hasListener(name: string, listener: Function, scope?: object) {
 		let events = this.__events.get(name as any)
 		if (events) {
 			for (let i = 0, len = events.length; i < len; i++) {
@@ -121,7 +124,7 @@ export class Emitter<E = any> {
 	 * @param name The event name.
 	 * @param args The arguments that will be passed to event listeners.
 	 */
-	emit<K extends keyof E>(name: K, ...args: any[]) {
+	emit<K extends keyof E>(name: K, ...args: Parameters<InferFunctionMember<E, K>>) {
 		let events = this.__events.get(name)
 		if (events) {
 			for (let i = 0; i < events.length; i++) {

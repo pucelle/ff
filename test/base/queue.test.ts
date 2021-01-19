@@ -251,17 +251,17 @@ describe('Test queue', async () => {
 		expect(q.getRunningCount()).toEqual(2)
 		expect(q.getRunningTasks()).toEqual([0, 1])
 
-		await new Promise(resolve => {
+		await (new Promise(resolve => {
 			q.on('taskfinish', (n: number) => {
 				if (n === 5) {
 					q.pause()
 					resolve()
 				}
 			})
-		})
+		}) as Promise<void>)
 
-		expect(q.getUnhandledCount()).toEqual(4)
-		expect(q.getUnhandledTasks()).toEqual([6,7,8,9])
+		expect(q.getUnprocessedCount()).toEqual(4)
+		expect(q.getUnprocessedTasks()).toEqual([6,7,8,9])
 
 		q.resume()
 		await ff.sleep(10)
@@ -269,7 +269,7 @@ describe('Test queue', async () => {
 		expect(q.getTotalCount()).toEqual(a.length)
 		expect(q.getFailedCount()).toEqual(1)
 		expect(q.getFailedTasks()).toEqual([6])
-		expect(q.getHandledCount()).toEqual(a.length - 1)
+		expect(q.getProcessedCount()).toEqual(a.length - 1)
 	})
 
 	test('Failed queue', async () => {

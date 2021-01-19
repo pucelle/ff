@@ -2,12 +2,12 @@ import {animatePropertyTo, AnimationEasing} from './animate'
 
 
 /**
- * Returns if element can scroll.
+ * Returns if content of element overflow and element is scrollable.
  * May return `true` although element has no scroll bar.
  * Note that this method may cause reflow.
- * @param el The element to check scrolling.
+ * @param el The element to check overflow state.
  */
-export function isContentOverflow(el: HTMLElement) {
+export function isContentOverflow(el: HTMLElement): boolean {
 	return el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth
 }
 
@@ -16,7 +16,7 @@ let scrollBarWidth: number | null = null
 
 /**
  * Get scroll bar width.
- * After first running, the returned value will keep unchanged.
+ * After first time running, the returned value will keep unchanged.
  * Note that this method will cause reflow for the first time.
  */
 export function getScrollbarWidth(): number {
@@ -38,7 +38,7 @@ export function getScrollbarWidth(): number {
 /**
  * Find the closest scroll wrapper, which has `overflow: auto / scroll` set.
  * Note that this method may cause reflow.
- * @param el The element to check scrolling from.
+ * @param el The element to check scroll wrapper.
  */
 export function getClosestScrollWrapper(el: HTMLElement): HTMLElement | null {
 	while (el
@@ -52,7 +52,7 @@ export function getClosestScrollWrapper(el: HTMLElement): HTMLElement | null {
 
 
 /**
- * Scroll scrollbars in closest scroll wrapper for minimal distance to let element enter into the viewport area.
+ * Scroll scrollbars of closest scroll wrapper for minimal distance to make element be fully visible.
  * Returns `true` if scrolled.
  * @param el The element you want to see.
  * @param gap Keep a little distance from the element's edge to the viewport's edge.
@@ -135,11 +135,11 @@ export function scrollToView(el: HTMLElement, gap: number = 0, duration: number 
 
 
 /**
- * Returns the scroll direction of scroll wrapper, may be `'x' | 'y' | ''`.
- * @param wrapper The element to get scroll direction.
+ * Get the scroll direction of scroll wrapper, may be `'x' | 'y' | ''`.
+ * @param wrapper The element to check scroll direction.
  */
-export function getScrollDirection(wrapper: HTMLElement): 'x' | 'y' | '' {
-	let direction: 'x' | 'y' | '' = ''
+export function getScrollDirection(wrapper: HTMLElement): 'x' | 'y' | null {
+	let direction: 'x' | 'y' | null = null
 
 	if (wrapper.scrollHeight > wrapper.clientHeight) {
 		direction = 'y'
@@ -153,8 +153,8 @@ export function getScrollDirection(wrapper: HTMLElement): 'x' | 'y' | '' {
 
 
 /**
- * Get element's position in it's scroll wrapper's scroll area,
- * which also means the scroll wrapper's scrollTop when when top edges align.
+ * Get element's top or left offset from it's scroll wrapper's scrollable start edges,
+ * which also means the scroll wrapper's scrollTop property value when top edges match.
  * This value is not affected by current scroll position.
  * @param el The element to test offset.
  * @param wrapper The scroll wrapper.
@@ -181,8 +181,8 @@ export function getScrollOffset(el: HTMLElement, wrapper: HTMLElement, direction
 
 
 /**
- * Scroll scrollbars to let element in the top of the viewport area.
- * Returns true if scrolled.
+ * Scroll scrollbars to make element in the top of the viewport area.
+ * Returns `true` if scrolled.
  * @param el The element you want to see.
  * @param gap Keep a little distance from the element's edge to the viewport's edge.
  * @param duration If specified, will run an animation when scrolling.
