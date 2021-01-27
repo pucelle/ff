@@ -1,9 +1,0 @@
-{
-	"name": "ff-dom",
-	"version": "1.0.0",
-	"description": "",
-	"devDependencies": {
-    	"@types/chai": "^4.1.7",
-		"@types/mocha": "^5.2.6"
-	}
-}

@@ -1,4 +1,4 @@
-import * as ff from '../..'
+import * as ff from '../../src'
 
 
 describe('Test duration', () => {

@@ -9,7 +9,7 @@ module.exports = {
 	},
 	testEnvironment: "node",
 	testMatch: [
-		"**/test/base/**/*.test.ts"
+		"**/test/**/*.test.ts"
 	],
 	moduleFileExtensions: [
 		"ts",

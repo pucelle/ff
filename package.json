@@ -14,26 +14,15 @@
 	"scripts": {
 		"build": "tsc -b",
 		"watch": "tsc -b -w",
-		"test": "npm run test-base && npm run text-dom",
-		"test-base": "jest",
-		"test-dom": "gulp test && start test/dom/index.html",
+		"test": "jest",
 		"prepublish": "tsc -b",
 		"doc": "typedoc src/index.ts"
 	},
 	"devDependencies": {
 		"@types/jest": "^24.9.1",
-		"browserify": "^16.5.1",
-		"chai": "^4.2.0",
-		"exorcist": "^1.0.1",
-		"gulp": "^4.0.2",
-		"gulp-util": "^3.0.8",
 		"jest": "^26.6.3",
-		"mocha": "^6.0.2",
 		"ts-jest": "^26.4.4",
-		"tsify": "^4.0.1",
-		"typescript": "^3.9.5",
-		"vinyl-source-stream": "^2.0.0",
-		"watchify": "^3.11.1"
+		"typescript": "^3.9.5"
 	},
 	"dependencies": {}
 }
