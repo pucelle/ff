@@ -57,7 +57,7 @@ describe('Test array', () => {
 		expect(ff.orderBy([{a:1, b:2}, {a:1, b:1}], ['a', 1], 'b')).toEqual([{a:1,b:1}, {a:1,b:2}])
 		expect(ff.orderBy([{a:1, b:2}, {a:1, b:1}], ['a', 1], ['b', -1])).toEqual([{a:1,b:2}, {a:1,b:1}])
 
-		expect(ff.orderBy([1, false, null, undefined].map(a), 0)).toEqual([null, undefined, false, 1].map(a))
+		expect(ff.orderBy([1, false, null, undefined].map(a), 0)).toEqual([undefined, null, false, 1].map(a))
 	})
 
 	test('ff.Order()', () => {

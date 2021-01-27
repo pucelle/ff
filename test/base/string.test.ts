@@ -9,12 +9,12 @@ describe('Test string', () => {
 		expect(ff.select('123', /2/, '$0')).toEqual('2')
 		expect(ff.select('123', /(2)/, '$1')).toEqual('2')
 
-		expect(ff.select('1223', /2/g, '$0')).toEqual(['2', '2'])
-		expect(ff.select('1223', /(2)/g, '$1')).toEqual(['2', '2'])
+		expect(ff.selectAll('1223', /2/g, '$0')).toEqual(['2', '2'])
+		expect(ff.selectAll('1223', /(2)/g, '$1')).toEqual(['2', '2'])
 		
 		expect(ff.select('1223', /(2)/, '$<name>')).toEqual('')
 		expect(ff.select('1223', /(?<name>2)/, '$<other_name>')).toEqual('')
-		expect(ff.select('1223', /(?<name>2)/g, '$<name>')).toEqual(['2', '2'])
+		expect(ff.selectAll('1223', /(?<name>2)/g, '$<name>')).toEqual(['2', '2'])
 	})
 
 	test('subMatchAt', () => {

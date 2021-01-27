@@ -580,7 +580,7 @@ function isIntersectWithViewport(rect: Rect) {
  */
 export function alignToEvent(el: HTMLElement, event: MouseEvent, offset: [number, number] = [0, 0]) {
 	if (getStyleValue(el, 'position') !== 'fixed') {
-		throw new Error(`Element to call "alignToEvent" must be fixed layout`)
+		throw new Error(`Element to call "alignToEvent" must in fixed layout`)
 	}
 
 	let dw = document.documentElement.clientWidth

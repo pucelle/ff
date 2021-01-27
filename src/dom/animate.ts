@@ -433,7 +433,8 @@ export async function animateTo(
 }
 
 
-/** Execute standard web animation, captures current state as start frame, and captures a new state later as end frame.
+/**
+ * Execute standard web animation, captures current state as start frame, and captures a new state later as end frame.
  * @param el The element to execute web animation.
  * @param properties The style properties to capture.
  * @param duration The animation duration.

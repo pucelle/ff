@@ -234,7 +234,7 @@ export function binaryFindIndex<T>(array: T[], fn: (item: T) => number): number 
 
 
 /**
- * Using binary algorithm to find the closest index from a sorted array in where to insert new item and keep order.
+ * Using binary algorithm to find the closest index from a sorted array at where to insert new item and keep order.
  * Returned index betweens `0 ~ array.length`, and if `array[index]` exist, `fn(array[index]) >= 0`.
  * @param array The sorted array.
  * @param fn The function to accept item in array as parameter and returns nagative value to move left, positive value to move right.
@@ -317,7 +317,7 @@ export class Order<T> {
 				this.orders.push([order[0], order[1]])
 			}
 			else {
-				throw new Error(JSON.stringify(orders) + ' doesn\'t specify any valid key or order.')
+				throw new TypeError(JSON.stringify(orders) + ' doesn\'t specify any valid key or order.')
 			}
 		}
 	}
@@ -388,8 +388,8 @@ export class Order<T> {
 	}
 	
 	/**
-	 * Binary insert an `item` into `array` and keep current order.
-	 * Note here uses `splice` to insert item, it's very slower since it reallocates memory frequently.
+	 * Binary insert an `item` into `array` and keeps current order.
+	 * Note it uses `splice` to insert item, it's very slower since it reallocates memory frequently.
 	 * @param array The array to lookup.
 	 * @param item The item to insert.
 	 */

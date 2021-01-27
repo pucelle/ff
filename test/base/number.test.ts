@@ -6,8 +6,7 @@ describe('Test number', () => {
 		expect(ff.toPower(123.456)).toEqual(123)
 		expect(ff.toPower(123.456, -2)).toEqual(123.46)
 		expect(ff.toPower(123.456, 2)).toEqual(100)
-		expect(ff.toPower(123.456, 3)).toEqual(100)
-		expect(ff.toPower(0.456, 0)).toEqual(0.5)
+		expect(ff.toPower(123.456, 3)).toEqual(0)
 	})
 
 	test('mod', () => {

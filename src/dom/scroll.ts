@@ -12,6 +12,7 @@ export function isContentOverflow(el: HTMLElement): boolean {
 }
 
 
+/** Cached scroll bar width. */
 let scrollBarWidth: number | null = null
 
 /**

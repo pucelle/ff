@@ -163,7 +163,7 @@ describe('Test function', () => {
 			let throttle = ff.throttle(fn, 100)
 			let throttleFn = throttle.wrapped
 			let interval = willEndInterval(throttleFn, 40)
-			expect(throttle.flush()).toEqual(false)
+			expect(throttle.flush()).toEqual(true)
 			expect(interval.cancel()).toEqual(true)
 		})
 	})

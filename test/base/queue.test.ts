@@ -1,7 +1,7 @@
 import * as ff from '../..'
 
 
-describe('Test queue', async () => {
+describe('Test queue', () => {
 	let a = [0,1,2,3,4,5,6,7,8,9]
 	
 	test('queueEach', async () => {
@@ -189,10 +189,6 @@ describe('Test queue', async () => {
 			concurrency: 2,
 			tasks: a,
 			handler: (n) => {
-				if (n === 5) {
-					expect(q.find(n => n === 5)).toEqual(5)
-					expect(q.remove(n)).toEqual([5])
-				}
 				if (n === 6) {
 					return Promise.reject('')
 				}
@@ -216,9 +212,6 @@ describe('Test queue', async () => {
 			concurrency: 2,
 			tasks: a,
 			handler: (n) => {
-				if (n === 5) {
-					expect(q.removeWhere(n => n === 5)).toEqual([5])
-				}
 				if (n === 6) {
 					return Promise.reject('')
 				}

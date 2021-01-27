@@ -23,7 +23,7 @@ type EventHandler = (...args: any[]) => void
  * Event emitter as super class to listen and emit custom events.
  * @typeparam E Event interface in `{eventName: (...args) => void}` format.
  */
-export class EventEmitter<E = any> {
+export abstract class EventEmitter<E = any> {
 
 	/** Registered events. */
 	private __events: Map<keyof E, EventItem[]> = new Map()

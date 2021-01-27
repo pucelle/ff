@@ -80,13 +80,13 @@ describe('Test date', () => {
 
 	test('formatToShortTime', () => {
 		let n = ff.addDurationToDate(d, '1y')
-		expect(ff.formatToShortDate(n)).toEqual(ff.formatDate(n, 'yyyy-MM-dd hh:mm'))
+		expect(ff.formatToShortDate(n)).toEqual(ff.formatDate(n, 'yyyy-MM-dd'))
 
 		n = ff.addDurationToDate(d, d.getMonth() > 6 ? '-1M' : '1M')
-		expect(ff.formatToShortDate(n)).toEqual(ff.formatDate(n, 'MM-dd hh:mm'))
+		expect(ff.formatToShortDate(n)).toEqual(ff.formatDate(n, 'MM-dd'))
 
 		n = ff.addDurationToDate(d, d.getDate() > 15 ? '-1d' : '1d')
-		expect(ff.formatToShortDate(n)).toEqual(ff.formatDate(n, 'MM-dd hh:mm'))
+		expect(ff.formatToShortDate(n)).toEqual(ff.formatDate(n, 'MM-dd'))
 
 		n = ff.addDurationToDate(d, d.getHours() > 12 ? '-1h' : '1h')
 		expect(ff.formatToShortDate(n)).toEqual(ff.formatDate(n, 'hh:mm'))

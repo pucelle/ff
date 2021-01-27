@@ -89,7 +89,7 @@ function bindWatch(isOnce: boolean, untilTrue: boolean, el: HTMLElement, type: W
 	let observer: any = null
 
 	if (!getState) {
-		throw new Error(`Failed to watch, type "${type}" is not supported`)
+		throw new TypeError(`Failed to watch, type "${type}" is not supported`)
 	}
 
 	if (untilTrue) {

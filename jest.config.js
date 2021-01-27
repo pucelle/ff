@@ -1,12 +1,17 @@
 module.exports = {
-	"testEnvironment": "node",
-	"transform": {
-		"^.+\\.tsx?$": "ts-jest"
+	preset: 'ts-jest',
+	globals: {
+		'ts-jest': {
+			tsconfig: {
+				target: 'ES2020'
+			}
+		}
 	},
-	"testMatch": [
+	testEnvironment: "node",
+	testMatch: [
 		"**/test/base/**/*.test.ts"
 	],
-	"moduleFileExtensions": [
+	moduleFileExtensions: [
 		"ts",
 		"tsx",
 		"js",
