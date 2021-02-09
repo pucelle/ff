@@ -16,7 +16,7 @@
 		"watch": "tsc -b -w",
 		"test": "jest",
 		"prepublish": "tsc -b",
-		"doc": "typedoc src/index.ts"
+		"docs": "typedoc src/index.ts"
 	},
 	"devDependencies": {
 		"@types/jest": "^24.9.1",

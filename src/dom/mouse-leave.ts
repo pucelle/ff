@@ -22,9 +22,10 @@ export namespace MouseLeave {
 	const Controllers: Set<MouseLeaveController> = new Set()
 
 	/**
-	 * Make sure elements and all their ancestors can't trigger mouse leave callback and becomes invisible.
+	 * Make sure elements and all their ancestors can't trigger mouse leave callback and always visible.
 	 * Normally used for contextmenu to keep parent popup visible.
-	 * @param els Array of elements to keep.
+	 * @param els Single element or array of elements to keep.
+	 * @returns unkeep Stops keeping element, elements will hide after mouse leave, and will be hidden immediately if mouse is alread leaved.
 	 */
 	export function keep(els: Element | Element[]): () => void {
 

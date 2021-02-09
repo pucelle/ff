@@ -283,7 +283,7 @@ export function binaryFindIndexToInsert<T>(array: T[], fn: (item: T) => number):
 
 
 /** Ordering direction, `-1` to sort items from large to small, while `1` and to sort items from small to large. */
-export type OrderDirection = -1 | 1
+export type OrderDirection = -1 | 1 | 'asc' | 'desc'
 
 /** Ordering function that returned result can be used to do ordering. */
 export type OrderFunction<T> = (item: T) => string | number
@@ -314,7 +314,7 @@ export class Order<T> {
 				this.orders.push([order as any, 1])
 			}
 			else if (Array.isArray(order) && ['string', 'number', 'function'].includes(typeof order[0])) {
-				this.orders.push([order[0], order[1]])
+				this.orders.push([order[0], order[1] === 'asc' ? 1 : order[1] === 'desc' ? -1 : order[1]])
 			}
 			else {
 				throw new TypeError(JSON.stringify(orders) + ' doesn\'t specify any valid key or order.')
@@ -332,8 +332,8 @@ export class Order<T> {
 
 	/**
 	 * Compare two items.
-	 * When `order` is `1`: returns `0` if they are same; returns `-1` if the first one less that the second one; else returns `1`.
-	 * When `order` is `-1`: returns `0` if they are same; returns `1` if the first one less that the second one; else returns `-1`.
+	 * When `order` is `1` or `asc`: returns `0` if they are same; returns `-1` if the first one less that the second one; else returns `1`.
+	 * When `order` is `-1` or `desc`: returns `0` if they are same; returns `1` if the first one less that the second one; else returns `-1`.
 	 * @param a First item.
 	 * @param b Second item.
 	 */
