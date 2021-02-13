@@ -220,7 +220,7 @@ export function animateInterpolatedValue(
 	duration: number = DefaultAnimationDuration,
 	easing: AnimationEasing = DefaultAnimationEasing
 ) {
-	let stop
+	let stop: () => void
 
 	let promise: Promise<boolean> = new Promise((resolve) => {
 		stop = playPerFrameAnimation(duration, easing,
@@ -233,7 +233,7 @@ export function animateInterpolatedValue(
 
 	return {
 		promise,
-		stop,
+		stop: stop!,
 	}
 }
 

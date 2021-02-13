@@ -147,8 +147,9 @@ export function getRect(el: Element): Rect {
  * Note that this method may cause page reflow.
  * @param el The element to check if is in view.
  * @param percentage Specify how much percentage of el size implies in view.
+ * @param additionalElement Normally a popup element with `el` as it's trigger. it may cover `el` when page resizing.
  */
-export function isVisibleInViewport(el: Element, percentage: number = 0.5): boolean {
+export function isVisibleInViewport(el: Element, percentage: number = 0.5, additionalElement?: Element): boolean {
 	let dw = document.documentElement.clientWidth
 	let dh = document.documentElement.clientHeight
 	let rect = getRect(el)
@@ -164,7 +165,8 @@ export function isVisibleInViewport(el: Element, percentage: number = 0.5): bool
 			return true
 		}
 		
-		let notBeCovered = el.contains(document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2))
+		let elementInPoint = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)
+		let notBeCovered = el.contains(elementInPoint) || additionalElement?.contains(elementInPoint)
 		if (notBeCovered) {
 			return true
 		}

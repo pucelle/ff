@@ -7,20 +7,41 @@ import {getClosestFixedElement} from './util'
 export interface AlignOptions {
 
  	/** 
-	  * The margin as gaps betweens align element and target, can be a number or a number array composed of 1-4 numbers.
+	  * The margin as gaps betweens align element and target,
+	  * can be a number or a number array composed of 1-4 numbers.
 	  * Unique number will only work in main direction.
 	  */
 	margin?: number | number[]
 
-	/** If true, when el contains high content and should be cutted in viewport, it will be shrinked and with `overflow: y` set. */
+	/** 
+	 * Whether stick align element to viewport edges.
+	 * Such that if align element partly cutted by viewport,
+	 * it will be adjusted to become fully visible.
+	 * Default value is `true`, you should explicitly set it to `false` to disable.
+	 */
+	stickToEdges?: boolean
+
+	/** 
+	 * Whether can swap align position if spaces in current position is not enough.
+	 * Default value is `true`, you should explicitly set it to `false` to disable.
+	 */
+	canSwapPosition?: boolean
+
+	/** 
+	 * If `true`, when el contains large content and should be cutted in viewport,
+	 * it will be shrinked and with `overflow: y` set.
+	 */
 	canShrinkInY?: boolean
 
-	/** The triangle element in el, which should set will be adjusted left or top to the middle of the touched place of el and target. */
+	/** 
+	 * The triangle element in align element,
+	 * If provided, will adjust it's left or top position to the center of the intersect edges between el and target.
+	 */
 	triangle?: HTMLElement | undefined
 
 	/** 
-	 * Should align triangle in a fixed position.
-	 * Default value is `false`, means triangle will be adjusted to be in the center of the edge of el or target.
+	 * Whether should align triangle in a fixed position.
+	 * Default value is `false`, means triangle will be adjusted to be in the center of the intersect edges between el and target.
 	 */
 	fixTriangle?: boolean
 }
@@ -122,27 +143,62 @@ export function align(el: HTMLElement, target: Element, position: AlignPosition,
 
 export class Aligner {
 
-	private el: HTMLElement
-	private target: Element
-	private triangle: HTMLElement | null
-	private triangleRect: Rect | null = null
-	private canShrinkInY: boolean
-	private position: [string, string]
-	private margin: [number, number, number, number]
-	private direction: Record<'top' | 'right' | 'bottom' | 'left', boolean>
+	/** Which element to align. */
+	private readonly el: HTMLElement
+
+	/** Which element to align beside. */
+	private readonly target: Element
+
+	/** Triangle element in `el`. */
+	private readonly triangle: HTMLElement | null
+
+	/** Rect of triangle element, if exist. */
+	private readonly triangleRect: Rect | null = null
+
+	/** Whether stick align element to viewport edges. */
+	private readonly stickToEdges?: boolean
+
+	/** Whether can swap align position if spaces in current position is not enough. */
+	private readonly canSwapPosition?: boolean
+
+	/** If not enough space in y axis, whether should shrink. */
+	private readonly canShrinkInY: boolean
+
+	/** Align position, `[anchor of align element, anchor of target element]`. */
+	private readonly position: [string, string]
+
+	/** Margin outside of target element. */
+	private readonly margin: [number, number, number, number]
+
+	/** In which directions to align. */
+	private readonly direction: Record<'top' | 'right' | 'bottom' | 'left', boolean>
+
+	/** Whether target intersect with viewport. */
+	private readonly isTargetInViewport: boolean
+
+	/** Align target element rect. */
+	private readonly targetRect: Rect
+
+	/** Whether should align triangle element in a fixed position. */
+	private readonly fixTriangle: boolean
+
+	/** Align element rect. */
 	private rect: Rect
-	private targetRect: Rect
-	private targetInViewport: boolean
-	private fixTriangle: boolean
+	
+	/** Generated x position of align element. */
 	private x: number = 0
+
+	/** Generated y position of align element. */
 	private y: number = 0
 
 	constructor(el: HTMLElement, target: Element, position: string, options: AlignOptions = {}) {
 		this.el = el
 		this.target = target
 		this.triangle = options.triangle || null
-		this.canShrinkInY = !!options.canShrinkInY
-		this.fixTriangle = !!options.fixTriangle
+		this.stickToEdges = options.stickToEdges ?? true
+		this.canSwapPosition = options.canSwapPosition ?? true
+		this.canShrinkInY = options.canShrinkInY ?? false
+		this.fixTriangle = options.fixTriangle ?? false
 
 		if (this.triangle) {
 			this.triangle.style.transform = ''
@@ -155,7 +211,7 @@ export class Aligner {
 		this.direction = this.getDirections()
 		this.margin = this.parseMargin(options.margin || 0)
 		this.targetRect = this.getExtendedRect(target)
-		this.targetInViewport = isIntersectWithViewport(this.targetRect)
+		this.isTargetInViewport = isIntersectWithViewport(this.targetRect)
 	
 		if (this.canShrinkInY && !this.triangle) {
 			this.rect.height = this.getNaturalHeight()
@@ -334,43 +390,50 @@ export class Aligner {
 		let h = this.rect.height
 		let y = this.y
 
-		if (this.targetInViewport) {
+		if (this.isTargetInViewport) {
 			if (this.direction.top || this.direction.bottom) {
-				if (this.direction.top && y < 0 && spaceTop < spaceBottom) {
+
+				// Not enough space in top position.
+				if (this.direction.top && y < 0 && spaceTop < spaceBottom && this.canSwapPosition) {
 					y = this.targetRect.bottom
 					this.direction.top = false
 					this.direction.bottom = true
 				}
-				else if (y + h > dh && spaceTop > spaceBottom) {
+
+				// Not enough space in bottom position.
+				else if (y + h > dh && spaceTop > spaceBottom && this.canSwapPosition) {
 					y = this.targetRect.top - h
 					this.direction.top = true
 					this.direction.bottom = false
 				}
 			}
 			else {
-				if (y + h > dh) {
+
+				// Can move up to become fully visible.
+				if (y + h > dh && this.stickToEdges) {
 					let minY = this.targetRect.top + this.margin[1] + (this.triangleRect ? this.triangleRect.height : 0) - h
 					y = Math.max(dh - h, minY)
 				}
 
-				if (y < 0) {
+				// Can move down to become fully visible.
+				if (y < 0 && this.stickToEdges) {
 					let maxY = this.targetRect.bottom - this.margin[2] - (this.triangleRect ? this.triangleRect.height : 0)
 					y = Math.min(0, maxY)
 				}
 			}
 
 			if (y < 0) {
-				if (this.direction.top && this.canShrinkInY) {
+
+				// Shrink align element if possible.
+				if (this.direction.top && this.stickToEdges && this.canShrinkInY) {
 					y = 0
 					this.el.style.height = spaceTop + 'px'
 					overflowYSet = true
 				}
 			}
-			else if (this.direction.bottom && y + h > dh) {
-				if (this.canShrinkInY) {
-					this.el.style.height = spaceBottom + 'px'
-					overflowYSet = true
-				}
+			else if (this.direction.bottom && y + h > dh && this.stickToEdges && this.canShrinkInY) {
+				this.el.style.height = spaceBottom + 'px'
+				overflowYSet = true
 			}
 
 			this.y = y
@@ -387,26 +450,33 @@ export class Aligner {
 		let w = this.rect.width
 		let x = this.x
 
-		if (this.targetInViewport) {
+		if (this.isTargetInViewport) {
 			if (this.direction.left || this.direction.right) {
-				if (this.direction.left && x < 0 && spaceLeft < spaceRight) {
+
+				// Not enough space in left position.
+				if (this.direction.left && x < 0 && spaceLeft < spaceRight && this.canSwapPosition) {
 					x = this.targetRect.right
 					this.direction.left = false
 					this.direction.right = true
 				}
-				else if (this.direction.right && x > dw - w && spaceLeft > spaceRight) {
+
+				// Not enough space in right position.
+				else if (this.direction.right && x > dw - w && spaceLeft > spaceRight && this.canSwapPosition) {
 					x = this.targetRect.left - w
 					this.direction.left = true
 					this.direction.right = false
 				}
 			}
 			else {
-				if (x + w > dw) {
+
+				// Can move left to become fully visible.
+				if (x + w > dw && this.stickToEdges) {
 					let minX = this.targetRect.left + this.margin[3] + (this.triangleRect ? this.triangleRect.width : 0) - w
 					x = Math.max(dw - w, minX)
 				}
 
-				if (x < 0) {
+				// Can move right to become fully visible.
+				if (x < 0 && this.stickToEdges) {
 					let minX = this.targetRect.right - this.margin[1] - (this.triangleRect ? this.triangleRect.width : 0)
 					x = Math.min(0, minX)
 				}
