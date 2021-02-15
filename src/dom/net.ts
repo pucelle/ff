@@ -41,13 +41,15 @@ export class ResourceLoader extends EventEmitter<ResourceLoaderEvents> {
 	base: string = ''
 
 	/** If `true`, will continue request other resource if error occurs, default value is `false` */
-	continueOnError: boolean = false
+	continueOnError: boolean
 
 	private blobMap: Map<string, Blob> = new Map()
 
 	constructor(options: ResourceLoaderOptions = {}) {
 		super()
-		Object.assign(this, options)
+
+		this.base = options.base ?? ''
+		this.continueOnError = options.continueOnError ?? false
 	}
 
 	/** Load bunch of resources. */

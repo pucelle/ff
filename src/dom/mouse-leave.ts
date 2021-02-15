@@ -121,7 +121,7 @@ export namespace MouseLeave {
 		els: Element[]
 
 		/** Is mouse inside any of `els`. */
-		mouseIn: boolean = false
+		mouseIn: boolean
 		
 		/** 
 		 * Count of been locked.
@@ -140,7 +140,7 @@ export namespace MouseLeave {
 		private callback: () => void
 
 		/** Trigger `callback` delay. */
-		private delay: number = 200
+		private delay: number
 
 		/** Is the controller canceld. */
 		private ended: boolean = false
@@ -151,14 +151,13 @@ export namespace MouseLeave {
 		/** Cancel keeping parents of `els` visible. */
 		private unkeep: () => void
 	
-		constructor(isOnce: boolean, els: Element[], callback: () => void, options?: MouseLeaveOptions) {
+		constructor(isOnce: boolean, els: Element[], callback: () => void, options: MouseLeaveOptions = {}) {
 			this.isOnce = isOnce
 			this.els = els
 			this.callback = callback
 			
-			if (options) {
-				Object.assign(this, options)
-			}
+			this.delay = options.delay ?? 200
+			this.mouseIn = options.mouseIn ?? false
 	
 			this.onMouseEnter = this.onMouseEnter.bind(this)
 			this.onMouseLeave = this.onMouseLeave.bind(this)

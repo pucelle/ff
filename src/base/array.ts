@@ -4,7 +4,7 @@
  * @param item The value to repeat.
  * @param count Count of times to repeat.
  */
-export function repeatTimes<T>(item: T, count: number): T[] {
+export function repeatForTimes<T>(item: T, count: number): T[] {
 	let items: T[] = []
 
 	for (let i = 0 ; i < count; i++) {
@@ -323,7 +323,7 @@ export class Order<T> {
 	}
 
 	/**
-	 * Sort `array` inside by the order specified by current object.
+	 * Sort `array` inside by current order.
 	 * @param array The array to sort.
 	 */
 	sortArray(array: T[]) {
