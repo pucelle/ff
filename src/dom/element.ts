@@ -1,3 +1,4 @@
+import {binaryFindIndex} from '../base/array'
 import {getStyleValueAsNumber} from './style'
 
 
@@ -173,4 +174,42 @@ export function isVisibleInViewport(el: Element, percentage: number = 0.5, addit
 	}
 
 	return false
+}
+
+
+/** 
+ * Locate the first element in els that is is visible inside container.
+ * @container Container to check visible inside.
+ * @param els Element list to check.
+ */
+export function locateFirstVisibleIndex(container: Element, els: ArrayLike<Element>): number {
+	return locateVisibleIndex(container, els, true)
+}
+
+
+/** 
+ * Locate the last element in els that is is visible inside container.
+ * @container Container to check visible inside.
+ * @param els Element list to check.
+ */
+export function locateLastVisibleIndex(container: Element, els: ArrayLike<Element>): number {
+	return locateVisibleIndex(container, els, false)
+}
+
+
+function locateVisibleIndex(container: Element, els: ArrayLike<Element>, isFirst: boolean): number {
+	let containerRect = container.getBoundingClientRect()
+
+	return binaryFindIndex(els, (el) => {
+		let rect = el.getBoundingClientRect()
+		if (rect.bottom <= containerRect.top) {
+			return 1
+		}
+		else if (rect.top >= containerRect.bottom) {
+			return -1
+		}
+		else {
+			return isFirst ? -1 : 1
+		}
+	})
 }

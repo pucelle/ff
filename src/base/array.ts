@@ -175,7 +175,7 @@ export function difference<T extends number | string>(array: T[], ...excludeArra
  * @param array The sorted array to find items from.
  * @param fn The function to accept 2 items in array as parameters and returns negative value to move left, positive value to move right.
  */
-export function binaryFind<T>(array: T[], fn: (item: T) => number): T | undefined {
+export function binaryFind<T>(array: ArrayLike<T>, fn: (item: T) => number): T | undefined {
 	let index = binaryFindIndex(array, fn)
 	return index === -1 ? undefined : array[index]
 }
@@ -186,7 +186,7 @@ export function binaryFind<T>(array: T[], fn: (item: T) => number): T | undefine
  * @param array The sorted array.
  * @param fn The function to accept item in array as parameter and returns negative value to move left, positive value to move right.
  */
-export function binaryFindIndex<T>(array: T[], fn: (item: T) => number): number {
+export function binaryFindIndex<T>(array: ArrayLike<T>, fn: (item: T) => number): number {
 	if (array.length === 0) {
 		return -1
 	}
@@ -239,7 +239,7 @@ export function binaryFindIndex<T>(array: T[], fn: (item: T) => number): number 
  * @param array The sorted array.
  * @param fn The function to accept item in array as parameter and returns nagative value to move left, positive value to move right.
  */
-export function binaryFindIndexToInsert<T>(array: T[], fn: (item: T) => number): number {
+export function binaryFindIndexToInsert<T>(array: ArrayLike<T>, fn: (item: T) => number): number {
 	if (array.length === 0) {
 		return 0
 	}
