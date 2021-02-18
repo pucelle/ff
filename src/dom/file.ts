@@ -1,4 +1,4 @@
-import {sleep} from "../base"
+import {sleep} from '../base'
 
 /**
  * Download url as a file with specified `fileName`.

@@ -98,9 +98,11 @@ export class Timeout extends TimingFunction {
  * Just like `setTimeout`, call `fn` after `ms` millisecons.
  * @param fn The function to call later.
  * @param ms The timeout time in millisecons.
+ * @returns A cancel function.
  */
-export function timeout(fn: Function, ms: number = 0): Timeout {
-	return new Timeout(fn, ms)
+export function timeout(fn: Function, ms: number = 0): () => void {
+	let t = new Timeout(fn, ms)
+	return t.cancel.bind(t)
 }
 
 
@@ -158,9 +160,11 @@ export class Interval extends TimingFunction {
  * Just like `setInterval`, call `fn` every `ms` millisecons.
  * @param fn The function to call.
  * @param ms The interval time in millisecons.
+ * @returns A cancel function.
  */
-export function interval(fn: Function, ms: number): Interval {
-	return new Interval(fn, ms)
+export function interval(fn: Function, ms: number): () => void {
+	let i = new Interval(fn, ms)
+	return i.cancel.bind(i)
 }
 
 
@@ -183,12 +187,7 @@ export class Throttle<F extends Function> extends WrappedTimingFunction<F> {
 	}
 
 	private setThrottle() {
-		if (this.ms) {
-			this.id = setTimeout(this.onTimeout.bind(this), this.ms)
-		}
-		else {
-			this.id = requestAnimationFrame(this.onTimeout.bind(this))
-		}
+		this.id = setTimeout(this.onTimeout.bind(this), this.ms)
 	}
 
 	private onTimeout() {
@@ -207,13 +206,7 @@ export class Throttle<F extends Function> extends WrappedTimingFunction<F> {
 	}
 
 	private clearThrottle() {
-		if (this.ms) {
-			clearTimeout(this.id)
-		}
-		else {
-			cancelAnimationFrame(this.id)
-		}
-		
+		clearTimeout(this.id)
 		this.id = null
 	}
 
@@ -244,10 +237,11 @@ export class Throttle<F extends Function> extends WrappedTimingFunction<F> {
  * Throttle function calls, `fn` will not be called for twice in each `ms` millisecons
  * Note that it doesn't ensure the last calling.
  * @param fn The function to throttle.
- * @param ms The time period in which allows at most one calling. If omitted, uses `requestAnimationFrame` to throttle.
+ * @param ms The time period in which allows at most one calling.
+ * @returns A wrapped function.
  */
-export function throttle<F extends Function>(fn: F, ms: number = 0): Throttle<F> {
-	return new Throttle(fn, ms)
+export function throttle<F extends Function>(fn: F, ms: number = 0): F {
+	return new Throttle(fn, ms).wrapped
 }
 
 
@@ -275,12 +269,7 @@ export class SmoothThrottle<F extends Function> extends WrappedTimingFunction<F>
 	}
 
 	private setThrottle() {
-		if (this.ms) {
-			this.id = setTimeout(this.onTimeout.bind(this), this.ms)
-		}
-		else {
-			this.id = requestAnimationFrame(this.onTimeout.bind(this))
-		}
+		this.id = setTimeout(this.onTimeout.bind(this), this.ms)
 	}
 
 	private onTimeout() {
@@ -323,13 +312,7 @@ export class SmoothThrottle<F extends Function> extends WrappedTimingFunction<F>
 	}
 
 	private clearThrottle() {
-		if (this.ms) {
-			clearTimeout(this.id)
-		}
-		else {
-			cancelAnimationFrame(this.id)
-		}
-		
+		clearTimeout(this.id)
 		this.id = null
 	}
 
@@ -352,10 +335,11 @@ export class SmoothThrottle<F extends Function> extends WrappedTimingFunction<F>
  * Throttle function calls, `fn` will not be called for twice in each `ms` millisecons.
  * Different from `ff.throttle`, `fn` will be called lazily and smooth, and it ensures the last calling.
  * @param fn The function to throttle.
- * @param ms The time period which allows at most one calling. If omitted, uses `requestAnimationFrame` to throttle.
+ * @param ms The time period which allows at most one calling.
+ * @returns A wrapped function.
  */
-export function smoothThrottle<F extends Function>(fn: F, ms: number): SmoothThrottle<F> {
-	return new SmoothThrottle(fn, ms)
+export function smoothThrottle<F extends Function>(fn: F, ms: number): F {
+	return new SmoothThrottle(fn, ms).wrapped
 }
 
 
@@ -444,6 +428,6 @@ export class Debounce<F extends Function> extends WrappedTimingFunction<F> {
  * @param fn The function to debounce.
  * @param ms The timeout in milliseconds.
  */
-export function debounce<F extends Function> (fn: F, ms: number): Debounce<F> {
-	return new Debounce(fn, ms)
+export function debounce<F extends Function> (fn: F, ms: number): F {
+	return new Debounce(fn, ms).wrapped
 }

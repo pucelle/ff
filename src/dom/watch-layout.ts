@@ -13,13 +13,16 @@ export interface LayoutWatcherOptions {
 
 	/** A millseconds, if specified, use interval to check instead of animation frame or observer classes. */
 	intervalTime?: number
+
+	/** If specified as `true`, check in each animation frame. */
+	checkInAnimationFrame?: boolean
 }
 
 /** Can watch types. */
-type WatchType = 'show' | 'hide' | 'inview' | 'outview' | 'size' | 'rect'
+export type WatchLayoutType = 'show' | 'hide' | 'inview' | 'outview' | 'size' | 'rect'
 
 /** Watch callback. */
-type WatchCallback<T extends WatchType> = (state: ReturnType<(typeof WatchStateFns)[T]>) => void
+export type WatchLayoutCallback<T extends WatchLayoutType> = (state: ReturnType<(typeof WatchStateFns)[T]>) => void
 
 
 const WatchStateFns = {
@@ -54,15 +57,14 @@ const WatchStateFns = {
 
 
 /**
- * Watch specified state, trigger `callback` if state changed.
- * Please makesure everything was rendered before call this.
- * Returns a cancel function.
+ * Watch specified layout state, trigger `callback` if state changed.
  * Note that this method may slow page speed and cause additional reflow.
  * @param el The element to watch.
  * @param type Watch state type, can be `show | hide | inview | outview | size | rect`.
  * @param callback The callback to call when state changed.
+ * @returns A cancel function.
  */
-export function watchLayout<T extends WatchType>(el: HTMLElement, type: T, callback: WatchCallback<T>): () => void {
+export function watchLayout<T extends WatchLayoutType>(el: HTMLElement, type: T, callback: WatchLayoutCallback<T>): () => void {
 	let watcher = new LayoutWatcher(el, type, callback)
 	watcher.watch()
 
@@ -71,15 +73,14 @@ export function watchLayout<T extends WatchType>(el: HTMLElement, type: T, callb
 
 
 /**
- * Watch specified state, trigger `callback` if it changed for only once.
- * Please makesure everything was rendered before call this.
- * Returns a cancel function.
+ * Watch specified layout state, trigger `callback` if it changed for only once.
  * Note that this method may slow page speed and cause additional reflow.
  * @param el The element to watch.
  * @param type Watch state type, can be `show | hide | inview | outview | size | rect`.
  * @param callback The callback to call when state changed.
+ * @returns A cancel function.
  */
-export function watchLayoutOnce<T extends WatchType>(el: HTMLElement, type: WatchType, callback: WatchCallback<T>): () => void {
+export function watchLayoutOnce<T extends WatchLayoutType>(el: HTMLElement, type: WatchLayoutType, callback: WatchLayoutCallback<T>): () => void {
 	let watcher = new LayoutWatcher(el, type, callback, {once: true})
 	watcher.watch()
 
@@ -88,15 +89,14 @@ export function watchLayoutOnce<T extends WatchType>(el: HTMLElement, type: Watc
 
 
 /**
- * Watch specified state, trigger `callback` if the state becomes `true` and never trigger again.
- * Please makesure everything was rendered before call this.
- * Returns a cancel function.
+ * Watch specified layout state, trigger `callback` if the state becomes `true` and never trigger again.
  * Note that this method may slow page speed and cause additional reflow.
  * @param el The element to watch.
  * @param type Watch state type, can be `show | hide | inview | outview`.
- * @param callback The callback to call when state becomes true.
+ * @param callback The callback to call when state becomes `true`.
+ * @returns A cancel function.
  */
-export function watchLayoutUntil<T extends 'show' | 'hide' | 'inview' | 'outview'>(el: HTMLElement, type: T, callback: WatchCallback<T>): () => void {
+export function watchLayoutUntil<T extends 'show' | 'hide' | 'inview' | 'outview'>(el: HTMLElement, type: T, callback: WatchLayoutCallback<T>): () => void {
 	let watcher = new LayoutWatcher(el, type, callback, {untilTrue: true})
 	watcher.watch()
 
@@ -104,7 +104,7 @@ export function watchLayoutUntil<T extends 'show' | 'hide' | 'inview' | 'outview
 }
 
 
-export class LayoutWatcher<T extends WatchType> {
+export class LayoutWatcher<T extends WatchLayoutType> {
 
 	/** Watcher state type, can be `show | hide | inview | outview | size | rect`. */
 	private readonly type: T
@@ -113,7 +113,7 @@ export class LayoutWatcher<T extends WatchType> {
 	private readonly el: HTMLElement
 
 	/** The callback to call after state changed. */
-	private readonly callback: WatchCallback<T>
+	private readonly callback: WatchLayoutCallback<T>
 
 	private readonly options: LayoutWatcherOptions
 
@@ -123,8 +123,9 @@ export class LayoutWatcher<T extends WatchType> {
 	private frameId: number | null = null
 	private interval: Interval | null = null
 	private oldState: any = null
+	private unwatchChange: (() => void)| null = null
 
-	constructor(el: HTMLElement, type: T, callback: WatchCallback<T>, options: LayoutWatcherOptions = {}) {
+	constructor(el: HTMLElement, type: T, callback: WatchLayoutCallback<T>, options: LayoutWatcherOptions = {}) {
 		this.el = el
 		this.type = type
 		this.callback = callback
@@ -148,8 +149,11 @@ export class LayoutWatcher<T extends WatchType> {
 		else if (this.options.intervalTime) {
 			this.interval = new Interval(this.checkStateInInterval.bind(this), this.options.intervalTime)
 		}
-		else {
+		else if (this.options.checkInAnimationFrame) {
 			this.frameId = requestAnimationFrame(this.checkStateInAnimationFrame.bind(this))
+		}
+		else {
+			this.unwatchChange = watchDocumentChange(this.checkStateInInterval.bind(this))
 		}
 	}
 
@@ -158,11 +162,16 @@ export class LayoutWatcher<T extends WatchType> {
 		if (this.observer) {
 			this.observer.unobserve(this.el)
 		}
-		else if (this.frameId) {
-			cancelAnimationFrame(this.frameId)
+		else if (this.options.intervalTime) {
+			this.interval?.cancel()
 		}
-		else if (this.interval) {
-			this.interval.cancel()
+		else if (this.options.checkInAnimationFrame) {
+			if (this.frameId) {
+				cancelAnimationFrame(this.frameId)
+			}
+		}
+		else {
+			this.unwatchChange?.()
 		}
 	}
 	
@@ -253,4 +262,55 @@ export class LayoutWatcher<T extends WatchType> {
 	resetState() {
 		this.oldState = this.getState(this.el)
 	}
+}
+
+
+let mutationObserver: MutationObserver | null = null
+let mutationObserverCallbacks: Array<() => void> = []
+let willEmitDocumentChange: boolean = false
+
+
+function watchDocumentChange(callback: () => void) {
+	if (!mutationObserver) {
+		mutationObserver = new MutationObserver(emitDocumentChangeLater)
+		mutationObserver.observe(document.documentElement, {subtree: true, childList: true, attributes: true})
+	}
+
+	if (mutationObserverCallbacks.length === 0) {
+		window.addEventListener('resize', emitDocumentChangeLater)
+		window.addEventListener('wheel', emitDocumentChangeLater)
+	}
+
+	mutationObserverCallbacks.push(callback)
+
+	return () => {
+		unwatchDocumentChange(callback)
+	}
+}
+
+function unwatchDocumentChange(callback: () => void) {
+	mutationObserverCallbacks = mutationObserverCallbacks.filter(v => v !== callback)
+
+	if (mutationObserverCallbacks.length === 0 && mutationObserver) {
+		mutationObserver.disconnect()
+	}
+
+	if (mutationObserverCallbacks.length === 0) {
+		window.removeEventListener('resize', emitDocumentChangeLater)
+		window.removeEventListener('wheel', emitDocumentChangeLater)
+	}
+}
+
+function emitDocumentChangeLater() {
+	if (!willEmitDocumentChange) {
+		requestAnimationFrame(emitDocumentChange)
+		willEmitDocumentChange = true
+	}
+}
+
+function emitDocumentChange() {
+	for (let callback of mutationObserverCallbacks) {
+		callback()
+	}
+	willEmitDocumentChange = false
 }
