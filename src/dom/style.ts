@@ -1,4 +1,4 @@
-import {normativeStyleValue} from './util'
+import {normativeStyleValue} from './utils'
 
 
 /** Type of style properties. */

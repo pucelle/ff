@@ -1,5 +1,5 @@
 import {getStyleValueAsNumber, StylePropertyName, setStyleValues, setStyleValue} from './style'
-import {normativeStyleObject} from "./util"
+import {normativeStyleObject} from "./utils"
 
 
 /** Animation easing identifier. */

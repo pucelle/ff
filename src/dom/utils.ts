@@ -17,16 +17,3 @@ export function normativeStyleObject(styleObject: Record<string, string | number
 	}
 	return styleObject as Record<string, string>
 }
-
-
-/** Get a closest ancest element which has fixed position. */
-export function getClosestFixedElement(el: Element): HTMLElement | null {
-	while (el && el !== document.documentElement) {
-		if (getComputedStyle(el).position === 'fixed') {
-			break
-		}
-		el = el.parentElement!
-	}
-
-	return el === document.documentElement ? null : el as HTMLElement
-}

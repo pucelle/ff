@@ -1,9 +1,8 @@
 import {getStyleValue} from './style'
 import {Rect, getRect} from './element'
-import {getClosestFixedElement} from './util'
 
 
-/** Option for aligning element. */
+/** Option for alignment element. */
 export interface AlignOptions {
 
  	/** 
@@ -126,6 +125,9 @@ export type AlignPosition = 't'
 	| 'cl-cr'
 	| 'cr-cl'
 
+type Position = {x: number, y: number}
+type Directions = Record<'top' | 'right' | 'bottom' | 'left', boolean>
+type Margins = Record<'top' | 'right' | 'bottom' | 'left', number>
 
 /**
  * Align `el` to `target` element by specified position.
@@ -133,11 +135,11 @@ export type AlignPosition = 't'
  * Note that this mathod will always cause reflow.
  * @param el The element to align, it's position should be fixed or absolute.
  * @param target The target element to align to.
- * @param position Align Where of `el` to where of the `target`, e.g., `tl-br` means align top-left position of `el` to bottom-right of `target`.
+ * @param alignPosition Align Where of `el` to where of the `target`, e.g., `tl-br` means align top-left position of `el` to bottom-right of `target`.
  * @param options Additional options.
  */
-export function align(el: HTMLElement, target: Element, position: AlignPosition, options: AlignOptions = {}) {
-	new Aligner(el, target, position, options)
+export function align(el: HTMLElement, target: Element, alignPosition: AlignPosition, options: AlignOptions = {}) {
+	new Aligner(el, target, alignPosition, options).align()
 }
 
 
@@ -152,9 +154,6 @@ export class Aligner {
 	/** Triangle element in `el`. */
 	private readonly triangle: HTMLElement | null
 
-	/** Rect of triangle element, if exist. */
-	private readonly triangleRect: Rect | null = null
-
 	/** Whether stick align element to viewport edges. */
 	private readonly stickToEdges?: boolean
 
@@ -165,31 +164,19 @@ export class Aligner {
 	private readonly canShrinkInY: boolean
 
 	/** Align position, `[anchor of align element, anchor of target element]`. */
-	private readonly position: [string, string]
+	private readonly alignPosition: [string, string]
 
 	/** Margin outside of target element. */
-	private readonly margin: [number, number, number, number]
+	private readonly margins: Margins
 
 	/** In which directions to align. */
-	private readonly direction: Record<'top' | 'right' | 'bottom' | 'left', boolean>
-
-	/** Whether target intersect with viewport. */
-	private readonly isTargetInViewport: boolean
-
-	/** Align target element rect. */
-	private readonly targetRect: Rect
+	private readonly directions: Directions
 
 	/** Whether should align triangle element in a fixed position. */
 	private readonly fixTriangle: boolean
 
-	/** Align element rect. */
-	private rect: Rect
-	
-	/** Generated x position of align element. */
-	private x: number = 0
-
-	/** Generated y position of align element. */
-	private y: number = 0
+	/** Whether `el` is fixed position. */
+	private isElInFixedPosition: boolean
 
 	constructor(el: HTMLElement, target: Element, position: string, options: AlignOptions = {}) {
 		this.el = el
@@ -200,76 +187,35 @@ export class Aligner {
 		this.canShrinkInY = options.canShrinkInY ?? false
 		this.fixTriangle = options.fixTriangle ?? false
 
+		// Restore triangle transform.
 		if (this.triangle) {
 			this.triangle.style.transform = ''
-			this.triangleRect = this.triangle ? getRect(this.triangle) : null
 		}
 
-		this.rect = getRect(this.el)
+		// Still passed parameters although it's in current project,
+		// So we can avoid calling order confuse us.
+		this.alignPosition = parseAlignPosition(position)
+		this.directions = this.parseDirections(this.alignPosition)
+		this.margins = this.parseMargin(options.margin || 0)
 
-		this.position = parseAlignPosition(position)
-		this.direction = this.getDirections()
-		this.margin = this.parseMargin(options.margin || 0)
-		this.targetRect = this.getExtendedRect(target)
-		this.isTargetInViewport = isIntersectWithViewport(this.targetRect)
-	
-		if (this.canShrinkInY && !this.triangle) {
-			this.rect.height = this.getNaturalHeight()
-		}
-
-		this.align()
-	}
-
-	/** Do aligning from `el` to `target`. */
-	private align() {
-		// If target not affected by document scrolling, el should same
+		// If target not affected by document scrolling, el should be same.
+		// A potential problem here: once becomes fixed, can't be restored for reuseable popups.
 		if (getClosestFixedElement(this.target)) {
 			this.el.style.position = 'fixed'
+			this.isElInFixedPosition = true
 		}
-
-		let anchor1 = this.getElRelativeAnchor()
-		let anchor2 = this.getTargetAbsoluteAnchor()
-
-		this.y = anchor2[1] - anchor1[1]
-		let overflowYSet = this.alignVertical()
-
-		// If scrollbar appeared, width of el may change
-		if (overflowYSet) {
-			this.rect = getRect(this.el)
-			anchor1 = this.getElRelativeAnchor()
+		else {
+			this.isElInFixedPosition = getComputedStyle(this.el).position === 'fixed'
 		}
-
-		this.x = anchor2[0] - anchor1[0]
-		this.alignHerizontal()
-
-		// Handle triangle position
-		if (this.triangle) {
-			this.alignTriangle()
-		}
-
-		// If is not fixed, minus coordinates relative to offsetParent
-		if (getComputedStyle(this.el).position !== 'fixed' && this.target !== document.body && this.target !== document.documentElement) {
-			var offsetParent = this.el.offsetParent as HTMLElement
-
-			// If we use body's top postion, it will cause a bug when body has a margin top (even from margin collapse)
-			if (offsetParent) {
-				var parentRect = offsetParent.getBoundingClientRect()
-				this.x -= parentRect.left
-				this.y -= parentRect.top
-			}
-		}
-
-		this.el.style.left = this.x + 'px'
-		this.el.style.top = this.y + 'px'
 	}
 
 	/** Parse align direction. */
-	private getDirections(): Record<'top' | 'right' | 'bottom' | 'left', boolean> {
+	private parseDirections(alignPosition: [string, string]): Directions {
 		return {
-			top    : this.position[0].includes('b') && this.position[1].includes('t'),
-			right  : this.position[0].includes('l') && this.position[1].includes('r'),
-			bottom : this.position[0].includes('t') && this.position[1].includes('b'),
-			left   : this.position[0].includes('r') && this.position[1].includes('l'),
+			top    : alignPosition[0].includes('b') && alignPosition[1].includes('t'),
+			right  : alignPosition[0].includes('l') && alignPosition[1].includes('r'),
+			bottom : alignPosition[0].includes('t') && alignPosition[1].includes('b'),
+			left   : alignPosition[0].includes('r') && alignPosition[1].includes('l'),
 		}
 	}
 
@@ -277,49 +223,78 @@ export class Aligner {
 	 * top [right] [bottom] [left] -> [t, r, b, l].
 	 * If align to a top position of target, unique number will be parsed as 0 in left and right position. 
 	 */
-	private parseMargin(marginOption: number | number[]): [number, number, number, number] {
-		let margin: number[] = []
+	private parseMargin(marginOption: number | number[]): Margins {
+		let margins: Margins = {top: 0, right: 0, bottom: 0, left: 0}
 
 		if (typeof marginOption === 'number') {
-			margin[0] = this.direction.top || this.direction.bottom ? marginOption : 0
-			margin[1] = this.direction.left || this.direction.right ? marginOption : 0
+			margins.top = marginOption
+			margins.right = marginOption
+			margins.bottom = marginOption
+			margins.left = marginOption
 		}
 		else {
-			margin.push(...marginOption)
+			margins.top = marginOption[0]
+			margins.right = marginOption[1] ?? margins.top
+			margins.bottom = marginOption[2] ?? margins.top
+			margins.left = marginOption[3] ?? margins.right
 		}
 
-		margin[0] = margin[0] || 0
-		margin[1] = margin[1] !== undefined ? margin[1] || 0 : margin[0]
-		margin[2] = margin[2] !== undefined ? margin[2] || 0 : margin[0]
-		margin[3] = margin[3] !== undefined ? margin[3] || 0 : margin[1]
-
-		if (this.triangleRect) {
-			if (this.direction.top || this.direction.bottom) {
-				margin[0] += this.triangleRect.height
-				margin[2] += this.triangleRect.height
-			}
-
-			if (this.direction.left || this.direction.right) {
-				margin[1] += this.triangleRect.width
-				margin[3] += this.triangleRect.width
-			}
+		if (this.triangle) {
+			margins.top += this.triangle.offsetHeight
+			margins.bottom += this.triangle.offsetHeight
+			margins.right += this.triangle.offsetWidth
+			margins.left += this.triangle.offsetWidth
 		}
 
-		return margin as [number, number, number, number]
+		return margins
 	}
 
-	/** Extend rect with margins. */
-	private getExtendedRect(target: Element): Rect {
-		let rect = getRect(target)
-
-		rect.top    -= this.margin[0]
-		rect.height += this.margin[0] + this.margin[2]
-		rect.bottom = rect.top + rect.height
-		rect.left   -= this.margin[3]
-		rect.width  += this.margin[1] + this.margin[3]
-		rect.right  = rect.left + rect.width
+	/** 
+	 * Align `el` to beside `target` element.
+	 * Returns whether does alignment.
+	 */
+	align(): boolean {
+		// `align` may be called for multiple times, so need to clear again.
+		if (this.triangle) {
+			this.triangle.style.transform = ''
+		}
 		
-		return rect
+		let rect = getRect(this.el)
+		let targetRect = getRect(this.target)
+		let triangleRect = this.triangle ? getRect(this.triangle) : null
+
+		let targetInViewport = isRectIntersectWithViewport(targetRect)
+		let willAlign = targetInViewport || !this.stickToEdges
+		if (!willAlign) {
+			return false
+		}
+
+		// If can shrink in y axis, try remove the height limitation and extend to natural height.
+		if (this.canShrinkInY && !this.triangle) {
+			rect.height = this.getNaturalHeight(rect, triangleRect)
+		}
+
+		// If overflow in x axis, rect may change after position adjusted.
+		let isOverflowHerizontalEdges = rect.left <= 0 || rect.right >= document.documentElement.clientWidth
+
+		// Do el alignment.
+		let position = this.doElAlignment(rect, targetRect, triangleRect)
+
+		// Re-align el if element size changed.
+		if (isOverflowHerizontalEdges) {
+			let newRect = getRect(this.el)
+			if (newRect.width !== rect.width || newRect.height !== rect.height) {
+				triangleRect = this.triangle ? getRect(this.triangle) : null
+				position = this.doElAlignment(newRect, targetRect, triangleRect)
+			}
+		}
+		
+		// Handle triangle position.
+		if (this.triangle) {
+			this.alignTriangle(position, rect, targetRect, triangleRect!)
+		}
+
+		return true
 	}
 
 	/** 
@@ -328,11 +303,10 @@ export class Aligner {
 	 * Note that the `triangle` will cause `scrollHeight` plus for it's height.
 	 * Otherwise may not el but child is scrolled.
 	 */
-	private getNaturalHeight(): number {
-		let h = this.rect.height
-
+	private getNaturalHeight(rect: Rect, triangleRect: Rect | null): number {
+		let h = rect.height
 		let diffHeight = this.el.scrollHeight - this.el.clientHeight
-		let maxAllowdDiffWhenNotScrolled = this.triangleRect ? this.triangleRect.height : 0
+		let maxAllowdDiffWhenNotScrolled = triangleRect?.height || 0
 		
 		if (diffHeight <= maxAllowdDiffWhenNotScrolled) {
 			diffHeight = Math.max(...[...this.el.children].map(child => child.scrollHeight - child.clientHeight))
@@ -349,188 +323,246 @@ export class Aligner {
 		return h
 	}
 
-	/** get relative anchor position of the axis of an element. */
-	private getElRelativeAnchor(): [number, number] {
-		let rect = this.rect
-		let anchor = this.position[0]
+	/** Do alignment from `el` to `target` for once. */
+	private doElAlignment(rect: Rect, targetRect: Rect, triangleRect: Rect | null) {
+		let anchor1 = this.getElRelativeAnchor(rect, triangleRect)
+		let anchor2 = this.getTargetAbsoluteAnchor(targetRect)
+
+		// Fixed position coordinate.
+		let position: Position = {
+			x: anchor2[0] - anchor1[0],
+			y: anchor2[1] - anchor1[1],
+		}
+
+		// Handle vertical alignment.
+		let overflowYSet = this.alignVertical(position, rect, targetRect, triangleRect)
+
+		// Reset el height.
+		if (overflowYSet) {
+			rect = getRect(this.el)
+			anchor1 = this.getElRelativeAnchor(rect, triangleRect)
+		}
+
+		// Handle herizontal alignment.
+		this.alignHerizontal(position, rect, targetRect, triangleRect)
+
+		// Position for fixed or absolute layout.
+		let mayAbsolutePosition = {...position}
+
+		// If is not fixed, minus coordinates relative to offsetParent.
+		if (!this.isElInFixedPosition && this.target !== document.body && this.target !== document.documentElement) {
+			var offsetParent = this.el.offsetParent as HTMLElement
+
+			// If we use body's top postion, it will cause a bug when body has a margin top (even from margin collapse).
+			if (offsetParent) {
+				var parentRect = offsetParent.getBoundingClientRect()
+				mayAbsolutePosition.x -= parentRect.left
+				mayAbsolutePosition.y -= parentRect.top
+			}
+		}
+
+		this.el.style.left = mayAbsolutePosition.x + 'px'
+		this.el.style.top = mayAbsolutePosition.y + 'px'
+
+		return position
+	}
+
+	/** Get relative anchor position of the axis of an element. */
+	private getElRelativeAnchor(rect: Rect, triangleRect: Rect | null): [number, number] {
+		let anchor = this.alignPosition[0]
 		let x = anchor.includes('l') ? 0 : anchor.includes('r') ? rect.width : rect.width / 2
 		let y = anchor.includes('t') ? 0 : anchor.includes('b') ? rect.height : rect.height / 2
 
-		if (this.fixTriangle && this.triangleRect) {
-			if ((this.direction.top || this.direction.bottom) && this.position[1][1] === 'c') {
-				x = this.triangleRect.left + this.triangleRect.width / 2 - rect.left
+		// Anchor at triangle position.
+		if (this.fixTriangle && triangleRect) {
+			if ((this.directions.top || this.directions.bottom) && this.alignPosition[1][1] === 'c') {
+				x = triangleRect.left + triangleRect.width / 2 - rect.left
 			}
-			else if ((this.direction.left || this.direction.right) && this.position[1][0] === 'c') {
-				y = this.triangleRect.top + this.triangleRect.height / 2 - rect.top
+			else if ((this.directions.left || this.directions.right) && this.alignPosition[1][0] === 'c') {
+				y = triangleRect.top + triangleRect.height / 2 - rect.top
 			}
 		}
 
 		return [x, y]
 	}
 
-	/** get absolute anchor position in scrolling page. */
-	private getTargetAbsoluteAnchor(): [number, number] {
-		let rect = this.targetRect
-		let anchor = this.position[1]
-		let x = anchor.includes('l') ? 0 : anchor.includes('r') ? rect.width  : rect.width  / 2
-		let y = anchor.includes('t') ? 0 : anchor.includes('b') ? rect.height : rect.height / 2
+	/** Get absolute anchor position in scrolling page. */
+	private getTargetAbsoluteAnchor(targetRect: Rect): [number, number] {
+		let anchor = this.alignPosition[1]
 
-		x += rect.left
-		y += rect.top
+		let x = anchor.includes('l')
+			? targetRect.left - this.margins.left
+			: anchor.includes('r')
+			? targetRect.right + this.margins.right
+			: targetRect.left + targetRect.width  / 2
+
+		let y = anchor.includes('t')
+			? targetRect.top - this.margins.top
+			: anchor.includes('b')
+			? targetRect.bottom + this.margins.bottom
+			: targetRect.top + targetRect.height  / 2
 
 		return [x, y]
 	}
 
-	/** Do vertical aligning. */
-	private alignVertical(): boolean {
+	/** Do vertical alignment. */
+	private alignVertical(position: Position, rect: Rect, targetRect: Rect, triangleRect: Rect | null): boolean {
 		let dh = document.documentElement.clientHeight
-		let spaceTop = this.targetRect.top
-		let spaceBottom = dh - this.targetRect.bottom
+		let spaceTop = targetRect.top - this.margins.top
+		let spaceBottom = dh - (targetRect.bottom + this.margins.bottom)
 		let overflowYSet = false
-		let h = this.rect.height
-		let y = this.y
+		let h = rect.height
+		let y = position.y
 
-		if (this.isTargetInViewport) {
-			if (this.direction.top || this.direction.bottom) {
+		if (this.directions.top || this.directions.bottom) {
 
-				// Not enough space in top position.
-				if (this.direction.top && y < 0 && spaceTop < spaceBottom && this.canSwapPosition) {
-					y = this.targetRect.bottom
-					this.direction.top = false
-					this.direction.bottom = true
-				}
-
-				// Not enough space in bottom position.
-				else if (y + h > dh && spaceTop > spaceBottom && this.canSwapPosition) {
-					y = this.targetRect.top - h
-					this.direction.top = true
-					this.direction.bottom = false
-				}
-			}
-			else {
-
-				// Can move up to become fully visible.
-				if (y + h > dh && this.stickToEdges) {
-					let minY = this.targetRect.top + this.margin[1] + (this.triangleRect ? this.triangleRect.height : 0) - h
-					y = Math.max(dh - h, minY)
-				}
-
-				// Can move down to become fully visible.
-				if (y < 0 && this.stickToEdges) {
-					let maxY = this.targetRect.bottom - this.margin[2] - (this.triangleRect ? this.triangleRect.height : 0)
-					y = Math.min(0, maxY)
-				}
+			// Not enough space in top position, may switch to bottom.
+			if (this.directions.top && y < 0 && spaceTop < spaceBottom && this.canSwapPosition) {
+				y = targetRect.bottom + this.margins.bottom
+				this.directions.top = false
+				this.directions.bottom = true
 			}
 
-			if (y < 0) {
-
-				// Shrink align element if possible.
-				if (this.direction.top && this.stickToEdges && this.canShrinkInY) {
-					y = 0
-					this.el.style.height = spaceTop + 'px'
-					overflowYSet = true
-				}
+			// Not enough space in bottom position, may switch to bottom.
+			else if (y + h > dh && spaceTop > spaceBottom && this.canSwapPosition) {
+				y = targetRect.top - this.margins.top - h
+				this.directions.top = true
+				this.directions.bottom = false
 			}
-			else if (this.direction.bottom && y + h > dh && this.stickToEdges && this.canShrinkInY) {
+		}
+		else {
+
+			// Can move up a little to become fully visible.
+			if (y + h > dh && this.stickToEdges) {
+				
+				// Gives enough space for triangle.
+				let minY = targetRect.top + (triangleRect ? triangleRect.height : 0) - h
+				y = Math.max(dh - h, minY)
+			}
+
+			// Can move down a little to become fully visible.
+			if (y < 0 && this.stickToEdges) {
+
+				// Gives enough space for triangle.
+				let maxY = targetRect.bottom - (triangleRect ? triangleRect.height : 0)
+				y = Math.min(0, maxY)
+			}
+		}
+
+		if (this.canShrinkInY) {
+			// Shrink element height if not enough space.
+			if (this.directions.top && y < 0 && this.stickToEdges) {
+				y = 0
+				this.el.style.height = spaceTop + 'px'
+				overflowYSet = true
+			}
+			else if (this.directions.bottom && y + h > dh && this.stickToEdges) {
 				this.el.style.height = spaceBottom + 'px'
 				overflowYSet = true
 			}
-
-			this.y = y
+			else if (!this.directions.top && !this.directions.bottom && rect.height > dh) {
+				y = 0
+				this.el.style.height = dh + 'px'
+				overflowYSet = true
+			}
 		}
+
+		position.y = y
 
 		return overflowYSet
 	}
 
-	/** Do herizontal aligning. */
-	private alignHerizontal() {
+	/** Do herizontal alignment. */
+	private alignHerizontal(position: Position, rect: Rect, targetRect: Rect, triangleRect: Rect | null) {
 		let dw = document.documentElement.clientWidth
-		let spaceLeft  = this.targetRect.left
-		let spaceRight = dw - this.targetRect.right
-		let w = this.rect.width
-		let x = this.x
+		let spaceLeft = targetRect.left - this.margins.left
+		let spaceRight = dw - (targetRect.right + this.margins.right)
+		let w = rect.width
+		let x = position.x
 
-		if (this.isTargetInViewport) {
-			if (this.direction.left || this.direction.right) {
+		if (this.directions.left || this.directions.right) {
 
-				// Not enough space in left position.
-				if (this.direction.left && x < 0 && spaceLeft < spaceRight && this.canSwapPosition) {
-					x = this.targetRect.right
-					this.direction.left = false
-					this.direction.right = true
-				}
-
-				// Not enough space in right position.
-				else if (this.direction.right && x > dw - w && spaceLeft > spaceRight && this.canSwapPosition) {
-					x = this.targetRect.left - w
-					this.direction.left = true
-					this.direction.right = false
-				}
-			}
-			else {
-
-				// Can move left to become fully visible.
-				if (x + w > dw && this.stickToEdges) {
-					let minX = this.targetRect.left + this.margin[3] + (this.triangleRect ? this.triangleRect.width : 0) - w
-					x = Math.max(dw - w, minX)
-				}
-
-				// Can move right to become fully visible.
-				if (x < 0 && this.stickToEdges) {
-					let minX = this.targetRect.right - this.margin[1] - (this.triangleRect ? this.triangleRect.width : 0)
-					x = Math.min(0, minX)
-				}
+			// Not enough space in left position.
+			if (this.directions.left && x < 0 && spaceLeft < spaceRight && this.canSwapPosition) {
+				x = targetRect.right + this.margins.right
+				this.directions.left = false
+				this.directions.right = true
 			}
 
-			this.x = x
+			// Not enough space in right position.
+			else if (this.directions.right && x > dw - w && spaceLeft > spaceRight && this.canSwapPosition) {
+				x = targetRect.left - this.margins.left - w
+				this.directions.left = true
+				this.directions.right = false
+			}
 		}
+		else {
+
+			// Can move left a little to become fully visible.
+			if (x + w > dw && this.stickToEdges) {
+
+				// Gives enough space for triangle.
+				let minX = targetRect.left + (triangleRect ? triangleRect.width : 0) - w
+				x = Math.max(dw - w, minX)
+			}
+
+			// Can move right a little to become fully visible.
+			if (x < 0 && this.stickToEdges) {
+
+				// Gives enough space for triangle.
+				let minX = targetRect.right - (triangleRect ? triangleRect.width : 0)
+				x = Math.min(0, minX)
+			}
+		}
+
+		position.x = x
 	}
 
 	/** Align `triangle` relative to `el`. */
-	private alignTriangle() {
+	private alignTriangle(position: Position, rect: Rect, targetRect: Rect, triangleRect: Rect) {
 		let triangle = this.triangle!
-		let triangleRect = this.triangleRect!
 		let transforms: string[] = []
-		let w = this.rect.width
-		let h = this.rect.height
+		let w = rect.width
+		let h = rect.height
 
-		if (this.direction.top) {
+		if (this.directions.top) {
 			triangle.style.top = 'auto'
 			triangle.style.bottom = -triangleRect.height + 'px'
 			transforms.push('rotateX(180deg)')
 		}
-		else if (this.direction.bottom) {
+		else if (this.directions.bottom) {
 			triangle.style.top = -triangleRect.height + 'px'
 			triangle.style.bottom = ''
 		}
-		else if(this.direction.left) {
+		else if (this.directions.left) {
 			triangle.style.left = 'auto'
 			triangle.style.right = -triangleRect.width + 'px'
 			transforms.push('rotateY(180deg)')
 		}
-		else if(this.direction.right) {
+		else if (this.directions.right) {
 			triangle.style.left = -triangleRect.width + 'px'
 			triangle.style.right = ''
 		}
 
-		if (this.direction.top || this.direction.bottom) {
+		if (this.directions.top || this.directions.bottom) {
 			let halfTriangleWidth = triangleRect.width / 2
 			let x: number
 
-			// Triangle in the center of the edge of target
-			if ((w >= this.targetRect.width || this.fixTriangle) && this.position[1][1] === 'c') {
-				x = this.targetRect.left + this.targetRect.width / 2 - this.x - halfTriangleWidth
+			// Triangle in the center of the edge of target.
+			if ((w >= targetRect.width || this.fixTriangle) && this.alignPosition[1][1] === 'c') {
+				x = targetRect.left + targetRect.width / 2 - position.x - halfTriangleWidth
 			}
-			// Triangle in the center of the edge of el
+
+			// Triangle in the center of the edge of el.
 			else {
 				x = w / 2 - halfTriangleWidth
 			}
 
 			x = Math.max(x, halfTriangleWidth)
-			x = Math.min(x, this.rect.width - triangleRect.width - halfTriangleWidth)
+			x = Math.min(x, rect.width - triangleRect.width - halfTriangleWidth)
 
 			if (this.fixTriangle) {
-				x -= triangleRect.left - this.rect.left
+				x -= triangleRect.left - rect.left
 				transforms.push(`translateX(${x}px)`)
 			}
 			else {
@@ -540,22 +572,22 @@ export class Aligner {
 			triangle.style.right = ''
 		}
 
-		if (this.direction.left || this.direction.right) {
+		if (this.directions.left || this.directions.right) {
 			let halfTriangleHeight = triangleRect.height / 2
 			let y: number
 
-			if ((h >= this.targetRect.height || this.fixTriangle) && this.position[1][0] === 'c') {
-				y = this.targetRect.top + this.targetRect.height / 2 - this.y - halfTriangleHeight
+			if ((h >= targetRect.height || this.fixTriangle) && this.alignPosition[1][0] === 'c') {
+				y = targetRect.top + targetRect.height / 2 - position.y - halfTriangleHeight
 			}
 			else {
 				y = h / 2 - halfTriangleHeight
 			}
 
 			y = Math.max(y, halfTriangleHeight)
-			y = Math.min(y, this.rect.height - triangleRect.height - halfTriangleHeight)
+			y = Math.min(y, rect.height - triangleRect.height - halfTriangleHeight)
 
 			if (this.fixTriangle) {
-				y -= triangleRect.top - this.rect.top
+				y -= triangleRect.top - rect.top
 				transforms.push(`translateY(${y}px)`)
 			}
 			else {
@@ -658,11 +690,24 @@ export function getMainAlignDirection(pos: string): 't' | 'b' | 'l' | 'r' | 'c' 
 
 
 /** Check if rect box intersect with viewport. */
-function isIntersectWithViewport(rect: Rect) {
+function isRectIntersectWithViewport(rect: Rect) {
 	let w = document.documentElement.clientWidth
 	let h = document.documentElement.clientHeight
 
 	return rect.left < w && rect.right > 0 && rect.top < h && rect.bottom > 0 
+}
+
+
+/** Get a closest ancest element which has fixed position. */
+function getClosestFixedElement(el: Element): HTMLElement | null {
+	while (el && el !== document.documentElement) {
+		if (getComputedStyle(el).position === 'fixed') {
+			break
+		}
+		el = el.parentElement!
+	}
+
+	return el === document.documentElement ? null : el as HTMLElement
 }
 
 
