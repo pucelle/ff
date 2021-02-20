@@ -1,9 +1,9 @@
-import {binaryFindIndex} from '../base/array'
+import {binaryFindIndexToInsert} from '../base/array'
 import {getStyleValueAsNumber} from './style'
 
 
 /** Rect box size and location, all properties are writable. */
-export type Rect = {-readonly [key in keyof ClientRect]: number }
+export type Rect = {-readonly [key in keyof ClientRect]: number}
 
 
 /**
@@ -125,7 +125,7 @@ export function getRect(el: Element): Rect {
 			bottom: dh,
 			left: 0,
 			width: dw,
-			height: dh
+			height: dh,
 		}
 	}
 	else {
@@ -137,7 +137,7 @@ export function getRect(el: Element): Rect {
 			bottom: rect.bottom,
 			left: rect.left,
 			width: rect.width,
-			height: rect.height
+			height: rect.height,
 		}
 	}
 }
@@ -183,7 +183,7 @@ export function isVisibleInViewport(el: Element, percentage: number = 0.5, addit
  * @param els Element list to check.
  */
 export function locateFirstVisibleIndex(container: Element, els: ArrayLike<Element>): number {
-	return locateVisibleIndex(container, els, true)
+	return locateVisibleIndex(container, els, false)
 }
 
 
@@ -193,14 +193,14 @@ export function locateFirstVisibleIndex(container: Element, els: ArrayLike<Eleme
  * @param els Element list to check.
  */
 export function locateLastVisibleIndex(container: Element, els: ArrayLike<Element>): number {
-	return locateVisibleIndex(container, els, false)
+	return locateVisibleIndex(container, els, true)
 }
 
 
-function locateVisibleIndex(container: Element, els: ArrayLike<Element>, isFirst: boolean): number {
+function locateVisibleIndex(container: Element, els: ArrayLike<Element>, isLast: boolean): number {
 	let containerRect = container.getBoundingClientRect()
 
-	return binaryFindIndex(els, (el) => {
+	let index = binaryFindIndexToInsert(els, (el) => {
 		let rect = el.getBoundingClientRect()
 		if (rect.bottom <= containerRect.top) {
 			return 1
@@ -209,7 +209,14 @@ function locateVisibleIndex(container: Element, els: ArrayLike<Element>, isFirst
 			return -1
 		}
 		else {
-			return isFirst ? -1 : 1
+			// If find last, prefer move to right.
+			return isLast ? 1 : -1
 		}
 	})
+
+	if (isLast && index > 0) {
+		index -= 1
+	}
+
+	return index
 }
