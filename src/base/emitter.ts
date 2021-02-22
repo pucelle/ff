@@ -21,9 +21,10 @@ type EventHandler = (...args: any[]) => void
 
 /** 
  * Event emitter as super class to listen and emit custom events.
+ * It's name is Emitter to avoid conflicts with node API.
  * @typeparam E Event interface in `{eventName: (...args) => void}` format.
  */
-export abstract class EventEmitter<E = any> {
+export abstract class Emitter<E = any> {
 
 	/** Registered events. */
 	private __events: Map<keyof E, EventItem[]> = new Map()

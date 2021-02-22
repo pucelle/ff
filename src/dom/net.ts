@@ -1,5 +1,5 @@
 import {firstMatch} from '../base/string'
-import {EventEmitter, sum} from '../base'
+import {Emitter, sum} from '../base'
 
 
 /** Input resource parameter. */
@@ -35,7 +35,7 @@ export interface ResourceLoaderEvents {
  * Please beware of the CORS settings at the server.
  * If you want the progress working, please makesure the `content-length` response header is available.
  */
-export class ResourceLoader extends EventEmitter<ResourceLoaderEvents> {
+export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 
 	/** URL base. */
 	base: string = ''

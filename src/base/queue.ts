@@ -1,5 +1,5 @@
 import {assign} from './object'
-import {EventEmitter} from './event-emitter'
+import {Emitter} from './emitter'
 
 
 /** Running state of queue. */
@@ -96,7 +96,7 @@ type QueueHandler<T, V> = (task: T) => {promise: Promise<V>, abort: Function} | 
  * @typeparam T: Type of task.
  * @typeparam V: Type of returned values from handler. This can be inferred from `handler` option normally.
  */
-export class Queue<T = any, V = void> extends EventEmitter<QueueEvents<T, V>> {
+export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 
 	/** If provided, can avoid adding duplicate tasks with same keys. */
 	readonly key: keyof T | null = null
