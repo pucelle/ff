@@ -160,7 +160,7 @@ export class LayoutWatcher<T extends WatchLayoutType> {
 	/** End watch. */
 	unwatch() {
 		if (this.observer) {
-			this.observer.unobserve(this.el)
+			this.observer.disconnect()
 		}
 		else if (this.options.intervalTime) {
 			this.interval?.cancel()
