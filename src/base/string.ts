@@ -83,6 +83,16 @@ export function firstMatch(string: string, re: RegExp): string {
 
 
 /**
+ * Returns the array of first sub matches from executing `re` on `string`.
+ * @param string The string to select sub match.
+ * @param re The RegExp to execute on string.
+ */
+export function firstMatches(string: string, re: RegExp): string[] {
+	return subMatchesAt(string, re, 1)
+}
+
+
+/**
  * For each match result from executing `re` on `string`, picks specified `index` of sub matches.
  * Rreturns array of picked items.
  * @param string The string to select sub match.

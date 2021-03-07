@@ -14,7 +14,7 @@ export enum QueueState {
 	/** Been paused. */
 	Paused,
 
-	/** All tasks finshed. */
+	/** Queued tasks finshed, may still have failed tasks. */
 	Finish,
 
 	/** Aborted because of error or by user. */
@@ -24,28 +24,28 @@ export enum QueueState {
 /** Events of queue. */
 interface QueueEvents<T, V> {
 
-	/** Emitted after a task processed successfully. */
+	/** Triggers after a task processed successfully. */
 	taskfinish(task: T, value: V): void
 
-	/** Emitted after error occured when processing a task or called `abort()` on task. */
+	/** Triggers after error occured when processing a task or called `abort()` on task. */
 	taskabort(task: T): void
 
 	/**
-	 * Emitted after error occured when processing task.
+	 * Triggers after error occured when processing task.
 	 * If `continueOnError` is `false` and `maxRetryTimes` equals `0`, queue will be aborted.
 	 */
 	error(task: T, err: Error | string | number): void
 
-	/** Emitted after called `pause()`. */
+	/** Triggers after called `pause()`. */
 	pause(): void
 
-	/** Emitted after called `resume()`. */
+	/** Triggers after called `resume()`. */
 	resume(): void
 
-	/** Emitted after all tasks finished. Note that it can be emitted for multiple times. */
+	/** Triggers after all tasks finished. Note that it can be Triggered for multiple times. */
 	finish() : void
 
-	/** Emitted after error occured or called `abort()`. */
+	/** Triggers after error occured or called `abort()`. */
 	abort(err: Error | string | number): void
 
 	/** End after `finish` or `abort` event. */
@@ -217,8 +217,20 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 		return this.state === QueueState.Running
 	}
 
-	/** Returns a promise which will be resolved after all tasks finished, or be rejected if error happens. */
+	/** Returns a promise which will be resolved after all tasks finished. */
 	untilFinish(): Promise<void> {
+		if (this.getUnprocessedCount() > 0) {
+			return new Promise(resolve => {
+				this.once('finish', () => resolve())
+			})
+		}
+		else {
+			return Promise.resolve()
+		}
+	}
+
+	/** Returns a promise which will be resolved after all tasks finished, or be rejected if error happens. */
+	untilEnd(): Promise<void> {
 		if (this.getUnprocessedCount() > 0) {
 			return new Promise((resolve, reject) => {
 				this.once('end', err => err ? reject(err) : resolve())
@@ -423,7 +435,7 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 	 * After aborted, queue can still be started manually by calling `start()`.
 	 * Returns `true` if queue was successfully aborted.
 	 */
-	abort(err: Error | string | number = 'manually'): boolean {
+	abort(err: Error | string | number = 'Manually'): boolean {
 		if (!(this.state === QueueState.Running || this.state === QueueState.Paused)) {
 			return false
 		}
