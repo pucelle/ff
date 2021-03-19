@@ -1,15 +1,23 @@
-import {firstMatch} from '../base/string'
-import {Emitter, sum} from '../base'
+import {Emitter} from '../base'
 
-
-/** Input resource parameter. */
-type ResourceParameter = (string | {name?: string, url: string, type?: ResourceType})
-
-/** Normalized resource as internal cache. */
-type NormalizedResource = {name: string, url: string, type: ResourceType}
 
 /** Can loaded resource types. */
-type ResourceType = 'css' | 'js' | 'blob'
+type RequestType = 'css' | 'js' | 'blob' | 'json' | 'text' | 'buffer' | 'image' | 'audio' | 'video'
+
+/** Response type from request type. */
+type ResponseType<T extends RequestType> = ResponseTypes[T]
+
+type ResponseTypes = {
+	'css': HTMLLinkElement
+	'js': HTMLScriptElement
+	'blob': Blob
+	'text': string
+	'json': any
+	'buffer': ArrayBuffer
+	'image': HTMLImageElement
+	'audio': HTMLAudioElement
+	'video': HTMLVideoElement
+}
 
 
 /** Options of resource loader. */
@@ -17,15 +25,18 @@ export interface ResourceLoaderOptions {
 
 	/** URL base. */
 	base?: string
-
-	/** If `true`, will continue request other resource if error occurs, default value is `false` */
-	continueOnError?: boolean
 }
 
 /** Events of resource loader. */
 export interface ResourceLoaderEvents {
 
-	/** Emit after loading progress updated. */
+	/** Triggers after loaded all resources. */
+	finish: () => void
+
+	/** Triggers after meets error. */
+	error: (err: Error) => void
+
+	/** Triggers after loading progress updated. */
 	progress: (loaded: number, total: number) => void
 }
 
@@ -40,59 +51,105 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 	/** URL base. */
 	base: string = ''
 
-	/** If `true`, will continue request other resource if error occurs, default value is `false` */
-	continueOnError: boolean
-
-	private blobMap: Map<string, Blob> = new Map()
+	private loaded: number = 0
+	private loadedCount: number = 0
+	private totalCount: number = 0
 
 	constructor(options: ResourceLoaderOptions = {}) {
 		super()
-
 		this.base = options.base ?? ''
-		this.continueOnError = options.continueOnError ?? false
+	
+		this.on('finish', () => {
+			this.loaded = 0
+			this.loadedCount = 0
+			this.totalCount = 0
+		})
 	}
 
-	/** Load bunch of resources. */
-	async load(urls: ResourceParameter[]): Promise<void> {
-		let normalized = this.normalizeResources(urls)
-		let sizes = (await this.getURLSizes(normalized.map(v => v.url))).map(v => v || 0)
-		let totalSize = sum(sizes)
-		let completedSize = 0
+	/** Returns a promise which will be resolved after all loading resources loaded. */
+	untilFinish(): Promise<void> {
+		return new Promise((resolve, reject) => {
+			this.once('finish', resolve)
+			this.once('error', reject)
+		})
+	}
 
-		for (let {name, url, type} of normalized) {
+	/** Load one resource. */
+	async load<T extends RequestType>(url: string, type?: T): Promise<ResponseType<T>> {
+		this.totalCount++
+		let lastLoadedRate = 0
+
+		return new Promise(async (resolve, reject) => {
 			try {
-				let blob = await this.loadOne(name, url, (loaded: number) => {
-					this.emit('progress', Math.min(completedSize + loaded, totalSize), totalSize)
+				let blob = await this.loadResourceBlob(url, (loaded: number, total: number) => {
+					let newLoadedRate = loaded / total || 0
+					this.loaded += newLoadedRate - lastLoadedRate
+					lastLoadedRate = newLoadedRate
+
+					this.emit('progress', Math.min(this.loaded, this.totalCount), this.totalCount)
 				})
 
-				completedSize += sizes.shift()!
+				let response = blob ? await this.getFromBlob(blob, type || 'blob') : null
 
-				if (blob) {
-					await this.handleBlob(type, blob)
+				this.loadedCount++
+				this.emit('progress', this.loadedCount, this.totalCount)
+
+				if (this.loadedCount === this.totalCount) {
+					this.emit('finish')
 				}
+
+				resolve(response)
 			}
 			catch (err) {
-				if (!this.continueOnError) {
-					throw err
-				}
+				reject(err)
+				this.emit('error', err)
 			}
-		}
+		}) as Promise<ResponseType<T>>
 	}
 
-	/** Get sizes of all the resources. */
-	private async getURLSizes(urls: string[]): Promise<(number | null)[]> {
-		let promises: Promise<number | null>[] = []
-		for (let url of urls) {
-			promises.push(this.getURLSize(url))
-		}
-		return await Promise.all(promises)
+	/** Load as text string. */
+	async loadText(url: string): Promise<string> {
+		return await this.load(url, 'text')
 	}
 
-	/** Get size of one resource. */
-	private async getURLSize(url: string): Promise<number | null> {
-		let res = await fetch(this.getAbsoluteURL(url), {method: 'HEAD'})
-		let length = res.headers.get('content-length')
-		return length === null ? null : Number(length) || null
+	/** Load as json data. */
+	async loadJSON(url: string): Promise<any> {
+		return await this.load(url, 'json')
+	}
+
+	/** Load as blob. */
+	async loadBlob(url: string): Promise<any> {
+		return await this.load(url, 'blob')
+	}
+
+	/** Load as an array buffer. */
+	async loadBuffer(url: string): Promise<ArrayBuffer> {
+		return await this.load(url, 'buffer')
+	}
+
+	/** Load css source and append into document. */
+	async loadCSS(url: string): Promise<HTMLLinkElement> {
+		return await this.load(url, 'css')
+	}
+
+	/** Load js source and append into document. */
+	async loadJS(url: string): Promise<HTMLScriptElement> {
+		return await this.load(url, 'js')
+	}
+
+	/** Load as an image element. */
+	async loadImage(url: string): Promise<HTMLImageElement> {
+		return await this.load(url, 'image')
+	}
+
+	/** Load as an audio element. */
+	async loadAudio(url: string): Promise<HTMLAudioElement> {
+		return await this.load(url, 'audio')
+	}
+
+	/** Load as an video element. */
+	async loadVideo(url: string): Promise<HTMLVideoElement> {
+		return await this.load(url, 'video')
 	}
 
 	/** Convert relative URL to absolute type. */
@@ -104,45 +161,8 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 		return this.base + url
 	}
 
-	/** Normalize to standard resource object. */
-	private normalizeResources(resources: ResourceParameter[]): NormalizedResource[] {
-		return resources.map(r => {
-			if (typeof r === 'string') {
-				return {
-					name: this.getBaseNameFromURL(r),
-					url: r,
-					type: this.inferResourceTypeFromURL(r)
-				}
-			}
-			else {
-				return {
-					name: r.name || this.getBaseNameFromURL(r.url),
-					url: r.url,
-					type: r.type || 'blob'
-				}
-			}
-		})
-	}
-
-	/** Get resource readable basename from url. */
-	private getBaseNameFromURL(url: string): string {
-		return firstMatch(url, /([^\/]+)$/).replace(/\.\w+$/, '')
-	}
-
-	/** Guess resource type from URL. */
-	private inferResourceTypeFromURL(url: string): ResourceType {
-		let ext = firstMatch(url, /\.(\w+)(?:\?.*?)?$/).toLowerCase()
-
-		if (['css', 'js'].includes(ext)) {
-			return ext as ResourceType
-		}
-		else {
-			return 'blob'
-		}
-	}
-	
 	/** Load one resource. */
-	private async loadOne(name: string, url: string, onprogress: (loaded: number, total: number) => void): Promise<Blob | null> {
+	private async loadResourceBlob(url: string, onprogress: (loaded: number, total: number) => void): Promise<Blob | null> {
 		let absloteURL = this.getAbsoluteURL(url)
 
 		return new Promise((resolve, reject) => {
@@ -158,8 +178,6 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 
 			xhr.onloadend = () => {
 				if (xhr.status >= 200 && xhr.status < 400) {
-					this.blobMap.set(name, xhr.response)
-					this.blobMap.set(url, xhr.response)
 					resolve(xhr.response)
 				}
 				else {
@@ -172,64 +190,69 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 	}
 
 	/** Handle resource returned blob data. */
-	private async handleBlob(type: ResourceType, blob: Blob): Promise<void> {
-		if (type === 'css') {
-			await this.loadStyle(blob)
+	private async getFromBlob(blob: Blob, type: RequestType): Promise<ResponseType<RequestType>> {
+		let response: ResponseType<RequestType>
+
+		if (type === 'blob') {
+			response = blob
+		}
+		else if (type === 'css') {
+			response = await this.loadStyle(blob)
 		}
 		else if (type === 'js') {
-			await this.loadScript(blob)
+			response = await this.loadScript(blob)
 		}
+		else if (type === 'text') {
+			response = this.getAsText(blob)
+		}
+		else if (type === 'json') {
+			response = this.getAsJSON(blob)
+		}
+		else if (type === 'buffer') {
+			response = this.getAsBuffer(blob)
+		}
+		else if (type === 'image') {
+			response = this.getAsImage(blob)
+		}
+		else if (type === 'audio') {
+			response = this.getAsAudio(blob)
+		}
+		else if (type === 'video') {
+			response = this.getAsVideo(blob)
+		}
+
+		return response
 	}
 
 	/** Load style resource as a style tag. */
-	private loadStyle(blob: Blob): Promise<void> {
+	private loadStyle(blob: Blob): Promise<HTMLLinkElement> {
 		return new Promise((resolve, reject) => {
 			let link = document.createElement('link')
 			link.rel = 'stylesheet'
 			link.href = URL.createObjectURL(blob)
 			document.head.append(link)
-			link.addEventListener('load', () => resolve())
+
+			link.addEventListener('load', () => resolve(link))
 			link.addEventListener('error', () => reject())
 		})
 	}
 
 	/** Load script resource as a script tag. */
-	private loadScript(blob: Blob): Promise<void> {
+	private loadScript(blob: Blob): Promise<HTMLScriptElement> {
 		return new Promise((resolve, reject) => {
 			let script = document.createElement('script')
 			script.async = false
 			script.src = URL.createObjectURL(blob)
 			document.head.append(script)
 			
-			script.addEventListener('load', () => resolve())
+			script.addEventListener('load', () => resolve(script))
 			script.addEventListener('error', () => reject())
 		})
 	}
 	
-	/**
-	 * Get resource as blob URL.
-	 * @param name The defined resource name or resource base name in the url.
-	 */
-	getAsBlobURL(name: string): string | null {
-		let blob = this.blobMap.get(name)
-		if (!blob) {
-			return null
-		}
-
-		return URL.createObjectURL(blob)
-	}
-	
-	/**
-	 * Get resource as text.
-	 * @param name The defined resource name or resource base name in the url.
-	 */
-	getAsText(name: string): Promise<string | null> {
+	/** Get resource blob as text.*/
+	private getAsText(blob: Blob): Promise<string | null> {
 		return new Promise(resolve => {
-			let blob = this.blobMap.get(name)
-			if (!blob) {
-				return resolve(null)
-			}
-
 			let reader = new FileReader()
 			reader.onload = () => {
 				resolve(reader.result as string)
@@ -238,25 +261,9 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 		})
 	}
 
-	/**
-	 * Get resource as HTML document.
-	 * @param name The defined resource name or resource base name in the url.
-	 */
-	async getAsHTML(name: string): Promise<HTMLDocument | null> {
-		let text = await this.getAsText(name)
-		if (!text) {
-			return null
-		}
-
-		return new DOMParser().parseFromString(text, 'text/html')
-	}
-
-	/**
-	 * Get resource as JSON.
-	 * @param name The defined resource name or resource base name in the url.
-	 */
-	async getAsJSON(name: string): Promise<any | null> {
-		let text = await this.getAsText(name)
+	/** Get resource blob as JSON. */
+	private async getAsJSON(blob: Blob): Promise<any | null> {
+		let text = await this.getAsText(blob)
 		if (!text) {
 			return null
 		}
@@ -264,17 +271,9 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 		return JSON.parse(text)
 	}
 
-	/**
-	 * Get resource as array buffer.
-	 * @param name The defined resource name or resource base name in the url.
-	 */
-	async getAsBuffer(name: string): Promise<ArrayBuffer | null> {
+	/** Get resource blob as array buffer. */
+	private async getAsBuffer(blob: Blob): Promise<ArrayBuffer | null> {
 		return new Promise((resolve, reject) => {
-			let blob = this.blobMap.get(name)
-			if (!blob) {
-				return resolve(null)
-			}
-
 			let reader = new FileReader()
 
 			reader.onload = () => {
@@ -289,18 +288,15 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 		})
 	}
 
-	/**
+	/** 
 	 * Get resource as image.
-	 * @param name The defined resource name or resource base name in the url.
+	 * Never forget to detach blob url of the image after not use it anymore.
 	 */
-	async getAsImage(name: string): Promise<HTMLImageElement | null> {
+	private async getAsImage(blob: Blob): Promise<HTMLImageElement | null> {
 		return new Promise((resolve, reject) => {
-			let blobURL = this.getAsBlobURL(name)
-			if (!blobURL) {
-				return resolve(null)
-			}
-
+			let blobURL = URL.createObjectURL(blob)
 			let img = new Image()
+
 			img.src = blobURL
 			img.onload = () => resolve(img)
 			img.onerror = err => reject(err)
@@ -308,41 +304,12 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 	}
 
 	/**
-	 * Get resource as video element.
-	 * @param name The defined resource name or resource base name in the url.
+	 * Get resource blob as audio element.
+	 * Never forget to detach blob url of the image after not use it anymore.
 	 */
-	async getAsVideo(name: string): Promise<HTMLVideoElement | null> {
+	private async getAsAudio(blob: Blob): Promise<HTMLAudioElement | null> {
 		return new Promise((resolve, reject) => {
-			let blobURL = this.getAsBlobURL(name)
-			if (!blobURL) {
-				return resolve(null)
-			}
-
-			let video = document.createElement('video')
-			video.preload = 'auto'
-
-			video.oncanplaythrough = () => {
-				resolve(video)
-			}
-
-			video.onerror = err => {
-				reject(err)
-			}
-
-			video.src = blobURL
-		})
-	}
-
-	/**
-	 * Get resource as audio element.
-	 * @param name The defined resource name or resource base name in the url.
-	 */
-	async getAsAudio(name: string): Promise<HTMLAudioElement | null> {
-		return new Promise((resolve, reject) => {
-			let blobURL = this.getAsBlobURL(name)
-			if (!blobURL) {
-				return resolve(null)
-			}
+			let blobURL = URL.createObjectURL(blob)
 
 			let audio = document.createElement('audio')
 			audio.preload = 'auto'
@@ -358,4 +325,31 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 			audio.src = blobURL
 		})
 	}
+
+	/**
+	 * Get resource blob as video element.
+	 * Never forget to detach blob url of the image after not use it anymore.
+	 */
+	async getAsVideo(blob: Blob): Promise<HTMLVideoElement | null> {
+		return new Promise((resolve, reject) => {
+			let blobURL = URL.createObjectURL(blob)
+
+			let video = document.createElement('video')
+			video.preload = 'auto'
+
+			video.oncanplaythrough = () => {
+				resolve(video)
+			}
+
+			video.onerror = err => {
+				reject(err)
+			}
+
+			video.src = blobURL
+		})
+	}
 }
+
+
+/** Default loader to load miscellaneous resources. */
+export const loader = new ResourceLoader()

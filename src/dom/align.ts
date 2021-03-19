@@ -694,7 +694,7 @@ function isRectIntersectWithViewport(rect: Rect) {
 	let w = document.documentElement.clientWidth
 	let h = document.documentElement.clientHeight
 
-	return rect.left < w && rect.right > 0 && rect.top < h && rect.bottom > 0 
+	return rect.width > 0 && rect.height > 0 && rect.left < w && rect.right > 0 && rect.top < h && rect.bottom > 0 
 }
 
 

@@ -507,7 +507,7 @@ export function groupBy<T>(array: T[], keyOrFn: CanSortKeys<T> | ((value: T) => 
  * @param groupKeyFn A function that accepts each item as parameter and returns a value used as group key.
  * @param aggregateFn Aggregate function, it accepts grouped items and each grouped key as parameters, and returns aggregated value.
  */
-export function aggregate<T, K, V>(array: T[], groupFn: (value: T) => K, aggregateFn: (items: T[], key: K) => V): Map<K, V[]>
+export function aggregate<T, K, V>(array: T[], groupFn: (value: T) => K, aggregateFn: (items: T[], key: K) => V): Map<K, V>
 
 /**
  * Creates an object from grouping by key results returned from running `keyOrFn` with each item of `items`.

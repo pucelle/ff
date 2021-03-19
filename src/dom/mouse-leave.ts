@@ -18,49 +18,39 @@ export interface MouseLeaveOptions {
  */
 export namespace MouseLeave {
 
-	/** Mouse leave controllers. */
+	/** Existed mouse leave controllers. */
 	const Controllers: Set<MouseLeaveController> = new Set()
 
 	/**
-	 * Make sure elements and all their ancestors can't trigger mouse leave callback and always visible.
+	 * Make sure `trigger` and all their ancestors can't call mouse leave callback and always visible.
 	 * Normally used for contextmenu to keep parent popup visible.
 	 * @param els Single element or array of elements to keep.
 	 * @returns unkeep Stops keeping element, elements will hide after mouse leave, and will be hidden immediately if mouse is alread leaved.
 	 */
-	export function keep(els: Element | Element[]): () => void {
+	export function lock(trigger: Element): () => void {
 
 		// 1. When popup2 generated, we check the trigger element if it was contained (not equal) in elements of existing popups.
 		// 2. If so, we lock the exist popup until popup2 disappeared.
 
-		let elArray = Array.isArray(els) ? els : [els]
-
-		let controller = getControllerWhichContains(elArray)
+		let controller = getControllerWhichPopupContains(trigger)
 		if (controller) {
-			controller.lock()
+			controller.lockBy(trigger)
 		}
 	
 		return () => {
 			if (controller) {
-				controller.unlock()
+				controller.unlockBy(trigger)
 				controller = null
 			}
 		}
 	}
 
-	/** Keep parent elements visible. */
-	function keepParents(els: Element[]) {
-		let parents = els.map(el => el.parentElement).filter(el => el && el !== document.body) as Element[]
-		return keep(parents)
-	}
-	
 	
 	/** Get Controller whose related elements contains and or equal one of specified elements. */
-	function getControllerWhichContains(els: Element[]): MouseLeaveController | null {
+	function getControllerWhichPopupContains(trigger: Element): MouseLeaveController | null {
 		for (let controller of [...Controllers].reverse()) {
-			for (let el of els) {
-				if (controller.els.some(controllerEl => controllerEl.contains(el))) {
-					return controller
-				}
+			if (controller.popup.contains(trigger)) {
+				return controller
 			}
 		}
 
@@ -69,21 +59,20 @@ export namespace MouseLeave {
 	
 	
 	/**
-	 * Check if element or any of it's ancestors was kept to be visible.
-	 * If element is not kept, you can destroy or reuse it immediately.
-	 * It also allows `el` equals to controller element.
-	 * @param el Element to check.
+	 * Check whether element or any of it's ancestors was kept to be visible.
+	 * If element is not locked, you can destroy or reuse it immediately.
+	 * @param el Element to check, normally a popup element.
 	 */
-	export function inUse(el: Element): boolean {
+	export function beLocked(el: Element): boolean {
 		for (let controller of [...Controllers].reverse()) {
-			if (controller.els.some(controllerEl => controllerEl.contains(el))) {
-				return controller.mouseIn
+			if (controller.popup.contains(el)) {
+				return controller.beLocked()
 			}
 		}
 	
 		return false
 	}
-	
+
 	
 	/**
 	 * Call `callback` after mouse leaves all of the elements for `ms` milliseconds.
@@ -92,10 +81,8 @@ export namespace MouseLeave {
 	 * @param callback The callback to call after mouse leaves all the elements.
 	 * @param options Leave control options.
 	 */
-	export function on(els: Element | Element[], callback: () => void, options?: MouseLeaveOptions): () => void {
-		let elArray = Array.isArray(els) ? els : [els]
-		let controller = new MouseLeaveController(false, elArray, callback, options)
-
+	export function on(trigger: Element, popup: Element, callback: () => void, options?: MouseLeaveOptions): () => void {
+		let controller = new MouseLeaveController(trigger, popup, false, callback, options)
 		return () => controller.cancel()
 	}
 	
@@ -107,9 +94,8 @@ export namespace MouseLeave {
 	 * @param callback The callback to call after mouse leaves all the elements.
 	 * @param options Leave control options.
 	 */
-	export function once(els: Element | Element[], callback: () => void, options?: MouseLeaveOptions): () => void {
-		let elArray = Array.isArray(els) ? els : [els]
-		let controller = new MouseLeaveController(true, elArray, callback, options)
+	export function once(trigger: Element, popup: Element, callback: () => void, options?: MouseLeaveOptions): () => void {
+		let controller = new MouseLeaveController(trigger, popup, true, callback, options)
 
 		return () => controller.cancel()
 	}
@@ -117,21 +103,17 @@ export namespace MouseLeave {
 	
 	class MouseLeaveController {
 		
-		/** Related elements. */
-		els: Element[]
+		/** Trigger elements. */
+		trigger: Element
+
+		/** Popup elements. */
+		popup: Element
 
 		/** Is mouse inside any of `els`. */
-		mouseIn: boolean
+		private mouseIn: boolean
 		
-		/** 
-		 * Count of been locked.
-		 * 
-		 * Why not a boolean property?
-		 * When a sub popup hide, it will trigger unlock on controller later, not immediately.
-		 * But a new sub popup may trigger lock on controller, and then old sub popup trigger unlock.
-		 * `old lock -> new lock -> old unlock`, cause controller to be canceled.
-		 */
-		private lockCount: number = 0
+		/** Elements that locked current popup and make it to be visible. */
+		private lockedBy: Set<Element> = new Set()
 		
 		/** Is registered from `once`. */
 		private isOnce: boolean
@@ -148,12 +130,13 @@ export namespace MouseLeave {
 		/** Timeout to countdown time delay for calling `callback` */
 		private timeout: ReturnType<typeof setTimeout> | null = null
 
-		/** Cancel keeping parents of `els` visible. */
-		private unkeep: () => void
+		/** Cancel locking trigger element. */
+		private unlock: () => void
 	
-		constructor(isOnce: boolean, els: Element[], callback: () => void, options: MouseLeaveOptions = {}) {
+		constructor(trigger: Element, popup: Element, isOnce: boolean, callback: () => void, options: MouseLeaveOptions = {}) {
+			this.trigger = trigger
+			this.popup = popup
 			this.isOnce = isOnce
-			this.els = els
 			this.callback = callback
 			
 			this.delay = options.delay ?? 200
@@ -162,12 +145,12 @@ export namespace MouseLeave {
 			this.onMouseEnter = this.onMouseEnter.bind(this)
 			this.onMouseLeave = this.onMouseLeave.bind(this)
 			
-			for (let el of this.els) {
+			for (let el of [trigger, popup]) {
 				el.addEventListener('mouseenter', this.onMouseEnter, false)
 				el.addEventListener('mouseleave', this.onMouseLeave, false)
 			}
 	
-			this.unkeep = keepParents(els)
+			this.unlock = lock(trigger)
 			Controllers.add(this)
 		}
 	
@@ -179,7 +162,7 @@ export namespace MouseLeave {
 		private onMouseLeave() {
 			this.mouseIn = false
 	
-			if (this.lockCount === 0) {
+			if (!this.beLocked()) {
 				this.startTimeout()
 			}
 		}
@@ -223,25 +206,29 @@ export namespace MouseLeave {
 			
 			this.clearTimeout()
 	
-			for (let el of this.els) {
+			for (let el of [this.trigger, this.popup]) {
 				el.removeEventListener('mouseenter', this.onMouseEnter, false)
 				el.removeEventListener('mouseleave', this.onMouseLeave, false)
 			}
 	
+			this.unlock()
 			this.ended = true
-			this.unkeep()
 			Controllers.delete(this)
 		}
-	
-		lock() {
-			this.clearTimeout()
-			this.lockCount++
+
+		beLocked() {
+			return this.lockedBy.size > 0
 		}
 	
-		unlock() {
-			this.lockCount--
+		lockBy(el: Element) {
+			this.clearTimeout()
+			this.lockedBy.add(el)
+		}
 	
-			if (this.lockCount === 0) {
+		unlockBy(el: Element) {
+			this.lockedBy.delete(el)
+	
+			if (!this.beLocked()) {
 				if (!this.mouseIn) {
 					this.flush()
 				}
