@@ -169,9 +169,6 @@ export class Aligner {
 	/** Margin outside of target element. */
 	private readonly margins: Margins
 
-	/** In which directions to align. */
-	private readonly directions: Directions
-
 	/** Whether should align triangle element in a fixed position. */
 	private readonly fixTriangle: boolean
 
@@ -195,7 +192,6 @@ export class Aligner {
 		// Still passed parameters although it's in current project,
 		// So we can avoid calling order confuse us.
 		this.alignPosition = parseAlignPosition(position)
-		this.directions = this.parseDirections(this.alignPosition)
 		this.margins = this.parseMargin(options.margin || 0)
 
 		// If target not affected by document scrolling, el should be same.
@@ -206,16 +202,6 @@ export class Aligner {
 		}
 		else {
 			this.isElInFixedPosition = getComputedStyle(this.el).position === 'fixed'
-		}
-	}
-
-	/** Parse align direction. */
-	private parseDirections(alignPosition: [string, string]): Directions {
-		return {
-			top    : alignPosition[0].includes('b') && alignPosition[1].includes('t'),
-			right  : alignPosition[0].includes('l') && alignPosition[1].includes('r'),
-			bottom : alignPosition[0].includes('t') && alignPosition[1].includes('b'),
-			left   : alignPosition[0].includes('r') && alignPosition[1].includes('l'),
 		}
 	}
 
@@ -254,13 +240,19 @@ export class Aligner {
 	 * Returns whether does alignment.
 	 */
 	align(): boolean {
+		let directions = this.parseDirections()
+
+		let targetRect = getRect(this.target)
+		if (!isRectVisible(targetRect)) {
+			return false
+		}
+
 		// `align` may be called for multiple times, so need to clear again.
 		if (this.triangle) {
 			this.triangle.style.transform = ''
 		}
 		
 		let rect = getRect(this.el)
-		let targetRect = getRect(this.target)
 		let triangleRect = this.triangle ? getRect(this.triangle) : null
 
 		let targetInViewport = isRectIntersectWithViewport(targetRect)
@@ -278,23 +270,35 @@ export class Aligner {
 		let isOverflowHerizontalEdges = rect.left <= 0 || rect.right >= document.documentElement.clientWidth
 
 		// Do el alignment.
-		let position = this.doElAlignment(rect, targetRect, triangleRect)
+		let position = this.doElAlignment(directions, rect, targetRect, triangleRect)
 
 		// Re-align el if element size changed.
 		if (isOverflowHerizontalEdges) {
 			let newRect = getRect(this.el)
 			if (newRect.width !== rect.width || newRect.height !== rect.height) {
 				triangleRect = this.triangle ? getRect(this.triangle) : null
-				position = this.doElAlignment(newRect, targetRect, triangleRect)
+				position = this.doElAlignment(directions, newRect, targetRect, triangleRect)
 			}
 		}
 		
 		// Handle triangle position.
 		if (this.triangle) {
-			this.alignTriangle(position, rect, targetRect, triangleRect!)
+			this.alignTriangle(position, directions, rect, targetRect, triangleRect!)
 		}
 
 		return true
+	}
+
+	/** Parse align direction to indicate which direction will align to. */
+	private parseDirections(): Directions {
+		let alignPosition = this.alignPosition
+
+		return {
+			top    : alignPosition[0].includes('b') && alignPosition[1].includes('t'),
+			right  : alignPosition[0].includes('l') && alignPosition[1].includes('r'),
+			bottom : alignPosition[0].includes('t') && alignPosition[1].includes('b'),
+			left   : alignPosition[0].includes('r') && alignPosition[1].includes('l'),
+		}
 	}
 
 	/** 
@@ -324,8 +328,8 @@ export class Aligner {
 	}
 
 	/** Do alignment from `el` to `target` for once. */
-	private doElAlignment(rect: Rect, targetRect: Rect, triangleRect: Rect | null) {
-		let anchor1 = this.getElRelativeAnchor(rect, triangleRect)
+	private doElAlignment(directions: Directions, rect: Rect, targetRect: Rect, triangleRect: Rect | null) {
+		let anchor1 = this.getElRelativeAnchor(directions, rect, triangleRect)
 		let anchor2 = this.getTargetAbsoluteAnchor(targetRect)
 
 		// Fixed position coordinate.
@@ -335,16 +339,16 @@ export class Aligner {
 		}
 
 		// Handle vertical alignment.
-		let overflowYSet = this.alignVertical(position, rect, targetRect, triangleRect)
+		let overflowYSet = this.alignVertical(position, directions, rect, targetRect, triangleRect)
 
 		// Reset el height.
 		if (overflowYSet) {
 			rect = getRect(this.el)
-			anchor1 = this.getElRelativeAnchor(rect, triangleRect)
+			anchor1 = this.getElRelativeAnchor(directions, rect, triangleRect)
 		}
 
 		// Handle herizontal alignment.
-		this.alignHerizontal(position, rect, targetRect, triangleRect)
+		this.alignHerizontal(position, directions, rect, targetRect, triangleRect)
 
 		// Position for fixed or absolute layout.
 		let mayAbsolutePosition = {...position}
@@ -368,17 +372,17 @@ export class Aligner {
 	}
 
 	/** Get relative anchor position of the axis of an element. */
-	private getElRelativeAnchor(rect: Rect, triangleRect: Rect | null): [number, number] {
+	private getElRelativeAnchor(directions: Directions, rect: Rect, triangleRect: Rect | null): [number, number] {
 		let anchor = this.alignPosition[0]
 		let x = anchor.includes('l') ? 0 : anchor.includes('r') ? rect.width : rect.width / 2
 		let y = anchor.includes('t') ? 0 : anchor.includes('b') ? rect.height : rect.height / 2
 
 		// Anchor at triangle position.
 		if (this.fixTriangle && triangleRect) {
-			if ((this.directions.top || this.directions.bottom) && this.alignPosition[1][1] === 'c') {
+			if ((directions.top || directions.bottom) && this.alignPosition[1][1] === 'c') {
 				x = triangleRect.left + triangleRect.width / 2 - rect.left
 			}
-			else if ((this.directions.left || this.directions.right) && this.alignPosition[1][0] === 'c') {
+			else if ((directions.left || directions.right) && this.alignPosition[1][0] === 'c') {
 				y = triangleRect.top + triangleRect.height / 2 - rect.top
 			}
 		}
@@ -406,7 +410,7 @@ export class Aligner {
 	}
 
 	/** Do vertical alignment. */
-	private alignVertical(position: Position, rect: Rect, targetRect: Rect, triangleRect: Rect | null): boolean {
+	private alignVertical(position: Position, directions: Directions, rect: Rect, targetRect: Rect, triangleRect: Rect | null): boolean {
 		let dh = document.documentElement.clientHeight
 		let spaceTop = targetRect.top - this.margins.top
 		let spaceBottom = dh - (targetRect.bottom + this.margins.bottom)
@@ -414,20 +418,20 @@ export class Aligner {
 		let h = rect.height
 		let y = position.y
 
-		if (this.directions.top || this.directions.bottom) {
+		if (directions.top || directions.bottom) {
 
 			// Not enough space in top position, may switch to bottom.
-			if (this.directions.top && y < 0 && spaceTop < spaceBottom && this.canSwapPosition) {
+			if (directions.top && y < 0 && spaceTop < spaceBottom && this.canSwapPosition) {
 				y = targetRect.bottom + this.margins.bottom
-				this.directions.top = false
-				this.directions.bottom = true
+				directions.top = false
+				directions.bottom = true
 			}
 
 			// Not enough space in bottom position, may switch to bottom.
 			else if (y + h > dh && spaceTop > spaceBottom && this.canSwapPosition) {
 				y = targetRect.top - this.margins.top - h
-				this.directions.top = true
-				this.directions.bottom = false
+				directions.top = true
+				directions.bottom = false
 			}
 		}
 		else {
@@ -451,16 +455,16 @@ export class Aligner {
 
 		if (this.canShrinkInY) {
 			// Shrink element height if not enough space.
-			if (this.directions.top && y < 0 && this.stickToEdges) {
+			if (directions.top && y < 0 && this.stickToEdges) {
 				y = 0
 				this.el.style.height = spaceTop + 'px'
 				overflowYSet = true
 			}
-			else if (this.directions.bottom && y + h > dh && this.stickToEdges) {
+			else if (directions.bottom && y + h > dh && this.stickToEdges) {
 				this.el.style.height = spaceBottom + 'px'
 				overflowYSet = true
 			}
-			else if (!this.directions.top && !this.directions.bottom && rect.height > dh) {
+			else if (!directions.top && !directions.bottom && rect.height > dh) {
 				y = 0
 				this.el.style.height = dh + 'px'
 				overflowYSet = true
@@ -473,27 +477,27 @@ export class Aligner {
 	}
 
 	/** Do herizontal alignment. */
-	private alignHerizontal(position: Position, rect: Rect, targetRect: Rect, triangleRect: Rect | null) {
+	private alignHerizontal(position: Position, directions: Directions, rect: Rect, targetRect: Rect, triangleRect: Rect | null) {
 		let dw = document.documentElement.clientWidth
 		let spaceLeft = targetRect.left - this.margins.left
 		let spaceRight = dw - (targetRect.right + this.margins.right)
 		let w = rect.width
 		let x = position.x
 
-		if (this.directions.left || this.directions.right) {
+		if (directions.left || directions.right) {
 
 			// Not enough space in left position.
-			if (this.directions.left && x < 0 && spaceLeft < spaceRight && this.canSwapPosition) {
+			if (directions.left && x < 0 && spaceLeft < spaceRight && this.canSwapPosition) {
 				x = targetRect.right + this.margins.right
-				this.directions.left = false
-				this.directions.right = true
+				directions.left = false
+				directions.right = true
 			}
 
 			// Not enough space in right position.
-			else if (this.directions.right && x > dw - w && spaceLeft > spaceRight && this.canSwapPosition) {
+			else if (directions.right && x > dw - w && spaceLeft > spaceRight && this.canSwapPosition) {
 				x = targetRect.left - this.margins.left - w
-				this.directions.left = true
-				this.directions.right = false
+				directions.left = true
+				directions.right = false
 			}
 		}
 		else {
@@ -519,32 +523,32 @@ export class Aligner {
 	}
 
 	/** Align `triangle` relative to `el`. */
-	private alignTriangle(position: Position, rect: Rect, targetRect: Rect, triangleRect: Rect) {
+	private alignTriangle(position: Position, directions: Directions, rect: Rect, targetRect: Rect, triangleRect: Rect) {
 		let triangle = this.triangle!
 		let transforms: string[] = []
 		let w = rect.width
 		let h = rect.height
 
-		if (this.directions.top) {
+		if (directions.top) {
 			triangle.style.top = 'auto'
 			triangle.style.bottom = -triangleRect.height + 'px'
 			transforms.push('rotateX(180deg)')
 		}
-		else if (this.directions.bottom) {
+		else if (directions.bottom) {
 			triangle.style.top = -triangleRect.height + 'px'
 			triangle.style.bottom = ''
 		}
-		else if (this.directions.left) {
+		else if (directions.left) {
 			triangle.style.left = 'auto'
 			triangle.style.right = -triangleRect.width + 'px'
 			transforms.push('rotateY(180deg)')
 		}
-		else if (this.directions.right) {
+		else if (directions.right) {
 			triangle.style.left = -triangleRect.width + 'px'
 			triangle.style.right = ''
 		}
 
-		if (this.directions.top || this.directions.bottom) {
+		if (directions.top || directions.bottom) {
 			let halfTriangleWidth = triangleRect.width / 2
 			let x: number
 
@@ -572,7 +576,7 @@ export class Aligner {
 			triangle.style.right = ''
 		}
 
-		if (this.directions.left || this.directions.right) {
+		if (directions.left || directions.right) {
 			let halfTriangleHeight = triangleRect.height / 2
 			let y: number
 
@@ -690,11 +694,17 @@ export function getMainAlignDirection(pos: string): 't' | 'b' | 'l' | 'r' | 'c' 
 
 
 /** Check if rect box intersect with viewport. */
+function isRectVisible(rect: Rect) {
+	return rect.width > 0 && rect.height > 0
+}
+
+
+/** Check if rect box intersect with viewport. */
 function isRectIntersectWithViewport(rect: Rect) {
 	let w = document.documentElement.clientWidth
 	let h = document.documentElement.clientHeight
 
-	return rect.width > 0 && rect.height > 0 && rect.left < w && rect.right > 0 && rect.top < h && rect.bottom > 0 
+	return rect.left < w && rect.right > 0 && rect.top < h && rect.bottom > 0 
 }
 
 

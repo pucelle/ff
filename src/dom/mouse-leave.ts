@@ -21,27 +21,43 @@ export namespace MouseLeave {
 	/** Existed mouse leave controllers. */
 	const Controllers: Set<MouseLeaveController> = new Set()
 
+	/** Add one controller. */
+	export function addControler(controller: MouseLeaveController) {
+		Controllers.add(controller)
+	}
+
+	/** Delete one controller. */
+	export function deleteControler(controller: MouseLeaveController) {
+		Controllers.delete(controller)
+	}
+
 	/**
 	 * Make sure `trigger` and all their ancestors can't call mouse leave callback and always visible.
 	 * Normally used for contextmenu to keep parent popup visible.
-	 * @param els Single element or array of elements to keep.
-	 * @returns unkeep Stops keeping element, elements will hide after mouse leave, and will be hidden immediately if mouse is alread leaved.
+	 * @param trigger Element to keep visible.
+	 * @param popup Popup element that lock trigger element for preview. You should always provide this except there is no popup element.
 	 */
-	export function lock(trigger: Element): () => void {
+	export function lock(trigger: Element, popup: Element | null = null) {
 
-		// 1. When popup2 generated, we check the trigger element if it was contained (not equal) in elements of existing popups.
+		// 1. When popup2 generated, we check the trigger element if it was contained (not equal) in element of existing popups.
 		// 2. If so, we lock the exist popup until popup2 disappeared.
 
 		let controller = getControllerWhichPopupContains(trigger)
 		if (controller) {
-			controller.lockBy(trigger)
+			controller.requestLock(trigger, popup)
 		}
-	
-		return () => {
-			if (controller) {
-				controller.unlockBy(trigger)
-				controller = null
-			}
+	}
+
+
+	/**
+	 * Release locking `trigger` element.
+	 * @param trigger Element don't want to keep anymore.
+	 * @param popup Popup element that lock trigger element for preview. You should always provide this except there is no popup element.
+	 */
+	export function unlock(trigger: Element, popup: Element | null = null) {
+		let controller = getControllerWhichPopupContains(trigger)
+		if (controller) {
+			controller.releaseLock(trigger, popup)
 		}
 	}
 
@@ -59,11 +75,11 @@ export namespace MouseLeave {
 	
 	
 	/**
-	 * Check whether element or any of it's ancestors was kept to be visible.
+	 * Checks whether element or any of it's ancestors was kept to be visible.
 	 * If element is not locked, you can destroy or reuse it immediately.
 	 * @param el Element to check, normally a popup element.
 	 */
-	export function beLocked(el: Element): boolean {
+	export function checkLocked(el: Element): boolean {
 		for (let controller of [...Controllers].reverse()) {
 			if (controller.popup.contains(el)) {
 				return controller.beLocked()
@@ -99,140 +115,191 @@ export namespace MouseLeave {
 
 		return () => controller.cancel()
 	}
-	
-	
-	class MouseLeaveController {
+}
+
+
+
+class MouseLeaveController {
 		
-		/** Trigger elements. */
-		trigger: Element
+	/** Trigger elements. */
+	trigger: Element
 
-		/** Popup elements. */
-		popup: Element
+	/** Popup elements. */
+	popup: Element
 
-		/** Is mouse inside any of `els`. */
-		private mouseIn: boolean
-		
-		/** Elements that locked current popup and make it to be visible. */
-		private lockedBy: Set<Element> = new Set()
-		
-		/** Is registered from `once`. */
-		private isOnce: boolean
+	/** Is mouse inside any of `els`. */
+	private mouseIn: boolean = false
+	
+	/** Elements that locked current popup and make it to be visible. */
+	private locks: Map<Element, Set<Element | null>> = new Map()
+	
+	/** Is registered from `once`. */
+	private isOnce: boolean
 
-		/** `callback` after mouse leaves all of `els`. */
-		private callback: () => void
+	/** `callback` after mouse leaves all of `els`. */
+	private callback: () => void
 
-		/** Trigger `callback` delay. */
-		private delay: number
+	/** Trigger `callback` delay. */
+	private delay: number
 
-		/** Is the controller canceld. */
-		private ended: boolean = false
+	/** Is the controller canceld. */
+	private ended: boolean = false
 
-		/** Timeout to countdown time delay for calling `callback` */
-		private timeout: ReturnType<typeof setTimeout> | null = null
+	/** Timeout to countdown time delay for calling `callback` */
+	private timeout: ReturnType<typeof setTimeout> | null = null
 
-		/** Cancel locking trigger element. */
-		private unlock: () => void
-	
-		constructor(trigger: Element, popup: Element, isOnce: boolean, callback: () => void, options: MouseLeaveOptions = {}) {
-			this.trigger = trigger
-			this.popup = popup
-			this.isOnce = isOnce
-			this.callback = callback
-			
-			this.delay = options.delay ?? 200
-			this.mouseIn = options.mouseIn ?? false
-	
-			this.onMouseEnter = this.onMouseEnter.bind(this)
-			this.onMouseLeave = this.onMouseLeave.bind(this)
-			
-			for (let el of [trigger, popup]) {
-				el.addEventListener('mouseenter', this.onMouseEnter, false)
-				el.addEventListener('mouseleave', this.onMouseLeave, false)
-			}
-	
-			this.unlock = lock(trigger)
-			Controllers.add(this)
-		}
-	
-		private onMouseEnter() {
-			this.mouseIn = true
-			this.clearTimeout()
-		}
-	
-		private onMouseLeave() {
-			this.mouseIn = false
-	
-			if (!this.beLocked()) {
-				this.startTimeout()
-			}
-		}
-	
-		private startTimeout() {
-			this.clearTimeout()
-			this.timeout = setTimeout(() => this.onTimeout(), this.delay)
+	private bindedOnMouseEnter: () => void
+	private bindedOnMouseLeave: () => void
+
+	constructor(trigger: Element, popup: Element, isOnce: boolean, callback: () => void, options: MouseLeaveOptions = {}) {
+		this.trigger = trigger
+		this.popup = popup
+		this.isOnce = isOnce
+		this.callback = callback
+		this.delay = options.delay ?? 200
+					
+		if (options.mouseIn) {
+			this.onMouseEnter()
 		}
 
-		private onTimeout() {
+		this.bindedOnMouseEnter = this.onMouseEnter.bind(this)
+		this.bindedOnMouseLeave = this.onMouseLeave.bind(this)
+
+		for (let el of [trigger, popup]) {
+			el.addEventListener('mouseenter', this.bindedOnMouseEnter, false)
+			el.addEventListener('mouseleave', this.bindedOnMouseLeave, false)
+		}
+
+		MouseLeave.addControler(this)
+	}
+
+	private onMouseEnter() {
+		this.mouseIn = true
+		MouseLeave.lock(this.trigger, this.popup)
+		this.clearTimeout()
+	}
+
+	private onMouseLeave() {
+		this.mouseIn = false
+		MouseLeave.unlock(this.trigger, this.popup)
+
+		if (!this.beLocked()) {
+			this.startTimeout()
+		}
+	}
+
+	private startTimeout() {
+		this.clearTimeout()
+		this.timeout = setTimeout(() => this.onTimeout(), this.delay)
+	}
+
+	private startTimeoutIfNot() {
+		if (!this.timeout) {
+			this.startTimeout()
+		}
+	}
+
+	private onTimeout() {
+		this.timeout = null
+
+		if (!this.mouseIn) {
+			this.flush()
+		}
+	}
+
+	private clearTimeout() {
+		if (this.timeout) {
+			clearTimeout(this.timeout)
 			this.timeout = null
-	
-			if (!this.mouseIn) {
-				this.flush()
-			}
 		}
-	
-		private clearTimeout() {
-			if (this.timeout) {
-				clearTimeout(this.timeout)
-				this.timeout = null
-			}
-		}
-	
-		flush() {
-			if (this.ended) {
-				return
-			}
-	
-			if (this.isOnce) {
-				this.cancel()
-			}
-	
-			this.callback()
-		}
-	
-		cancel() {
-			if (this.ended) {
-				return
-			}
-			
-			this.clearTimeout()
-	
-			for (let el of [this.trigger, this.popup]) {
-				el.removeEventListener('mouseenter', this.onMouseEnter, false)
-				el.removeEventListener('mouseleave', this.onMouseLeave, false)
-			}
-	
-			this.unlock()
-			this.ended = true
-			Controllers.delete(this)
+	}
+
+	flush() {
+		if (this.ended) {
+			return
 		}
 
-		beLocked() {
-			return this.lockedBy.size > 0
+		if (this.isOnce) {
+			this.cancel()
 		}
-	
-		lockBy(el: Element) {
-			this.clearTimeout()
-			this.lockedBy.add(el)
+		else {
+			this.releaseAllLocks()
 		}
+
+		this.callback()
+	}
+
+	cancel() {
+		if (this.ended) {
+			return
+		}
+		
+		this.clearTimeout()
+
+		for (let el of [this.trigger, this.popup]) {
+			el.removeEventListener('mouseenter', this.bindedOnMouseEnter, false)
+			el.removeEventListener('mouseleave', this.bindedOnMouseLeave, false)
+		}
+
+		MouseLeave.unlock(this.trigger, this.popup)
+		this.releaseAllLocks()
+		this.ended = true
+		MouseLeave.deleteControler(this)
+	}
+
+	/** Whether was locked to keep visible. */
+	beLocked() {
+		return this.locks.size > 0
+	}
 	
-		unlockBy(el: Element) {
-			this.lockedBy.delete(el)
-	
-			if (!this.beLocked()) {
-				if (!this.mouseIn) {
-					this.flush()
-				}
+	/** Lock because want to keep `el` visible, request comes from `popup`. */
+	requestLock(el: Element, popup: Element | null) {
+		this.clearTimeout()
+
+		let identifiers = this.locks.get(el)
+		if (!identifiers) {
+			identifiers = new Set()
+			this.locks.set(el, identifiers)
+		}
+		identifiers.add(popup)
+
+		// Mouse leave will cause unlock in sequence,
+		// So after mouse in, must relock in sequence.
+		MouseLeave.lock(this.trigger, popup)
+	}
+
+	/** Release a lock. */
+	releaseLock(el: Element, popup: Element | null) {
+		let identifiers = this.locks.get(el)
+		if (identifiers) {
+			identifiers.delete(popup)
+
+			if (identifiers.size === 0) {
+				this.locks.delete(el)
 			}
 		}
+
+		MouseLeave.unlock(this.trigger, popup)
+
+		// May already started timeout because of mouse leave.
+		if (!this.beLocked() && !this.mouseIn) {
+			MouseLeave.unlock(this.trigger, this.popup)
+			this.startTimeoutIfNot()
+		}
+	}
+
+	/** 
+	 * Release all locks that from outside.
+	 * This method is not required if everything goes well.
+	 * But implement it will make it stronger.
+	 */
+	private releaseAllLocks() {
+		for (let [el, popups] of this.locks) {
+			for (let popup of popups) {
+				MouseLeave.unlock(el, popup)
+			}
+		}
+
+		this.locks = new Map()
 	}
 }
