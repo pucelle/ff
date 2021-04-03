@@ -162,7 +162,7 @@ export class Settings<O extends Object, E = any> extends Emitter<SettingsEvents<
 	protected storageData!: O
 	protected willSave: boolean = false
 
-	constructor(defaultData: O, storageKey: string = 'settings') {
+	constructor(storageKey: string, defaultData: O) {
 		super()
 		this.storageKey = storageKey
 		this.defaultData = defaultData

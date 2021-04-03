@@ -197,24 +197,42 @@ export function locateLastVisibleIndex(container: Element, els: ArrayLike<Elemen
 }
 
 
-function locateVisibleIndex(container: Element, els: ArrayLike<Element>, isLast: boolean): number {
+function locateVisibleIndex(container: Element, els: ArrayLike<Element>, preferLast: boolean): number {
 	let containerRect = container.getBoundingClientRect()
 
 	let index = binaryFindIndexToInsert(els, (el) => {
 		let rect = el.getBoundingClientRect()
-		if (rect.bottom <= containerRect.top) {
+		let yIntersect = Math.min(containerRect.bottom, rect.bottom) - Math.max(containerRect.top, rect.top)
+		let intersectRate = yIntersect / Math.min(containerRect.height, rect.height)
+
+		// Fully above.
+		if (rect.bottom < containerRect.top) {
 			return 1
 		}
-		else if (rect.top >= containerRect.bottom) {
+
+		// Fully behind.
+		else if (rect.top > containerRect.bottom) {
 			return -1
 		}
+
+		// Partly cross in top position.
+		else if (rect.top < containerRect.top && intersectRate < 0.5) {
+			return 1
+		}
+
+		// Partly cross in bottom position.
+		else if (rect.bottom < containerRect.bottom && intersectRate < 0.5) {
+			return -1
+		}
+
+		// Enough percentage that intersect with.
+		// If `preferLast` is true, prefer moving to right.
 		else {
-			// If find last, prefer move to right.
-			return isLast ? 1 : -1
+			return preferLast ? 1 : -1
 		}
 	})
 
-	if (isLast && index > 0) {
+	if (preferLast && index > 0) {
 		index -= 1
 	}
 
