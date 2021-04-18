@@ -181,9 +181,10 @@ export function isVisibleInViewport(el: Element, percentage: number = 0.5, addit
  * Locate the first element in els that is is visible inside container.
  * @container Container to check visible inside.
  * @param els Element list to check.
+ * @param minimumVisibleRate If more than such rate of element in viewport, we consider it as visible.
  */
-export function locateFirstVisibleIndex(container: Element, els: ArrayLike<Element>): number {
-	return locateVisibleIndex(container, els, false)
+export function locateFirstVisibleIndex(container: Element, els: ArrayLike<Element>, minimumVisibleRate: number = 0.5): number {
+	return locateVisibleIndex(container, els, minimumVisibleRate, false)
 }
 
 
@@ -191,13 +192,15 @@ export function locateFirstVisibleIndex(container: Element, els: ArrayLike<Eleme
  * Locate the last element in els that is is visible inside container.
  * @container Container to check visible inside.
  * @param els Element list to check.
+ * @param minimumVisibleRate If more than such rate of element in viewport, we consider it as visible.
  */
-export function locateLastVisibleIndex(container: Element, els: ArrayLike<Element>): number {
-	return locateVisibleIndex(container, els, true)
+export function locateLastVisibleIndex(container: Element, els: ArrayLike<Element>, minimumVisibleRate: number = 0.5): number {
+	return locateVisibleIndex(container, els, minimumVisibleRate, true)
 }
 
 
-function locateVisibleIndex(container: Element, els: ArrayLike<Element>, preferLast: boolean): number {
+
+function locateVisibleIndex(container: Element, els: ArrayLike<Element>, minimumVisibleRate: number, locateLast: boolean): number {
 	let containerRect = container.getBoundingClientRect()
 
 	let index = binaryFindIndexToInsert(els, (el) => {
@@ -216,24 +219,26 @@ function locateVisibleIndex(container: Element, els: ArrayLike<Element>, preferL
 		}
 
 		// Partly cross in top position.
-		else if (rect.top < containerRect.top && intersectRate < 0.5) {
+		else if (rect.top < containerRect.top && intersectRate < minimumVisibleRate) {
 			return 1
 		}
 
 		// Partly cross in bottom position.
-		else if (rect.bottom < containerRect.bottom && intersectRate < 0.5) {
+		else if (rect.bottom < containerRect.bottom && intersectRate < minimumVisibleRate) {
 			return -1
 		}
 
 		// Enough percentage that intersect with.
 		// If `preferLast` is true, prefer moving to right.
 		else {
-			return preferLast ? 1 : -1
+			return locateLast ? 1 : -1
 		}
 	})
 
-	if (preferLast && index > 0) {
-		index -= 1
+	if (locateLast) {
+		if (index > 0) {
+			index -= 1
+		}
 	}
 
 	return index
