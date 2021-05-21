@@ -293,6 +293,7 @@ function unwatchDocumentChange(callback: () => void) {
 
 	if (mutationObserverCallbacks.length === 0 && mutationObserver) {
 		mutationObserver.disconnect()
+		mutationObserver = null
 	}
 
 	if (mutationObserverCallbacks.length === 0) {

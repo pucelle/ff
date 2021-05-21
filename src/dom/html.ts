@@ -4,7 +4,7 @@
  * @param code Text to be encoded.
  */
 export function encodeHTML(code: string): string {
-	return code.replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+	return code.replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
 
