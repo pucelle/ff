@@ -326,8 +326,12 @@ export class Order<T> {
 	 * Sort `array` inside by current order.
 	 * @param array The array to sort.
 	 */
-	sortArray(array: T[]) {
-		array.sort((a, b) => this.compare(a, b))
+	sortArray(array: T[], direction: OrderDirection = 1) {
+		let normalizedDirection = direction === 'asc' ? 1 : direction === 'desc' ? -1 : direction
+
+		array.sort((a, b) => {
+			return this.compare(a, b) * normalizedDirection
+		})
 	}
 
 	/**
