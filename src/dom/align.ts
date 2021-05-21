@@ -241,17 +241,14 @@ export class Aligner {
 	 */
 	align(): boolean {
 		let directions = this.parseDirections()
-
 		let targetRect = getRect(this.target)
+
 		if (!isRectVisible(targetRect)) {
 			return false
 		}
 
-		// `align` may be called for multiple times, so need to clear again.
-		if (this.triangle) {
-			this.triangle.style.transform = ''
-		}
-		
+		this.clearLastAlignment()
+
 		let rect = getRect(this.el)
 		let triangleRect = this.triangle ? getRect(this.triangle) : null
 
@@ -262,7 +259,7 @@ export class Aligner {
 		}
 
 		// If can shrink in y axis, try remove the height limitation and extend to natural height.
-		if (this.canShrinkInY && !this.triangle) {
+		if (this.canShrinkInY) {
 			rect.height = this.getNaturalHeight(rect, triangleRect)
 		}
 
@@ -270,14 +267,14 @@ export class Aligner {
 		let isOverflowHerizontalEdges = rect.left <= 0 || rect.right >= document.documentElement.clientWidth
 
 		// Do el alignment.
-		let position = this.doElAlignment(directions, rect, targetRect, triangleRect)
+		let position = this.doAlignment(directions, rect, targetRect, triangleRect)
 
 		// Re-align el if element size changed.
 		if (isOverflowHerizontalEdges) {
 			let newRect = getRect(this.el)
 			if (newRect.width !== rect.width || newRect.height !== rect.height) {
 				triangleRect = this.triangle ? getRect(this.triangle) : null
-				position = this.doElAlignment(directions, newRect, targetRect, triangleRect)
+				position = this.doAlignment(directions, newRect, targetRect, triangleRect)
 			}
 		}
 		
@@ -287,6 +284,18 @@ export class Aligner {
 		}
 
 		return true
+	}
+
+	/** Clear last alignment properties. */
+	private clearLastAlignment() {
+		// Must reset, or el may be shrink into a small corner.
+		this.el.style.left = '0'
+		this.el.style.top = '0'
+		
+		// `align` may be called for multiple times, so need to clear again.
+		if (this.triangle) {
+			this.triangle.style.transform = ''
+		}
 	}
 
 	/** Parse align direction to indicate which direction will align to. */
@@ -328,7 +337,7 @@ export class Aligner {
 	}
 
 	/** Do alignment from `el` to `target` for once. */
-	private doElAlignment(directions: Directions, rect: Rect, targetRect: Rect, triangleRect: Rect | null) {
+	private doAlignment(directions: Directions, rect: Rect, targetRect: Rect, triangleRect: Rect | null) {
 		let anchor1 = this.getElRelativeAnchor(directions, rect, triangleRect)
 		let anchor2 = this.getTargetAbsoluteAnchor(targetRect)
 
