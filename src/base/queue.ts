@@ -503,11 +503,6 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 		}
 
 		this.tasks.push(...tasks)
-
-		if (this.state === QueueState.Finish) {
-			this.start()
-		}
-
 		this.tryHandleNextTask()
 	}
 
@@ -520,11 +515,6 @@ export class Queue<T = any, V = void> extends Emitter<QueueEvents<T, V>> {
 		}
 
 		this.tasks.unshift(...tasks)
-
-		if (this.state === QueueState.Finish) {
-			this.start()
-		}
-
 		this.tryHandleNextTask()
 	}
 
