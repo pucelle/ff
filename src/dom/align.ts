@@ -273,7 +273,11 @@ export class Aligner {
 		if (isOverflowHerizontalEdges) {
 			let newRect = getRect(this.el)
 			if (newRect.width !== rect.width || newRect.height !== rect.height) {
+
+				// These two rects must be replaced both or neither.
+				rect = newRect
 				triangleRect = this.triangle ? getRect(this.triangle) : null
+
 				position = this.doAlignment(directions, newRect, targetRect, triangleRect)
 			}
 		}
@@ -295,6 +299,11 @@ export class Aligner {
 		// `align` may be called for multiple times, so need to clear again.
 		if (this.triangle) {
 			this.triangle.style.transform = ''
+		}
+
+		// Rest last time set shrink height.
+		if (this.canShrinkInY) {
+			this.el.style.height = ''
 		}
 	}
 
@@ -559,14 +568,19 @@ export class Aligner {
 
 		if (directions.top || directions.bottom) {
 			let halfTriangleWidth = triangleRect.width / 2
-			let x: number
+			let x: number = 0
 
-			// Triangle in the center of the edge of target.
+			// Adjust triangle to the center of the target edge.
 			if ((w >= targetRect.width || this.fixTriangle) && this.alignPosition[1][1] === 'c') {
 				x = targetRect.left + targetRect.width / 2 - position.x - halfTriangleWidth
 			}
 
-			// Triangle in the center of the edge of el.
+			// In fixed position.
+			else if (this.fixTriangle) {
+				x = triangleRect.left - rect.left
+			}
+
+			// Adjust triangle to the center of the el edge.
 			else {
 				x = w / 2 - halfTriangleWidth
 			}
@@ -592,6 +606,9 @@ export class Aligner {
 			if ((h >= targetRect.height || this.fixTriangle) && this.alignPosition[1][0] === 'c') {
 				y = targetRect.top + targetRect.height / 2 - position.y - halfTriangleHeight
 			}
+			else if (this.fixTriangle) {
+				y = triangleRect.top - rect.top
+			}
 			else {
 				y = h / 2 - halfTriangleHeight
 			}
@@ -603,7 +620,7 @@ export class Aligner {
 				y -= triangleRect.top - rect.top
 				transforms.push(`translateY(${y}px)`)
 			}
-			else {
+			else if (!this.fixTriangle) {
 				triangle.style.top = y + 'px'
 			}
 

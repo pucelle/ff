@@ -3,3 +3,4 @@ out
 coverage
 test/**/*.js
 test/**/*.js.map
+.VSCodeCounter
