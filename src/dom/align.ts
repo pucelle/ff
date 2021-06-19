@@ -1,4 +1,4 @@
-import {getStyleValue} from './style'
+import {getStyleValue, getStyleValueAsNumber} from './style'
 import {Rect, getRect} from './element'
 
 
@@ -166,6 +166,9 @@ export class Aligner {
 	/** Align position, `[anchor of align element, anchor of target element]`. */
 	private readonly alignPosition: [string, string]
 
+	/** In which direction to align. */
+	private alignDirections: Directions
+
 	/** Margin outside of target element. */
 	private readonly margins: Margins
 
@@ -192,6 +195,7 @@ export class Aligner {
 		// Still passed parameters although it's in current project,
 		// So we can avoid calling order confuse us.
 		this.alignPosition = parseAlignPosition(position)
+		this.alignDirections = this.parseAlignDirections()
 		this.margins = this.parseMargin(options.margin || 0)
 
 		// If target not affected by document scrolling, el should be same.
@@ -202,6 +206,18 @@ export class Aligner {
 		}
 		else {
 			this.isElInFixedPosition = getComputedStyle(this.el).position === 'fixed'
+		}
+	}
+
+	/** Parse align direction to indicate which direction will align to. */
+	private parseAlignDirections(): Directions {
+		let alignPosition = this.alignPosition
+
+		return {
+			top    : alignPosition[0].includes('b') && alignPosition[1].includes('t'),
+			right  : alignPosition[0].includes('l') && alignPosition[1].includes('r'),
+			bottom : alignPosition[0].includes('t') && alignPosition[1].includes('b'),
+			left   : alignPosition[0].includes('r') && alignPosition[1].includes('l'),
 		}
 	}
 
@@ -226,10 +242,15 @@ export class Aligner {
 		}
 
 		if (this.triangle) {
-			margins.top += this.triangle.offsetHeight
-			margins.bottom += this.triangle.offsetHeight
-			margins.right += this.triangle.offsetWidth
-			margins.left += this.triangle.offsetWidth
+			if (this.alignDirections.top || this.alignDirections.bottom) {
+				margins.top += this.triangle.offsetHeight
+				margins.bottom += this.triangle.offsetHeight
+			}
+
+			if (this.alignDirections.left || this.alignDirections.right) {
+				margins.right += this.triangle.offsetWidth
+				margins.left += this.triangle.offsetWidth
+			}
 		}
 
 		return margins
@@ -240,7 +261,7 @@ export class Aligner {
 	 * Returns whether does alignment.
 	 */
 	align(): boolean {
-		let directions = this.parseDirections()
+		let directions = {...this.alignDirections}
 		let targetRect = getRect(this.target)
 
 		if (!isRectVisible(targetRect)) {
@@ -304,18 +325,6 @@ export class Aligner {
 		// Rest last time set shrink height.
 		if (this.canShrinkInY) {
 			this.el.style.height = ''
-		}
-	}
-
-	/** Parse align direction to indicate which direction will align to. */
-	private parseDirections(): Directions {
-		let alignPosition = this.alignPosition
-
-		return {
-			top    : alignPosition[0].includes('b') && alignPosition[1].includes('t'),
-			right  : alignPosition[0].includes('l') && alignPosition[1].includes('r'),
-			bottom : alignPosition[0].includes('t') && alignPosition[1].includes('b'),
-			left   : alignPosition[0].includes('r') && alignPosition[1].includes('l'),
 		}
 	}
 
@@ -585,14 +594,16 @@ export class Aligner {
 				x = w / 2 - halfTriangleWidth
 			}
 
-			x = Math.max(x, halfTriangleWidth)
-			x = Math.min(x, rect.width - triangleRect.width - halfTriangleWidth)
+			// Limit to touch the herizontal edge of both el and target.
+			x = Math.max(x, halfTriangleWidth, targetRect.left - rect.left + halfTriangleWidth)
+			x = Math.min(x, rect.width - triangleRect.width - halfTriangleWidth, targetRect.right - rect.left - halfTriangleWidth)
 
 			if (this.fixTriangle) {
 				x -= triangleRect.left - rect.left
 				transforms.push(`translateX(${x}px)`)
 			}
 			else {
+				x -= getStyleValueAsNumber(this.el, 'borderLeftWidth')
 				triangle.style.left = x + 'px'
 			}
 
@@ -621,6 +632,7 @@ export class Aligner {
 				transforms.push(`translateY(${y}px)`)
 			}
 			else if (!this.fixTriangle) {
+				y -= getStyleValueAsNumber(this.el, 'borderTopWidth')
 				triangle.style.top = y + 'px'
 			}
 
