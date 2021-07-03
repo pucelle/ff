@@ -19,12 +19,14 @@ type ResponseTypes = {
 	'video': HTMLVideoElement
 }
 
-
 /** Options of resource loader. */
 export interface ResourceLoaderOptions {
 
 	/** URL base. */
 	base?: string
+
+	/** URL Hash map, in {path: hash} format. */
+	urlHashMap?: Record<string, string>
 }
 
 /** Events of resource loader. */
@@ -49,7 +51,10 @@ export interface ResourceLoaderEvents {
 export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 
 	/** URL base. */
-	base: string = ''
+	base: string
+
+	/** URL Hash map, in {path: hash} format. */
+	urlHashMap: Record<string, string>
 
 	private loaded: number = 0
 	private loadedCount: number = 0
@@ -58,6 +63,7 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 	constructor(options: ResourceLoaderOptions = {}) {
 		super()
 		this.base = options.base ?? ''
+		this.urlHashMap = options.urlHashMap || {}
 	
 		this.on('finish', () => {
 			this.loaded = 0
@@ -90,11 +96,10 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 				})
 
 				let response = blob ? await this.getFromBlob(blob, type || 'blob') : null
-
 				this.loadedCount++
-				this.emit('progress', this.loadedCount, this.totalCount)
 
 				if (this.loadedCount === this.totalCount) {
+					this.emit('progress', this.loadedCount, this.totalCount)
 					this.emit('finish')
 				}
 
@@ -156,6 +161,11 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 	private getAbsoluteURL(url: string): string {
 		if (/^(?:https?:|\/\/)/.test(url) || !this.base) {
 			return url
+		}
+
+		let hash = this.urlHashMap[url]
+		if (hash) {
+			url = url.replace(/\.\w+$/, `-${hash}$&`)
 		}
 	
 		return this.base + url
