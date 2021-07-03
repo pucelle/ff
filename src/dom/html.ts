@@ -10,6 +10,7 @@ export function encodeHTML(code: string): string {
 
 /**
  * Decode HTML codes which includes `&...` to be readable characters.
+ * Otherwise it will remove all the html tags.
  * @param code Encoded HTML codes.
  */
 export function decodeHTML(code: string): string {

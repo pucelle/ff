@@ -595,8 +595,8 @@ export class Aligner {
 			}
 
 			// Limit to touch the herizontal edge of both el and target.
-			x = Math.max(x, halfTriangleWidth, targetRect.left - rect.left + halfTriangleWidth)
-			x = Math.min(x, rect.width - triangleRect.width - halfTriangleWidth, targetRect.right - rect.left - halfTriangleWidth)
+			x = Math.max(x, halfTriangleWidth, targetRect.left - rect.left)
+			x = Math.min(x, rect.width - triangleRect.width - halfTriangleWidth, targetRect.right - rect.left)
 
 			if (this.fixTriangle) {
 				x -= triangleRect.left - rect.left
