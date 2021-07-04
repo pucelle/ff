@@ -24,9 +24,6 @@ export interface ResourceLoaderOptions {
 
 	/** URL base. */
 	base?: string
-
-	/** URL Hash map, in {path: hash} format. */
-	urlHashMap?: Record<string, string>
 }
 
 /** Events of resource loader. */
@@ -53,9 +50,6 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 	/** URL base. */
 	base: string
 
-	/** URL Hash map, in {path: hash} format. */
-	urlHashMap: Record<string, string>
-
 	private loaded: number = 0
 	private loadedCount: number = 0
 	private totalCount: number = 0
@@ -63,8 +57,7 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 	constructor(options: ResourceLoaderOptions = {}) {
 		super()
 		this.base = options.base ?? ''
-		this.urlHashMap = options.urlHashMap || {}
-	
+
 		this.on('finish', () => {
 			this.loaded = 0
 			this.loadedCount = 0
@@ -163,11 +156,6 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 			return url
 		}
 
-		let hash = this.urlHashMap[url]
-		if (hash) {
-			url = url.replace(/\.\w+$/, `-${hash}$&`)
-		}
-	
 		return this.base + url
 	}
 
