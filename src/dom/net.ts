@@ -25,8 +25,8 @@ export interface ResourceLoaderOptions {
 	/** URL base. */
 	base?: string
 
-	/** URL map, must completely match. */
-	manifest?: Record<string, string>
+	/** Hash map for URL map, URL must completely match. */
+	revisions?: Record<string, string>
 }
 
 /** Events of resource loader. */
@@ -53,8 +53,8 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 	/** URL base. */
 	base: string
 
-	/** URL map, must completely match. */
-	manifest: Record<string, string>
+	/** Hash map for URL map, URL must completely match. */
+	revisions: Record<string, string>
 
 	private loaded: number = 0
 	private loadedCount: number = 0
@@ -63,7 +63,7 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 	constructor(options: ResourceLoaderOptions = {}) {
 		super()
 		this.base = options.base ?? ''
-		this.manifest = options.manifest || {}
+		this.revisions = options.revisions || {}
 	
 		this.on('finish', () => {
 			this.loaded = 0
@@ -159,9 +159,9 @@ export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
 
 	/** Convert relative URL to absolute type. */
 	private getAbsoluteURL(url: string): string {
-		let newURL = this.manifest[url]
-		if (newURL) {
-			url = newURL
+		let hash = this.revisions[url]
+		if (hash) {
+			url = url.replace(/\.\w+$/, `-${hash}$&`)
 		}
 
 		if (/^(?:https?:|\/\/)/.test(url) || !this.base) {

@@ -164,6 +164,11 @@ export class Settings<O extends Object, E = any> extends Emitter<SettingsEvents<
 
 	constructor(storageKey: string, defaultData: O) {
 		super()
+
+		if (!storageKey || !defaultData) {
+			throw new Error(`You must specify "storageKey" and "defaultData" when using "Settings"!`)
+		}
+		
 		this.storageKey = storageKey
 		this.defaultData = defaultData
 		this.initializeDate()
@@ -173,7 +178,7 @@ export class Settings<O extends Object, E = any> extends Emitter<SettingsEvents<
 		let defaultKeys = Object.keys(this.defaultData)
 		let storageData = this.getStorageData()
 
-		// Key must exist in default data.
+		// Key must exist in default data, or data item will be deleted.
 		if (storageData) {
 			for (let key of Object.keys(storageData)) {
 				if (!defaultKeys.includes(key)) {
