@@ -364,7 +364,15 @@ export class Order<T> {
 			}
 
 			if (ai !== bi) {
-				return ai === null || ai === undefined ? -order as -1 | 1 : order
+				let isAiBeNullOrUndefined = ai === null || ai === undefined
+				let isBiBeNullOrUndefined = bi === null || bi === undefined
+
+				if (isAiBeNullOrUndefined && !isBiBeNullOrUndefined) {
+					return -order as -1 | 1
+				}
+				else if (!isAiBeNullOrUndefined && isBiBeNullOrUndefined) {
+					return order as -1 | 1
+				}
 			}
 		}
 
