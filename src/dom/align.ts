@@ -154,7 +154,7 @@ export class Aligner {
 	/** Triangle element in `el`. */
 	private readonly triangle: HTMLElement | null
 
-	/** Whether stick align element to viewport edges. */
+	/** Whether stick align element to viewport edges where isn't much space for it. */
 	private readonly stickToEdges?: boolean
 
 	/** Whether can swap align position if spaces in current position is not enough. */
@@ -447,18 +447,23 @@ export class Aligner {
 
 		if (directions.top || directions.bottom) {
 
-			// Not enough space in top position, may switch to bottom.
+			// Not enough space in top position, switch to bottom.
 			if (directions.top && y < 0 && spaceTop < spaceBottom && this.canSwapPosition) {
 				y = targetRect.bottom + this.margins.bottom
 				directions.top = false
 				directions.bottom = true
 			}
 
-			// Not enough space in bottom position, may switch to bottom.
+			// Not enough space in bottom position, switch to top.
 			else if (y + h > dh && spaceTop > spaceBottom && this.canSwapPosition) {
 				y = targetRect.top - this.margins.top - h
 				directions.top = true
 				directions.bottom = false
+			}
+
+			if (this.stickToEdges) {
+				y = Math.min(y, dh - rect.height)
+				y = Math.max(0, y)
 			}
 		}
 		else {
@@ -525,6 +530,11 @@ export class Aligner {
 				x = targetRect.left - this.margins.left - w
 				directions.left = true
 				directions.right = false
+			}
+
+			if (this.stickToEdges) {
+				x = Math.min(x, dw - rect.width)
+				x = Math.max(0, x)
 			}
 		}
 		else {
