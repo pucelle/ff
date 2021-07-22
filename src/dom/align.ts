@@ -154,13 +154,16 @@ export class Aligner {
 	/** Triangle element in `el`. */
 	private readonly triangle: HTMLElement | null
 
-	/** Whether stick align element to viewport edges where isn't much space for it. */
+	/** Whether stick element to viewport edges when there isn't much space for it. */
 	private readonly stickToEdges?: boolean
 
 	/** Whether can swap align position if spaces in current position is not enough. */
 	private readonly canSwapPosition?: boolean
 
-	/** If not enough space in y axis, whether should shrink. */
+	/** 
+	 * If not enough space in y axis, whether should shrink height.
+	 * When aligning in vertical direction, you should also set `stickToEdges` to `true` to make it work.
+	 */
 	private readonly canShrinkInY: boolean
 
 	/** Align position, `[anchor of align element, anchor of target element]`. */
@@ -460,11 +463,6 @@ export class Aligner {
 				directions.top = true
 				directions.bottom = false
 			}
-
-			if (this.stickToEdges) {
-				y = Math.min(y, dh - rect.height)
-				y = Math.max(0, y)
-			}
 		}
 		else {
 
@@ -503,6 +501,14 @@ export class Aligner {
 			}
 		}
 
+		// Process stick to edges.
+		else if (this.stickToEdges) {
+			if (directions.top || directions.bottom) {
+				y = Math.min(y, dh - rect.height)
+				y = Math.max(0, y)
+			}
+		}
+
 		position.y = y
 
 		return overflowYSet
@@ -531,11 +537,6 @@ export class Aligner {
 				directions.left = true
 				directions.right = false
 			}
-
-			if (this.stickToEdges) {
-				x = Math.min(x, dw - rect.width)
-				x = Math.max(0, x)
-			}
 		}
 		else {
 
@@ -553,6 +554,14 @@ export class Aligner {
 				// Gives enough space for triangle.
 				let minX = targetRect.right - (triangleRect ? triangleRect.width : 0)
 				x = Math.min(0, minX)
+			}
+		}
+
+		// Process stick to edges.
+		if (this.stickToEdges) {
+			if (directions.left || directions.right) {
+				x = Math.min(x, dw - rect.width)
+				x = Math.max(0, x)
 			}
 		}
 
