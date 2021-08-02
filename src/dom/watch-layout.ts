@@ -279,6 +279,10 @@ function watchDocumentChange(callback: () => void) {
 	if (mutationObserverCallbacks.length === 0) {
 		window.addEventListener('resize', emitDocumentChangeLater)
 		window.addEventListener('wheel', emitDocumentChangeLater)
+
+		if ('ontouchmove' in window) {
+			window.addEventListener('touchmove', emitDocumentChangeLater)
+		}
 	}
 
 	mutationObserverCallbacks.push(callback)
@@ -299,6 +303,10 @@ function unwatchDocumentChange(callback: () => void) {
 	if (mutationObserverCallbacks.length === 0) {
 		window.removeEventListener('resize', emitDocumentChangeLater)
 		window.removeEventListener('wheel', emitDocumentChangeLater)
+
+		if ('ontouchmove' in window) {
+			window.removeEventListener('touchmove', emitDocumentChangeLater)
+		}
 	}
 }
 
