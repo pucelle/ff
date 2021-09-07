@@ -1,7 +1,7 @@
 type InferFromDefault<T> = T extends null | undefined ? any : T
 
 
-class JSONStorage {
+class WebStorage {
 
 	/** Key prefix to identify self set local storage properties. */
 	private prefix: string = ''
@@ -139,10 +139,10 @@ class JSONStorage {
 	 * @param namespace The prefix of keys.
 	 */
 	group(namespace: string) {
-		return new JSONStorage(this.prefix + '_' + namespace)
+		return new WebStorage(this.prefix + '_' + namespace)
 	}
 }
 
 
 /** Like `LocalStorage` very much, except here it read and write JSON datas. */
-export const storage = new JSONStorage('_ff_')
+export const storage = new WebStorage('_ff_')
