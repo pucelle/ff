@@ -85,7 +85,7 @@ export class Translations {
 		}
 
 		if (id) {
-			value = data![id] || defaultValue
+			value = data![id] ?? defaultValue
 		}
 
 		if (args.length) {
