@@ -440,18 +440,18 @@ export function orderBy<T extends object>(array: T[], order: Order<T> | OrderRul
  * @param array The array to make object.
  * @param indexPairFn The function to return `[key, value]` tuple for each item.
  */
-export function indexBy<T, K, V>(array: T[], indexPairFn: (value: T) => [K, V]): Map<K, V>
+export function indexBy<T, K, V>(array: Iterable<T>, indexPairFn: (value: T) => [K, V]): Map<K, V>
 
 /**
  * Create a map object as `{item[key]: item}` format.
  * @param array The array to make object.
  * @param key The key of items in array to get value as index keys.
  */
-export function indexBy<T, K extends CanSortKeys<T>>(array: T[], key: K): Map<T[K], T>
+export function indexBy<T, K extends CanSortKeys<T>>(array: Iterable<T>, key: K): Map<T[K], T>
 
 
 // Compare with `new Map(...)`, object has same performance, and is more convinent to use, but will lose number key type.
-export function indexBy<T>(array: T[], keyOrFn: keyof T | ((value: T) => [any, any])) {
+export function indexBy<T>(array: Iterable<T>, keyOrFn: keyof T | ((value: T) => [any, any])) {
 	let map: Map<string | number, any> = new Map()
 
 	if (typeof keyOrFn === 'function') {
@@ -476,17 +476,17 @@ export function indexBy<T>(array: T[], keyOrFn: keyof T | ((value: T) => [any, a
  * @param array The array to group by. 
  * @param groupPairFn A function that accepts each item as parameter and returns a `[key, value]` pair.
  */
-export function groupBy<T, K, V>(array: T[], groupPairFn: (value: T) => [K, V]): Map<K, V[]>
+export function groupBy<T, K, V>(array: Iterable<T>, groupPairFn: (value: T) => [K, V]): Map<K, V[]>
 
 /**
  * Creates an object from grouping by key results returned from running `keyOrFn` with each item of `items`.
  * @param array The array to group by. 
  * @param key The property name of each item as index column used to group.
  */
-export function groupBy<T, K extends CanSortKeys<T>>(array: T[], key: K): Map<T[K], T[]>
+export function groupBy<T, K extends CanSortKeys<T>>(array: Iterable<T>, key: K): Map<T[K], T[]>
 
 
-export function groupBy<T>(array: T[], keyOrFn: CanSortKeys<T> | ((value: T) => any)) {
+export function groupBy<T>(array: Iterable<T>, keyOrFn: CanSortKeys<T> | ((value: T) => any)) {
 	let map: Map<string | number, T[]> = new Map()
 
 	for (let item of array) {
@@ -519,7 +519,7 @@ export function groupBy<T>(array: T[], keyOrFn: CanSortKeys<T> | ((value: T) => 
  * @param groupKeyFn A function that accepts each item as parameter and returns a value used as group key.
  * @param aggregateFn Aggregate function, it accepts grouped items and each grouped key as parameters, and returns aggregated value.
  */
-export function aggregate<T, K, V>(array: T[], groupFn: (value: T) => K, aggregateFn: (items: T[], key: K) => V): Map<K, V>
+export function aggregate<T, K, V>(array: Iterable<T>, groupFn: (value: T) => K, aggregateFn: (items: T[], key: K) => V): Map<K, V>
 
 /**
  * Creates an object from grouping by key results returned from running `keyOrFn` with each item of `items`.
@@ -527,10 +527,10 @@ export function aggregate<T, K, V>(array: T[], groupFn: (value: T) => K, aggrega
  * @param key The property name of each item as index column used to group.
  * @param aggregateFn Aggregate function, it accepts grouped items and each grouped key as parameters, and returns aggregated value.
  */
-export function aggregate<T, K extends CanSortKeys<T>, V>(array: T[], key: K, aggregateFn: (items: T[], key: T[K]) => V): Map<T[K], V>
+export function aggregate<T, K extends CanSortKeys<T>, V>(array: Iterable<T>, key: K, aggregateFn: (items: T[], key: T[K]) => V): Map<T[K], V>
 
 
-export function aggregate<T, V>(array: T[], keyOrFn: CanSortKeys<T> | ((value: T) => any), aggregateFn: (items: T[], key?: string) => V) {
+export function aggregate<T, V>(array: Iterable<T>, keyOrFn: CanSortKeys<T> | ((value: T) => any), aggregateFn: (items: T[], key?: string) => V) {
 	let groupMap: Map<any, T[]>
 	let aggregateMap: Map<any, V> = new Map()
 
