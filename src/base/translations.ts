@@ -78,7 +78,7 @@ export class Translations {
 	translate(key: string, ...args: (string | number)[]): string {
 		let [defaultValue, id] = key.split('@@')
 		let data = this.data.get(this.language)
-		let value: string = ''
+		let value = defaultValue
 
 		if (!data) {
 			data = this.data.get('enus')
