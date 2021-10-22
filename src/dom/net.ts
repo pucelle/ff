@@ -1,4 +1,4 @@
-import {Emitter} from '../base'
+import {EventEmitter} from '@pucelle/event-emitter'
 
 
 /** Can loaded resource types. */
@@ -48,7 +48,7 @@ export interface ResourceLoaderEvents {
  * Please beware of the CORS settings at the server.
  * If you want the progress working, please makesure the `content-length` response header is available.
  */
-export class ResourceLoader extends Emitter<ResourceLoaderEvents> {
+export class ResourceLoader extends EventEmitter<ResourceLoaderEvents> {
 
 	/** URL base. */
 	base: string

@@ -24,5 +24,7 @@
 		"ts-jest": "^26.4.4",
 		"typescript": "^3.9.5"
 	},
-	"dependencies": {}
+	"dependencies": {
+		"@pucelle/event-emitter": "^1.3.0"
+	}
 }

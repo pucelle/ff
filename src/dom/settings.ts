@@ -1,4 +1,4 @@
-import {Emitter} from '../base/emitter'
+import {EventEmitter} from '@pucelle/event-emitter'
 import {storage} from './storage'
 
 
@@ -8,7 +8,7 @@ interface SettingsEvents<O> {
 
 
 /** Used to caches settings, can restore them after reload page. */
-export class Settings<O extends Object, E = any> extends Emitter<SettingsEvents<O> & E> {
+export class Settings<O extends Object, E = any> extends EventEmitter<SettingsEvents<O> & E> {
 
 	protected readonly storageKey: string
 	protected readonly defaultData: O
