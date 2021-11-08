@@ -3,7 +3,14 @@ import {getStyleValueAsNumber} from './style'
 
 
 /** Rect box size and location, all properties are writable. */
-export type Rect = {-readonly [key in keyof ClientRect]: number}
+export type Rect = {
+	top: number
+	right: number
+	bottom: number
+	left: number
+	width: number
+	height: number
+}
 
 
 /**

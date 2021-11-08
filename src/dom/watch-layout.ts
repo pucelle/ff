@@ -68,7 +68,7 @@ export function watchLayout<T extends WatchLayoutType>(el: HTMLElement, type: T,
 	let watcher = new LayoutWatcher(el, type, callback)
 	watcher.watch()
 
-	return watcher.unwatch.bind(watcher)
+	return () => watcher.unwatch()
 }
 
 
@@ -84,7 +84,7 @@ export function watchLayoutOnce<T extends WatchLayoutType>(el: HTMLElement, type
 	let watcher = new LayoutWatcher(el, type, callback, {once: true})
 	watcher.watch()
 
-	return watcher.unwatch.bind(watcher)
+	return () => watcher.unwatch()
 }
 
 
@@ -100,7 +100,7 @@ export function watchLayoutUntil<T extends 'show' | 'hide' | 'inview' | 'outview
 	let watcher = new LayoutWatcher(el, type, callback, {untilTrue: true})
 	watcher.watch()
 
-	return watcher.unwatch.bind(watcher)
+	return () => watcher.unwatch()
 }
 
 

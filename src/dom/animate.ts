@@ -348,7 +348,7 @@ export function animate(el: HTMLElement | SVGElement, startFrame: AnimationFrame
 	endFrame = normativeStyleObject(endFrame as any)
 	let cubicEasing = getCSSEasingValue(easing)
 
-	let animation = el.animate([startFrame, endFrame], {
+	let animation = el.animate([startFrame as any, endFrame as any], {
 		easing: cubicEasing,
 		duration,
 	})
@@ -430,44 +430,6 @@ export async function animateTo(
 	}
 
 	return finish
-}
-
-
-/**
- * Execute standard web animation, captures current state as start frame, and captures a new state later as end frame.
- * @param el The element to execute web animation.
- * @param properties The style properties to capture.
- * @param duration The animation duration.
- * @param easing  The animation easing.
- */
-export function animateToNextFrame(
-	el: HTMLElement | SVGElement,
-	properties: StylePropertyName[] | StylePropertyName,
-	duration: number = DefaultAnimationDuration,
-	easing: AnimationEasing = DefaultAnimationEasing
-): AnimationPromise {
-	if (!el.animate) {
-		return Promise.resolve(false)
-	}
-
-	stopAnimation(el)
-
-	if (typeof properties === 'string') {
-		properties = [properties]
-	}
-
-	let startFrame: AnimationFrame = {}
-	let style = getComputedStyle(el)
-
-	for (let property of properties) {
-		startFrame[property] = (style as any)[property]
-	}
-
-	return new Promise(resolve => {
-		requestAnimationFrame(() => {
-			animateFrom(el, startFrame, duration, easing).then(resolve)
-		})
-	})
 }
 
 
