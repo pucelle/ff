@@ -491,13 +491,14 @@ export function groupBy<T>(array: Iterable<T>, keyOrFn: CanSortKeys<T> | ((value
 
 	for (let item of array) {
 		let key: string | number
-		let value = item
+		let value: T
 
 		if (typeof keyOrFn === 'function') {
 			[key, value] = keyOrFn(item)
 		}
 		else {
 			key = item[keyOrFn] as unknown as string | number
+			value = item
 		}
 
 		let group = map.get(key)
