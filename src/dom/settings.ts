@@ -8,7 +8,7 @@ interface SettingsEvents<O> {
 
 
 /** Used to caches settings, can restore them after reload page. */
-export class Settings<O extends Object, E = any> extends EventEmitter<SettingsEvents<O> & E> {
+export class Settings<O extends Object, E = {}> extends EventEmitter<SettingsEvents<O> & E> {
 
 	protected readonly storageKey: string
 	protected readonly defaultData: O
@@ -60,7 +60,7 @@ export class Settings<O extends Object, E = any> extends EventEmitter<SettingsEv
 	}
 
 	/** Set setting value by key. */
-	set<K extends keyof O>(key: K, value: O[K]) {
+	set<K extends keyof O>(this: Settings<O>, key: K, value: O[K]) {
 		if (value !== this.storageData[key] || typeof value === 'object') {
 			this.storageData[key] = value
 			this.saveStorageData()

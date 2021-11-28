@@ -107,7 +107,7 @@ export class ResourceLoader extends EventEmitter<ResourceLoaderEvents> {
 			}
 			catch (err) {
 				reject(err)
-				this.emit('error', err)
+				this.emit('error', err as Error)
 			}
 		}) as Promise<ResponseType<T>>
 	}

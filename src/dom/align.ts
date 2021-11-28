@@ -282,13 +282,8 @@ export class Aligner {
 			return false
 		}
 
-		// If can shrink in y axis, try remove the height limitation and extend to natural height.
-		if (this.canShrinkInY) {
-			rect.height = this.getNaturalHeight(rect, triangleRect)
-		}
-
 		// If overflow in x axis, rect may change after position adjusted.
-		let isOverflowHerizontalEdges = rect.left <= 0 || rect.right >= document.documentElement.clientWidth
+		let isOverflowHerizontalEdges = rect.left < 0 || rect.right > document.documentElement.clientWidth
 
 		// Do el alignment.
 		let position = this.doAlignment(directions, rect, targetRect, triangleRect)
@@ -332,32 +327,9 @@ export class Aligner {
 	}
 
 	/** 
-	 * When el can be scrolled, if we just expend it to test its natural height, it's scrolled position will lost.
-	 * So we get `scrollHeight - clientHeight` as a diff and add it to it's current height as it's natural height.
-	 * Note that the `triangle` will cause `scrollHeight` plus for it's height.
-	 * Otherwise may not el but child is scrolled.
+	 * Do alignment from `el` to `target` for once.
+	 * Returns the alignment position.
 	 */
-	private getNaturalHeight(rect: Rect, triangleRect: Rect | null): number {
-		let h = rect.height
-		let diffHeight = this.el.scrollHeight - this.el.clientHeight
-		let maxAllowdDiffWhenNotScrolled = triangleRect?.height || 0
-		
-		if (diffHeight <= maxAllowdDiffWhenNotScrolled) {
-			diffHeight = Math.max(...[...this.el.children].map(child => child.scrollHeight - child.clientHeight))
-		}
-		
-		if (diffHeight > 0) {
-			h = h + diffHeight
-		}
-		else {
-			this.el.style.height = ''
-			h = this.el.offsetHeight
-		}
-
-		return h
-	}
-
-	/** Do alignment from `el` to `target` for once. */
 	private doAlignment(directions: Directions, rect: Rect, targetRect: Rect, triangleRect: Rect | null) {
 		let anchor1 = this.getElRelativeAnchor(directions, rect, triangleRect)
 		let anchor2 = this.getTargetAbsoluteAnchor(targetRect)
@@ -605,7 +577,7 @@ export class Aligner {
 
 			// In fixed position.
 			else if (this.fixTriangle) {
-				x = triangleRect.left - rect.left
+				x = triangleRect.left - position.x
 			}
 
 			// Adjust triangle to the center of the el edge.
@@ -614,11 +586,11 @@ export class Aligner {
 			}
 
 			// Limit to touch the herizontal edge of both el and target.
-			x = Math.max(x, halfTriangleWidth, targetRect.left - rect.left)
-			x = Math.min(x, rect.width - triangleRect.width - halfTriangleWidth, targetRect.right - rect.left)
+			x = Math.max(x, halfTriangleWidth, targetRect.left - position.x)
+			x = Math.min(x, rect.width - triangleRect.width - halfTriangleWidth, targetRect.right - position.x)
 
 			if (this.fixTriangle) {
-				x -= triangleRect.left - rect.left
+				x -= triangleRect.left - position.x
 				transforms.push(`translateX(${x}px)`)
 			}
 			else {
@@ -637,7 +609,7 @@ export class Aligner {
 				y = targetRect.top + targetRect.height / 2 - position.y - halfTriangleHeight
 			}
 			else if (this.fixTriangle) {
-				y = triangleRect.top - rect.top
+				y = triangleRect.top - position.y
 			}
 			else {
 				y = h / 2 - halfTriangleHeight
@@ -647,7 +619,7 @@ export class Aligner {
 			y = Math.min(y, rect.height - triangleRect.height - halfTriangleHeight)
 
 			if (this.fixTriangle) {
-				y -= triangleRect.top - rect.top
+				y -= triangleRect.top - position.y
 				transforms.push(`translateY(${y}px)`)
 			}
 			else if (!this.fixTriangle) {
