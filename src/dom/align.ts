@@ -311,7 +311,8 @@ export class Aligner {
 
 	/** Clear last alignment properties. */
 	private clearLastAlignment() {
-		// Must reset, or el may be shrink into a small corner.
+		
+		// Must reset, or el may be shrinked into a small corner.
 		this.el.style.left = '0'
 		this.el.style.top = '0'
 		
@@ -590,7 +591,7 @@ export class Aligner {
 			x = Math.min(x, rect.width - triangleRect.width - halfTriangleWidth, targetRect.right - position.x)
 
 			if (this.fixTriangle) {
-				x -= triangleRect.left - position.x
+				x -= triangleRect.left - rect.left
 				transforms.push(`translateX(${x}px)`)
 			}
 			else {
@@ -609,7 +610,7 @@ export class Aligner {
 				y = targetRect.top + targetRect.height / 2 - position.y - halfTriangleHeight
 			}
 			else if (this.fixTriangle) {
-				y = triangleRect.top - position.y
+				y = triangleRect.top - rect.top
 			}
 			else {
 				y = h / 2 - halfTriangleHeight
@@ -619,7 +620,7 @@ export class Aligner {
 			y = Math.min(y, rect.height - triangleRect.height - halfTriangleHeight)
 
 			if (this.fixTriangle) {
-				y -= triangleRect.top - position.y
+				y -= triangleRect.top - rect.top
 				transforms.push(`translateY(${y}px)`)
 			}
 			else if (!this.fixTriangle) {
