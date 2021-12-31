@@ -1,5 +1,6 @@
 import {assign} from './object'
 import {EventEmitter} from '@pucelle/event-emitter'
+import {sleep} from './time'
 
 
 /** Running state of queue. */
@@ -80,6 +81,9 @@ export interface QueueOptions<T, V> {
 	 */
 	maxRetryTimes?: number
 
+	/** How long to delay after each request completed before next. */
+	delayMs?: number
+
 	/** The start task array which will be passed to `handler` in order. */
 	tasks?: T[]
 
@@ -114,6 +118,9 @@ export class Queue<T = any, V = void> extends EventEmitter<QueueEvents<T, V>> {
 	 * Setting this option to values `> 0` implies `continueOnError` is `true`.
 	 */
 	maxRetryTimes: number = 0
+
+	/** How long to delay after each request completed before next. */
+	delayMs: number = 0
 
 	/** The start task array which will be passed to `handler` in order. */
 	tasks: T[] = []
@@ -361,6 +368,11 @@ export class Queue<T = any, V = void> extends EventEmitter<QueueEvents<T, V>> {
 
 		if (this.state === QueueState.Running) {
 			this.emit('taskfinish', item.task, value)
+
+			if (this.delayMs > 0) {
+				await sleep(this.delayMs)
+			}
+
 			this.tryHandleNextTask()
 		}
 	}
