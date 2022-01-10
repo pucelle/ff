@@ -199,7 +199,7 @@ export class Aligner {
 		// So we can avoid calling order confuse us.
 		this.alignPosition = parseAlignPosition(position)
 		this.alignDirections = this.parseAlignDirections()
-		this.margins = this.parseMargin(options.margin || 0)
+		this.margins = this.parseMargins(options.margin || 0)
 
 		// If target not affected by document scrolling, el should be same.
 		// A potential problem here: once becomes fixed, can't be restored for reuseable popups.
@@ -228,7 +228,7 @@ export class Aligner {
 	 * top [right] [bottom] [left] -> [t, r, b, l].
 	 * If align to a top position of target, unique number will be parsed as 0 in left and right position. 
 	 */
-	private parseMargin(marginOption: number | number[]): Margins {
+	private parseMargins(marginOption: number | number[]): Margins {
 		let margins: Margins = {top: 0, right: 0, bottom: 0, left: 0}
 
 		if (typeof marginOption === 'number') {
@@ -283,13 +283,13 @@ export class Aligner {
 		}
 
 		// If overflow in x axis, rect may change after position adjusted.
-		let isOverflowHerizontalEdges = rect.left < 0 || rect.right > document.documentElement.clientWidth
+		let isOverflowInHerizontalEdges = rect.left < 0 || rect.right > document.documentElement.clientWidth
 
 		// Do el alignment.
 		let position = this.doAlignment(directions, rect, targetRect, triangleRect)
 
 		// Re-align el if element size changed.
-		if (isOverflowHerizontalEdges) {
+		if (isOverflowInHerizontalEdges) {
 			let newRect = getRect(this.el)
 			if (newRect.width !== rect.width || newRect.height !== rect.height) {
 
