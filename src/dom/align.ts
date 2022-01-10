@@ -586,9 +586,20 @@ export class Aligner {
 				x = w / 2 - halfTriangleWidth
 			}
 
-			// Limit to touch the herizontal edge of both el and target.
-			x = Math.max(x, halfTriangleWidth, targetRect.left - position.x)
-			x = Math.min(x, rect.width - triangleRect.width - halfTriangleWidth, targetRect.right - position.x)
+			// Limit to at the intersect edge of el and target.
+			let minX = Math.max(position.x, targetRect.left)
+			let maxX = Math.min(position.x + rect.width, targetRect.right)
+
+			// Turn to el rect origin.
+			minX -= position.x
+			maxX -= position.x
+
+			// Turn to triangle left origin.
+			minX -= halfTriangleWidth
+			maxX -= halfTriangleWidth
+
+			x = Math.max(x, minX)
+			x = Math.min(x, maxX)
 
 			if (this.fixTriangle) {
 				x -= triangleRect.left - rect.left
@@ -616,8 +627,20 @@ export class Aligner {
 				y = h / 2 - halfTriangleHeight
 			}
 
-			y = Math.max(y, halfTriangleHeight)
-			y = Math.min(y, rect.height - triangleRect.height - halfTriangleHeight)
+			// Limit to at the intersect edge of el and target.
+			let minY = Math.max(position.y, targetRect.top)
+			let maxY = Math.min(position.y + rect.height, targetRect.bottom)
+
+			// Turn to el rect origin.
+			minY -= position.y
+			maxY -= position.y
+
+			// Turn to triangle left origin.
+			minY -= halfTriangleHeight
+			maxY -= halfTriangleHeight
+
+			y = Math.max(y, minY)
+			y = Math.min(y, maxY)			
 
 			if (this.fixTriangle) {
 				y -= triangleRect.top - rect.top
@@ -725,7 +748,7 @@ export function getMainAlignDirection(pos: string): 't' | 'b' | 'l' | 'r' | 'c' 
 
 /** Check if rect box intersect with viewport. */
 function isRectVisible(rect: Rect) {
-	return rect.width > 0 && rect.height > 0
+	return rect.width > 0 || rect.height > 0
 }
 
 
