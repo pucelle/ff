@@ -286,7 +286,7 @@ export class Aligner {
 		let isOverflowInHerizontalEdges = rect.left < 0 || rect.right > document.documentElement.clientWidth
 
 		// Do el alignment.
-		let position = this.doAlignment(directions, rect, targetRect, triangleRect)
+		this.doAlignment(directions, rect, targetRect, triangleRect)
 
 		// Re-align el if element size changed.
 		if (isOverflowInHerizontalEdges) {
@@ -297,13 +297,13 @@ export class Aligner {
 				rect = newRect
 				triangleRect = this.triangle ? getRect(this.triangle) : null
 
-				position = this.doAlignment(directions, newRect, targetRect, triangleRect)
+				this.doAlignment(directions, newRect, targetRect, triangleRect)
 			}
 		}
 		
 		// Handle triangle position.
 		if (this.triangle) {
-			this.alignTriangle(position, directions, rect, targetRect, triangleRect!)
+			this.alignTriangle(directions, rect, targetRect, triangleRect!)
 		}
 
 		return true
@@ -329,7 +329,7 @@ export class Aligner {
 
 	/** 
 	 * Do alignment from `el` to `target` for once.
-	 * Returns the alignment position.
+	 * Overwrite the new alignment position into `rect`.
 	 */
 	private doAlignment(directions: Directions, rect: Rect, targetRect: Rect, triangleRect: Rect | null) {
 		let anchor1 = this.getElRelativeAnchor(directions, rect, triangleRect)
@@ -371,7 +371,8 @@ export class Aligner {
 		this.el.style.left = mayAbsolutePosition.x + 'px'
 		this.el.style.top = mayAbsolutePosition.y + 'px'
 
-		return position
+		rect.left = position.x
+		rect.top = position.y
 	}
 
 	/** Get relative anchor position of the axis of an element. */
@@ -542,7 +543,7 @@ export class Aligner {
 	}
 
 	/** Align `triangle` relative to `el`. */
-	private alignTriangle(position: Position, directions: Directions, rect: Rect, targetRect: Rect, triangleRect: Rect) {
+	private alignTriangle(directions: Directions, rect: Rect, targetRect: Rect, triangleRect: Rect) {
 		let triangle = this.triangle!
 		let transforms: string[] = []
 		let w = rect.width
@@ -573,12 +574,12 @@ export class Aligner {
 
 			// Adjust triangle to the center of the target edge.
 			if ((w >= targetRect.width || this.fixTriangle) && this.alignPosition[1][1] === 'c') {
-				x = targetRect.left + targetRect.width / 2 - position.x - halfTriangleWidth
+				x = targetRect.left + targetRect.width / 2 - rect.left - halfTriangleWidth
 			}
 
 			// In fixed position.
 			else if (this.fixTriangle) {
-				x = triangleRect.left - position.x
+				x = triangleRect.left - rect.left
 			}
 
 			// Adjust triangle to the center of the el edge.
@@ -587,12 +588,12 @@ export class Aligner {
 			}
 
 			// Limit to at the intersect edge of el and target.
-			let minX = Math.max(position.x, targetRect.left)
-			let maxX = Math.min(position.x + rect.width, targetRect.right)
+			let minX = Math.max(rect.left, targetRect.left)
+			let maxX = Math.min(rect.left + rect.width, targetRect.right)
 
 			// Turn to el rect origin.
-			minX -= position.x
-			maxX -= position.x
+			minX -= rect.left
+			maxX -= rect.left
 
 			// Turn to triangle left origin.
 			minX -= halfTriangleWidth
@@ -618,7 +619,7 @@ export class Aligner {
 			let y: number
 
 			if ((h >= targetRect.height || this.fixTriangle) && this.alignPosition[1][0] === 'c') {
-				y = targetRect.top + targetRect.height / 2 - position.y - halfTriangleHeight
+				y = targetRect.top + targetRect.height / 2 - rect.top - halfTriangleHeight
 			}
 			else if (this.fixTriangle) {
 				y = triangleRect.top - rect.top
@@ -628,12 +629,12 @@ export class Aligner {
 			}
 
 			// Limit to at the intersect edge of el and target.
-			let minY = Math.max(position.y, targetRect.top)
-			let maxY = Math.min(position.y + rect.height, targetRect.bottom)
+			let minY = Math.max(rect.top, targetRect.top)
+			let maxY = Math.min(rect.top + rect.height, targetRect.bottom)
 
 			// Turn to el rect origin.
-			minY -= position.y
-			maxY -= position.y
+			minY -= rect.top
+			maxY -= rect.top
 
 			// Turn to triangle left origin.
 			minY -= halfTriangleHeight
