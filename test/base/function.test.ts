@@ -19,16 +19,16 @@ describe('Test function', () => {
 
 		test('Will not call fn after been canceled', async () => {
 			let fn = jest.fn()
-			let timeout = ff.timeout(fn, 40)
-			expect(timeout.cancel()).toEqual(true)
+			let cancel = ff.timeout(fn, 40)
+			expect(cancel()).toEqual(true)
 			await ff.sleep(41)
 			expect(fn).toBeCalledTimes(0)
-			expect(timeout.cancel()).toEqual(false)
+			expect(cancel()).toEqual(false)
 		})
 
 		test('Will reset timeout after been reset', async () => {
 			let fn = jest.fn()
-			let timeout = ff.timeout(fn, 40)
+			let timeout = new ff.Timeout(fn, 40)
 			await ff.sleep(20)
 			expect(timeout.reset()).toEqual(true)
 			await ff.sleep(21)
@@ -42,7 +42,7 @@ describe('Test function', () => {
 
 		test('Will call fn immediately after been flush', async () => {
 			let fn = jest.fn()
-			let timeout = ff.timeout(fn, 40)
+			let timeout = new ff.Timeout(fn, 40)
 			expect(timeout.flush()).toEqual(true)
 			expect(fn).toBeCalledTimes(1)
 			await ff.sleep(41)
@@ -54,8 +54,8 @@ describe('Test function', () => {
 
 
 	let willEndInterval = (fn: Function, ms: number) => {
-		let interval = ff.interval(fn, ms)
-		let timeout = ff.timeout(interval.cancel, 3000)
+		let interval = new ff.Interval(fn, ms)
+		let timeout = new ff.Timeout(interval.cancel, 3000)
 
 		let oldCancel = interval.cancel
 		interval.cancel = () => {
@@ -117,7 +117,7 @@ describe('Test function', () => {
 	describe('Test throttle', () => {
 		test('Will call fn in expected time points', async () => {
 			let fn = jest.fn()
-			let throttle = ff.throttle(fn, 100)
+			let throttle = new ff.Throttle(fn, 100)
 			let throttleFn = throttle.wrapped
 			let interval = willEndInterval(throttleFn, 40)
 			await ff.sleep(41)
@@ -131,7 +131,7 @@ describe('Test function', () => {
 
 		test('Will call fn frequently after been canceled', async () => {
 			let fn = jest.fn()
-			let throttle = ff.throttle(fn, 100)
+			let throttle = new ff.Throttle(fn, 100)
 			let throttleFn = throttle.wrapped
 			let interval = willEndInterval(throttleFn, 40)
 			expect(throttle.cancel()).toEqual(true)
@@ -145,7 +145,7 @@ describe('Test function', () => {
 
 		test('Will reset timeout after been reset', async () => {
 			let fn = jest.fn()
-			let throttle = ff.throttle(fn, 100)
+			let throttle = new ff.Throttle(fn, 100)
 			let throttleFn = throttle.wrapped
 			let interval = willEndInterval(throttleFn, 40)
 			await ff.sleep(41)
@@ -160,7 +160,7 @@ describe('Test function', () => {
 
 		test('No thing happens when flush', async () => {
 			let fn = jest.fn()
-			let throttle = ff.throttle(fn, 100)
+			let throttle = new ff.Throttle(fn, 100)
 			let throttleFn = throttle.wrapped
 			let interval = willEndInterval(throttleFn, 40)
 			expect(throttle.flush()).toEqual(true)
@@ -172,7 +172,7 @@ describe('Test function', () => {
 	describe('Test smoothThrottle', () => {
 		test('Will call fn in expected time points', async () => {
 			let fn = jest.fn()
-			let throttle = ff.smoothThrottle(fn, 100)
+			let throttle = new ff.SmoothThrottle(fn, 100)
 			let throttleFn = throttle.wrapped
 			let interval = willEndInterval(throttleFn, 40)
 			await ff.sleep(41)
@@ -186,7 +186,7 @@ describe('Test function', () => {
 
 		test('Will call fn frequently after been canceled', async () => {
 			let fn = jest.fn()
-			let throttle = ff.smoothThrottle(fn, 100)
+			let throttle = new ff.SmoothThrottle(fn, 100)
 			let throttleFn = throttle.wrapped
 			let interval = willEndInterval(throttleFn, 40)
 			expect(throttle.cancel()).toEqual(true)
@@ -200,7 +200,7 @@ describe('Test function', () => {
 
 		test('Will reset timeout after been reset', async () => {
 			let fn = jest.fn()
-			let throttle = ff.smoothThrottle(fn, 100)
+			let throttle = new ff.SmoothThrottle(fn, 100)
 			let throttleFn = throttle.wrapped
 			let interval = willEndInterval(throttleFn, 40)
 			await ff.sleep((100 + 40) / 2 + 1)
@@ -216,7 +216,7 @@ describe('Test function', () => {
 
 		test('Can flush', async () => {
 			let fn = jest.fn()
-			let throttle = ff.smoothThrottle(fn, 100)
+			let throttle = new ff.SmoothThrottle(fn, 100)
 			let throttleFn = throttle.wrapped
 			let interval = willEndInterval(throttleFn, 40)
 			expect(throttle.flush()).toEqual(false)
@@ -231,7 +231,7 @@ describe('Test function', () => {
 	describe('Test debounce', () => {
 		test('Will call fn in expected time points', async () => {
 			let fn = jest.fn()
-			let debounce = ff.debounce(fn, 100)
+			let debounce = new ff.Debounce(fn, 100)
 			let debounceFn = debounce.wrapped
 			let interval = willEndInterval(debounceFn, 40)
 			await ff.sleep(201)
@@ -243,7 +243,7 @@ describe('Test function', () => {
 
 		test('Will call fn frequently after been canceled', async () => {
 			let fn = jest.fn()
-			let debounce = ff.debounce(fn, 100)
+			let debounce = new ff.Debounce(fn, 100)
 			let debounceFn = debounce.wrapped
 			let interval = willEndInterval(debounceFn, 40)
 			expect(debounce.cancel()).toEqual(true)
@@ -257,7 +257,7 @@ describe('Test function', () => {
 
 		test('Will reset timeout after been reset', async () => {
 			let fn = jest.fn()
-			let debounce = ff.debounce(fn, 100)
+			let debounce = new ff.Debounce(fn, 100)
 			let debounceFn = debounce.wrapped
 			let interval = willEndInterval(debounceFn, 40)
 			await ff.sleep((100 + 40) / 2 + 1)
@@ -274,7 +274,7 @@ describe('Test function', () => {
 
 		test('Can flush', async () => {
 			let fn = jest.fn()
-			let debounce = ff.debounce(fn, 100)
+			let debounce = new ff.Debounce(fn, 100)
 			let debounceFn = debounce.wrapped
 			let interval = willEndInterval(debounceFn, 40)
 			await ff.sleep(1)

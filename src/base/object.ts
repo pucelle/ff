@@ -37,7 +37,7 @@ export function assignIf<T extends object, S extends object>(target: T, source: 
 
 
 /**
- * Deeply clone an object, array or any value.
+ * Deeply clone an object, array or any JSON types of value.
  * 2x~3x faster than JSON stringify and parse methods
  * @param source The source to clone.
  * @param deep Max deep to clone, default value is 10.
@@ -70,11 +70,11 @@ export function deepClone<T> (source: T, deep: number = 10): T {
 
 
 /**
- * Deeply compare two objects, arrays or any other values.
+ * Deeply compare two objects, arrays or any other JSON types of values.
  * 1x faster than JSON stringify methods.
  * @param a Left value.
  * @param b Right value.
- * @param deep Max deep to compare, default value is 10.
+ * @param deep Max deep to compare, default value is `10`.
  */
 export function deepEqual(a: unknown, b: unknown, deep: number = 10): boolean {
 	if (a === b) {
@@ -86,10 +86,6 @@ export function deepEqual(a: unknown, b: unknown, deep: number = 10): boolean {
 	}
 
 	if (typeof a !== 'object' || typeof b !== 'object' || !a || !b) {
-		return false
-	}
-
-	if (a.constructor !== b.constructor) {
 		return false
 	}
 

@@ -176,11 +176,13 @@ describe('Test queue', () => {
 
 		expect(q.state).toEqual(ff.QueueState.Finish)
 		q.push(10)
+		q.start()
 		expect(q.state).toEqual(ff.QueueState.Running)
 
 		await ff.sleep(10)
 		expect(q.state).toEqual(ff.QueueState.Finish)
 		q.unshift(10)
+		q.start()
 		expect(q.state).toEqual(ff.QueueState.Running)
 	})
 

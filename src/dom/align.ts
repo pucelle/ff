@@ -603,7 +603,7 @@ export class Aligner {
 			x = Math.min(x, maxX)
 
 			if (this.fixTriangle) {
-				x -= triangleRect.left - rect.left
+				x -= triangleRect.left
 				transforms.push(`translateX(${x}px)`)
 			}
 			else {
@@ -644,7 +644,7 @@ export class Aligner {
 			y = Math.min(y, maxY)			
 
 			if (this.fixTriangle) {
-				y -= triangleRect.top - rect.top
+				y -= triangleRect.top
 				transforms.push(`translateY(${y}px)`)
 			}
 			else if (!this.fixTriangle) {
