@@ -134,7 +134,7 @@ type Margins = Record<'top' | 'right' | 'bottom' | 'left', number>
  * Align `el` to `target` element by specified position.
  * If no enough space, will adjust align position automatically.
  * Note that this mathod will always cause reflow.
- * @param el The element to align, it's position should be fixed or absolute.
+ * @param el The element to align, it's position should in fixed or absolute position, otherwise it should not set margin style.
  * @param target The target element to align to.
  * @param alignPosition Align Where of `el` to where of the `target`, e.g., `tl-br` means align top-left position of `el` to bottom-right of `target`.
  * @param options Additional options.
