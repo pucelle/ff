@@ -380,10 +380,10 @@ export class Aligner {
 		// Anchor at triangle position.
 		if (this.fixTriangle && triangleRect) {
 			if ((directions.top || directions.bottom) && this.alignPosition[1][1] === 'c') {
-				x = triangleRect.left + triangleRect.width / 2 - rect.left
+				x = triangleRect.left + triangleRect.width / 2
 			}
 			else if ((directions.left || directions.right) && this.alignPosition[1][0] === 'c') {
-				y = triangleRect.top + triangleRect.height / 2 - rect.top
+				y = triangleRect.top + triangleRect.height / 2
 			}
 		}
 
