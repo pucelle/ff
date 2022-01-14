@@ -150,6 +150,18 @@ export function getRect(el: Element): Rect {
 }
 
 
+/** Whether two rects are close to each other. */
+export function isRectCloseTo(rect1: Rect, rect2: Rect): boolean {
+	for (let key of ['top', 'left', 'width', 'height'] as (keyof Rect)[]) {
+		if (Math.abs(rect1[key] - rect2[key]) >= 1) {
+			return false
+		}
+	}
+
+	return true
+}
+
+
 /**
  * Check if element is visible in current viewport, element must also be not fully covered.
  * Note that this method may cause page reflow.
