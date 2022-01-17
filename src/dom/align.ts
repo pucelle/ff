@@ -29,7 +29,8 @@ export interface AlignOptions {
 
 	/** 
 	 * If `true`, when `el` contains large content and should be cutted in viewport,
-	 * it will be shrinked and with `overflow: y` set.
+	 * it will be shrinked and reset height.
+	 * Note that a child node of `el` must set `overflow-y: auto`.
 	 */
 	canShrinkInY?: boolean
 
@@ -278,19 +279,9 @@ export class Aligner {
 			return true
 		}
 
+		// Whether `target` is visible.
 		if (!isRectVisible(targetRect)) {
 			return false
-		}
-
-		this.clearLastAlignment()
-		let triangleRect = this.triangle ? getRect(this.triangle) : null
-
-		// Restore `el` height to it's natural height without any limitation.
-		if (this.canShrinkInY) {
-			let willShrinkElement = findFirstScrollingChild(this.el)
-			if (willShrinkElement) {
-				rect.height += willShrinkElement.scrollHeight - willShrinkElement.clientHeight
-			}
 		}
 
 		// Whether `target` in viewport.
@@ -300,12 +291,31 @@ export class Aligner {
 			return false
 		}
 
+		this.clearTriangleAlignment()
+
+		// `el` may be shrinked into the edge and it's width get limited.
+		if (this.shouldClearElPosition(rect)) {
+			this.clearElPosition()
+			rect = getRect(this.el)
+		}
+
+		// Get triangle rect based on `el` origin.
+		let triangleRelativeRect = this.getTriangleRelativeRect(rect)
+
+		// Restore `el` height to it's natural height without any limitation.
+		if (this.canShrinkInY) {
+			let willShrinkElement = findFirstScrollingChild(this.el)
+			if (willShrinkElement) {
+				rect.height += willShrinkElement.scrollHeight - willShrinkElement.clientHeight
+			}
+		}
+
 		// Do `el` alignment.
-		this.doAlignment(directions, rect, targetRect, triangleRect)
+		this.doAlignment(directions, rect, targetRect, triangleRelativeRect)
 
 		// Handle `triangle` position.
 		if (this.triangle) {
-			this.alignTriangle(directions, rect, targetRect, triangleRect!)
+			this.alignTriangle(directions, rect, targetRect, triangleRelativeRect!)
 		}
 
 		this.cachedRect = rect
@@ -314,12 +324,8 @@ export class Aligner {
 		return true
 	}
 
-	/** Clear last alignment properties. */
-	private clearLastAlignment() {
-		
-		// Must reset, or `el` may be shrinked into a small corner.
-		this.el.style.left = '0'
-		this.el.style.top = '0'
+	/** Clear last triangle alignment properties. */
+	private clearTriangleAlignment() {
 		
 		// `align` may be called for multiple times, so need to clear again.
 		if (this.triangle) {
@@ -327,12 +333,36 @@ export class Aligner {
 		}
 	}
 
+	/** Should clear last alignment properties. */
+	private shouldClearElPosition(rect: Rect) {
+
+		// If rect of `el` close to window edge, it's width may be limited.
+		return rect.left <= 0 || rect.right >= document.documentElement.clientWidth
+	}
+
+	/** Clear last alignment properties. */
+	private clearElPosition() {
+		this.el.style.left = '0'
+		this.el.style.top = '0'
+	}
+
+	/** Get triangle rect based on `el` origin. */
+	private getTriangleRelativeRect(rect: Rect) {
+		let relativeTriangleRect = this.triangle ? getRect(this.triangle) : null
+		if (relativeTriangleRect) {
+			relativeTriangleRect.left -= rect.left
+			relativeTriangleRect.top -= rect.top
+		}
+
+		return relativeTriangleRect
+	}
+
 	/** 
 	 * Do alignment from `el` to `target` for once.
 	 * Overwrite the new alignment position into `rect`.
 	 */
-	private doAlignment(directions: Directions, rect: Rect, targetRect: Rect, triangleRect: Rect | null) {
-		let anchor1 = this.getElRelativeAnchor(directions, rect, triangleRect)
+	private doAlignment(directions: Directions, rect: Rect, targetRect: Rect, triangleRelativeRect: Rect | null) {
+		let anchor1 = this.getElRelativeAnchor(directions, rect, triangleRelativeRect)
 		let anchor2 = this.getTargetAbsoluteAnchor(targetRect)
 
 		// Fixed `el` position.
@@ -342,15 +372,15 @@ export class Aligner {
 		}
 
 		// Handle vertical alignment.
-		let overflowYSet = this.alignVertical(fixedPosition.y, directions, rect, targetRect, triangleRect)
+		let overflowYSet = this.alignVertical(fixedPosition.y, directions, rect, targetRect, triangleRelativeRect)
 
 		// If `el` height changed.
 		if (overflowYSet) {
-			anchor1 = this.getElRelativeAnchor(directions, rect, triangleRect)
+			anchor1 = this.getElRelativeAnchor(directions, rect, triangleRelativeRect)
 		}
 
 		// Handle herizontal alignment.
-		this.alignHerizontal(fixedPosition.x, directions, rect, targetRect, triangleRect)
+		this.alignHerizontal(fixedPosition.x, directions, rect, targetRect, triangleRelativeRect)
 
 		// Position for fixed or absolute layout.
 		let mayAbsolutePosition = {x: rect.left, y: rect.top}
@@ -372,18 +402,18 @@ export class Aligner {
 	}
 
 	/** Get relative anchor position of the axis of an element. */
-	private getElRelativeAnchor(directions: Directions, rect: Rect, triangleRect: Rect | null): [number, number] {
+	private getElRelativeAnchor(directions: Directions, rect: Rect, triangleRelativeRect: Rect | null): [number, number] {
 		let anchor = this.alignPosition[0]
 		let x = anchor.includes('l') ? 0 : anchor.includes('r') ? rect.width : rect.width / 2
 		let y = anchor.includes('t') ? 0 : anchor.includes('b') ? rect.height : rect.height / 2
 
 		// Anchor at triangle position.
-		if (this.fixTriangle && triangleRect) {
+		if (this.fixTriangle && triangleRelativeRect) {
 			if ((directions.top || directions.bottom) && this.alignPosition[1][1] === 'c') {
-				x = triangleRect.left + triangleRect.width / 2
+				x = triangleRelativeRect.left + triangleRelativeRect.width / 2
 			}
 			else if ((directions.left || directions.right) && this.alignPosition[1][0] === 'c') {
-				y = triangleRect.top + triangleRect.height / 2
+				y = triangleRelativeRect.top + triangleRelativeRect.height / 2
 			}
 		}
 
@@ -410,7 +440,7 @@ export class Aligner {
 	}
 
 	/** Do vertical alignment. */
-	private alignVertical(y: number, directions: Directions, rect: Rect, targetRect: Rect, triangleRect: Rect | null): boolean {
+	private alignVertical(y: number, directions: Directions, rect: Rect, targetRect: Rect, triangleRelativeRect: Rect | null): boolean {
 		let dh = document.documentElement.clientHeight
 		let spaceTop = targetRect.top - this.margins.top
 		let spaceBottom = dh - (targetRect.bottom + this.margins.bottom)
@@ -439,7 +469,7 @@ export class Aligner {
 			if (y + h > dh && this.stickToEdges) {
 				
 				// Gives enough space for triangle.
-				let minY = targetRect.top + (triangleRect ? triangleRect.height : 0) - h
+				let minY = targetRect.top + (triangleRelativeRect ? triangleRelativeRect.height : 0) - h
 				y = Math.max(dh - h, minY)
 			}
 
@@ -447,7 +477,7 @@ export class Aligner {
 			if (y < 0 && this.stickToEdges) {
 
 				// Gives enough space for triangle.
-				let maxY = targetRect.bottom - (triangleRect ? triangleRect.height : 0)
+				let maxY = targetRect.bottom - (triangleRelativeRect ? triangleRelativeRect.height : 0)
 				y = Math.min(0, maxY)
 			}
 		}
@@ -491,7 +521,7 @@ export class Aligner {
 	}
 
 	/** Do herizontal alignment. */
-	private alignHerizontal(x: number, directions: Directions, rect: Rect, targetRect: Rect, triangleRect: Rect | null) {
+	private alignHerizontal(x: number, directions: Directions, rect: Rect, targetRect: Rect, triangleRelativeRect: Rect | null) {
 		let dw = document.documentElement.clientWidth
 		let spaceLeft = targetRect.left - this.margins.left
 		let spaceRight = dw - (targetRect.right + this.margins.right)
@@ -519,7 +549,7 @@ export class Aligner {
 			if (x + w > dw && this.stickToEdges) {
 
 				// Gives enough space for triangle.
-				let minX = targetRect.left + (triangleRect ? triangleRect.width : 0) - w
+				let minX = targetRect.left + (triangleRelativeRect ? triangleRelativeRect.width : 0) - w
 				x = Math.max(dw - w, minX)
 			}
 
@@ -527,7 +557,7 @@ export class Aligner {
 			if (x < 0 && this.stickToEdges) {
 
 				// Gives enough space for triangle.
-				let minX = targetRect.right - (triangleRect ? triangleRect.width : 0)
+				let minX = targetRect.right - (triangleRelativeRect ? triangleRelativeRect.width : 0)
 				x = Math.min(0, minX)
 			}
 		}
@@ -545,7 +575,7 @@ export class Aligner {
 	}
 
 	/** Align `triangle` relative to `el`. */
-	private alignTriangle(directions: Directions, rect: Rect, targetRect: Rect, triangleRect: Rect) {
+	private alignTriangle(directions: Directions, rect: Rect, targetRect: Rect, triangleRelativeRect: Rect) {
 		let triangle = this.triangle!
 		let transforms: string[] = []
 		let w = rect.width
@@ -553,25 +583,25 @@ export class Aligner {
 
 		if (directions.top) {
 			triangle.style.top = 'auto'
-			triangle.style.bottom = -triangleRect.height + 'px'
+			triangle.style.bottom = -triangleRelativeRect.height + 'px'
 			transforms.push('rotateX(180deg)')
 		}
 		else if (directions.bottom) {
-			triangle.style.top = -triangleRect.height + 'px'
+			triangle.style.top = -triangleRelativeRect.height + 'px'
 			triangle.style.bottom = ''
 		}
 		else if (directions.left) {
 			triangle.style.left = 'auto'
-			triangle.style.right = -triangleRect.width + 'px'
+			triangle.style.right = -triangleRelativeRect.width + 'px'
 			transforms.push('rotateY(180deg)')
 		}
 		else if (directions.right) {
-			triangle.style.left = -triangleRect.width + 'px'
+			triangle.style.left = -triangleRelativeRect.width + 'px'
 			triangle.style.right = ''
 		}
 
 		if (directions.top || directions.bottom) {
-			let halfTriangleWidth = triangleRect.width / 2
+			let halfTriangleWidth = triangleRelativeRect.width / 2
 			let x: number = 0
 
 			// Adjust triangle to the center of the `target` edge.
@@ -581,7 +611,7 @@ export class Aligner {
 
 			// In fixed position.
 			else if (this.fixTriangle) {
-				x = triangleRect.left - rect.left
+				x = triangleRelativeRect.left
 			}
 
 			// Adjust triangle to the center of the `el` edge.
@@ -605,8 +635,8 @@ export class Aligner {
 			x = Math.min(x, maxX)
 
 			if (this.fixTriangle) {
-				x -= triangleRect.left
-				transforms.push(`translateX(${x}px)`)
+				let translateX = x - triangleRelativeRect.left
+				transforms.push(`translateX(${translateX}px)`)
 			}
 			else {
 				x -= getStyleValueAsNumber(this.el, 'borderLeftWidth')
@@ -617,14 +647,14 @@ export class Aligner {
 		}
 
 		if (directions.left || directions.right) {
-			let halfTriangleHeight = triangleRect.height / 2
+			let halfTriangleHeight = triangleRelativeRect.height / 2
 			let y: number
 
 			if ((h >= targetRect.height || this.fixTriangle) && this.alignPosition[1][0] === 'c') {
 				y = targetRect.top + targetRect.height / 2 - rect.top - halfTriangleHeight
 			}
 			else if (this.fixTriangle) {
-				y = triangleRect.top - rect.top
+				y = triangleRelativeRect.top
 			}
 			else {
 				y = h / 2 - halfTriangleHeight
@@ -646,8 +676,8 @@ export class Aligner {
 			y = Math.min(y, maxY)			
 
 			if (this.fixTriangle) {
-				y -= triangleRect.top
-				transforms.push(`translateY(${y}px)`)
+				let translateY = y - triangleRelativeRect.top
+				transforms.push(`translateY(${translateY}px)`)
 			}
 			else if (!this.fixTriangle) {
 				y -= getStyleValueAsNumber(this.el, 'borderTopWidth')
@@ -778,16 +808,16 @@ function getClosestFixedElement(el: Element): HTMLElement | null {
 
 
 /** Get first scrolling child element inside. */
-function findFirstScrollingChild(el: HTMLElement, deep: number = 3): HTMLElement | null {
-	if (el.scrollHeight > el.clientHeight) {
-		return el
-	}
-
-	if (deep <= 1) {
+function findFirstScrollingChild(el: HTMLElement, deep: number = 2): HTMLElement | null {
+	if (deep <= 0) {
 		return null
 	}
 
 	for (let child of el.children) {
+		if (child.scrollHeight > child.clientHeight) {
+			return child as HTMLElement
+		}
+	
 		let scrollingChild = findFirstScrollingChild(child as HTMLElement, deep - 1)
 		if (scrollingChild) {
 			return scrollingChild
