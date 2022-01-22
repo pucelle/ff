@@ -1,4 +1,3 @@
-
 /**
  * Encode `<>` to `&...` to makesure HTML codes are safely to be appended into document.
  * @param code Text to be encoded.
