@@ -22,12 +22,12 @@ export namespace MouseLeave {
 	const Controllers: Set<MouseLeaveController> = new Set()
 
 	/** Add one controller. */
-	export function addControler(controller: MouseLeaveController) {
+	export function addController(controller: MouseLeaveController) {
 		Controllers.add(controller)
 	}
 
 	/** Delete one controller. */
-	export function deleteControler(controller: MouseLeaveController) {
+	export function deleteController(controller: MouseLeaveController) {
 		Controllers.delete(controller)
 	}
 
@@ -170,7 +170,7 @@ class MouseLeaveController {
 			el.addEventListener('mouseleave', this.bindedOnMouseLeave, false)
 		}
 
-		MouseLeave.addControler(this)
+		MouseLeave.addController(this)
 	}
 
 	private onMouseEnter() {
@@ -244,7 +244,7 @@ class MouseLeaveController {
 		MouseLeave.unlock(this.trigger, this.popup)
 		this.releaseAllLocks()
 		this.ended = true
-		MouseLeave.deleteControler(this)
+		MouseLeave.deleteController(this)
 	}
 
 	/** Whether was locked to keep visible. */

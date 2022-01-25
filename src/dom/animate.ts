@@ -3,7 +3,10 @@ import {normativeStyleObject} from './utils'
 
 
 /** Animation easing identifier. */
-export type AnimationEasing = keyof typeof CUBIC_BEZIER_EASINGS | 'linear'
+export type AnimationEasing = NonLinearAnimationEasing | 'linear'
+
+/** Animation easing identifier exclude `linear`. */
+type NonLinearAnimationEasing = keyof typeof CUBIC_BEZIER_EASINGS
 
 /** Style property names than can be animated. */
 export type AnimationProperty = StylePropertyName | 'scrollTop' | 'scrollLeft'
@@ -88,11 +91,11 @@ const easingFns: Record<string, (x: number) => number> = {
  * @param easing The extended easing name.
  */
 export function getEasingFunction(name: AnimationEasing): (x: number) => number {
-	if (name === 'linear') {
+	if (easingFns[name]) {
 		return easingFns[name]
 	}
 	else {
-		return easingFns[name] = getCubicBezierEasingFunction(name)
+		return easingFns[name] = getCubicBezierEasingFunction(name as NonLinearAnimationEasing)
 	}
 }
 
@@ -102,13 +105,13 @@ export function getEasingFunction(name: AnimationEasing): (x: number) => number 
  */
 export function getCSSEasingValue(easing: AnimationEasing): string {
 	return CUBIC_BEZIER_EASINGS.hasOwnProperty(easing)
-		? 'cubic-bezier(' + CUBIC_BEZIER_EASINGS[easing as keyof typeof CUBIC_BEZIER_EASINGS].join(', ') + ')'
+		? 'cubic-bezier(' + CUBIC_BEZIER_EASINGS[easing as NonLinearAnimationEasing].join(', ') + ')'
 		: easing
 }
 
 
 /** Compile a easing function from extended easing name. */
-function getCubicBezierEasingFunction(name: keyof typeof CUBIC_BEZIER_EASINGS) {
+function getCubicBezierEasingFunction(name: NonLinearAnimationEasing) {
 	//	F(t)  = (1-t)^3 * P0 + 3t(1-t)^2 * P1 + 3t^2(1-t)^2 * P2 + t^3 * P3, t in [0, 1]
 	//
 	//	Get the x axis projecting function, and knows x0 = 0, x3 = 1, got:
@@ -169,7 +172,7 @@ function playPerFrameAnimation(
 	let easingFn = getEasingFunction(easing)
 	let frameId = 0
 
-	let runNextFrame = () => {
+	let onNextFrame = () => {
 		frameId = requestAnimationFrame((timestamp) => {
 			let timeDiff = timestamp - startTimestamp
 			let x = timeDiff / duration
@@ -185,12 +188,12 @@ function playPerFrameAnimation(
 			else {
 				let y = easingFn(x)
 				onInterval(y)
-				runNextFrame()
+				onNextFrame()
 			}
 		})
 	}
 
-	runNextFrame()
+	onNextFrame()
 
 	return () => {
 		if (frameId) {
