@@ -3,7 +3,7 @@ type InferFromDefault<T> = T extends null | undefined ? any : T
 
 class WebStorage {
 
-	/** Key prefix to identify self set local storage properties. */
+	/** Key prefix to identify own local storage properties. */
 	private prefix: string = ''
 
 	/** Expire suffix of properties to mark expire time. */

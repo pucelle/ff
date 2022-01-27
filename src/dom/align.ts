@@ -269,6 +269,8 @@ export class Aligner {
 	 * Returns whether does alignment.
 	 */
 	align(): boolean {
+		this.resetStylesBeforeGettingRect()
+
 		let directions = {...this.alignDirections}
 		let rect = getRect(this.el)
 		let targetRect = getRect(this.target)
@@ -291,11 +293,9 @@ export class Aligner {
 			return false
 		}
 
-		this.clearTriangleAlignment()
-
 		// `el` may be shrinked into the edge and it's width get limited.
 		if (this.shouldClearElPosition(rect)) {
-			this.clearElPosition()
+			this.clearElementPosition()
 			rect = getRect(this.el)
 		}
 
@@ -320,13 +320,18 @@ export class Aligner {
 
 		this.cachedRect = rect
 		this.cachedTargetRect = targetRect
-
+	
 		return true
 	}
 
-	/** Clear last triangle alignment properties. */
-	private clearTriangleAlignment() {
+	/** Set some styles before alignment. */
+	private resetStylesBeforeGettingRect() {
 		
+		// Avoid it's height cause body scrollbar appears.
+		if (this.canShrinkInY && this.el.offsetHeight > document.documentElement.clientHeight) {
+			this.el.style.height = '100vh'
+		}
+
 		// `align` may be called for multiple times, so need to clear again.
 		if (this.triangle) {
 			this.triangle.style.transform = ''
@@ -341,8 +346,9 @@ export class Aligner {
 	}
 
 	/** Clear last alignment properties. */
-	private clearElPosition() {
+	private clearElementPosition() {
 		this.el.style.left = '0'
+		this.el.style.right = ''
 		this.el.style.top = '0'
 	}
 
@@ -377,13 +383,12 @@ export class Aligner {
 		// If `el` height changed.
 		if (overflowYSet) {
 			anchor1 = this.getElRelativeAnchor(directions, rect, triangleRelativeRect)
+			fixedPosition.x = anchor2[0] - anchor1[0]
+			fixedPosition.y = anchor2[1] - anchor1[1]
 		}
 
 		// Handle herizontal alignment.
 		this.alignHerizontal(fixedPosition.x, directions, rect, targetRect, triangleRelativeRect)
-
-		// Position for fixed or absolute layout.
-		let mayAbsolutePosition = {x: rect.left, y: rect.top}
 
 		// If is not fixed, minus coordinates relative to offsetParent.
 		if (!this.isElInFixedPosition && this.target !== document.body && this.target !== document.documentElement) {
@@ -392,13 +397,27 @@ export class Aligner {
 			// If we use body's top postion, it will cause a bug when body has a margin top (even from margin collapse).
 			if (offsetParent) {
 				var parentRect = offsetParent.getBoundingClientRect()
-				mayAbsolutePosition.x -= parentRect.left
-				mayAbsolutePosition.y -= parentRect.top
+				rect.left -= parentRect.left
+				rect.top -= parentRect.top
 			}
+
+			rect.right = rect.left + rect.width
+			rect.bottom = rect.top + rect.height
 		}
 
-		this.el.style.left = mayAbsolutePosition.x + 'px'
-		this.el.style.top = mayAbsolutePosition.y + 'px'
+		if (directions.right) {
+			this.el.style.left = rect.left + 'px'
+			this.el.style.right = 'auto'
+		}
+
+		// May scrollbar appears after alignment,
+		// such that it should align to right.
+		else {
+			this.el.style.left = 'auto'
+			this.el.style.right = document.documentElement.clientWidth - rect.right + 'px'
+		}
+
+		this.el.style.top = rect.top + 'px'
 	}
 
 	/** Get relative anchor position of the axis of an element. */
