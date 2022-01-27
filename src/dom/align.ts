@@ -195,11 +195,6 @@ export class Aligner {
 		this.canShrinkInY = options.canShrinkInY ?? false
 		this.fixTriangle = options.fixTriangle ?? false
 
-		// Restore triangle transform.
-		if (this.triangle) {
-			this.triangle.style.transform = ''
-		}
-
 		// Still passed parameters although it's in current project,
 		// So we can avoid calling order confuse us.
 		this.alignPosition = parseAlignPosition(position)
@@ -295,7 +290,7 @@ export class Aligner {
 
 		// `el` may be shrinked into the edge and it's width get limited.
 		if (this.shouldClearElPosition(rect)) {
-			this.clearElementPosition()
+			this.clearElPosition()
 			rect = getRect(this.el)
 		}
 
@@ -331,11 +326,6 @@ export class Aligner {
 		if (this.canShrinkInY && this.el.offsetHeight > document.documentElement.clientHeight) {
 			this.el.style.height = '100vh'
 		}
-
-		// `align` may be called for multiple times, so need to clear again.
-		if (this.triangle) {
-			this.triangle.style.transform = ''
-		}
 	}
 
 	/** Should clear last alignment properties. */
@@ -346,7 +336,7 @@ export class Aligner {
 	}
 
 	/** Clear last alignment properties. */
-	private clearElementPosition() {
+	private clearElPosition() {
 		this.el.style.left = '0'
 		this.el.style.right = ''
 		this.el.style.top = '0'
@@ -354,6 +344,11 @@ export class Aligner {
 
 	/** Get triangle rect based on `el` origin. */
 	private getTriangleRelativeRect(rect: Rect) {
+		// `align` may be called for multiple times, so need to clear again.
+		if (this.fixTriangle && this.triangle) {
+			this.triangle.style.transform = ''
+		}
+
 		let relativeTriangleRect = this.triangle ? getRect(this.triangle) : null
 		if (relativeTriangleRect) {
 			relativeTriangleRect.left -= rect.left
