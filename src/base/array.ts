@@ -452,7 +452,7 @@ export function indexBy<T, K extends CanSortKeys<T>>(array: Iterable<T>, key: K)
 
 // Compare with `new Map(...)`, object has same performance, and is more convinent to use, but will lose number key type.
 export function indexBy<T>(array: Iterable<T>, keyOrFn: keyof T | ((value: T) => [any, any])) {
-	let map: Map<string | number, any> = new Map()
+	let map: Map<any, T> = new Map()
 
 	if (typeof keyOrFn === 'function') {
 		for (let item of array) {
@@ -462,7 +462,7 @@ export function indexBy<T>(array: Iterable<T>, keyOrFn: keyof T | ((value: T) =>
 	}
 	else {
 		for (let item of array) {
-			let key = item[keyOrFn] as unknown as string
+			let key = item[keyOrFn]
 			map.set(key, item)
 		}
 	}
@@ -487,17 +487,17 @@ export function groupBy<T, K extends CanSortKeys<T>>(array: Iterable<T>, key: K)
 
 
 export function groupBy<T>(array: Iterable<T>, keyOrFn: CanSortKeys<T> | ((value: T) => any)) {
-	let map: Map<string | number, T[]> = new Map()
+	let map: Map<any, T[]> = new Map()
 
 	for (let item of array) {
-		let key: string | number
+		let key: any
 		let value: T
 
 		if (typeof keyOrFn === 'function') {
 			[key, value] = keyOrFn(item)
 		}
 		else {
-			key = item[keyOrFn] as unknown as string | number
+			key = item[keyOrFn]
 			value = item
 		}
 
