@@ -400,16 +400,15 @@ export class Aligner {
 			rect.bottom = rect.top + rect.height
 		}
 
-		if (directions.right) {
-			this.el.style.left = rect.left + 'px'
-			this.el.style.right = 'auto'
-		}
-
 		// May scrollbar appears after alignment,
 		// such that it should align to right.
-		else {
+		if (directions.left) {
 			this.el.style.left = 'auto'
 			this.el.style.right = document.documentElement.clientWidth - rect.right + 'px'
+		}
+		else {
+			this.el.style.left = rect.left + 'px'
+			this.el.style.right = 'auto'
 		}
 
 		this.el.style.top = rect.top + 'px'
