@@ -263,7 +263,7 @@ export function binaryFindIndexToInsert<T>(array: ArrayLike<T>, fn: (item: T) =>
 	let start = 0
 	let end = array.length - 1
 
-	while (end - start > 1) {
+	while (start < end) {
 		let center = Math.floor((end + start) / 2)
 		let result = fn(array[center])
 
@@ -274,7 +274,7 @@ export function binaryFindIndexToInsert<T>(array: ArrayLike<T>, fn: (item: T) =>
 			end = center
 		}
 		else {
-			start = center
+			start = center + 1
 		}
 	}
 
