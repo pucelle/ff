@@ -1,7 +1,7 @@
 {
 	"name": "@pucelle/ff",
-	"version": "1.3.0",
-	"description": "A small JavaScript utility library, to make web programming easier.",
+	"version": "1.4.0",
+	"description": "A JS utility library, including frequently used functions",
 	"author": "pucelle",
 	"license": "MIT",
 	"homepage": "https://github.com/pucelle/ff",
@@ -16,13 +16,13 @@
 		"watch": "tsc -b -w",
 		"test": "jest",
 		"prepublish": "tsc -b",
-		"docs": "typedoc src/index.ts"
+		"typedoc": "typedoc src/index.ts"
 	},
 	"devDependencies": {
 		"@types/jest": "^24.9.1",
 		"jest": "^26.6.3",
 		"ts-jest": "^26.4.4",
-		"typescript": "^4.3.5"
+		"typescript": "^4.7.4"
 	},
 	"dependencies": {
 		"@pucelle/event-emitter": "^1.3.0"

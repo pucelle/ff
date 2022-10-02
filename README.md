@@ -19,7 +19,6 @@ It includes two parts:
  - `array`: To add, remove, find items from array, do set operation, and order by, group by, aggregate datas just like what you do in SQL.
  - `date`: To read / write each part of a date, and format a date.
  - `duration`: Express a time period, type can be string, seconds count or object. Can be used to added to a date.
- - `event-emitter`: An event emitter as super class to listen and emit events. It supports scope argument when registering events, such that you don't need to cache binded handler to unregister it later.
  - `function`: Includes some classes and corresponding utility function to handle timeout, interval, throttle, debounce.
  - `number`: To process number decimal count, precision, mod, constrain.
  - `object`: To assign, deeply clone and compare objects.
