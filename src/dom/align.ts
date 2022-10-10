@@ -383,21 +383,23 @@ export class Aligner {
 		}
 
 		// Handle herizontal alignment.
+		// `rect` will be modified.
 		this.alignHerizontal(fixedPosition.x, directions, rect, targetRect, triangleRelativeRect)
 
-		// If is not fixed, minus coordinates relative to offsetParent.
+		// The fixed coordinate of `el` currently.
+		let x = rect.left
+		let y = rect.top
+
+		// For absolute layout `el`, convert x, y to absolute coordinate.
 		if (!this.isElInFixedPosition && this.target !== document.body && this.target !== document.documentElement) {
 			var offsetParent = this.el.offsetParent as HTMLElement
 
 			// If we use body's top postion, it will cause a bug when body has a margin top (even from margin collapse).
 			if (offsetParent) {
 				var parentRect = offsetParent.getBoundingClientRect()
-				rect.left -= parentRect.left
-				rect.top -= parentRect.top
+				x -= parentRect.left
+				y -= parentRect.top
 			}
-
-			rect.right = rect.left + rect.width
-			rect.bottom = rect.top + rect.height
 		}
 
 		// May scrollbar appears after alignment,
@@ -407,11 +409,11 @@ export class Aligner {
 			this.el.style.right = document.documentElement.clientWidth - rect.right + 'px'
 		}
 		else {
-			this.el.style.left = rect.left + 'px'
+			this.el.style.left = x + 'px'
 			this.el.style.right = 'auto'
 		}
 
-		this.el.style.top = rect.top + 'px'
+		this.el.style.top = y + 'px'
 	}
 
 	/** Get relative anchor position of the axis of an element. */
