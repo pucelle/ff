@@ -1,5 +1,98 @@
+import {remove} from './array'
+
+
+/** 
+ * A `key => Set<value>` type map.
+ * Good for dynamiclly adding & deleting.
+ */
+export class GroupMap<K, V> {
+
+	private map: Map<K, Set<V>> = new Map()
+
+	add(k: K, v: V) {
+		let values = this.map.get(k)
+		if (!values) {
+			values = new Set()
+			this.map.set(k, values)
+		}
+
+		values.add(v)
+	}
+
+	has(k: K): boolean {
+		return this.map.has(k)
+	}
+
+	hasPair(k: K, v: V): boolean {
+		return !!this.map.get(k)?.has(v)
+	}
+
+	get(k: K): Set<V> | undefined {
+		return this.map.get(k)
+	}
+
+	getCountOf(k: K) {
+		return this.map.get(k)?.size || 0
+	}
+
+	delete(k: K, v: V) {
+		let values = this.map.get(k)
+		if (values) {
+			values.delete(v)
+
+			if (values.size === 0) {
+				this.map.delete(k)
+			}
+		}
+	}
+}
+
+
+/** 
+ * A `key => value[]` type map.
+ * Note it assumes that value is never repeative.
+ */
+export class NonRepeativeGroupMap<K, V> {
+
+	private map: Map<K, V[]> = new Map()
+
+	add(k: K, v: V) {
+		let values = this.map.get(k)
+		if (!values) {
+			values = []
+			this.map.set(k, values)
+		}
+
+		values.push(v)
+	}
+
+	has(k: K): boolean {
+		return this.map.has(k)
+	}
+
+	get(k: K): V[] | undefined {
+		return this.map.get(k)
+	}
+
+	getCountOf(k: K) {
+		return this.map.get(k)?.length || 0
+	}
+
+	delete(k: K, v: V) {
+		let values = this.map.get(k)
+		if (values) {
+			remove(values, v)
+
+			if (values.length === 0) {
+				this.map.delete(k)
+			}
+		}
+	}
+}
+
+
 /** Map that indexed by a pair of keys. */
-export class DoubleKeysMap<K1 extends object, K2, V> {
+export class DoubleKeysMap<K1, K2, V> {
 
 	private map: Map<K1, Map<K2, V>> = new Map()
 
@@ -29,6 +122,10 @@ export class DoubleKeysMap<K1 extends object, K2, V> {
 		}
 
 		return sub.get(k2)
+	}
+
+	getCountOf(k1: K1) {
+		return this.map.get(k1)?.size || 0
 	}
 
 	delete(k1: K1, k2: K2) {

@@ -542,6 +542,18 @@ export function aggregate<T, V>(array: Iterable<T>, keyOrFn: CanSortKeys<T> | ((
 }
 
 
+/** Convert a map to an objectm */
+export function mapToObject<K extends string | number, V>(map: Map<K, V>): Record<K, V> {
+	let o: Record<K, V> = {} as any
+
+	for (let [k, v] of map.entries()) {
+		o[k] = v
+	}
+
+	return o
+}
+
+
 /**
  * Returns the length of the array. Just a util function for `ff.aggregate`.
  * @param array The array to count length.
