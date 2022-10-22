@@ -1,13 +1,97 @@
 import {remove} from './array'
 
 
+
+/** 
+ * A `key => value[]` type map.
+ * Note it assumes that value is never repeative.
+ */
+ export class GroupArrayMap<K, V> {
+
+	private map: Map<K, V[]> = new Map()
+
+	keys(): Iterable<K> {
+		return this.map.keys()
+	}
+
+	values(): Iterable<V[]> {
+		return this.map.values()
+	}
+
+	entites(): Iterable<[K, V[]]> {
+		return this.map.entries()
+	}
+
+	add(k: K, v: V) {
+		let values = this.map.get(k)
+		if (!values) {
+			values = [v]
+			this.map.set(k, values)
+		}
+		else {
+			values.push(v)
+		}
+	}
+
+	addIf(k: K, v: V) {
+		let values = this.map.get(k)
+		if (!values) {
+			values = [v]
+			this.map.set(k, values)
+		}
+		else if (!values.includes(v)) {
+			values.push(v)
+		}
+	}
+
+	has(k: K): boolean {
+		return this.map.has(k)
+	}
+
+	hasPair(k: K, v: V): boolean {
+		return !!this.map.get(k)?.includes(v)
+	}
+
+	get(k: K): V[] | undefined {
+		return this.map.get(k)
+	}
+
+	getCountOf(k: K) {
+		return this.map.get(k)?.length || 0
+	}
+
+	delete(k: K, v: V) {
+		let values = this.map.get(k)
+		if (values) {
+			remove(values, v)
+
+			if (values.length === 0) {
+				this.map.delete(k)
+			}
+		}
+	}
+}
+
+
 /** 
  * A `key => Set<value>` type map.
  * Good for dynamiclly adding & deleting.
  */
-export class GroupMap<K, V> {
+export class GroupSetMap<K, V> {
 
 	private map: Map<K, Set<V>> = new Map()
+
+	keys(): Iterable<K> {
+		return this.map.keys()
+	}
+
+	values(): Iterable<Set<V>> {
+		return this.map.values()
+	}
+
+	entites(): Iterable<[K, Set<V>]> {
+		return this.map.entries()
+	}
 
 	add(k: K, v: V) {
 		let values = this.map.get(k)
@@ -48,49 +132,6 @@ export class GroupMap<K, V> {
 }
 
 
-/** 
- * A `key => value[]` type map.
- * Note it assumes that value is never repeative.
- */
-export class NonRepeativeGroupMap<K, V> {
-
-	private map: Map<K, V[]> = new Map()
-
-	add(k: K, v: V) {
-		let values = this.map.get(k)
-		if (!values) {
-			values = []
-			this.map.set(k, values)
-		}
-
-		values.push(v)
-	}
-
-	has(k: K): boolean {
-		return this.map.has(k)
-	}
-
-	get(k: K): V[] | undefined {
-		return this.map.get(k)
-	}
-
-	getCountOf(k: K) {
-		return this.map.get(k)?.length || 0
-	}
-
-	delete(k: K, v: V) {
-		let values = this.map.get(k)
-		if (values) {
-			remove(values, v)
-
-			if (values.length === 0) {
-				this.map.delete(k)
-			}
-		}
-	}
-}
-
-
 /** Map that indexed by a pair of keys. */
 export class DoubleKeysMap<K1, K2, V> {
 
@@ -122,6 +163,18 @@ export class DoubleKeysMap<K1, K2, V> {
 		}
 
 		return sub.get(k2)
+	}
+
+	getSecondMap(k1: K1): Map<K2, V> | undefined {
+		return this.map.get(k1)
+	}
+
+	getSecondKeys(k1: K1): Iterable<K2> | undefined {
+		return this.map.get(k1)?.keys()
+	}
+
+	getSecondValues(k1: K1): Iterable<V> | undefined {
+		return this.map.get(k1)?.values()
 	}
 
 	getCountOf(k1: K1) {
