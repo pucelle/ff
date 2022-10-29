@@ -432,7 +432,7 @@ export function orderBy<T extends object>(array: T[], order: Order<T> | OrderRul
  * @param array The array to make object.
  * @param indexPairFn The function to return `[key, value]` tuple for each item.
  */
-export function indexBy<T, K, V>(array: Iterable<T>, indexPairFn: (value: T) => [K, V]): Map<K, V>
+export function indexBy<T, K, V>(array: Iterable<T>, indexPairFn: (value: T, index: number) => [K, V]): Map<K, V>
 
 /**
  * Create a map object as `{item[key]: item}` format.
@@ -443,12 +443,14 @@ export function indexBy<T, K extends CanSortKeys<T>>(array: Iterable<T>, key: K)
 
 
 // Compare with `new Map(...)`, object has same performance, and is more convinent to use, but will lose number key type.
-export function indexBy<T>(array: Iterable<T>, keyOrFn: keyof T | ((value: T) => [any, any])) {
+export function indexBy<T>(array: Iterable<T>, keyOrFn: keyof T | ((value: T, index: number) => [any, any])) {
 	let map: Map<any, T> = new Map()
 
 	if (typeof keyOrFn === 'function') {
+		let index = 0
+
 		for (let item of array) {
-			let [key, value] = keyOrFn(item)
+			let [key, value] = keyOrFn(item, index++)
 			map.set(key, value)
 		}
 	}
@@ -468,7 +470,7 @@ export function indexBy<T>(array: Iterable<T>, keyOrFn: keyof T | ((value: T) =>
  * @param array The array to group by. 
  * @param groupPairFn A function that accepts each item as parameter and returns a `[key, value]` pair.
  */
-export function groupBy<T, K, V>(array: Iterable<T>, groupPairFn: (value: T) => [K, V]): Map<K, V[]>
+export function groupBy<T, K, V>(array: Iterable<T>, groupPairFn: (value: T, index: number) => [K, V]): Map<K, V[]>
 
 /**
  * Creates an object from grouping by key results returned from running `keyOrFn` with each item of `items`.
@@ -478,15 +480,16 @@ export function groupBy<T, K, V>(array: Iterable<T>, groupPairFn: (value: T) => 
 export function groupBy<T, K extends CanSortKeys<T>>(array: Iterable<T>, key: K): Map<T[K], T[]>
 
 
-export function groupBy<T>(array: Iterable<T>, keyOrFn: CanSortKeys<T> | ((value: T) => any)) {
+export function groupBy<T>(array: Iterable<T>, keyOrFn: CanSortKeys<T> | ((value: T, index: number) => any)) {
 	let map: Map<any, T[]> = new Map()
+	let index = 0
 
 	for (let item of array) {
 		let key: any
 		let value: T
 
 		if (typeof keyOrFn === 'function') {
-			[key, value] = keyOrFn(item)
+			[key, value] = keyOrFn(item, index++)
 		}
 		else {
 			key = item[keyOrFn]
@@ -512,7 +515,7 @@ export function groupBy<T>(array: Iterable<T>, keyOrFn: CanSortKeys<T> | ((value
  * @param groupKeyFn A function that accepts each item as parameter and returns a value used as group key.
  * @param aggregateFn Aggregate function, it accepts grouped items and each grouped key as parameters, and returns aggregated value.
  */
-export function aggregate<T, K, V>(array: Iterable<T>, groupFn: (value: T) => K, aggregateFn: (items: T[], key: K) => V): Map<K, V>
+export function aggregate<T, K, V>(array: Iterable<T>, keyFn: (value: T, index: number) => K, aggregateFn: (items: T[], key: K) => V): Map<K, V>
 
 /**
  * Creates an object from grouping by key results returned from running `keyOrFn` with each item of `items`.
@@ -523,12 +526,12 @@ export function aggregate<T, K, V>(array: Iterable<T>, groupFn: (value: T) => K,
 export function aggregate<T, K extends CanSortKeys<T>, V>(array: Iterable<T>, key: K, aggregateFn: (items: T[], key: T[K]) => V): Map<T[K], V>
 
 
-export function aggregate<T, V>(array: Iterable<T>, keyOrFn: CanSortKeys<T> | ((value: T) => any), aggregateFn: (items: T[], key?: string) => V) {
+export function aggregate<T, V>(array: Iterable<T>, keyOrFn: CanSortKeys<T> | ((value: T, index: number) => any), aggregateFn: (items: T[], key?: string) => V) {
 	let groupMap: Map<any, T[]>
 	let aggregateMap: Map<any, V> = new Map()
 
 	if (typeof keyOrFn === 'function') {
-		groupMap = groupBy(array, item => [keyOrFn(item), item])
+		groupMap = groupBy(array, (item, index) => [keyOrFn(item, index), item])
 	}
 	else {
 		groupMap = groupBy(array, keyOrFn)
@@ -662,4 +665,19 @@ export function maxIndex<T>(array: T[], map?: (item: T, index: number) => number
 	}
 
 	return maxIndex
+}
+
+
+
+/** Find the minimum item in an array, by a map function. */
+export function minOf<T>(array: T[], map?: (item: T, index: number) => number): T | null {
+	let index = minIndex(array, map)
+	return array[index] || null
+}
+
+
+/** Find the maximum item in an array, by a map function. */
+export function maxOf<T>(array: T[], map?: (item: T, index: number) => number): T | null {
+	let index = maxIndex(array, map)
+	return array[index] || null
 }
