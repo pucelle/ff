@@ -326,6 +326,9 @@ export class Aligner {
 		if (this.canShrinkInY && this.el.offsetHeight > document.documentElement.clientHeight) {
 			this.el.style.height = '100vh'
 		}
+		else if (this.canShrinkInY && this.el.style.height) {
+			this.el.style.height = ''
+		}
 	}
 
 	/** Should clear last alignment properties. */

@@ -1,7 +1,6 @@
 import {remove} from './array'
 
 
-
 /** 
  * A `key => value[]` type map.
  * Note it assumes that value is never repeative.
@@ -56,7 +55,7 @@ import {remove} from './array'
 		return this.map.get(k)
 	}
 
-	getCountOf(k: K) {
+	countOf(k: K) {
 		return this.map.get(k)?.length || 0
 	}
 
@@ -115,7 +114,7 @@ export class GroupSetMap<K, V> {
 		return this.map.get(k)
 	}
 
-	getCountOf(k: K) {
+	countOf(k: K) {
 		return this.map.get(k)?.size || 0
 	}
 
@@ -165,19 +164,29 @@ export class DoubleKeysMap<K1, K2, V> {
 		return sub.get(k2)
 	}
 
-	getSecondMap(k1: K1): Map<K2, V> | undefined {
+	secondMap(k1: K1): Map<K2, V> | undefined {
 		return this.map.get(k1)
 	}
 
-	getSecondKeys(k1: K1): Iterable<K2> | undefined {
+	firstKeys() {
+		return this.map.keys()
+	}
+
+	secondKeys(k1: K1): Iterable<K2> | undefined {
 		return this.map.get(k1)?.keys()
 	}
 
-	getSecondValues(k1: K1): Iterable<V> | undefined {
+	secondValues(k1: K1): Iterable<V> | undefined {
 		return this.map.get(k1)?.values()
 	}
 
-	getCountOf(k1: K1) {
+	*values(): Iterable<V> {
+		for (let second of this.map.values()) {
+			yield *second.values()
+		}
+	}
+
+	countOf(k1: K1) {
 		return this.map.get(k1)?.size || 0
 	}
 
@@ -203,11 +212,11 @@ export class DoubleKeysMap<K1, K2, V> {
 	private lm: Map<L, R> = new Map()
 	private rm: Map<R, L> = new Map()
 
-	getLeftSize(): number {
+	leftSize(): number {
 		return this.lm.size
 	}
 
-	getRightSize(): number {
+	rightSize(): number {
 		return this.rm.size
 	}
 
@@ -228,15 +237,15 @@ export class DoubleKeysMap<K1, K2, V> {
 		return this.rm.has(r)
 	}
 
-	getFromLeft(l: L): R | undefined {
+	getLeft(l: L): R | undefined {
 		return this.lm.get(l)
 	}
 
-	getFromRight(r: R): L | undefined {
+	getRight(r: R): L | undefined {
 		return this.rm.get(r)
 	}
 
-	deleteFromLeft(l: L): boolean {
+	deleteLeft(l: L): boolean {
 		if (this.hasLeft(l)) {
 			this.rm.delete(this.lm.get(l)!)
 			this.lm.delete(l)
@@ -246,7 +255,7 @@ export class DoubleKeysMap<K1, K2, V> {
 		return false
 	}
 
-	deleteFromRight(r: R): boolean {
+	deleteRight(r: R): boolean {
 		if (this.hasRight(r)) {
 			this.lm.delete(this.rm.get(r)!)
 			this.rm.delete(r)
@@ -256,11 +265,11 @@ export class DoubleKeysMap<K1, K2, V> {
 		return false
 	}
 
-	getAllLeft(): Iterable<L> {
+	leftKeys(): Iterable<L> {
 		return this.lm.keys()
 	}
 
-	getAllRight(): Iterable<R> {
+	rightKeys(): Iterable<R> {
 		return this.rm.keys()
 	}
 }

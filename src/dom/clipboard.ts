@@ -1,111 +1,80 @@
-/** Copy datas into clipboard. */
-export async function setClipboardData(data: Record<string, string>): Promise<boolean> {
-	let input = document.createElement('textarea')
-	let pasteText = data['text/plain'] || ' '
-	
-	input.value = pasteText
-	input.style.position = 'absolute'
-	input.style.width = '0'
-	input.style.height = '0'
-	document.body.appendChild(input)
-	input.select()
+/** Read clipboard event data. */
+export async function readClipboardEventData(e: ClipboardEvent): Promise<Record<string, string> | null> {
+	let data: Record<string, string> | null = null
 
-	let promise = setClipboardDataAtCopyEvent(data)
-	let success = document.execCommand('copy')
-	success = success && await promise
-	input.remove()
+	if (e.clipboardData) {
+		data = {}
 
-	return success
-}
-
-
-function setClipboardDataAtCopyEvent(data: Record<string, string>): Promise<boolean> {
-	return new Promise(resolve => {
-		let keys = Object.keys(data)
-		let hasNonTextPlainKeys = keys.some(key => key !== 'text/plain')
-	
-		if (hasNonTextPlainKeys) {
-
-			// Handle Copy event.
-			let handle = (e: ClipboardEvent) => {
-				for (let [key, value] of Object.entries(data)) {
-					e.clipboardData?.setData(key, value)
-				}
-				e.preventDefault()
-				end()
-				resolve(true)
+		for (let item of e.clipboardData.items) {
+			if (item.kind === 'string') {
+				data[item.type] = await new Promise(resolve => item.getAsString(resolve))
 			}
-
-			// End processing.
-			let end = () => {
-				document.removeEventListener('copy', handle, false)
-				clearTimeout(timeoutId)
-			}
-	
-			document.addEventListener('copy', handle, false)
-
-			// Wait for at most 500ms, send fail if not trigger.
-			let timeoutId = setTimeout(() => {
-				end()
-				resolve(false)
-			}, 500)
 		}
-	})
+	}
+
+	return data	
 }
 
 
-/** Read datas from clipboard. */
- export async function getClipboardData(): Promise<Record<string, string> | null> {
-	let input = document.createElement('textarea')
-	input.style.position = 'absolute'
-	input.style.width = '0'
-	input.style.height = '0'
-	document.body.appendChild(input)
-	input.focus()
-
-	let promise = getClipboardDataAtCopyEvent()
-	let success = document.execCommand('paste')
-	let data = await promise
-	input.remove()
-
-	return success ? data : null
+/** Set clipboard event data. */
+export function writeClipboardEventData(e: ClipboardEvent, data: Record<string, string>) {
+	for (let [key, value] of Object.entries(data)) {
+		e.clipboardData?.setData(key, value)
+	}
 }
 
 
-function getClipboardDataAtCopyEvent(): Promise<Record<string, string> | null> {
-	return new Promise(resolve => {
+/** Try to write data to clopboard. */
+export async function readClipboardData(): Promise<Record<string, string> | null> {
+	try {
+		await requestClipboardPermission('read')
 
-		// Handle Paste event.
-		let handle = async (e: ClipboardEvent) => {
-			let data: Record<string, string> | null = null
+		let dataTransfer = await navigator.clipboard.read() as unknown as DataTransfer
+		let data: Record<string, string> = {}
 
-			if (e.clipboardData) {
-				data = {}
-
-				for (let item of e.clipboardData.items) {
-					if (item.kind === 'string') {
-						data[item.type] = await new Promise(resolve => item.getAsString(resolve))
-					}
+		if (dataTransfer) {
+			for (let item of dataTransfer.items) {
+				if (item.kind === 'string') {
+					data[item.type] = await new Promise(resolve => item.getAsString(resolve))
 				}
 			}
-
-			e.preventDefault()
-			end()
-			resolve(data)
 		}
 
-		// End processing.
-		let end = () => {
-			document.removeEventListener('paste', handle, false)
-			clearTimeout(timeoutId)
+		return data
+	}
+	catch (err) {
+		return null
+	}
+}
+
+
+/** Try to read data from clipboard. */
+export async function writeClipboardData(data: Record<string, string>): Promise<boolean> {
+	try {
+		await requestClipboardPermission('write')
+
+		let dataTransfer = new DataTransfer()
+		for (let [key, value] of Object.entries(data)) {
+			dataTransfer.setData(key, value)
 		}
 
-		document.addEventListener('paste', handle, false)
+		await navigator.clipboard.write(dataTransfer as any)
 
-		// Wait for at most 500ms, send fail if not trigger.
-		let timeoutId = setTimeout(() => {
-			end()
-			resolve(null)
-		}, 500)
-	})
+		return true
+	}
+	catch (err) {
+		return false
+	}
+}
+
+
+/** Request clipboard permission. */
+async function requestClipboardPermission(name: 'read' | 'write') {
+	let result = await navigator.permissions.query({name: 'clipboard-' + name as any})
+	if (result.state == 'granted' || result.state == 'prompt') {
+		return
+	}
+	else {
+		throw new Error(result.state)
+	}
 }
