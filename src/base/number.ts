@@ -1,5 +1,5 @@
 /**
- * Like `number.toFixed`, but alway return a number. e.g., `toPower(12.345, 2) = 12.34`.
+ * Like `number.toFixed`, but alway return a number. e.g., `toDecimal(12.345, 2) = 12.34`.
  * @param number The number to fix.
  * @param decimalCount The decimal count that `number` will correct to, default value is `0`.
  */
