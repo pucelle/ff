@@ -1,6 +1,7 @@
 import './polyfill'
 export * from './date'
 export * from './dom'
+export * from './duration'
 export * from './id'
 export * from './list'
 export * from './value-list'

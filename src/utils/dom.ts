@@ -50,11 +50,19 @@ export namespace DOMUtils {
 	export type StylePropertyName = Exclude<string & keyof CSSStyleDeclaration, 'length' | 'parentRule'> | 'willChange'
 
 	/**
-	 * Get computed style value as number from element.
+	 * Get computed style value from an element.
+	 * Note that this method may cause reflow.
+	 */
+	export function getStyleValue(el: Element, propertyName: StylePropertyName): string {
+		return getComputedStyle(el)[propertyName as any]
+	}
+
+	/**
+	 * Get computed style value as number from an element.
 	 * Note that this method may cause reflow.
 	 */
 	export function getStyleValueAsNumber(el: Element, property: StylePropertyName): number {
-		let value = getComputedStyle(el)[property as any]
+		let value = getStyleValue(el, property)
 		return value ? parseFloat(value) || 0 : 0
 	}
 

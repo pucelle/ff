@@ -18,7 +18,7 @@ export class Box implements BoxLike {
 	}
 
 	/** Make box from `BoxLike`, such as `DOMRect`. */
-	static fromBoxLike(like: BoxLike) {
+	static fromLike(like: BoxLike) {
 		return new Box(like.x, like.y, like.width, like.height)
 	}
 

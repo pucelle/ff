@@ -1,6 +1,6 @@
 export * from './style'
 export * from './element'
-export * from './align'
+export * from '../tools/aligner'
 export * from './scroll'
 export * from './animate'
 export * from './mouse-leave'

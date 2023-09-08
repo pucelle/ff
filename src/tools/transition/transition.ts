@@ -62,6 +62,23 @@ export class Transition<T extends TransitionableValue = any> extends EventFirer<
 	/** Default transition options. */
 	static DefaultOptions: TransitionOptions = DefaultTransitionOptions
 
+	/** 
+	 * Play transition with configuration, and between from and to values.
+	 * Will apply start state immediately.
+	 */
+	static playBetween<T extends TransitionableValue>(
+		fromValue: T,
+		toValue: T,
+		handler: (value: T, progress: number) => void,
+		duration: number = DefaultTransitionOptions.duration,
+		easing: PerFrameEasingName = DefaultTransitionOptions.easing,
+	): Promise<boolean> {
+		let transition = new Transition({duration, easing})
+		transition.on('progress', handler)
+		return transition.playBetween(fromValue, toValue)
+	}
+
+
 	/** Calculated easing function. */
 	private easingFn: EasingFunction | null = null
 
@@ -160,7 +177,7 @@ export class Transition<T extends TransitionableValue = any> extends EventFirer<
 	}
 
 	/** 
-	 * Play between start and end values.
+	 * Play between from and to values.
 	 * Will apply start state immediately.
 	 */
 	playBetween(fromValue: T, toValue: T): Promise<boolean> {
@@ -176,7 +193,7 @@ export class Transition<T extends TransitionableValue = any> extends EventFirer<
 	}
 
 	/** 
-	 * Play from current value to new end value.
+	 * Play from current value to new to value.
 	 * Work only when transition was started before.
 	 * Will smoothly transition from previous to current.
 	 * Will apply start state immediately.

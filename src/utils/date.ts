@@ -1,4 +1,4 @@
-import {DurationUnit, DurationUnits, DurationObject} from '../tools/duration'
+import {DurationUnits, DurationObject} from './duration'
 
 
 /** Handle and process date. */
@@ -102,7 +102,7 @@ export namespace DateUtils {
 
 	/**
 	 * Clones a date, returns a new date.
-	 * Can specify `units` to partly clone, not includeded unit values will be set to start value.
+	 * `units`: default value is `yMdhms`, can specify partial to partly clone, rest values will be set to start value.
 	 */
 	export function clone(date: Date = new Date(), units: string = DurationUnits): Date {
 		let dateValues = [...DurationUnits].map(unit => {
