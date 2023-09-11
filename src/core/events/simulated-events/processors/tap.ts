@@ -1,5 +1,5 @@
-import {Vector} from 'math'
-import {Timeout} from 'tools'
+import {Vector} from '../../../../math'
+import {Timeout} from '../../../../tools'
 import {DOMEvents} from '../../dom-events'
 import {EventFirer} from '../../event-firer'
 import {SimulatedEventsConfiguration} from '../simulated-events-configuration'
@@ -12,7 +12,7 @@ export interface TapEvents {
 	 * Note `tap` event will be triggered frequently when doing Apple Pencil writting,
 	 * would suggest using only `mousedown` in this case.
 	 * Otherwise you should not register both tap and mousedown / click with the same listener,
-	 * Except you remember to call `endEvent.preventDefault` to prevent following mousedown / click event.
+	 * Except you remember to call `endEvent.preventDefault()` to prevent following mousedown / click event.
 	 */
 	'tap': (endEvent: TouchEvent) => void
 }

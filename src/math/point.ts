@@ -170,7 +170,9 @@ export class Point {
 
 	/** Convert to JSON data. */
 	toJSON(): Coord {
-		let {x, y} = this
-		return {x, y}
+		return {
+			x: this.x,
+			y: this.y,
+		}
 	}
 }

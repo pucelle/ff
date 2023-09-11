@@ -59,7 +59,7 @@ abstract class WrappedTimeControllFunction<F extends Function> extends TimeContr
 export class Timeout<F extends Function = Function> extends TimeControlFunction<F> {
 
 	/** 
-	 * Restart timeout, even a called Timeout can be reset to be restarted.
+	 * Restart timeout, even a called or canceled Timeout can be restarted.
 	 * Note will call `fn` immediately if `ms` parameter is `0`.
 	 */
 	start() {

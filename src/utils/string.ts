@@ -63,6 +63,7 @@ export namespace StringUtils {
 	}
 
 
+	
 	/** Parse `url` search part to a query parameter object. */
 	export function parseQuery(url: string): Record<string, string> {
 		let match = url.match(/\?(.+)/)
@@ -81,11 +82,7 @@ export namespace StringUtils {
 	}
 
 
-	/**
-	 * Combine base `url` and `query` parameters to a new URL.
-	 * @param url The base url.
-	 * @param query The query parameter object.
-	 */
+	/** Combine base `url` and `query` parameters to a new URL. */
 	export function useQuery(url: string, query: Record<string, string>): string {
 		let hasQuery = url.includes('?')
 

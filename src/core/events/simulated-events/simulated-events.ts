@@ -1,7 +1,7 @@
 import {DoubleTapEventProcessor, DoubleTapEvents} from './processors/double-tap'
 import {EventFirer} from '../event-firer'
-import {HoldEventProcessor, HoldEvents, PinchZoomerEvents, PinchZoomProcessor, TapEventProcessor, TapEvents, RigidPinchZoomerEvents, NonRorationPinchZoomProcessor, SlideEvents, SlideEventProcessor} from './processors'
-import {DoubleKeysWeakMap} from 'algorithms'
+import {HoldEventProcessor, HoldEvents, PinchTransformEvents, PinchTransformProcessor, TapEventProcessor, TapEvents, PinchZoomEvents, PinchZoomProcessor, SlideEvents, SlideEventProcessor} from './processors'
+import {DoubleKeysWeakMap} from '../../../structs'
 import {SimulatedEventsConfiguration} from './simulated-events-configuration'
 
 
@@ -13,8 +13,8 @@ const EventConstructors: Record<string, {new(el: EventTarget): EventProcessor}> 
 	'tap': TapEventProcessor,
 	'double-tap': DoubleTapEventProcessor,
 	'hold': HoldEventProcessor,
+	'pinch-transform': PinchTransformProcessor,
 	'pinch-zoom': PinchZoomProcessor,
-	'non-rotation-pinch-zoom': NonRorationPinchZoomProcessor,
 	'slide': SlideEventProcessor,
 }
 
@@ -23,12 +23,12 @@ const EventConstructors: Record<string, {new(el: EventTarget): EventProcessor}> 
 export namespace SimulatedEvents {
 
 	/** Simulated event types. */
-	export type Events = HoldEvents & DoubleTapEvents & PinchZoomerEvents & RigidPinchZoomerEvents & TapEvents & SlideEvents
-	type EventType = keyof Events
+	export type Events = HoldEvents & DoubleTapEvents & PinchTransformEvents & PinchZoomEvents & TapEvents & SlideEvents
+	type EventType = keyof Events & string
 
 
 	/** Configations. */
-	export const configuration = SimulatedEventsConfiguration
+	export const Configuration = SimulatedEventsConfiguration
 
 	/** Shared Processors. */
 	const EventProcessorCache: DoubleKeysWeakMap<EventTarget, string, EventProcessor> = new DoubleKeysWeakMap()

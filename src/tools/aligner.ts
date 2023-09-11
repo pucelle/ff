@@ -47,7 +47,7 @@ export interface AlignerOptions {
 	triangle?: HTMLElement
 }
 
-/** Align Where of current element to where of the target. */
+/** Align where of `align-to` element to where of the `target` element. */
 export type AlignerPosition = 't'
 	| 'b'
 	| 't'
@@ -148,6 +148,33 @@ export class Aligner implements Omit<AlignerOptions, 'margin'> {
 		new Aligner(toAlign, target, alignPosition, options).align()
 	}
 
+
+	/** Align element to the position of a mouse event. */
+	static alignEvent(el: HTMLElement, event: MouseEvent, offset: [number, number] = [0, 0]) {
+		if (DOMUtils.getStyleValue(el, 'position') !== 'fixed') {
+			throw new Error(`Element to use "alignEvent" must have fixed layout!`)
+		}
+
+		let dw = document.documentElement.clientWidth
+		let dh = document.documentElement.clientHeight
+		let w  = el.offsetWidth
+		let h  = el.offsetHeight
+		let ex = event.clientX
+		let ey = event.clientY
+		let x = ex + offset[0]
+		let y = ey + offset[1]
+
+		if (x + w > dw) {
+			x = dw - w
+		}
+
+		if (y + h > dh) {
+			y = dh - h
+		}
+
+		el.style.left = Math.round(x) + 'px'
+		el.style.top = Math.round(y) + 'px'
+	}
 	
 	/** 
 	 * Get main align direction by align position string,
@@ -168,7 +195,7 @@ export class Aligner implements Omit<AlignerOptions, 'margin'> {
 	/** The element to align. */
 	private readonly toAlign: HTMLElement
 
-	/** Target element to align beside. */
+	/** Target target element to align beside. */
 	private readonly target: Element
 
 	/** Directions of `to-align` and `target` elements. */
@@ -387,27 +414,27 @@ export class Aligner implements Omit<AlignerOptions, 'margin'> {
 	}
 
 	/** Do vertical alignment. */
-	private alignVertical(y: number, directions: AlignerDirectionMask, rect: Box, targetRect: Box, triangleRelativeRect: Box | null): boolean {
+	private alignVertical(y: number, directionMask: AlignerDirectionMask, rect: Box, targetRect: Box, triangleRelativeRect: Box | null): boolean {
 		let dh = document.documentElement.clientHeight
 		let spaceTop = targetRect.top - this.margins.top
 		let spaceBottom = dh - (targetRect.bottom + this.margins.bottom)
 		let overflowYSet = false
 		let h = rect.height
 
-		if (directions.top || directions.bottom) {
+		if (directionMask.top || directionMask.bottom) {
 
-			// Not enough space in top position, switch to bottom.
-			if (directions.top && y < 0 && spaceTop < spaceBottom && this.canSwapPosition) {
+			// Not enough space at top side, switch to bottom.
+			if (directionMask.top && y < 0 && spaceTop < spaceBottom && this.canSwapPosition) {
 				y = targetRect.bottom + this.margins.bottom
-				directions.top = false
-				directions.bottom = true
+				directionMask.top = false
+				directionMask.bottom = true
 			}
 
-			// Not enough space in bottom position, switch to top.
+			// Not enough space at bottom side, switch to top.
 			else if (y + h > dh && spaceTop > spaceBottom && this.canSwapPosition) {
 				y = targetRect.top - this.margins.top - h
-				directions.top = true
-				directions.bottom = false
+				directionMask.top = true
+				directionMask.bottom = false
 			}
 		}
 		else {
@@ -431,26 +458,26 @@ export class Aligner implements Omit<AlignerOptions, 'margin'> {
 
 		if (this.canShrinkInY) {
 
-			// Shrink element height if has not enough space.
-			if (directions.top && y < 0 && this.stickToEdges) {
+			// Limit element height if has not enough space.
+			if (directionMask.top && y < 0 && this.stickToEdges) {
 				y = 0
 				h = spaceTop
 				overflowYSet = true
 			}
-			else if (directions.bottom && y + h > dh && this.stickToEdges) {
+			else if (directionMask.bottom && y + h > dh && this.stickToEdges) {
 				h = spaceBottom
 				overflowYSet = true
 			}
-			else if (!directions.top && !directions.bottom && rect.height > dh) {
+			else if (!directionMask.top && !directionMask.bottom && rect.height > dh) {
 				y = 0
 				h = dh
 				overflowYSet = true
 			}
 		}
 
-		// Handle stick to edges.
+		// Handle sticking to edges.
 		else if (this.stickToEdges) {
-			if (directions.top || directions.bottom) {
+			if (directionMask.top || directionMask.bottom) {
 				y = Math.min(y, dh - rect.height)
 				y = Math.max(0, y)
 			}
@@ -458,6 +485,7 @@ export class Aligner implements Omit<AlignerOptions, 'margin'> {
 
 		rect.y = y
 
+		// Apply limited height.
 		if (overflowYSet) {
 			this.toAlign.style.height = h + 'px'
 			rect.height = h
@@ -475,14 +503,14 @@ export class Aligner implements Omit<AlignerOptions, 'margin'> {
 
 		if (directionMask.left || directionMask.right) {
 
-			// Not enough space in left position.
+			// Not enough space at left side.
 			if (directionMask.left && x < 0 && spaceLeft < spaceRight && this.canSwapPosition) {
 				x = targetRect.right + this.margins.right
 				directionMask.left = false
 				directionMask.right = true
 			}
 
-			// Not enough space in right position.
+			// Not enough space at right side.
 			else if (directionMask.right && x > dw - w && spaceLeft > spaceRight && this.canSwapPosition) {
 				x = targetRect.left - this.margins.left - w
 				directionMask.left = true
@@ -508,7 +536,7 @@ export class Aligner implements Omit<AlignerOptions, 'margin'> {
 			}
 		}
 
-		// Process stick to edges.
+		// Process sticking to edges.
 		if (this.stickToEdges) {
 			if (directionMask.left || directionMask.right) {
 				x = Math.min(x, dw - rect.width)
@@ -519,7 +547,7 @@ export class Aligner implements Omit<AlignerOptions, 'margin'> {
 		rect.x = x
 	}
 
-	/** Align `triangle` relative to `to-align`. */
+	/** Align `triangle` relative to `to-align` element. */
 	private alignTriangle(directionMask: AlignerDirectionMask, rect: Box, targetRect: Box, triangleRelativeRect: Box) {
 		let triangle = this.triangle!
 		let transforms: string[] = []
@@ -550,7 +578,7 @@ export class Aligner implements Omit<AlignerOptions, 'margin'> {
 			let x: number = 0
 
 			// Adjust triangle to be in the center of the `target` edge.
-			if ((w >= targetRect.width || this.fixTriangle) && this.directions[1].beStraight) {
+			if ((w >= targetRect.width || this.fixTriangle)) {
 				x = targetRect.left + targetRect.width / 2 - rect.left - halfTriangleWidth
 			}
 
@@ -564,7 +592,7 @@ export class Aligner implements Omit<AlignerOptions, 'margin'> {
 				x = w / 2 - halfTriangleWidth
 			}
 
-			// Limit to at the intersect edge of `to-align` and target.
+			// Limit to at the intersect edge of `to-align` and `target`.
 			let minX = Math.max(rect.left, targetRect.left)
 			let maxX = Math.min(rect.left + rect.width, targetRect.right)
 
@@ -595,7 +623,7 @@ export class Aligner implements Omit<AlignerOptions, 'margin'> {
 			let halfTriangleHeight = triangleRelativeRect.height / 2
 			let y: number
 
-			if ((h >= targetRect.height || this.fixTriangle) && this.directions[1].beStraight) {
+			if ((h >= targetRect.height || this.fixTriangle)) {
 				y = targetRect.top + targetRect.height / 2 - rect.top - halfTriangleHeight
 			}
 			else if (this.fixTriangle) {
@@ -605,7 +633,7 @@ export class Aligner implements Omit<AlignerOptions, 'margin'> {
 				y = h / 2 - halfTriangleHeight
 			}
 
-			// Limit to at the intersect edge of `to-align` and target.
+			// Limit to at the intersect edge of `to-align` and `target`.
 			let minY = Math.max(rect.top, targetRect.top)
 			let maxY = Math.min(rect.top + rect.height, targetRect.bottom)
 
@@ -640,9 +668,9 @@ export class Aligner implements Omit<AlignerOptions, 'margin'> {
 /**
  * Full type is `[tbc][lrc]-[tbc][lrc]`, means `[Y of el][X of el]-[Y of target][X of target]`.
  * Shorter type should be `[Touch][Align]` or `[Touch]`.
- * E.g.: `t` is short for `tc` or `b-t` or `bc-tc`, which means align `to-align` to the top-center of target.
- * E.g.: `tl` is short for `bl-tl`, which means align `to-align` to the top-left of target.
- * E.g.: `lt` is short for `tr-tl`, which means align `to-align` to the left-top of target.
+ * E.g.: `t` is short for `tc` or `b-t` or `bc-tc`, which means align `to-align` to the top-center of `target`.
+ * E.g.: `tl` is short for `bl-tl`, which means align `to-align` to the top-left of `target`.
+ * E.g.: `lt` is short for `tr-tl`, which means align `to-align` to the left-top of `target`.
  */
 function parseAlignDirections(position: string): [Direction, Direction] {
 	const PositionDirectionMap: Record<string, Direction> = {
@@ -759,37 +787,4 @@ function findFirstScrollingDescendance(el: HTMLElement, deep: number = 2): HTMLE
 	}
 
 	return null
-}
-
-
-/**
- * Align element to a mouse event.
- * @param el A fixed position element to align.
- * @param event A mouse event to align to.
- * @param offset `[x, y]` offset relative to current mouse position. 
- */
-export function alignToEvent(el: HTMLElement, event: MouseEvent, offset: [number, number] = [0, 0]) {
-	if (DOMUtils.getStyleValue(el, 'position') !== 'fixed') {
-		throw new Error(`Element to call "alignToEvent" must in fixed layout`)
-	}
-
-	let dw = document.documentElement.clientWidth
-	let dh = document.documentElement.clientHeight
-	let w  = el.offsetWidth
-	let h  = el.offsetHeight
-	let ex = event.clientX
-	let ey = event.clientY
-	let x = ex + offset[0]
-	let y = ey + offset[1]
-
-	if (x + w > dw) {
-		x = dw - w
-	}
-
-	if (y + h > dh) {
-		y = dh - h
-	}
-
-	el.style.left = Math.round(x) + 'px'
-	el.style.top = Math.round(y) + 'px'
 }

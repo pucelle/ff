@@ -47,7 +47,7 @@ export namespace DOMUtils {
 
 
 	/** Type of style properties. */
-	export type StylePropertyName = Exclude<string & keyof CSSStyleDeclaration, 'length' | 'parentRule'> | 'willChange'
+	export type StylePropertyName = string & keyof CSSStyleDeclaration
 
 	/**
 	 * Get computed style value from an element.

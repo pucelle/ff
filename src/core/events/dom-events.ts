@@ -1,5 +1,5 @@
-import {ListMap} from 'algorithms'
-import {Point} from 'math'
+import {ListMap} from '../../structs'
+import {Point} from '../../math'
 
 
 type EventHandler = (e: Event) => void

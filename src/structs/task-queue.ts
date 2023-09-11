@@ -3,7 +3,7 @@ import {EventFirer} from '../core'
 
 
 /** Running state of queue. */
-export enum SyncTaskQueueState {
+export enum TaskQueueState {
 
 	/** Not started yet. */
 	Pending,
@@ -105,7 +105,7 @@ type SyncTaskQueueHandler<T, V> = (task: T) => {promise: Promise<V>, abort: Func
 
 
 /** Class to queue tasks and transfer them to handler in specified concurrency. */
-export class SyncTaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents<T, V>> implements Required<SyncTaskQueueOptions<T, V>> {
+export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents<T, V>> implements Required<SyncTaskQueueOptions<T, V>> {
 
 	/**
 	 * Run eash task by passing `data` items to `handler` in order.
@@ -113,7 +113,7 @@ export class SyncTaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEv
 	 */
 	static each<T>(data: T[], handler: (item: T) => Promise<void> | void, concurrency?: number): Promise<void> {
 		return new Promise((resolve, reject) => {
-			let q = new SyncTaskQueue({
+			let q = new TaskQueue({
 				concurrency,
 				data: data,
 				handler
@@ -134,7 +134,7 @@ export class SyncTaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEv
 			let values: V[] = []
 			let indexedTasks = data.map((task, index) => ({task, index}))
 
-			let q = new SyncTaskQueue({
+			let q = new TaskQueue({
 				concurrency,
 				data: indexedTasks,
 				handler: async ({task, index}) => {
@@ -154,7 +154,7 @@ export class SyncTaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEv
 	 */
 	static some<T>(data: T[], testFn: (task: T) => Promise<boolean> | boolean, concurrency?: number): Promise<boolean> {
 		return new Promise((resolve, reject) => {
-			let q = new SyncTaskQueue({
+			let q = new TaskQueue({
 				concurrency,
 				data,
 				handler: testFn,
@@ -178,7 +178,7 @@ export class SyncTaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEv
 	 * Returns a promise which will be resolved if every tasks match `testFn`.
 	 */
 	static every<T>(data: T[], testFn: (task: T) => Promise<boolean> | boolean, concurrency?: number): Promise<boolean> {
-		return SyncTaskQueue.some(
+		return TaskQueue.some(
 			data,
 			async (task: T) => !(await testFn(task)),
 			concurrency,
@@ -198,7 +198,7 @@ export class SyncTaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEv
 	 * Returns current working state.
 	 * Readonly outside.
 	 */
-	state: SyncTaskQueueState = SyncTaskQueueState.Pending
+	state: TaskQueueState = TaskQueueState.Pending
 
 	/** 
 	 * Count of processed tasks.
@@ -260,18 +260,18 @@ export class SyncTaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEv
 	 * Returns `true` if queue started.
 	 */
 	start() {
-		if (this.state === SyncTaskQueueState.Paused) {
+		if (this.state === TaskQueueState.Paused) {
 			this.resume()
 		}
 		else if (this.data.length > 0) {
-			this.state = SyncTaskQueueState.Running
+			this.state = TaskQueueState.Running
 			this.tryNextTask()
 		}
 		else {
 			Promise.resolve().then(() => this.onFinish())
 		}
 
-		return this.state === SyncTaskQueueState.Running
+		return this.state === TaskQueueState.Running
 	}
 
 	/** Returns a promise which will be resolved after finished. */
@@ -303,11 +303,11 @@ export class SyncTaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEv
 	 * Returns `true` if paused from running state.
 	 */
 	pause(): boolean {
-		if (this.state !== SyncTaskQueueState.Running) {
+		if (this.state !== TaskQueueState.Running) {
 			return false
 		}
 
-		this.state = SyncTaskQueueState.Paused
+		this.state = TaskQueueState.Paused
 		this.fire('paused')
 
 		return true
@@ -318,11 +318,11 @@ export class SyncTaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEv
 	 * Returns `true` if resumed from paused state.
 	 */
 	resume(): boolean {
-		if (this.state !== SyncTaskQueueState.Paused) {
+		if (this.state !== TaskQueueState.Paused) {
 			return false
 		}
 
-		this.state = SyncTaskQueueState.Running
+		this.state = TaskQueueState.Running
 		this.fire('resumed')
 		this.tryNextTask()
 
@@ -332,7 +332,7 @@ export class SyncTaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEv
 	private tryNextTask() {
 		
 		// State may change after running event handler, so we also need to test state here.
-		if (this.state !== SyncTaskQueueState.Running) {
+		if (this.state !== TaskQueueState.Running) {
 			return
 		}
 		
@@ -402,7 +402,7 @@ export class SyncTaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEv
 
 		this.processedCount++
 
-		if (this.state === SyncTaskQueueState.Running) {
+		if (this.state === TaskQueueState.Running) {
 			this.fire('taskfinished', task.item, value)
 
 			if (this.delayMs > 0) {
@@ -441,8 +441,8 @@ export class SyncTaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEv
 	}
 
 	private onFinish() {
-		if (this.state === SyncTaskQueueState.Pending || this.state === SyncTaskQueueState.Running) {
-			this.state = SyncTaskQueueState.Finished
+		if (this.state === TaskQueueState.Pending || this.state === TaskQueueState.Running) {
+			this.state = TaskQueueState.Finished
 			this.fire('finished')
 			this.fire('ended', null)
 		}
@@ -474,11 +474,11 @@ export class SyncTaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEv
 	 * Returns `true` if queue was successfully aborted.
 	 */
 	abort(err: Error | string | number = 'manually'): boolean {
-		if (!(this.state === SyncTaskQueueState.Running || this.state === SyncTaskQueueState.Paused)) {
+		if (!(this.state === TaskQueueState.Running || this.state === TaskQueueState.Paused)) {
 			return false
 		}
 
-		this.state = SyncTaskQueueState.Aborted
+		this.state = TaskQueueState.Aborted
 		this.failedTasks.push(...this.runningTasks)
 		this.abortRunningTasks()
 		this.fire('aborted', err)
@@ -507,11 +507,11 @@ export class SyncTaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEv
 	 * Returns `true` if queue was cleared successfully.
 	 */
 	clear(): boolean {
-		if (this.state === SyncTaskQueueState.Aborted) {
+		if (this.state === TaskQueueState.Aborted) {
 			return false
 		}
 
-		this.state = SyncTaskQueueState.Finished
+		this.state = TaskQueueState.Finished
 		this.data = []
 		this.failedTasks = []
 		this.processedCount = 0
@@ -524,7 +524,7 @@ export class SyncTaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEv
 
 	/** Remove all not running and failed tasks and keeps running tasks still. */
 	async clearRest() {
-		if (this.state === SyncTaskQueueState.Aborted) {
+		if (this.state === TaskQueueState.Aborted) {
 			return false
 		}
 

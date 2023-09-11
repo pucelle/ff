@@ -1,4 +1,4 @@
-import {toCapitalize} from 'utils'
+import {StringUtils} from '../../utils'
 
 
 type Key =
@@ -856,7 +856,7 @@ export namespace ShortcutKeyHelper {
 			key = ''
 		}
 		
-		return getControlKeyCode(event) + toCapitalize(key || '') as ShortcutKey
+		return getControlKeyCode(event) + StringUtils.toCapitalize(key || '') as ShortcutKey
 	}
 
 
@@ -873,7 +873,7 @@ export namespace ShortcutKeyHelper {
 			code = ''
 		}
 
-		return getControlKeyCode(event) + toCapitalize(code || '') as ShortcutCode
+		return getControlKeyCode(event) + StringUtils.toCapitalize(code || '') as ShortcutCode
 	}
 
 

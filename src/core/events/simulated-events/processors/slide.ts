@@ -1,4 +1,4 @@
-import {degreeToRadians, Vector, Direction} from 'math'
+import {MathUtils, Vector, Direction} from '../../../../math'
 import {DOMEvents} from '../../dom-events'
 import {EventFirer} from '../../event-firer'
 import {SimulatedEventsConfiguration} from '../simulated-events-configuration'
@@ -65,7 +65,8 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 		let v = direction.toVector()
 
 		// Angle must lower than configured angle.
-		let correctAngle = v.dot(move.normalize()) > Math.cos(degreeToRadians(SimulatedEventsConfiguration.minimumSlideAngle))
+		let correctAngle = v.dot(move.normalize())
+			> Math.cos(MathUtils.degreeToRadians(SimulatedEventsConfiguration.minimumSlideAngle))
 
 		return correctAngle ? direction : null
 	}

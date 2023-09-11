@@ -62,7 +62,7 @@ export namespace ObjectUtils {
 
 
 	/** Deeply compare two JSON objects. */
-	export function deepCompare(a: unknown, b: unknown, maxDepth: number = 10): boolean {
+	export function deepEqual(a: unknown, b: unknown, maxDepth: number = 10): boolean {
 		if (a === b) {
 			return true
 		}
@@ -82,7 +82,7 @@ export namespace ObjectUtils {
 			}
 			
 			return a.every((ai, index) => {
-				return deepCompare(ai, b[index], maxDepth - 1)
+				return deepEqual(ai, b[index], maxDepth - 1)
 			})
 		}
 
@@ -99,7 +99,7 @@ export namespace ObjectUtils {
 				let valueA = (a as any)[key]
 				let valueB = (b as any)[key]
 
-				if (!deepCompare(valueA, valueB, maxDepth - 1)) {
+				if (!deepEqual(valueA, valueB, maxDepth - 1)) {
 					return false
 				}
 			}
@@ -110,7 +110,7 @@ export namespace ObjectUtils {
 
 
 	/** Deeply compare two JSON object, or a comparable object, which implements `{equals(...)}`. */
-	export function deepCompareComparable(a: unknown, b: unknown, maxDepth: number = 10): boolean {
+	export function deepEqualComparable(a: unknown, b: unknown, maxDepth: number = 10): boolean {
 		if (a === b) {
 			return true
 		}
@@ -130,7 +130,7 @@ export namespace ObjectUtils {
 
 		// Plain object.
 		else {
-			return deepCompare(a, b, maxDepth)
+			return deepEqual(a, b, maxDepth)
 		}
 	}
 

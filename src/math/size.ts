@@ -83,4 +83,12 @@ export class Size {
 		return this.width === s.width
 			&& this.height === s.height
 	}
+
+	/** Convert to JSON data. */
+	toJSON(): SizeLike {
+		return {
+			width: this.width,
+			height: this.height,
+		}
+	}
 }

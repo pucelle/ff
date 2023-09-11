@@ -701,4 +701,14 @@ export class Box implements BoxLike {
 			return Math.min(Math.abs(x), Math.abs(y))
 		}
 	}
+
+	/** Convert to JSON data. */
+	toJSON(): BoxLike {
+		return {
+			x: this.x,
+			y: this.y,
+			width: this.width,
+			height: this.height,
+		}
+	}
 }

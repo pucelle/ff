@@ -41,10 +41,7 @@ if (!Object.fromEntries) {
 
 interface RegExpConstructor {
 
-	/**
-	 * Escape string to a RegExp source, characters like `.` will be encoded as `\.`.
-	 * @param source The source string will be escaped.
-	 */
+	/** Escape string to a RegExp source, characters like `.` will be encoded as `\.`. */
 	escape (source: string): string
 }
 

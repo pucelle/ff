@@ -1,5 +1,5 @@
-import {Point} from 'math'
-import {Timeout} from 'tools'
+import {Point} from '../../../../math'
+import {Timeout} from '../../../../tools'
 import {DOMEvents} from '../../dom-events'
 import {EventFirer} from '../../event-firer'
 import {SimulatedEventsConfiguration} from '../simulated-events-configuration'
