@@ -1,7 +1,7 @@
 import {URLUtils} from '../../src/utils/url'
 
 
-describe('Test utils/url', () => {
+describe('Test url', () => {
 	
 	test('parse & use query', () => {
 		expect(URLUtils.parseQuery('abc.com?a=b&c=d')).toEqual({a:'b', c: 'd'})

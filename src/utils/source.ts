@@ -1,4 +1,5 @@
-import {TimeUtils} from "./time"
+import {TimeUtils} from './time'
+
 
 export namespace SourceUtils {
 

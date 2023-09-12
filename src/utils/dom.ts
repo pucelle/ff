@@ -1,20 +1,31 @@
+
+/** Type of style properties. */
+export type StylePropertyName = string & keyof CSSStyleDeclaration
+
+
 export namespace DOMUtils {
 
-	/** Whether `node` before or contains `compareNode`. */
+	/** 
+	 * Whether `node` is before of or contains `compareNode`.
+	 * `canEqual` specifies whether two nodes can be equal.
+	 */
 	export function isNodeBefore(node: Node, compareNode: Node, canEqual: boolean = false): boolean {
 		let result = compareNode.compareDocumentPosition(node)
 		return canEqual && result === 0 || (result & node.DOCUMENT_POSITION_PRECEDING) !== 0
 	}
 
 	
-	/** Whether `node` after or been contained by `compareNode`. */
+	/** 
+	 * Whether `node` is after of or been contained by `compareNode`.
+	 * `canEqual` specifies whether two nodes can be equal.
+	 */
 	export function isNodeAfter(node: Node, compareNode: Node, canEqual: boolean = false): boolean {
 		let result = compareNode.compareDocumentPosition(node)
 		return canEqual && result === 0 || (result & node.DOCUMENT_POSITION_FOLLOWING) !== 0
 	}
 
 
-	/** Get index of node among it's siblings. */
+	/** Get index of node among it's node siblings. */
 	export function nodeIndexOf(node: Node): number {
 		if (!node.parentNode) {
 			return -1
@@ -29,7 +40,7 @@ export namespace DOMUtils {
 		return -1
 	}
 
-	/** Get index of element among it's element siblings. */
+	/** Get index of specified element among it's element siblings. */
 	export function elementIndexOf(el: Element): number {
 		if (!el.parentElement) {
 			return -1
@@ -46,9 +57,6 @@ export namespace DOMUtils {
 
 
 
-	/** Type of style properties. */
-	export type StylePropertyName = string & keyof CSSStyleDeclaration
-
 	/**
 	 * Get computed style value from an element.
 	 * Note that this method may cause reflow.
@@ -58,7 +66,7 @@ export namespace DOMUtils {
 	}
 
 	/**
-	 * Get computed style value as number from an element.
+	 * Get computed style value from an element, and convert it to a number.
 	 * Note that this method may cause reflow.
 	 */
 	export function getStyleValueAsNumber(el: Element, property: StylePropertyName): number {
@@ -67,7 +75,7 @@ export namespace DOMUtils {
 	}
 
 	/**
-	 * Get inner width of element, which equals `clientWidth - paddingWidths` or `width - paddingWidths - scrollbarWidth`.
+	 * Get inner width of specified element, which equals `clientWidth - paddingWidths` or `width - paddingWidths - scrollbarWidth`.
 	 * Note that this method may cause page reflow.
 	 */
 	export function getInnerWidth(el: Element): number {
@@ -81,7 +89,7 @@ export namespace DOMUtils {
 	}
 
 	/**
-	 * Get inner height of element, which equals to `clientHeight - paddingHeights` or `height - paddingHeights - scrollbarHeight`.
+	 * Get inner height of specified element, which equals to `clientHeight - paddingHeights` or `height - paddingHeights - scrollbarHeight`.
 	 * Note that this method may cause page reflow.
 	 */
 	export function getInnerHeight(el: Element): number {
@@ -95,7 +103,7 @@ export namespace DOMUtils {
 	}
 
 	/**
-	 * Get outer width of element, which equals `offsetWidth + marginWidths`.
+	 * Get outer width of specified element, which equals `offsetWidth + marginWidths`.
 	 * Note that this method may cause page reflow.
 	 */
 	export function getOuterWidth(el: HTMLElement) {
@@ -109,7 +117,7 @@ export namespace DOMUtils {
 	}
 
 	/**
-	 * Get inner height of element, which equals `offsetHeight + marginHeights`.
+	 * Get inner height of specified element, which equals `offsetHeight + marginHeights`.
 	 * Note that this method may cause page reflow.
 	 */
 	export function getOuterHeight(el: HTMLElement) {

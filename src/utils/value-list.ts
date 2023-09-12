@@ -53,7 +53,7 @@ export namespace ValueListUtils {
 	}
 
 
-	/** Creates a new list from picking items from `list` and excluding items that in one of `excludeLists`. */
+	/** Creates a new list from picking items from `list` and excluding items inside any one of `excludeLists`. */
 	export function difference<T extends number | string>(list: T[], ...excludeLists: T[][]): T[] {
 		let set: Set<T> = new Set(list)
 
@@ -81,7 +81,7 @@ export namespace ValueListUtils {
 		if (list.length === 0) {
 			return NaN
 		}
-		
+
 		return sum(list) / list.length
 	}
 
@@ -124,14 +124,20 @@ export namespace ValueListUtils {
 	}
 
 
-	/** Find the minimum value in a list, by a map function. */
+	/** 
+	 * Find the minimum value in a list.
+	 * Returns `null` if no items or all values are `Infinity`.
+	 */
 	export function minOf(values: number[]): number | null {
 		let index = minIndex(values)
 		return index >= 0 ? values[index] : null
 	}
 
 
-	/** Find the maximum value in a list, by a map function. */
+	/** 
+	 * Find the maximum value in a list.
+	 * Returns `null` if no items or all values are `-Infinity`.
+	 */
 	export function maxOf(values: number[]): number | null {
 		let index = maxIndex(values)
 		return index >= 0 ? values[index] : null
@@ -180,7 +186,7 @@ export namespace ValueListUtils {
 	export function binaryFindLowerInsertIndex(sorted: number[], toInsert: number): number {
 		let index = binaryFindInsertIndex(sorted, toInsert)
 
-		while (index > 1 && sorted[index - 1] === toInsert) {
+		while (index > 0 && sorted[index - 1] === toInsert) {
 			index--
 		}
 

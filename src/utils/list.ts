@@ -1,6 +1,6 @@
 export namespace ListUtils {
 
-	/** Repeat an item for multiple times, returns the list filled with it. */
+	/** Repeat an item for multiple times, returns the list filled with the repeated items. */
 	export function repeatForTimes<T>(item: T, count: number): T[] {
 		let items: T[] = []
 
@@ -13,7 +13,7 @@ export namespace ListUtils {
 
 
 	/**
-	 * Add `items` to a `list`, but duplicate values will not be added.
+	 * Add `items` to a `list`, duplicate values that is existed will not be added.
 	 * Note this method is not fit for adding many items to a list.
 	 */
 	export function add<T>(list: T[], ...items: T[]): T[] {
@@ -47,12 +47,12 @@ export namespace ListUtils {
 
 
 	/**
-	 * Removes the first item from `list` which matches `fn`, returns the removed values.
+	 * Removes the first item from `list` which matches `match`, returns the removed values.
 	 * Returns `undefined` if no item removed.
 	 */
-	export function removeFirst<T>(list: T[], fn: (item: T, index: number) => boolean): T | undefined {
+	export function removeFirst<T>(list: T[], match: (item: T, index: number) => boolean): T | undefined {
 		for (let i = list.length - 1; i >= 0; i--) {
-			if (fn(list[i], i)) {
+			if (match(list[i], i)) {
 				return list.splice(i, 1)[0]!
 			}
 		}
@@ -61,12 +61,12 @@ export namespace ListUtils {
 	}
 
 
-	/** Remove all the items in `list` which match `fn`, returns the removed values. */
-	export function removeWhere<T>(list: T[], fn: (item: T, index: number) => boolean): T[] {
+	/** Remove all the items in `list` which matches `match`, returns the removed values. */
+	export function removeWhere<T>(list: T[], match: (item: T, index: number) => boolean): T[] {
 		let removed = []
 
 		for (let i = 0; i < list.length; i++) {
-			if (fn(list[i], i)) {
+			if (match(list[i], i)) {
 				removed.push(list.splice(i--, 1)[0])
 			}
 		}
@@ -75,7 +75,26 @@ export namespace ListUtils {
 	}
 
 
-	/** Create a group map in `K => V[]` format, just like SQL `group by` statement. */
+	/** 
+	 * Create an index map in `K => V` format.
+	 * `pairFn`: get key and value pair by it.
+	 */
+	export function indexBy<T, K, V>(list: Iterable<T>, pairFn: (value: T) => [K, V]): Map<K, V> {
+		let map: Map<K, V> = new Map()
+
+		for (let item of list) {
+			let [key, value] = pairFn(item)
+			map.set(key, value)
+		}
+
+		return map
+	}
+
+
+	/** 
+	 * Create a group map in `K => V[]` format, just like SQL `group by` statement.
+	 * `pairFn`: get key and value pair by it.
+	 */
 	export function groupBy<T, K, V>(list: Iterable<T>, pairFn: (value: T) => [K, V]): Map<K, V[]> {
 		let map: Map<K, V[]> = new Map()
 
@@ -95,21 +114,9 @@ export namespace ListUtils {
 	}
 
 
-	/** Create an index map in `K => V` format. */
-	export function indexBy<T, K, V>(list: Iterable<T>, pairFn: (value: T) => [K, V]): Map<K, V> {
-		let map: Map<K, V> = new Map()
-
-		for (let item of list) {
-			let [key, value] = pairFn(item)
-			map.set(key, value)
-		}
-
-		return map
-	}
-
-
 	/**
 	 * Returns the index of the minimal value of all the items in list.
+	 * `map`: comparing the minimum item by this map function.
 	 * Returns `-1` if no items or all values are `Infinity`.
 	 */
 	export function minIndex<T>(list: T[], map: (item: T, index: number) => number): number {
@@ -131,6 +138,7 @@ export namespace ListUtils {
 
 	/**
 	 * Returns the index of the maximun value of all the items in list.
+	 * `map`: comparing the minimum item by this map function.
 	 * Returns `-1` if no items or all values are `-Infinity`.
 	 */
 	export function maxIndex<T>(list: T[], map: (item: T, index: number) => number): number {
@@ -150,14 +158,22 @@ export namespace ListUtils {
 
 
 
-	/** Find the minimum item in a list, get the minimum item by a map function. */
+	/** 
+	 * Find the minimum item in a list.
+	 * `map`: comparing the minimum item by this map function.
+	 * Returns `null` if no items or all values are `Infinity`.
+	 */
 	export function minOf<T>(list: T[], map: (item: T, index: number) => number): T | null {
 		let index = minIndex(list, map)
 		return index >= 0 ? list[index] : null
 	}
 
 
-	/** Find the maximum item in a list, get the minimum item by a map function. */
+	/** 
+	 * Find the maximum item in a list, comparing the minimum item by a `map` function.
+	 * `map`: comparing the minimum item by this map function.
+	 * Returns `null` if no items or all values are `-Infinity`.
+	 */
 	export function maxOf<T>(list: T[], map: (item: T, index: number) => number): T | null {
 		let index = maxIndex(list, map)
 		return index >= 0 ? list[index] : null
@@ -165,20 +181,20 @@ export namespace ListUtils {
 
 
 	/** 
-	 * Binary find from a already sorted from lower to upper list,
-	 * find a index to insert the new value.
-	 * Returned index betweens `0 ~ list length`.
+	 * Binary find a insert index from a list, which has sorted from lower to upper,
+	 * to make the list is still in sorted state after inserting the new value.
+	 * Returned index is betweens `0 ~ list length`.
 	 * Note when some equal values exist, the returned index prefers upper.
-	 * `mapFn` should return negative value if paramter 1 < parameter 2
+	 * `comparer` is used to compare two values.
 	 */
-	export function binaryFindInsertIndex<T>(sorted: T[], toInsert: T, mapFn: (v1: T, v2: T) => number): number {
+	export function binaryFindInsertIndex<T>(sorted: T[], toInsert: T, comparer: (v1: T, v2: T) => number): number {
 		if (sorted.length === 0) {
 			return 0
 		}
-		else if (mapFn(toInsert, sorted[0]) < 0) {
+		else if (comparer(toInsert, sorted[0]) < 0) {
 			return 0
 		}
-		else if (mapFn(toInsert, sorted[sorted.length - 1]) > 0) {
+		else if (comparer(toInsert, sorted[sorted.length - 1]) > 0) {
 			return sorted.length
 		}
 		else {
@@ -187,7 +203,7 @@ export namespace ListUtils {
 
 			while (start + 1 < end) {
 				let center = Math.floor((end + start) / 2)
-				let result = mapFn(sorted[center], toInsert)
+				let result = comparer(sorted[center], toInsert)
 		
 				if (result <= 0) {
 					start = center
@@ -203,11 +219,17 @@ export namespace ListUtils {
 	}
 
 
-	/** `binaryFindInsertIndex` prefers upper index, this one prefers lower. */
-	export function binaryFindLowerInsertIndex<T>(sorted: T[], toInsert: T, mapFn: (value: T, compareValue: T) => number): number {
-		let index = binaryFindInsertIndex(sorted, toInsert, mapFn)
+	/** 
+	 * Binary find a insert index from a list, which has sorted from lower to upper,
+	 * to make the list is still in sorted state after inserting the new value.
+	 * Returned index is betweens `0 ~ list length`.
+	 * Note when some equal values exist, the returned index prefers lower.
+	 * `comparer` is used to compare two values.
+	 */
+	export function binaryFindLowerInsertIndex<T>(sorted: T[], toInsert: T, comparer: (value: T, compareValue: T) => number): number {
+		let index = binaryFindInsertIndex(sorted, toInsert, comparer)
 
-		while (index > 1 && mapFn(toInsert, sorted[index - 1]) === 0) {
+		while (index > 0 && comparer(toInsert, sorted[index - 1]) === 0) {
 			index--
 		}
 

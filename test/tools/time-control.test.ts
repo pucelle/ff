@@ -1,4 +1,4 @@
-import * as ff from '../../src'
+import * as ff from '../../src/tools/time-control'
 
 
 describe('Test function', () => {

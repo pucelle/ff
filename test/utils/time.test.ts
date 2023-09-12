@@ -1,7 +1,7 @@
 import {TimeUtils} from '../../src/utils/time'
 
 
-describe('Test utils/time', () => {
+describe('Test time', () => {
 	test('sleep', async () => {
 		let startTime = Date.now()
 		await TimeUtils.sleep()

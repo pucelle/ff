@@ -1,28 +1,28 @@
 import {DateUtils} from '../../src/utils/date'
 
 
-describe('Test utils/date', () => {
+describe('Test date', () => {
 	let d = new Date()
 
-	test('getUnitValue', () => {
-		expect(DateUtils.getUnitValue(d, 'y')).toEqual(d.getFullYear())
-		expect(DateUtils.getUnitValue(d, 'M')).toEqual(d.getMonth())
-		expect(DateUtils.getUnitValue(d, 'd')).toEqual(d.getDate())
-		expect(DateUtils.getUnitValue(d, 'h')).toEqual(d.getHours())
-		expect(DateUtils.getUnitValue(d, 'm')).toEqual(d.getMinutes())
-		expect(DateUtils.getUnitValue(d, 's')).toEqual(d.getSeconds())
-		expect(() => DateUtils.getUnitValue(d, <any>'x')).toThrow()
+	test('getValue', () => {
+		expect(DateUtils.getValue(d, 'y')).toEqual(d.getFullYear())
+		expect(DateUtils.getValue(d, 'M')).toEqual(d.getMonth())
+		expect(DateUtils.getValue(d, 'd')).toEqual(d.getDate())
+		expect(DateUtils.getValue(d, 'h')).toEqual(d.getHours())
+		expect(DateUtils.getValue(d, 'm')).toEqual(d.getMinutes())
+		expect(DateUtils.getValue(d, 's')).toEqual(d.getSeconds())
+		expect(() => DateUtils.getValue(d, <any>'x')).toThrow()
 	})
 
-	test('setUnitValue', () => {
+	test('setValue', () => {
 		let n = new Date()
-		expect(DateUtils.setUnitValue(n, 2000, 'y')).toEqual(n.setFullYear(2000))
-		expect(DateUtils.setUnitValue(n, 0, 'M')).toEqual(n.setMonth(0))
-		expect(DateUtils.setUnitValue(n, 1, 'd')).toEqual(n.setDate(1))
-		expect(DateUtils.setUnitValue(n, 0, 'h')).toEqual(n.setHours(0))
-		expect(DateUtils.setUnitValue(n, 0, 'm')).toEqual(n.setMinutes(0))
-		expect(DateUtils.setUnitValue(n, 0, 's')).toEqual(n.setSeconds(0))
-		expect(() => DateUtils.setUnitValue(n, 0, <any>'x')).toThrow()
+		expect(DateUtils.setValue(n, 2000, 'y')).toEqual(n.setFullYear(2000))
+		expect(DateUtils.setValue(n, 0, 'M')).toEqual(n.setMonth(0))
+		expect(DateUtils.setValue(n, 1, 'd')).toEqual(n.setDate(1))
+		expect(DateUtils.setValue(n, 0, 'h')).toEqual(n.setHours(0))
+		expect(DateUtils.setValue(n, 0, 'm')).toEqual(n.setMinutes(0))
+		expect(DateUtils.setValue(n, 0, 's')).toEqual(n.setSeconds(0))
+		expect(() => DateUtils.setValue(n, 0, <any>'x')).toThrow()
 	})
 
 	test('isValid', () => {
@@ -71,6 +71,10 @@ describe('Test utils/date', () => {
 		expect(DateUtils.addDuration(d, '-1d').getTime() - d.getTime()).toEqual(-24 * 60 * 60 * 1000)
 		expect(DateUtils.addDuration(new Date(2020, 0, 1), '1M')).toEqual(new Date(2020, 1, 1))
 		expect(DateUtils.addDuration(new Date(2020, 1, 1), '-1M')).toEqual(new Date(2020, 0, 1))
+	})
+
+	test('addSeconds', () => {
+		expect(DateUtils.addSeconds(d, 24 * 60 * 60).getTime() - d.getTime()).toEqual(24 * 60 * 60 * 1000)
 	})
 
 	test('format', () => {

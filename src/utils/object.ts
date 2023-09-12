@@ -137,8 +137,7 @@ export namespace ObjectUtils {
 
 	/**
 	 * Assign keys and values from `source` to `target`.
-	 * will cover same keys values of `target`.
-	 * will ignore `undefined` values in `source`.
+	 * Will cover same-key values of `target`.
 	 */
 	export function assign<T extends object, S extends object>(target: T, source: S, keys: (keyof S)[] = Object.keys(source) as (keyof S)[]): T & S {
 		for (let key of keys) {
@@ -180,17 +179,17 @@ export namespace ObjectUtils {
 
 	/** 
 	 * Assign keys and values from `from` to `target`,
-	 * will not overwrite values in `target` if `target` already has relevant keys.
-	 * Can specify `keys` to only overwrite by these keys.
+	 * will not overwrite values in `target` if `target` has already relevant keys.
+	 * Can specify `keys` to only overwrite within these keys.
 	 */
 	export function assignNonExisted<T extends object, S extends object>(
 		target: T,
-		from: S,
-		keys: (keyof S)[] = Object.keys(from) as (keyof S)[]
+		source: S,
+		keys: (keyof S)[] = Object.keys(source) as (keyof S)[]
 	): T & S
 	{
 		for (let key of keys) {
-			let value = from[key]
+			let value = source[key]
 			if (value !== undefined && target[key as unknown as keyof T] === undefined) {
 				target[key as unknown as keyof T] = value as any
 			}
@@ -201,28 +200,24 @@ export namespace ObjectUtils {
 
 
 	/** 
-	 * Assign object values from `from` to `target`,
-	 * will only overwrite values that alreayd exist in `target`.
-	 * Can specify `keys` to only overwrite by these keys.
-	 * Returns whether assigned.
+	 * Assign object values from `source` to `target`,
+	 * will only overwrite values that has alreayd existed in `target`.
+	 * Can specify `keys` to only overwrite within these keys.
 	 */
 	export function assignExisted<T extends object>(
 		target: T,
-		from: Partial<T>,
+		source: Partial<T>,
 		keys: (keyof T)[] = Object.keys(target) as (keyof T)[]
-	): boolean
+	): T
 	{
-		let assigned = false
-
 		for (let key of keys) {
-			let value = from[key]
-			if (value !== undefined && value !== target[key]) {
+			let value = source[key]
+			if (value !== undefined && value !== target[key] && target[key] !== undefined) {
 				target[key] = value!
-				assigned = true
 			}
 		}
 
-		return assigned
+		return target
 	}
 
 

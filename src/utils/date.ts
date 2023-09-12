@@ -4,8 +4,8 @@ import {DurationUnits, DurationObject} from './duration'
 /** Handle and process date. */
 export namespace DateUtils {
 
-	/** Get one of the date values at specified `unit`. */
-	export function getUnitValue(date: Date, unit: DurationUnit): number {
+	/** Get one of the date values by specified `unit`. */
+	export function getValue(date: Date, unit: DurationUnit): number {
 		switch (unit) {
 			case 'y':
 				return date.getFullYear()
@@ -31,8 +31,8 @@ export namespace DateUtils {
 	}
 
 
-	/** Set one of date values at specified `unit`. */
-	export function setUnitValue(date: Date, value: number, unit: DurationUnit): number {
+	/** Set one of date values by specified `unit`. */
+	export function setValue(date: Date, value: number, unit: DurationUnit): number {
 		switch (unit) {
 			case 'y':
 				return date.setFullYear(value)
@@ -62,7 +62,7 @@ export namespace DateUtils {
 	 * Whether date values from year to second are associated with a real date.
 	 * `y` is the Year count.
 	 * `M` is the Month count.
-	 * `d` is the Date count, note it starts from `1`.
+	 * `d` is the Date count, note it starts from `1`, not `0`.
 	 * `h` is the Hour count.
 	 * `m` is the Minute count.
 	 * `s` is the Second count.
@@ -79,20 +79,20 @@ export namespace DateUtils {
 	}
 
 
-	/** Whether `date` have a leap year, and contains 366 days. */
+	/** Whether year part of `date` is leap year, and contains 366 days. */
 	export function isLeapYear(date: Date): boolean {
 		let year = date.getFullYear()
 		return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)
 	}
 
 
-	/** Returns day count in the year, which means `366` for leap year, and `365` otherwise. */
+	/** Get day count in the year, which means `366` for leap year, and `365` otherwise. */
 	export function getDaysOfYear(date: Date): number {
 		return isLeapYear(date) ? 366 : 365
 	}
 
 
-	/** Returns the day count in the month, betweens `28-31`. */
+	/** Get day count in the month, returned value is betweens `28-31`. */
 	export function getDaysOfMonth(date: Date): number {
 		let d = new Date(date.getTime())
 		d.setDate(32)
@@ -102,12 +102,12 @@ export namespace DateUtils {
 
 	/**
 	 * Clones a date, returns a new date.
-	 * `units`: default value is `yMdhms`, can specify partial to partly clone, rest values will be set to start value.
+	 * `units`: default value is `yMdhms`, can specify partial of it to do partly clone, rest values will be set to initial.
 	 */
 	export function clone(date: Date = new Date(), units: string = DurationUnits): Date {
 		let dateValues = [...DurationUnits].map(unit => {
 			if (units.includes(unit)) {
-				return getUnitValue(date, unit as DurationUnit)
+				return getValue(date, unit as DurationUnit)
 			}
 			else {
 				return unit === 'd' ? 1 : 0
@@ -125,6 +125,23 @@ export namespace DateUtils {
 	}
 
 
+	/** Add a duration object or string to `date` and returns a new date. */
+	export function addDuration(date: Date, duration: DurationObject | string): Date {
+		if (typeof duration === 'string') {
+			duration = DurationObject.fromString(duration)
+		}
+
+		let newDate = new Date(date)
+
+		for (let unit of Object.keys(duration.data)) {
+			let value = getValue(newDate, unit as DurationUnit) + duration.data[unit as DurationUnit]
+			setValue(newDate, value, unit as DurationUnit)
+		}
+
+		return newDate
+	}
+
+
 	/** Add second count to `date` and returns a new date. */
 	export function addSeconds(date: Date, seconds: number): Date {
 		let time = date.getTime()
@@ -134,27 +151,14 @@ export namespace DateUtils {
 	}
 
 
-	/** Add a duration object to `date` and returns a new date. */
-	export function addDuration(date: Date, duration: DurationObject | string): Date {
-		if (typeof duration === 'string') {
-			duration = DurationObject.fromString(duration)
-		}
-
-		let time = date.getTime()
-		time += duration.toSeconds() * 1000
-
-		return new Date(time)
-	}
-
-
 	/**
 	 * Returns a formatted date string.
-	 * `type` is a date date type, default value is `yyyy-MM-dd hh:mm:ss`.
+	 * `template`: date format template, default value is `yyyy-MM-dd hh:mm:ss`.
 	 */
-	export function format(date: Date, type = 'yyyy-MM-dd hh:mm:ss'): string {
-		return type.replace(/y+|M+|d+|h+|m+|s+/g, m0 => {
+	export function format(date: Date, template = 'yyyy-MM-dd hh:mm:ss'): string {
+		return template.replace(/y+|M+|d+|h+|m+|s+/g, m0 => {
 			let unit = m0[0]
-			let value = getUnitValue(date, unit[0] as DurationUnit)
+			let value = getValue(date, unit[0] as DurationUnit)
 			
 			if (unit === 'M') {
 				value += 1
@@ -167,16 +171,16 @@ export namespace DateUtils {
 
 	/**
 	 * Returns a short formatted date string relative to current date.
-	 * `type` is an object, defines which format to choose when relevant unit value is different.
+	 * `template` is an object, defines which format to choose when relevant unit value is different.
 	 */
-	export function formatToShort(date: Date, type: {[key in DurationUnit]?: string} = {y: 'yyyy-MM-dd', M: 'MM-dd', h: 'hh:mm'}) {
+	export function formatToShort(date: Date, template: {[key in DurationUnit]?: string} = {y: 'yyyy-MM-dd', M: 'MM-dd', h: 'hh:mm'}) {
 		let now = new Date()
 		let hasDifferentUnit = false
-		let matchedFormat: string = Object.values(type)[0]!
+		let matchedFormat: string = Object.values(template)[0]!
 
 		for (let unit of DurationUnits) {
-			hasDifferentUnit = hasDifferentUnit || getUnitValue(date, unit as DurationUnit) !== getUnitValue(now, unit as DurationUnit)
-			matchedFormat = type[unit as DurationUnit] || matchedFormat
+			hasDifferentUnit = hasDifferentUnit || getValue(date, unit as DurationUnit) !== getValue(now, unit as DurationUnit)
+			matchedFormat = template[unit as DurationUnit] || matchedFormat
 
 			if (hasDifferentUnit) {
 				break

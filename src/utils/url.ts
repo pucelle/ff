@@ -1,6 +1,6 @@
 export namespace URLUtils {
 
-	/** Parse `url` search part to a query parameter object. */
+	/** Parse `url` search part to get a query parameter object. */
 	export function parseQuery(url: string): Record<string, string> {
 		let match = url.match(/\?(.+)/)
 		let pieces = match ? match[1].split('&') : []
@@ -18,7 +18,7 @@ export namespace URLUtils {
 	}
 
 
-	/** Combine base `url` and `params` to a new URL. */
+	/** Combine base `url` and `params` object to a new URL. */
 	export function useQuery(url: string, params: Record<string, string>): string {
 		let hasQuery = url.includes('?')
 

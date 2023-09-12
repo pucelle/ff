@@ -7,7 +7,7 @@ const RAD2DEG = 180 / Math.PI
 
 export namespace MathUtils {
 
-	
+
 	/** Convert angle from degree to radinas. */
 	export function degreeToRadians(degrees: number): number {
 		return degrees * DEG2RAD
@@ -64,7 +64,7 @@ export namespace MathUtils {
 			return null
 		}
 
-		delta *= NumberUtils.getFlag(a)
+		delta *= NumberUtils.flag(a)
 
 		return [
 			(-b - delta) / (2 * a),

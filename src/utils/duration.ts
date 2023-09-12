@@ -21,7 +21,7 @@ export class DurationObject {
 
 	/** Parse `duration` string like `1h1m` or `01:01:00` to duration object. */
 	static fromString(duration: string) {
-		let o = {
+		let o: DurationData = {
 			y: 0,
 			M: 0,
 			d: 0,
@@ -31,7 +31,7 @@ export class DurationObject {
 		}
 	
 		if (duration.includes(':')) {
-			let [h, m, s] = duration.match(/(?:(\d\d):)?(\d\d):(\d\d(?:\.\d+)?)/)?.map(m => Number(m[0]) || 0)
+			let [h, m, s] = duration.match(/(?:(\d\d):)?(\d\d):(\d\d(?:\.\d+)?)/)?.slice(1).map(v => Number(v) || 0)
 				|| [0, 0, 0]
 	
 			o.h = h
@@ -39,10 +39,18 @@ export class DurationObject {
 			o.s = s
 		}
 		else {
-			let matches = duration.matchAll(/(\d+(?:\.\d+)?) ?([yMwdhms])/g)
+			let re = /(-?\d+(?:\.\d+)?) ?([yMwdhms])/g
+			let match: RegExpExecArray | null
 	
-			for (let [count, unit] of matches) {
-				o[unit as DurationUnit] = Number(count)
+			while (match = re.exec(duration)) {
+				let [, value, unit] = match
+
+				if (unit === 'w') {
+					o['d'] += Number(value) * 7
+				}
+				else {
+					o[unit as DurationUnit] += Number(value)
+				}
 			}
 		}
 	
@@ -82,7 +90,11 @@ export class DurationObject {
 	}
 
 	/** Add a duration object with current, returns a new duration object. */
-	addDuration(duration: DurationObject): DurationObject {
+	addDuration(duration: DurationObject | string): DurationObject {
+		if (typeof duration === 'string') {
+			duration = DurationObject.fromString(duration)
+		}
+		
 		let seconds = this.toSeconds() + duration.toSeconds()
 		return DurationObject.fromSeconds(seconds)
 	}

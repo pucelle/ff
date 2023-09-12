@@ -22,7 +22,7 @@ export namespace IDUtils {
 	}
 
 
-	/** Create a prefixed unique id. */
+	/** Create a prefixed unique id, in `prefix-xxx` format. */
 	export function prefixedUid(prefix: string): string {
 		let newId = (PrefixedUIDMap.get(prefix) || 0) + 1
 		PrefixedUIDMap.set(prefix, newId)
@@ -31,8 +31,8 @@ export namespace IDUtils {
 	}
 
 
-	/** Whether a id having specified prefix. */
+	/** Whether an id having specified prefix. */
 	export function isUidInPrefix(id: string, prefix: string): boolean {
-		return id.startsWith(prefix)
+		return id.startsWith(prefix + '-')
 	}
 }

@@ -59,7 +59,7 @@ if (!RegExp.escape) {
  * Polyfill `Crypto.randomUUID`.
  * https://stackoverflow.com/a/2117523/2800218
  */
- if ((crypto as any).randomUUID) {
+ if (typeof crypto !== 'undefined' && !(crypto as any).randomUUID) {
 	Object.defineProperty(crypto, 'randomUUID', {
 		configurable: false,
  		enumerable: false,
