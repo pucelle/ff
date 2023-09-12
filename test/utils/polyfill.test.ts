@@ -1,4 +1,5 @@
-import '../..'
+import '../../out'
+
 
 describe('Test ES Polyfill', () => {
 	test('RegExp.escape exists and can rightly escape RegExp symbols', () => {

@@ -1,12 +1,12 @@
 export namespace StringUtils {
-
+	
 	/**
-	 * Format string to replace placeholders like `{key}` in `template` to `args[key]`.
-	 * Will keep the placeholder when no match found.
+	 * Format string to replace placeholders like `{key}` in `template` to `params[key]`.
+	 * Will keep the placeholders if no match found, so a template can be formatted by a parameter sequence.
 	 */
-	export function format(template: string, args: Record<string, string | number> | (string | number)[]): string {
+	export function format(template: string, params: Record<string, string | number> | (string | number)[]): string {
 		return template.replace(/\{(\w+)\}/g, (m0: string, m1: string) => {
-			let value = (args as any)[m1]
+			let value = (params as any)[m1]
 			if (value === undefined) {
 				value = m0
 			}
@@ -60,43 +60,5 @@ export namespace StringUtils {
 	/** Convert `string` to dash case by joining words with `_`: `a bc` -> `a_bc`. */
 	export function toUnderscoreCase(string: string): string {
 		return toDashCase(string).replace(/-/g, '_')
-	}
-
-
-	
-	/** Parse `url` search part to a query parameter object. */
-	export function parseQuery(url: string): Record<string, string> {
-		let match = url.match(/\?(.+)/)
-		let pieces = match ? match[1].split('&') : []
-		let query: Record<string, string> = {}
-
-		for (let piece of pieces) {
-			let [key, value] = piece.split('=')
-			if (key) {
-				value = decodeURIComponent(value || '')
-				query[key] = value
-			}
-		}
-
-		return query
-	}
-
-
-	/** Combine base `url` and `query` parameters to a new URL. */
-	export function useQuery(url: string, query: Record<string, string>): string {
-		let hasQuery = url.includes('?')
-
-		if (typeof query === 'string') {
-			return url + (hasQuery ? '&' : '?') + query
-		}
-		else if (query && typeof query === 'object') {
-			for (let key in query) {
-				let value = encodeURIComponent(query[key])
-				url += (hasQuery ? '&' : '?') + key + '=' + value
-				hasQuery = true 
-			}
-		}
-
-		return url
 	}
 }

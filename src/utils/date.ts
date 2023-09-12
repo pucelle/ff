@@ -135,7 +135,11 @@ export namespace DateUtils {
 
 
 	/** Add a duration object to `date` and returns a new date. */
-	export function addDuration(date: Date, duration: DurationObject): Date {
+	export function addDuration(date: Date, duration: DurationObject | string): Date {
+		if (typeof duration === 'string') {
+			duration = DurationObject.fromString(duration)
+		}
+
 		let time = date.getTime()
 		time += duration.toSeconds() * 1000
 
@@ -145,10 +149,10 @@ export namespace DateUtils {
 
 	/**
 	 * Returns a formatted date string.
-	 * `format` is a date format type, default value is `yyyy-MM-dd hh:mm:ss`.
+	 * `type` is a date date type, default value is `yyyy-MM-dd hh:mm:ss`.
 	 */
-	export function toString(date: Date, format = 'yyyy-MM-dd hh:mm:ss'): string {
-		return format.replace(/y+|M+|d+|h+|m+|s+/g, m0 => {
+	export function format(date: Date, type = 'yyyy-MM-dd hh:mm:ss'): string {
+		return type.replace(/y+|M+|d+|h+|m+|s+/g, m0 => {
 			let unit = m0[0]
 			let value = getUnitValue(date, unit[0] as DurationUnit)
 			
@@ -163,22 +167,22 @@ export namespace DateUtils {
 
 	/**
 	 * Returns a short formatted date string relative to current date.
-	 * `format` is an object, defines which format to choose when relevant unit value is different.
+	 * `type` is an object, defines which format to choose when relevant unit value is different.
 	 */
-	export function toShortString(date: Date, format: {[key in DurationUnit]?: string} = {y: 'yyyy-MM-dd', M: 'MM-dd', h: 'hh:mm'}) {
+	export function formatToShort(date: Date, type: {[key in DurationUnit]?: string} = {y: 'yyyy-MM-dd', M: 'MM-dd', h: 'hh:mm'}) {
 		let now = new Date()
 		let hasDifferentUnit = false
-		let matchedFormat: string = Object.values(format)[0]!
+		let matchedFormat: string = Object.values(type)[0]!
 
 		for (let unit of DurationUnits) {
 			hasDifferentUnit = hasDifferentUnit || getUnitValue(date, unit as DurationUnit) !== getUnitValue(now, unit as DurationUnit)
-			matchedFormat = format[unit as DurationUnit] || matchedFormat
+			matchedFormat = type[unit as DurationUnit] || matchedFormat
 
 			if (hasDifferentUnit) {
 				break
 			}
 		}
 
-		return toString(date, matchedFormat)
+		return format(date, matchedFormat)
 	}
 }

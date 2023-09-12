@@ -1,7 +1,0 @@
-{
-	"readme": "README.md",
-	"out": "docs",
-	"excludePrivate": true,
-	"excludeProtected": true,
-	"excludeExternals": true
-}

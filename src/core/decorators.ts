@@ -1,5 +1,5 @@
-import {deepClone, deepEqual} from 'utils'
-import {logger} from 'tools'
+import {ObjectUtils} from '../utils'
+import {logger} from '../tools'
 import {DependencyCapturer} from './dependency-capturer'
 import {observeAny} from './helpers/proxy-observer'
 
@@ -60,7 +60,7 @@ export function deepObserve<V = any>(target: any, property: string) {
 	const setter = function(this: Target, newValue: V) {
 		let oldValue = ValueMap.get(this)
 
-		if (!deepEqual(newValue, oldValue)) {
+		if (!ObjectUtils.deepEqual(newValue, oldValue)) {
 			ValueMap.set(this, newValue)
 			DependencyCapturer.onSet(SymbolMap.get(this))
 		}
@@ -93,9 +93,9 @@ export function cloneOfObserve<V = any>(target: any, property: string) {
 	const setter = function(this: Target, newValue: V) {
 		let cloned = ClonedMap.get(this)
 
-		if (!deepEqual(newValue, cloned)) {
+		if (!ObjectUtils.deepEqual(newValue, cloned)) {
 			ValueMap.set(this, newValue)
-			ClonedMap.set(this, deepClone(newValue))
+			ClonedMap.set(this, ObjectUtils.deepClone(newValue))
 			DependencyCapturer.onSet(SymbolMap.get(this))
 		}
 	}

@@ -1,6 +1,6 @@
 export namespace TimeUtils {
 
-	/** Returns a promise which will be resolved after `ms` milliseconds. */
+	/** Returns a promise which will be resolved after timeout of `ms` milliseconds. */
 	export function sleep(ms: number = 0) {
 		return new Promise(resolve => setTimeout(resolve, ms))
 	}
@@ -8,7 +8,7 @@ export namespace TimeUtils {
 
 	/** 
 	 * Returns a promise which will be resolved after window loaded,
-	 * or resolved immediately if window is already loaded.
+	 * or be resolved immediately if window is already loaded.
 	 */
 	export function untilWindowLoaded() {
 		return new Promise(resolve => {
@@ -25,7 +25,7 @@ export namespace TimeUtils {
 
 	/** 
 	 * Returns a promise which will be resolved after document completed,
-	 * or resolved immediately if document is already completed.
+	 * or be resolved immediately if document is already completed.
 	 */
 	export function untilDocumentComplete() {
 		return new Promise(resolve => {

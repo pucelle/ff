@@ -1,4 +1,4 @@
-import {DoubleKeysAllWeakMap, DoubleKeysMap, TwoWaySetMap} from 'algorithms'
+import {DoubleKeysAllWeakMap, DoubleKeysMap, TwoWaySetMap} from '../structs'
 
 
 type Target = object

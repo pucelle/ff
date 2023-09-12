@@ -128,7 +128,8 @@ export class DurationObject {
 	}
 
 	/** Format to time string like `01:01:01`. */
-	toTimeString(seconds: number): string {
+	toTimeString(): string {
+		let seconds = this.toSeconds()
 		let h = Math.floor(seconds / 3600)
 		let m = Math.floor(seconds % 3600 / 60) || 0
 		let s = Math.floor(seconds % 60) || 0

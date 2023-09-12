@@ -1,4 +1,4 @@
-import {ListMap} from 'algorithms'
+import {ListMap} from '../../structs'
 
 
 /** Cache event listener and scope. */

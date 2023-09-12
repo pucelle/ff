@@ -816,7 +816,7 @@ const ShiftedNumToKeyCodeMap: Record<string, {key: string, code: string}> = {
 }
 
 
-export namespace ShortcutKeyHelper {
+export namespace ShortcutKeys {
 
 	/** Whether pressed character key. */
 	export function pressedCharacterKey(event: KeyEventLike): boolean {

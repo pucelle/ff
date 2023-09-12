@@ -1,14 +1,14 @@
-import * as ff from '../../src'
+import {TimeUtils} from '../../src/utils/time'
 
 
-describe('Test function', () => {
+describe('Test utils/time', () => {
 	test('sleep', async () => {
 		let startTime = Date.now()
-		await ff.sleep()
+		await TimeUtils.sleep()
 		expect(Date.now() - startTime).toBeLessThan(50)
 
 		startTime = Date.now()
-		await ff.sleep(100)
+		await TimeUtils.sleep(100)
 		expect(Date.now() - startTime - 100).toBeLessThan(50)
 	})
 })
