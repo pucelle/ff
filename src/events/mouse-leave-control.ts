@@ -1,6 +1,6 @@
-import {DOMEvents} from '../core'
+import {DOMEvents} from './dom-events'
 import {SetMap} from '../structs'
-import {Timeout} from './time-control'
+import {Timeout} from '../utils'
 
 
 /*
@@ -166,7 +166,7 @@ export namespace MouseLeaveControl {
 
 			// Not locked by other elements.
 			if (!Locks.hasKey(this)) {
-				this.timeout.start()
+				this.timeout.reset()
 			}
 		}
 

@@ -1,7 +1,7 @@
 import {DoubleTapEventProcessor, DoubleTapEvents} from './processors/double-tap'
 import {EventFirer} from '../event-firer'
 import {HoldEventProcessor, HoldEvents, PinchTransformEvents, PinchTransformProcessor, TapEventProcessor, TapEvents, PinchZoomEvents, PinchZoomProcessor, SlideEvents, SlideEventProcessor} from './processors'
-import {DoubleKeysWeakMap} from '../../../structs'
+import {DoubleKeysWeakMap} from '../../structs'
 import {SimulatedEventsConfiguration} from './simulated-events-configuration'
 
 

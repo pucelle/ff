@@ -171,7 +171,7 @@ export namespace DateUtils {
 
 	/**
 	 * Returns a short formatted date string relative to current date.
-	 * `template` is an object, defines which format to choose when relevant unit value is different.
+	 * `template` is an object, defines which format to choose when associated unit value is different.
 	 */
 	export function formatToShort(date: Date, template: {[key in DurationUnit]?: string} = {y: 'yyyy-MM-dd', M: 'MM-dd', h: 'hh:mm'}) {
 		let now = new Date()

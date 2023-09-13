@@ -54,7 +54,7 @@ export namespace StringUtils {
 				return m0.toLowerCase()
 			}
 		})
-		.replace(/_/g, '-')
+		.replace(/[_ ]/g, '-')
 	}
 
 	/** Convert `string` to dash case by joining words with `_`: `a bc` -> `a_bc`. */

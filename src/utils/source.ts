@@ -3,7 +3,7 @@ import {TimeUtils} from './time'
 
 export namespace SourceUtils {
 
-	/** Load image as an `<image>` element. */
+	/** Load image source and output an `<image>` element. */
 	export async function loadImage(url: string) {
 		return new Promise((resolve, reject) => {
 			let image = new Image()
@@ -21,12 +21,12 @@ export namespace SourceUtils {
 		}) as Promise<HTMLImageElement>
 	}
 
-	/** Load resource from URL as a Blob object. */
+	/** Load resource by an URL and output a Blob object. */
 	export async function loadAsBlob(url: string): Promise<Blob> {
 		return (await fetch(url, {mode: 'cors'})).blob()
 	}
 
-	/** Load resource from URL as a DataURI. */
+	/** Load resource by an URL and output a DataURI. */
 	export async function loadAsDataURI(url: string): Promise<string> {
 		let blob = await loadAsBlob(url)
 		let reader = new FileReader()
@@ -49,8 +49,8 @@ export namespace SourceUtils {
 
 
 	/** 
-	 * Download blob as a file and with specified `fileName`.
-	 * Not that `fileName` may not work for crossed domain resources in some browsers.
+	 * Download Blob as a file with specified `fileName`.
+	 * Not that `fileName` may not work for cross-domain resources.
 	 */
 	export function downloadBlob(blob: Blob, fileName: string = '') {
 		let url = URL.createObjectURL(blob)
@@ -71,7 +71,7 @@ export namespace SourceUtils {
 
 	/**
 	 * Download url as a file and with specified `fileName`.
-	 * Not that `fileName` may not work for crossed domain resources in some browsers.
+	 * Not that `fileName` may not work for cross-domain resources.
 	 */
 	export function downloadURL(url: string, fileName: string = '') {
 		let a = document.createElement('a')
@@ -85,8 +85,8 @@ export namespace SourceUtils {
 	}
 
 	/**
-	 * Download string as a file with specified `fileName`.
-	 * Not that `fileName` may not work for crossed domain resources in some browsers.
+	 * Download text as a file with specified `fileName`.
+	 * Not that `fileName` may not work for cross-domain resources.
 	 */
 	export function downloadText(text: string, type: string = 'text/plain', fileName: string = '') {
 		let blob = new Blob([text], {type})
@@ -95,7 +95,7 @@ export namespace SourceUtils {
 
 
 
-	/** Select a single file that matches `MIME` type, equals clicking a `<input type="file">`. */
+	/** Select a single file matches `MIME` type, equals clicking a `<input type="file">`. */
 	export function selectFile(mime: string): Promise<File | null> {
 		return selectFileOrFolder(mime, false, false) as Promise<File | null>
 	}

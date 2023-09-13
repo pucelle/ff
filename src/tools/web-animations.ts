@@ -1,4 +1,4 @@
-import {AnimationEasingName, getCSSEasingValue} from './transition'
+import {WebAnimationEasingName, getCSSEasingValue} from './transition'
 
 
 export namespace WebAnimations {
@@ -7,7 +7,7 @@ export namespace WebAnimations {
 	export const DefaultDuration: number = 200
 
 	/** Default animation duration, plays aniamtion with easing according to this property by default. */
-	export const DefaultEasing: AnimationEasingName = 'ease-out-quad'
+	export const DefaultEasing: WebAnimationEasingName = 'ease-out-quad'
 
 	/** Cache element and their current playing animation. */
 	const ElementAnimationCache: WeakMap<Element, Animation> = new WeakMap()
@@ -24,7 +24,7 @@ export namespace WebAnimations {
 		startFrame: Keyframe,
 		endFrame: Keyframe,
 		duration: number = DefaultDuration,
-		easing: AnimationEasingName = DefaultEasing
+		easing: WebAnimationEasingName = DefaultEasing
 	) {
 		if (!el.animate) {
 			return Promise.resolve(false)

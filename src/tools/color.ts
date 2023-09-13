@@ -22,7 +22,8 @@ interface HSLA {
 export class Color {
 
 	/**
-	 * Parse color string and make a color from it.
+	 * Parse color string to a Color object.
+	 * Supported formats includes:
 	 * HEX: `#368`, `#123456`, '#00000000'.
 	 * RGB: `RGB(200, 200, 0)`, `RGBA(200, 200, 200, 0.5)`, `RGBA(#000, 0.5)`.
 	 * HSL: `HSL(100, 60%, 80%)`, `HSLA(100, 60%, 80%, 0.5)`.
@@ -62,7 +63,7 @@ export class Color {
 	}
 
 	/** 
-	 * Make a color from HSL value.
+	 * Make a color from HSL values.
 	 * H betweens `0~6`, SL betweens `0~1`.
 	 */
 	static fromHSL(h: number, s: number, l: number): Color {
@@ -73,7 +74,7 @@ export class Color {
 	}
 
 	/** 
-	 * Make a color from HSLA value.
+	 * Make a color from HSLA values.
 	 * H betweens `0~6`, SLA betweens `0~1`.
 	 */
 	static fromHSLA(h: number, s: number, l: number, a: number): Color {
@@ -84,15 +85,15 @@ export class Color {
 	}
 
 	/** 
-	 * Improve contrast compare with another color.
-	 * `minimumContrast` specifies the minimum light difference.
+	 * Improve contrast of a color string compare with another color string.
+	 * `minimumLightContrast` specifies the minimum light difference.
 	 * `inverseRate` specifies the minimum light difference rate when the color value exceed.
 	 */
-	static improveStringContrast(
+	static improveColorStringContrast(
 		improveColorString: string,
 		compareColorString: string,
-		minimumContrast: number = 0.2,
-		minimumContrastRateToInverse: number = 0.5
+		minimumLightContrast: number = 0.2,
+		minimumLightContrastRateToInverse: number = 0.5
 	): string {
 		if (improveColorString === 'transparent' || improveColorString === 'none') {
 			return improveColorString
@@ -105,11 +106,11 @@ export class Color {
 			return improveColorString
 		}
 
-		return improveColor.improveContrast(compareColor, minimumContrast, minimumContrastRateToInverse).toString()
+		return improveColor.improveContrast(compareColor, minimumLightContrast, minimumLightContrastRateToInverse).toString()
 	}
 
 	/** Estimate whether two color strings represent the same color. */
-	static stringEquals(color1: string, color2: string): boolean {
+	static colorStringEquals(color1: string, color2: string): boolean {
 		if (color1 === color2) {
 			return true
 		}
@@ -144,20 +145,20 @@ export class Color {
 		this.a = a
 	}
 
-	/** Clone current color. */
+	/** Clone current color, returns a new color. */
 	clone() {
 		return new Color(this.r, this.g, this.b, this.a)
 	}
 
-	/** Compare with another color. */
-	equals(c: Color) {
+	/** Test whether equals another color. */
+	equals(c: Color): boolean {
 		return this.r === c.r
 			&& this.g === c.g
 			&& this.b === c.b
 			&& this.a === c.a
 	}
 
-	/** Convert to `rgb(...)`. */
+	/** Convert to `rgb(...)` format. */
 	toRGB(): string {
 		let {r, g, b} = this
 
@@ -168,7 +169,7 @@ export class Color {
 		return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`
 	}
 
-	/** Convert to `RGBA(...)`. */
+	/** Convert to `rgba(...)` format. */
 	toRGBA(): string {
 		let {r, g, b, a} = this
 
@@ -180,7 +181,7 @@ export class Color {
 		return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${a})`
 	}
 
-	/** Convert to `#XXXXXX`. */
+	/** Convert to `#XXXXXX` format. */
 	toHEX(): string {
 		let {r, g, b, a} = this
 
@@ -189,7 +190,7 @@ export class Color {
 		b = NumberUtils.clamp(Math.round(b * 255), 0, 255)
 		a = NumberUtils.clamp(NumberUtils.toDecimal(a, 3), 0, 1)
 
-		if (this.a === 1) {
+		if (this.a < 1) {
 			return '#' + [r, g, b, a].map(v => v.toString(16).padStart(2, '0')).join('')
 		}
 		else {
@@ -197,7 +198,7 @@ export class Color {
 		}
 	}
 
-	/** Convert to `HSL(...)`. */
+	/** Convert to `HSL(...)` format. */
 	toHSL() {
 		let hsla = ColorHelper.RGBA2HSLA(this)
 		let {h, s, l} = hsla
@@ -209,7 +210,7 @@ export class Color {
 		return `hsl(${h}, ${s}%, ${l}%)`
 	}
 
-	/** Convert to `HSLA(...)`. */
+	/** Convert to `HSLA(...)` format. */
 	toHSLA() {
 		let hsla = ColorHelper.RGBA2HSLA(this)
 		let {h, s, l, a} = hsla
@@ -219,7 +220,7 @@ export class Color {
 		l = NumberUtils.clamp(Math.round(l * 100), 0, 100)
 		a = NumberUtils.clamp(NumberUtils.toDecimal(a, 3), 0, 1)
 
-		return `hsl(${h}, ${s}%, ${l}%, ${a})`
+		return `hsla(${h}, ${s}%, ${l}%, ${a})`
 	}
 
 	/** Get average of RGB, `0~1`. */
@@ -256,7 +257,7 @@ export class Color {
 	/** Convert to RGB or RGBA format. */
 	toString() {
 		if (this.a === 1) {
-			return this.toRGB()
+			return this.toHEX()
 		}
 
 		return this.toRGBA()
@@ -264,16 +265,16 @@ export class Color {
 
 	/** 
 	 * Improve contrast compare with another color.
-	 * `minimumContrast` specifies the minimum light difference.
+	 * `minimumLightContrast` specifies the minimum light difference.
 	 * `inverseRate` specifies the minimum light difference rate when the color value exceed.
 	 */
-	improveContrast(compareColor: Color, minimumContrast: number = 0.2, minimumContrastRateToInverse: number = 0.5) {
+	improveContrast(compareColor: Color, minimumLightContrast: number = 0.2, minimumLightContrastRateToInverse: number = 0.5) {
 		let hsl = ColorHelper.RGBA2HSLA(this)
 		let compareHSL = ColorHelper.RGBA2HSLA(compareColor)
 
 		// Cacl the light diff in HSL color space.
 		let hslDiff = Math.abs(hsl.l - compareHSL.l)
-		let hslToFix = minimumContrast - hslDiff
+		let hslToFix = minimumLightContrast - hslDiff
 		
 		// Difference enough. 
 		if (hslToFix <= 0) {
@@ -288,8 +289,8 @@ export class Color {
 
 				// If set current color much darker directly, it may change much,
 				// So here shrink it with a inverseRate, which < 1.
-				if (hslToFix > minimumContrast * minimumContrastRateToInverse) {
-					hsl.l = compareHSL.l - minimumContrast
+				if (hslToFix > minimumLightContrast * minimumLightContrastRateToInverse) {
+					hsl.l = compareHSL.l - minimumLightContrast
 				}
 				else {
 					hsl.l = 100
@@ -302,8 +303,8 @@ export class Color {
 			hsl.l -= hslToFix
 			
 			if (hsl.l < 0) {
-				if (hslToFix > minimumContrast * minimumContrastRateToInverse) {
-					hsl.l = compareHSL.l + minimumContrast
+				if (hslToFix > minimumLightContrast * minimumLightContrastRateToInverse) {
+					hsl.l = compareHSL.l + minimumLightContrast
 				}
 				else {
 					hsl.l = 0
@@ -317,7 +318,7 @@ export class Color {
 
 
 /** Color utility functions. */
-export namespace ColorHelper {
+namespace ColorHelper {
 
 	/** 
 	 * Parse HEX color format like:
@@ -350,11 +351,23 @@ export namespace ColorHelper {
 
 		// `#00000000`
 		else if (hex.length === 9) {
+			let a = parseInt(hex.slice(7, 9), 16)
+
+			// 0 -> 0
+			// 128 -> 0.5
+			// 255 -> 1
+			if (a <= 128) {
+				a /= 256
+			}
+			else {
+				a = (a - 1) / 254
+			}
+
 			return {
 				r: parseInt(hex.slice(1, 3), 16) / 255,
 				g: parseInt(hex.slice(3, 5), 16) / 255,
 				b: parseInt(hex.slice(5, 7), 16) / 255,
-				a: parseInt(hex.slice(7, 9), 16) / 255,
+				a,
 			}
 		}
 

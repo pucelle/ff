@@ -1,4 +1,4 @@
-import {StringUtils} from '../../utils'
+import {StringUtils} from '../utils'
 
 
 type Key =
@@ -242,7 +242,7 @@ interface KeyEventLike {
 
 
 /*
-Run codes in browser and copy console message:
+Execute following codes in browser dev tools and copy console message:
 
 let keyMap = {}
 let keyMapShifted = {}

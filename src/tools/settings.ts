@@ -1,4 +1,4 @@
-import {EventFirer} from '../core'
+import {EventFirer} from '../events'
 import {CallbackBundler} from './bundler'
 import {webStorage} from './storage'
 

@@ -1,7 +1,7 @@
 /** 
  * Bundle several data items into one,
  * Can be used to bundle callback parameter to a group,
- * and calls for at most once in one micro task tick.
+ * and calls with it as parameters for at most once in one micro task tick.
  */
 abstract class Bundler<T, I extends Iterable<T>> {
 
@@ -13,7 +13,7 @@ abstract class Bundler<T, I extends Iterable<T>> {
 		this.callback = callback
 	}
 
-	/** Add one parameter to bundler. */
+	/** Add one parameter to bundler parameters. */
 	add(param: T) {
 		this.addItemOnly(param)
 
@@ -75,7 +75,7 @@ export class CallbackBundler {
 		this.callback = callback
 	}
 
-	/** Start delayed callback if not yet. */
+	/** Start a delayed callback if not yet. */
 	call() {
 		if (!this.started) {
 			Promise.resolve().then(() => {

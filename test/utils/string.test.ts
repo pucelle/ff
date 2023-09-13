@@ -16,10 +16,17 @@ describe('Test string', () => {
 
 	test('other string methods', () => {
 		expect(StringUtils.toCapitalize('abc')).toEqual('Abc')
+
+		expect(StringUtils.toCamerCase('ab_c')).toEqual('abC')
 		expect(StringUtils.toCamerCase('ab-c')).toEqual('abC')
+		expect(StringUtils.toCamerCase('ab c')).toEqual('abC')
+
 		expect(StringUtils.toDashCase('abC')).toEqual('ab-c')
 		expect(StringUtils.toDashCase('AbC')).toEqual('ab-c')
 		expect(StringUtils.toDashCase('ABC')).toEqual('abc')
+		expect(StringUtils.toDashCase('ab c')).toEqual('ab-c')
+		expect(StringUtils.toDashCase('ab_c')).toEqual('ab-c')
+
 		expect(StringUtils.toUnderscoreCase('AbC')).toEqual('ab_c')
 	})
 })

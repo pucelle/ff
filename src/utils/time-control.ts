@@ -4,11 +4,11 @@ import {AnimationFrame} from './animation-frame'
 /** Base class for Timeout, Interval... */
 abstract class TimeControlFunction<F extends Function> {
 
-	/** Timeout or Interval id, `null` means not exist. */
+	/** Timeout or Interval id, `null` represents it's not exist. */
 	protected id: any = null
 
 	/** 
-	 * Whether current timing function has been canceled.
+	 * Whether current time control has been canceled.
 	 * Readonly outside.
 	 */
 	canceled: boolean = false
@@ -24,12 +24,7 @@ abstract class TimeControlFunction<F extends Function> {
 		this.ms = ms
 	}
 
-	/** Whether is running. */
-	get running(): boolean {
-		return !!this.id
-	}
-
-	abstract start(): void
+	abstract reset(): void
 	abstract flush(): void
 	abstract cancel(): void
 }
@@ -58,11 +53,16 @@ abstract class WrappedTimeControllFunction<F extends Function> extends TimeContr
 /** Class mode of `setTimeout`. */
 export class Timeout<F extends Function = Function> extends TimeControlFunction<F> {
 
+	/** Whether timeout is running. */
+	get running(): boolean {
+		return !!this.id
+	}
+
 	/** 
 	 * Restart timeout, even a called or canceled Timeout can be restarted.
 	 * Note will call `fn` immediately if `ms` parameter is `0`.
 	 */
-	start() {
+	reset() {
 		if (this.id !== null) {
 			clearTimeout(this.id)
 		}
@@ -75,6 +75,14 @@ export class Timeout<F extends Function = Function> extends TimeControlFunction<
 		}
 
 		this.canceled = false
+	}
+
+	/** 
+	 * Start or restart timeout, even a called or canceled Timeout can be restarted.
+	 * Note will call `fn` immediately if `ms` parameter is `0`.
+	 */
+	start() {
+		this.reset()
 	}
 
 	private onTimeout() {
@@ -114,14 +122,24 @@ export function timeout(fn: Function, ms: number = 0): () => void {
 /** Class mode of `setInterval`. */ 
 export class Interval<F extends Function = Function> extends TimeControlFunction<F> {
 
+	/** Whether interval is running. */
+	get running(): boolean {
+		return !!this.id
+	}
+
 	/** Restart interval, even it was canceled before. */
-	start() {
+	reset() {
 		if (this.id !== null) {
 			clearInterval(this.id)
 		}
 
 		this.id = setInterval(this.onInterval.bind(this), this.ms)
 		this.canceled = false
+	}
+
+	/** Restart interval, even it was canceled before. */
+	start() {
+		this.reset()
 	}
 
 	private onInterval() {
@@ -131,7 +149,7 @@ export class Interval<F extends Function = Function> extends TimeControlFunction
 	/** Call interval function immediately and reset interval. */
 	flush() {
 		this.fn()
-		this.start()
+		this.reset()
 	}
 
 	/** Cancel interval function. */
@@ -160,18 +178,23 @@ type FrameLoopCallback = (duration: number) => void
 
 /** Repeated animation frames. */ 
 export class FrameLoop<F extends FrameLoopCallback = FrameLoopCallback> extends TimeControlFunction<F> {
-
+	
 	private startTimestamp: number = 0
 
 	constructor(fn: F) {
 		super(fn, 0)
 	}
 
+	/** Whether frame loop is running. */
+	get running(): boolean {
+		return !!this.id
+	}
+
 	/** 
 	 * Restart animation frame, even it was canceled before.
 	 * Calls `fn` with duration parameter `0` immediately.
 	 */
-	start() {
+	reset() {
 		if (this.id !== null) {
 			AnimationFrame.cancel(this.id)
 		}
@@ -179,6 +202,14 @@ export class FrameLoop<F extends FrameLoopCallback = FrameLoopCallback> extends 
 		this.id = AnimationFrame.requestCurrent(this.onFirstInterval.bind(this))
 		this.canceled = false
 		this.fn(0)
+	}
+
+	/** 
+	 * Start or restart animation frame, even it was canceled before.
+	 * Calls `fn` with duration parameter `0` immediately.
+	 */
+	start() {
+		this.reset()
 	}
 
 	private onFirstInterval(timestamp: number) {
@@ -196,7 +227,7 @@ export class FrameLoop<F extends FrameLoopCallback = FrameLoopCallback> extends 
 
 	/** Just restart animation frame. */
 	flush() {
-		this.start()
+		this.reset()
 	}
 
 	/** Cancel animation frame. */
@@ -212,10 +243,10 @@ export class FrameLoop<F extends FrameLoopCallback = FrameLoopCallback> extends 
 
 /** Repeated animation frames, call `fn` at every animation frame time. */
 export function frameLoop(fn: FrameLoopCallback): () => void {
-	let i = new FrameLoop(fn)
-	i.start()
+	let l = new FrameLoop(fn)
+	l.start()
 
-	return i.cancel.bind(i)
+	return l.cancel.bind(l)
 }
 
 
@@ -226,8 +257,8 @@ export class Throttle<F extends Function> extends WrappedTimeControllFunction<F>
 	/** At `immediateMode`, will call original function immediately. */
 	readonly immediateMode: boolean
 
-	/** Cached function, to call it when time meet. */
-	private toCall: (() => void) | null = null
+	/** Cached function, with parameters binded. */
+	private bindedFn: F | null = null
 
 	/** 
 	 * If `immediateMode` is `true`, will call original function immediately.
@@ -236,6 +267,11 @@ export class Throttle<F extends Function> extends WrappedTimeControllFunction<F>
 	constructor(fn: F, ms: number = 200, immediateMode: boolean = false) {
 		super(fn, ms)
 		this.immediateMode = immediateMode
+	}
+
+	/** Whether trottle is running. */
+	get running(): boolean {
+		return !this.canceled
 	}
 
 	protected wrap() {
@@ -249,65 +285,74 @@ export class Throttle<F extends Function> extends WrappedTimeControllFunction<F>
 				return
 			}
 
-			// In throttle.
+			// Be throttled.
 			if (me.id !== null) {
 				return
 			}
 
 			// Do throttle.
-			if (me.immediateMode) {
-				me.setThrottle(this, args)
-			}
+			me.setThrottle(this, args)
 		} as unknown as F
 	}
 
 	private setThrottle(scope: any, args: any[]) {
 		if (this.immediateMode) {
 			this.fn.apply(scope, args)
-			this.id = setTimeout(this.onImmediateTimeout.bind(this), this.ms)
 		}
 		else {
-			this.toCall = this.onUnImmediateTimeout.bind(this, scope, args)
-			this.id = setTimeout(this.toCall, this.ms)
+			this.bindedFn = this.fn.bind(scope, ...args)
 		}
+
+		this.id = setTimeout(this.onTimeout.bind(this), this.ms)
 	}
 
-	private onImmediateTimeout() {
+	private onTimeout() {
 		this.id = null
-	}
 
-	private onUnImmediateTimeout(scope: any, args: any[]) {
-		this.fn.apply(scope, args)
-		this.id = null
-		this.toCall = null
+		if (this.bindedFn) {
+			this.bindedFn()
+			this.bindedFn = null
+		}
 	}
 
 	/** 
 	 * Reset throttle timeout,
 	 * Will restart throttle timeout when next time calling `fn` and calls `fn` immediately.
-	 * Will disable canceled state.
+	 * Will exit canceled state.
 	 */
-	start() {
+	reset() {
 		if (this.id !== null) {
 			clearTimeout(this.id)
 			this.id = null
-			this.toCall = null
 		}
 
+		this.bindedFn = null
 		this.canceled = false
 	}
 
 	/** Call `fn` immediately and reset throttle timeout. */
 	flush() {
-		if (this.toCall) {
-			this.toCall()
+		if (this.id !== null) {
+			clearTimeout(this.id)
+			this.id = null
 		}
 
-		this.start()
+		if (this.bindedFn) {
+			this.bindedFn()
+			this.bindedFn = null
+		}
+
+		this.reset()
 	}
 
-	/** Cancel throttle, function will be called without limition. */
+	/** Cancel throttle, `fn` will be called without limitation. */
 	cancel() {
+		if (this.id !== null) {
+			clearTimeout(this.id)
+			this.id = null
+		}
+
+		this.bindedFn = null
 		this.canceled = true
 	}
 }
@@ -330,7 +375,12 @@ export function throttle<F extends Function>(fn: F, ms: number = 200, immediateM
 export class Debounce<F extends Function> extends WrappedTimeControllFunction<F> {
 
 	/** Cached function, to call it when time meet. */
-	private toCall: (() => void) | null = null
+	private bindedFn: F | null = null
+
+	/** Whether debounce is running. */
+	get running(): boolean {
+		return !this.canceled
+	}
 
 	protected wrap(): F {
 		let me = this
@@ -354,41 +404,41 @@ export class Debounce<F extends Function> extends WrappedTimeControllFunction<F>
 	}
 
 	private setDebounce(scope: any, args: any[]) {
-		this.toCall = this.onTimeout.bind(scope, this, args)
-		this.id = setTimeout(this.toCall, this.ms)
+		this.bindedFn = this.fn.bind(scope, ...args)
+		this.id = setTimeout(this.onTimeout.bind(this), this.ms)
 	}
 
-	private onTimeout(scope: any, args: any[]) {
-		this.fn.apply(scope, args)
+	private onTimeout() {
 		this.id = null
-		this.toCall = null
+		this.bindedFn!()
+		this.bindedFn = null
 	}
 
 	/** 
 	 * Reset debounce timeout and discard deferred calling.
-	 * Will disable canceled state.
+	 * Will exit canceled state.
 	 */
-	start() {
+	reset() {
 		if (this.id !== null) {
 			clearTimeout(this.id)
 			this.id = null
-			this.toCall = null
+			this.bindedFn = null
 		}
 
 		this.canceled = false
 	}
 
-	/** Call function immediately if there is a deferred calling, and restart debounce timeout. */
+	/** Call `fn` immediately if there is a deferred calling, and restart debounce timeout. */
 	flush() {
-		if (this.toCall) {
-			this.toCall()
+		if (this.bindedFn) {
+			this.bindedFn()
 		}
 
-		this.start()
+		this.reset()
 	}
 
 	/**
-	 * Cancel debounce, function will be called without limit.
+	 * Cancel debounce, `fn` will be called without limitation.
 	 * Returns `true` if is not canceled before.
 	 */
 	cancel() {

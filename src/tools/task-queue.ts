@@ -1,5 +1,5 @@
 import {ListUtils, TimeUtils} from '../utils'
-import {EventFirer} from '../core'
+import {EventFirer} from '../events'
 
 
 /** Running state of queue. */

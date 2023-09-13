@@ -1,4 +1,4 @@
-/** To config a store. */
+/** To config a DBStorage. */
 interface StoreOption {
 	name: string
 	keyPath?: string | string[]
@@ -6,7 +6,7 @@ interface StoreOption {
 }
 
 
-/** Cache data according to indexedDB. */
+/** Cache data using `indexedDB`. */
 export class DBStorage {
 
 	/** Database name. */
@@ -186,12 +186,12 @@ export class DBStore<T = any> {
 		return await this.makeTransactionQuery('readonly', store => store.count(key))
 	}
 
-	/** Get the first value indexed by key. */
+	/** Get the first value by key. */
 	async get(key: string): Promise<T> {
 		return await this.makeTransactionQuery('readonly', store => store.get(key))
 	}
 
-	/** Get all the values indexed by key. */
+	/** Get all the values by key. */
 	async getAll(key: string): Promise<T[]> {
 		return await this.makeTransactionQuery('readonly', store => store.getAll(key))
 	}
@@ -202,7 +202,7 @@ export class DBStore<T = any> {
 	}
 
 	/** 
-	 * Delete all the values indexed by key.
+	 * Delete all the values by key.
 	 * Returns whether delete successfully.
 	 */
 	async delete(key: string): Promise<boolean> {
@@ -211,7 +211,7 @@ export class DBStore<T = any> {
 	}
 
 	/** 
-	 * Add a value and it's indexed key,
+	 * Add a value and it's key,
 	 * Returns the key in database.
 	 */
 	async add(value: T, key?: IDBValidKey): Promise<IDBValidKey> {

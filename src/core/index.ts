@@ -1,6 +1,5 @@
 export * from './decorators'
 export * from './dependency-capturer'
-export * from './events'
 export * from './mixins'
 export * from './watcher'
 import './types'

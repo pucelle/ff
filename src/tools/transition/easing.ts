@@ -1,13 +1,13 @@
 import {NumberUtils} from '../../utils'
 
 
-/** Easing function. input `0~1`, returns normally `0~1`. */
+/** Easing function. inputs `0~1`, outputs `0~1` normally. */
 export type EasingFunction = (x: number) => number
 
-/** Animation easing names, for web animation or transition. */
-export type AnimationEasingName = keyof typeof CubicBezierEasingParameters | 'linear'
+/** Web Animation easing names, for web animation and transition. */
+export type WebAnimationEasingName = keyof typeof CubicBezierEasingParameters | 'linear'
 
-/** Transition easing names, for per-frame animation or transition. */
+/** Per Frame easing names, for per-frame animation and transition. */
 export type PerFrameEasingName = keyof typeof CubicBezierEasingParameters | keyof typeof CustomEasingFunctions
 
 
@@ -186,7 +186,7 @@ function makeCubicBezierEasingFunction(x1: number, y1: number, x2: number, y2: n
 
 
 /** Get `cubic-bezier(...)` or `linear` as CSS easing name. */
-export function getCSSEasingValue(easing: AnimationEasingName): string {
+export function getCSSEasingValue(easing: WebAnimationEasingName): string {
 	return CubicBezierEasingParameters.hasOwnProperty(easing)
 		? 'cubic-bezier(' + CubicBezierEasingParameters[easing as keyof typeof CubicBezierEasingParameters].join(', ') + ')'
 		: easing

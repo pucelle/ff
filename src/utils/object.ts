@@ -179,7 +179,7 @@ export namespace ObjectUtils {
 
 	/** 
 	 * Assign keys and values from `from` to `target`,
-	 * will not overwrite values in `target` if `target` has already relevant keys.
+	 * will not overwrite values in `target` if `target` has associated keys.
 	 * Can specify `keys` to only overwrite within these keys.
 	 */
 	export function assignNonExisted<T extends object, S extends object>(

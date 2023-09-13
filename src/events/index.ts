@@ -1,4 +1,5 @@
 export * from './dom-events'
 export * from './event-firer'
-export * from './simulated-events'
+export * from './mouse-leave-control'
 export * from './shortcut-keys'
+export * from './simulated-events'

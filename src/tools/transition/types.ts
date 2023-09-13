@@ -1,5 +1,5 @@
 /** 
- * Types that can be mixed.
+ * Data Types that can be mixed.
  * 3 levels should be enough.
  */
 type TransitionableValue = CompositeOf<TransitionableValueBase>
@@ -12,7 +12,7 @@ type CompositeOf<T extends any> = T | T[] | Record<any, T>
 /** Such as vector, point, color. */
 type Mixable<T> = {mix(v: T, rate: number): T}
 
-	/** Such as curvePath. */
+/** More complex classes, need intermediate mixer object to make mixed data. */
 type MakeMixerable<T> = {makeMixer(to: T): Mixer<T>}
 
 /** A mixer object to accept edge values and do mix later. */

@@ -1,9 +1,8 @@
 import {EasingFunction, PerFrameEasingName, getEasingFunction} from './easing'
 import {MathUtils} from '../../math'
-import {FrameLoop, Timeout} from '../time-control'
 import {makeMixer} from './mixer'
-import {EventFirer} from '../../core'
-import {ObjectUtils} from '../../utils'
+import {EventFirer} from '../../events'
+import {ObjectUtils, FrameLoop, Timeout} from '../../utils'
 
 
 /** Transition events. */

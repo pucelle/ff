@@ -1,4 +1,4 @@
-import {Matrix, Point} from '../../../../math'
+import {Matrix, Point} from '../../../math'
 import {PinchTransformProcessor} from './pinch-transform'
 
 

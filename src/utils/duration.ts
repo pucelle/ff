@@ -81,6 +81,19 @@ export class DurationObject {
 		return new DurationObject(o)
 	}
 
+	/** Convert to a DurationObject from an existing object, a duration string, or a second count. */
+	static fromAny(any: DurationObject | string | number): DurationObject {
+		if (typeof any === 'string') {
+			return DurationObject.fromString(any)
+		}
+		else if (typeof any === 'number') {
+			return DurationObject.fromSeconds(any)
+		}
+		else {
+			return any
+		}
+	}
+
 
 	/** Duration data object. */
 	readonly data: Readonly<DurationData>

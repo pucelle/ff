@@ -1,6 +1,5 @@
 import {Box} from '../math'
-import {ObjectUtils} from '../utils'
-import {Interval} from './time-control'
+import {ObjectUtils, Interval} from '../utils'
 
 
 /** Watcher types. */

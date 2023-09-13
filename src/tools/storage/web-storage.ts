@@ -1,17 +1,16 @@
-export type InferTypeOf<T> = T extends null | undefined ? any : T
-
+import {DurationObject} from '../../utils'
 
 /** 
- * Read and write JSON type data according to localStorage.
- * Cache limination is about 5M.
+ * Read and write JSON type of data according to `localStorage` API.
+ * Cache memory limination is about 5M.
  */
 export class WebStorage {
 
 	static _cachedSupported: boolean | null = null
 
 	/** 
-	 * Whether support localStorage.
-	 * Returns `false` in private mode.
+	 * Whether support `localStorage` API.
+	 * Normally returns `false` in private mode.
 	 */
 	static isSupported(): boolean {
 		if (this._cachedSupported !== null) {
@@ -41,7 +40,7 @@ export class WebStorage {
 		this.prefix = prefix
 	}
 
-	/** Whether has value in key. */
+	/** Whether has value storaged by it's associated key. */
 	has(key: string): boolean {
 		if (!WebStorage.isSupported()) {
 			return false
@@ -51,10 +50,10 @@ export class WebStorage {
 		return key in localStorage
 	}
 
-	/** Get value by key, can specify a default value. */
-	get<T>(key: string, defaultValue: T): InferTypeOf<T>
+	/** Get value by associated key, can specify a default value. */
+	get<T>(key: string, defaultValue: T): NonNullable<T>
 
-	/** Get value by key. */
+	/** Get value by associated key. */
 	get(key: string): any
 
 	get(key: string, defaultValue: any = null): any {
@@ -93,9 +92,9 @@ export class WebStorage {
 
 	/** 
 	 * Set a key value pair.
-	 * Can set `expireSeconds` after which it will become expired.
+	 * Can set `expireDuration` after which the specified data will become expired.
 	 */
-	set(key: string, value: any, expireSeconds?: number): boolean {
+	set(key: string, value: any, expireDuration?: DurationObject | string | number): boolean {
 		if (!WebStorage.isSupported()) {
 			return false
 		}
@@ -103,8 +102,9 @@ export class WebStorage {
 		key = this.prefix + key
 		localStorage[key] = JSON.stringify(value)
 
-		if (expireSeconds) {
-			localStorage[key + this.expiringSuffix] = Date.now() + expireSeconds * 1000
+		let seconds = expireDuration ? DurationObject.fromAny(expireDuration).toSeconds() : 0
+		if (seconds > 0) {
+			localStorage[key + this.expiringSuffix] = Date.now() + seconds * 1000
 		}
 
 		return true
@@ -122,7 +122,7 @@ export class WebStorage {
 		return delete localStorage[key]
 	}
 
-	/** Clear all the data. */
+	/** Clear all the data in storage. */
 	clear(): boolean {
 		localStorage.clear()
 		return true
@@ -148,11 +148,12 @@ export class WebStorage {
 
 	/** 
 	 * Clear all expired data.
-	 * `clearInterval` specifies a interval duration in seconds,
-	 * in which period can clear only once, default value is one day.
+	 * `clearIntervalDuration` specifies an duration,
+	 * in which can clear only once, default value is one day.
 	 */
-	ClearExpiredThrottled(clearIntervalSeconds: number = 24 * 60 * 60) {
+	ClearExpiredThrottled(clearIntervalDuration: DurationObject | string | number = '1d') {
 		let currentTime = new Date().getTime()
+		let clearIntervalSeconds = DurationObject.fromAny(clearIntervalDuration).toSeconds()
 		let canClearAfter = this.get('clear_cache_at', 0) + clearIntervalSeconds * 1000
 		
 		if (canClearAfter < currentTime) {

@@ -1,34 +1,25 @@
-import {Vector} from '../../../../math'
-import {Timeout} from '../../../../tools'
+import {MathUtils, Vector, Direction} from '../../../math'
 import {DOMEvents} from '../../dom-events'
 import {EventFirer} from '../../event-firer'
 import {SimulatedEventsConfiguration} from '../simulated-events-configuration'
 
 
-export interface TapEvents {
+export interface SlideEvents {
 
-	/** 
-	 * After a quick tap.
-	 * Note `tap` event will be triggered frequently when doing Apple Pencil writting,
-	 * would suggest using only `mousedown` in this case.
-	 * Otherwise you should not register both tap and mousedown / click with the same listener,
-	 * Except you remember to call `endEvent.preventDefault()` to prevent following mousedown / click event.
-	 */
-	'tap': (endEvent: TouchEvent) => void
+	/** After sliding enough pixels at a direction. */
+	'slide': (e: TouchEvent, direction: Direction) => void
 }
 
 
-export class TapEventProcessor extends EventFirer<TapEvents> {
+export class SlideEventProcessor extends EventFirer<SlideEvents> {
 
 	private el: EventTarget
 	private cachedTouchStartEvent: TouchEvent | null = null
-	private timeout: Timeout
 
 	constructor(el: EventTarget) {
 		super()
 
 		this.el = el
-		this.timeout = new Timeout(this.onTimeout.bind(this), SimulatedEventsConfiguration.becomeHoldAfterDuration)
 		DOMEvents.on(el, 'touchstart', this.onTouchStart as any, this, true)
 	}
 
@@ -41,14 +32,9 @@ export class TapEventProcessor extends EventFirer<TapEvents> {
 			return
 		}
 
-		this.timeout.start()
 		this.cachedTouchStartEvent = e
 
 		DOMEvents.on(this.el, 'touchend', this.onTouchEnd as any, this)
-	}
-
-	private onTimeout() {
-		this.endTouching()
 	}
 
 	private onTouchEnd(e: TouchEvent) {
@@ -56,25 +42,37 @@ export class TapEventProcessor extends EventFirer<TapEvents> {
 		let startE = DOMEvents.toSingle(this.cachedTouchStartEvent!)!
 		let endE = DOMEvents.toSingle(e)!
 
-		let diff = new Vector(
+		let move = new Vector(
 			endE.clientX - startE.clientX,
-			endE.clientY - startE.clientY
+			endE.clientY - startE.clientY,
 		)
-		
-		if (duration < SimulatedEventsConfiguration.becomeHoldAfterDuration
-			&& diff.getLength() < SimulatedEventsConfiguration.maximumMovelessDistance
+
+		let direction = this.getSlideDirection(move)
+
+		if (duration <= SimulatedEventsConfiguration.maximumSlideDuration
+			&& move.getLength() >= SimulatedEventsConfiguration.minimumSlideDistance
+			&& direction
 		) {
-			this.fire('tap', e)
+			this.fire('slide', e, direction)
 		}
 		
-		this.fire('tap', e)
 		this.endTouching()
 	}
 
-	private endTouching() {
-		this.timeout.cancel()
-		this.cachedTouchStartEvent = null
+	/** Get slide direction. */
+	private getSlideDirection(move: Vector): Direction | null {
+		let direction = Direction.straightFromVector(move)
+		let v = direction.toVector()
 
+		// Angle must lower than configured angle.
+		let correctAngle = v.dot(move.normalize())
+			> Math.cos(MathUtils.degreeToRadians(SimulatedEventsConfiguration.minimumSlideAngle))
+
+		return correctAngle ? direction : null
+	}
+
+	private endTouching() {
+		this.cachedTouchStartEvent = null
 		DOMEvents.off(this.el, 'touchend', this.onTouchEnd as any, this)
 	}
 

@@ -1,5 +1,5 @@
+import {DurationObject} from '../../utils'
 import {DBStorage, DBStore} from './db-storage'
-import {InferTypeOf} from './web-storage'
 
 
 /** 
@@ -39,7 +39,7 @@ export class BiggerStorage {
 		return this.store
 	}
 
-	/** Whether has value in key. */
+	/** Whether has value by associated key. */
 	async has(key: string): Promise<boolean> {
 		let store = await this.getStore()
 		return store
@@ -47,10 +47,10 @@ export class BiggerStorage {
 			: false
 	}
 
-	/** Get value by key, can specify a default value. */
-	get<T>(key: string, defaultValue: T): Promise<InferTypeOf<T>>
+	/** Get value by associated key, can specify a default value. */
+	get<T>(key: string, defaultValue: T): Promise<NonNullable<T>>
 
-	/** Get value by key. */
+	/** Get value by associated key. */
 	get(key: string): Promise<any>
 
 	async get(key: string, defaultValue: any = null): Promise<any> {
@@ -88,14 +88,15 @@ export class BiggerStorage {
 	 * Set a key value pair.
 	 * Can set `expireSeconds` after which it will become expired.
 	 */
-	async set(key: string, value: any, expireSeconds?: number): Promise<boolean | null> {
+	async set(key: string, value: any, expireDuration?: DurationObject | string | number): Promise<boolean | null> {
 		let store = await this.getStore()
 		if (store) {
 			try {
 				await store.put(JSON.stringify(value), key)
 
-				if (expireSeconds && expireSeconds > 0) {
-					await store.put(Date.now() + expireSeconds * 1000, key + this.expiringSuffix)
+				let seconds = expireDuration ? DurationObject.fromAny(expireDuration).toSeconds() : 0
+				if (seconds) {
+					await store.put(Date.now() + seconds * 1000, key + this.expiringSuffix)
 				}
 
 				return true
@@ -127,7 +128,7 @@ export class BiggerStorage {
 		}
 	}
 
-	/** Clear all data in storage. */
+	/** Clear all the data in storage. */
 	async clear(): Promise<boolean | null> {
 		let store = await this.getStore()
 		if (store) {
@@ -172,11 +173,12 @@ export class BiggerStorage {
 
 	/** 
 	 * Clear all expired data in storage, but was limitted to not clear too often.
-	 * `clearInterval` specifies a interval duration in seconds,
-	 * in which period can clear only once, it's default value is one day.
+	 * `clearIntervalDuration` specifies a duration,
+	 * in which can clear only once, it's default value is one day.
 	 */
-	async clearExpiredThrottled(clearIntervalSeconds: number = 24 * 60 * 60) {
+	async clearExpiredThrottled(clearIntervalDuration: DurationObject | string | number = '1d') {
 		let currentTime = new Date().getTime()
+		let clearIntervalSeconds = DurationObject.fromAny(clearIntervalDuration).toSeconds()
 		let canClearAfter = (await this.get('clear_cache_at', 0)) + clearIntervalSeconds * 1000
 		
 		if (canClearAfter < currentTime) {
