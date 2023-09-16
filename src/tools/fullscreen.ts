@@ -13,7 +13,7 @@ export namespace FullscreenAPI {
 	}
 
 
-	/** Request fullscreen, returns a promise, which will be resolved by whether request successfully. */
+	/** Request fullscreen, returns a promise, which will be resolved by request success state. */
 	export async function request(el: Element = document.body): Promise<boolean> {
 		try {
 			el.requestFullscreen()

@@ -1,15 +1,21 @@
 import {Direction} from './direction'
 
 
-/** All 4 directional keys. */
-export const Direction4Keys: DirectionalKey[] = ['top', 'right', 'bottom', 'left']
+/** All 4 box edge distance keys. */
+export const BoxEdgeKeys: BoxEdgeDistanceKey[] = ['top', 'right', 'bottom', 'left']
 
 
-/** Represent a margin or padding object, which including top, right, bottom, left values. */
-export class DirectionalObject {
+/** Represents a box edge distances object, which including top, right, bottom, left values. */
+export class BoxEdgeDistances {
 
-	/** Zero directional object. */
-	static Zero: DirectionalObject = Object.freeze(new DirectionalObject())
+	/** Constant zero box edge distance object. */
+	static Zero: BoxEdgeDistances = Object.freeze(new BoxEdgeDistances())
+
+	/** Parse from a string to get a direction object. */
+	static fromString(string: string) {
+		return new BoxEdgeDistances(...string.split(/\s+/).map(s => Number(s)))
+	}
+
 
 	top: number
 	right: number
@@ -33,12 +39,38 @@ export class DirectionalObject {
 		return this.top + this.bottom
 	}
 
-	/** Reset all value to 0. */
+	/** Reset all values to 0. */
 	reset() {
 		this.top = 0
 		this.right = 0
 		this.bottom = 0
 		this.left = 0
+	}
+
+	/** Reset values. */
+	set(top: number = 0, right: number = top, bottom: number = top, left: number = right) {
+		this.top = top
+		this.right = right
+		this.bottom = bottom
+		this.left = left
+	}
+
+	/** Copy values from another box edge distance object. */
+	copyFrom(o: BoxEdgeDistances) {
+		this.top = o.top
+		this.right = o.right
+		this.bottom = o.bottom
+		this.left = o.left
+	}
+
+	/** Clone current object. */
+	clone() {
+		return new BoxEdgeDistances(
+			this.top,
+			this.right,
+			this.bottom,
+			this.left,
+		)
 	}
 
 	/** Get the maximum absolute value of all 4 values. */
@@ -51,42 +83,13 @@ export class DirectionalObject {
 		)
 	}
 
-	/** Copy from values. */
-	from(top: number = 0, right: number = top, bottom: number = top, left: number = right) {
-		this.top = top
-		this.right = right
-		this.bottom = bottom
-		this.left = left
-	}
-
-	/** Clone current object. */
-	clone() {
-		return new DirectionalObject(
-			this.top,
-			this.right,
-			this.bottom,
-			this.left,
-		)
-	}
-
-	/** Collapse directional value by directional key. */
-	collapseValueBy(key: DirectionalKey, value: number) {
-		this[key] = Math.max(this[key], value)
-	}
-
-	/** Collapse directional value at direction. */
-	collapseValueAt(direction: Direction, value: number) {
-		let keys = direction.toDirectionalKeys()
-
-		for (let key of keys) {
-			this[key] = Math.max(this[key], value)
-		}
-	}
-
-	/** Collapse with several directional objects into current, in all the direction. */
-	collapse(...os: DirectionalObject[]): this {
+	/** 
+	 * Collapse with several box edge distance objects into current,
+	 * pick maximum value in all the directions.
+	 */
+	collapse(...os: BoxEdgeDistances[]): this {
 		for (let o of os) {
-			for (let key of Direction4Keys) {
+			for (let key of BoxEdgeKeys) {
 				this[key] = Math.max(this[key], o[key])
 			}
 		}
@@ -95,27 +98,33 @@ export class DirectionalObject {
 	}
 
 	/** 
-	 * Collapse with a directional object,
-	 * The margins that betweens current and `o` will be reset to `0`.
-	 * `direction` specifies the direction of `o` relative to current.
+	 * Collapse with a box edge distance object,
+	 * pick maximum value at specified direction.
 	 */
-	collapseAt(o: DirectionalObject, direction: Direction) {
-		let meIgnoreKeys = direction.toDirectionalKeys()
-		let oIgnoreKeys = direction.opposite.toDirectionalKeys()
+	collapseAt(o: BoxEdgeDistances, direction: Direction) {
+		let keys = direction.toBoxEdgeKeys()
 
-		for (let key of meIgnoreKeys) {
-			this[key] = 0
-		}
-
-		for (let key of Direction4Keys) {
-			if (!oIgnoreKeys.includes(key)) {
-				this[key] = Math.max(this[key], o[key])
-			}
+		for (let key of keys) {
+			this[key] = Math.max(this[key], o[key])
 		}
 	}
 
-	/** Pick values by specified directional keys, values at other directions will become `0`. */
-	pickBy(keys: DirectionalKey[]): DirectionalObject {
+	/** Collapse box edge distance value by box edge distance key. */
+	collapseValueBy(key: BoxEdgeDistanceKey, value: number) {
+		this[key] = Math.max(this[key], value)
+	}
+
+	/** Collapse box edge distance value at direction. */
+	collapseValueAt(direction: Direction, value: number) {
+		let keys = direction.toBoxEdgeKeys()
+
+		for (let key of keys) {
+			this[key] = Math.max(this[key], value)
+		}
+	}
+
+	/** Pick values by specified box edge distance keys, values at other directions will become `0`. */
+	pickBy(keys: BoxEdgeDistanceKey[]): BoxEdgeDistances {
 		let {top, right, bottom, left} = this
 
 		top = keys.includes('top') ? top : 0
@@ -123,7 +132,7 @@ export class DirectionalObject {
 		bottom = keys.includes('bottom') ? bottom : 0
 		left = keys.includes('left') ? left : 0
 
-		return new DirectionalObject(
+		return new BoxEdgeDistances(
 			top,
 			right,
 			bottom,
@@ -132,13 +141,13 @@ export class DirectionalObject {
 	}
 
 	/** Pick values at specified direction, values at other directions will become `0`. */
-	pickAt(direction: Direction): DirectionalObject {
-		let keys = direction.toDirectionalKeys()
+	pickAt(direction: Direction): BoxEdgeDistances {
+		let keys = direction.toBoxEdgeKeys()
 		return this.pickBy(keys)
 	}
 
 	/** Multiply scalar value, returns a new object. */
-	multiplyScalar(factor: number): DirectionalObject {
+	multiplyScalar(factor: number): BoxEdgeDistances {
 		return this.clone().multiplyScalarSelf(factor)
 	}
 
@@ -154,7 +163,7 @@ export class DirectionalObject {
 
 
 	/** Round all values, returns a new object. */
-	round(): DirectionalObject {
+	round(): BoxEdgeDistances {
 		return this.clone().roundSelf()
 	}
 
@@ -169,7 +178,7 @@ export class DirectionalObject {
 	}
 
 	/** Do Math Ceil for all values, returns a new object. */
-	ceil(): DirectionalObject {
+	ceil(): BoxEdgeDistances {
 		return this.clone().ceilSelf()
 	}
 
@@ -184,7 +193,7 @@ export class DirectionalObject {
 	}
 
 	/** Do Math Floor for all values, returns a new object. */
-	floor(): DirectionalObject {
+	floor(): BoxEdgeDistances {
 		return this.clone().floorSelf()
 	}
 
@@ -199,7 +208,7 @@ export class DirectionalObject {
 	}
 	
 	/** Convert to JSON data. */
-	toJSON(): Record<DirectionalKey, number> {
+	toJSON(): Record<BoxEdgeDistanceKey, number> {
 		return {
 			top: this.top,
 			right: this.right,

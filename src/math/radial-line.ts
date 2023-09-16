@@ -66,7 +66,7 @@ export class RadialLine {
 	/** Get the closest intersect point with all edges of a box. */
 	getClosestIntersectPointWithBox(box: Box): Point | null {
 
-		// Do 4 box edges intersection test.
+		// Do 4 box edge distances intersection test.
 		let intersects = box.edges().map(ls => this.interactWithLineSegment(ls))
 			.filter(i => i !== null && i.intersected) as LineIntersection[]
 
@@ -78,17 +78,17 @@ export class RadialLine {
 
 	/** 
 	 * Get the closest intersect point with all edges of a box.
-	 * If doesn't intersected, extend the box edges and do again.
+	 * If doesn't intersected, extend the box edge distances and do again.
 	 * If still doesn't intersected, extend the radial line to it's back side.
 	 */
 	getExtendedClosestIntersectPointWithBox(box: Box): Point {
 
 		// Box must not empty.
-		if (box.isEmpty()) {
+		if (box.empty) {
 			box.expandSelf(1)
 		}
 
-		// Do 4 box edges intersection test.
+		// Do 4 box edge distances intersection test.
 		let intersects = box.edges().map(ls => this.interactWithLineSegment(ls))
 			.filter(i => i !== null) as LineIntersection[]
 

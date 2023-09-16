@@ -42,7 +42,7 @@ export class MiniHeap<T> {
 	}
 
 	/** Remove the item in the head. */
-	removeHead(): T | undefined {
+	popHead(): T | undefined {
 		if (this.list.length === 0) {
 			return undefined
 		}

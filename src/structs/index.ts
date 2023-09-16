@@ -1,4 +1,3 @@
-export * from './integral'
 export * from './map'
 export * from './weak-map'
 export * from './mini-heap'

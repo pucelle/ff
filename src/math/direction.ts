@@ -1,5 +1,5 @@
-import {NumberUtils} from '../../utils'
-import {Vector} from '../vector'
+import {NumberUtils} from '../utils'
+import {Vector} from './vector'
 
 
 /** All Direction values. */
@@ -101,8 +101,8 @@ export class Direction {
 		return ValueToDirection[value]
 	}
 
-	/** Make direction from 4 straight direction keys. */
-	fromDirectionalKey(key: DirectionalKey): Direction {
+	/** Make direction from a box edge distance key. */
+	static fromBoxEdgeKey(key: BoxEdgeDistanceKey): Direction {
 		if (key === 'left') {
 			return Direction.Left
 		}
@@ -120,7 +120,7 @@ export class Direction {
 		}
 	}
 
-	/** Make a straight direction from a vector, choose dominate direction when oblique. */
+	/** Make a straight direction from a vector, choose dominate direction when it's oblique. */
 	static straightFromVector(v: Vector): Direction {
 		let {x, y} = v
 		let absx = Math.abs(v.x)
@@ -210,11 +210,8 @@ export class Direction {
 		else if (this === Direction.BottomLeft) {
 			return Direction.Left
 		}
-		else if (this.beHorizontal) {
-			return this
-		}
 		else {
-			return Direction.Center
+			return this
 		}
 	}
 
@@ -580,10 +577,10 @@ export class Direction {
 	}
 
 	/** 
-	 * Convert to a directional key.
+	 * Convert to a box edge distance key.
 	 * Returns `null` if not be straight.
 	 */
-	toDirectionalKey(): DirectionalKey | null {
+	toBoxEdgeKey(): BoxEdgeDistanceKey | null {
 		if (this === Direction.Left) {
 			return 'left'
 		}
@@ -605,7 +602,7 @@ export class Direction {
 	 * Convert to one or two directional keys.
 	 * Returns empty array for Center or None direction.
 	 */
-	toDirectionalKeys(): DirectionalKey[] {
+	toBoxEdgeKeys(): BoxEdgeDistanceKey[] {
 		if (this === Direction.Left) {
 			return ['left']
 		}

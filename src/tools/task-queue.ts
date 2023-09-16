@@ -1,4 +1,4 @@
-import {ListUtils, TimeUtils} from '../utils'
+import {ListUtils, ObjectUtils, TimeUtils} from '../utils'
 import {EventFirer} from '../events'
 
 
@@ -97,7 +97,6 @@ const DefaultSyncTaskQueueOptions: Partial<SyncTaskQueueOptions<any, any>> = {
 	continueOnError: false,
 	maxRetryTimes: 0,
 	delayMs: 0,
-	data: [],
 }
 
 /** Queue handler, can returns a promise, a value or {promise, abort}.*/
@@ -115,7 +114,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 		return new Promise((resolve, reject) => {
 			let q = new TaskQueue({
 				concurrency,
-				data: data,
+				data,
 				handler
 			})
 
@@ -190,7 +189,8 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 	continueOnError!: boolean
 	maxRetryTimes!: number
 	delayMs!: number
-	data!: T[]
+
+	data: T[] = []
 
 	readonly handler!: SyncTaskQueueHandler<T, V>
 	
@@ -217,7 +217,17 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 
 	constructor(options: SyncTaskQueueOptions<T, V>) {
 		super()
-		Object.assign(this, DefaultSyncTaskQueueOptions, options)
+
+		// Skip `data`.
+		let fullOptions = {...DefaultSyncTaskQueueOptions}
+		ObjectUtils.assignExisted(fullOptions, options)
+		ObjectUtils.assign(this, fullOptions)
+
+		this.handler = options.handler
+
+		if (options.data) {
+			this.push(...options.data)
+		}
 	}
 
 	/** Returns the count of total tasks, included processed, unprocessed and failed. */
@@ -502,15 +512,8 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 		this.fire('taskaborted', data)
 	}
 
-	/** 
-	 * End and finish queue, abort all running tasks and clear all tasks.
-	 * Returns `true` if queue was cleared successfully.
-	 */
-	clear(): boolean {
-		if (this.state === TaskQueueState.Aborted) {
-			return false
-		}
-
+	/** End and finish queue, abort all running tasks and clear all tasks. */
+	clear() {
 		this.state = TaskQueueState.Finished
 		this.data = []
 		this.failedTasks = []
@@ -518,22 +521,14 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 		this.abortRunningTasks()
 		this.fire('finished')
 		this.fire('ended', null)
-	
-		return true
 	}
 
 	/** Remove all not running and failed tasks and keeps running tasks still. */
 	async clearRest() {
-		if (this.state === TaskQueueState.Aborted) {
-			return false
-		}
-
 		this.data = []
 		await this.untilEnd()
 		this.failedTasks = []
 		this.processedCount = 0
-
-		return true
 	}
 
 	/** Push task data to queue. */

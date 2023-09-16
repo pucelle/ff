@@ -9,7 +9,7 @@ import {Matrix2} from './matrix2'
 /** Represent a 2D Matrix. */
 export class Matrix implements MatrixData {
 
-	/** Shared identity matrix. */
+	/** Constant identity matrix. */
 	static I: Readonly<Matrix> = Object.freeze(Matrix.i())
 
 	/** Default identity matrix. */
@@ -31,7 +31,7 @@ export class Matrix implements MatrixData {
 		let match = str.match(re)
 
 		if (match) {
-			let values = match[1].split(/[, ]/).map(v => Number(v))
+			let values = match[1].split(/,\s*/).map(v => Number(v))
 
 			return new Matrix(
 				values[0],
@@ -144,26 +144,17 @@ export class Matrix implements MatrixData {
 		let c2 = fromPoints[1]
 		let c3 = toPoints[0]
 		let c4 = toPoints[1]
+		let c12d = c1.diff(c2)
 
 		let m = new Matrix2(
-			c1.x - c2.x,
-			-(c1.y - c2.y),
-			c1.y - c2.y,
-			c1.x - c2.x
+			 c12d.x,
+			-c12d.y,
+			 c12d.y,
+			 c12d.x
 		)
 		
-		let v = new Vector(
-			c3.x - c4.x,
-			c3.y - c4.y
-		)
-		
+		let v = c3.diff(c4)
 		let {x: a, y: b} = m.inverseSelf().transferVector(v)
-
-		// If matrix is't full rank, reset scaling part to 1.
-		if (a === 0) {
-			a = 1
-		}
-
 		let c = -b
 		let d = a
 		let e = c3.x - a * c1.x + b * c1.y
@@ -236,15 +227,13 @@ export class Matrix implements MatrixData {
 	}
 
 	/** Set matrix data values. */
-	set(a: number, b: number, c: number, d: number, e: number, f: number): this {
+	set(a: number, b: number, c: number, d: number, e: number, f: number) {
 		this.a = a
 		this.b = b
 		this.c = c
 		this.d = d
 		this.e = e
 		this.f = f
-
-		return this
 	}
 
 	/** Reset data to identify Matrix. */
@@ -258,15 +247,13 @@ export class Matrix implements MatrixData {
 	}
 
 	/** Copy values from a matrix to current. */
-	copyFrom(m: MatrixData): this {
+	copyFrom(m: MatrixData) {
 		this.a = m.a
 		this.b = m.b
 		this.c = m.c
 		this.d = m.d
 		this.e = m.e
 		this.f = m.f
-
-		return this
 	}
 
 	/** Clone current matrix. */
@@ -283,6 +270,30 @@ export class Matrix implements MatrixData {
 			this.d == m.d &&
 			this.e == m.e &&
 			this.f == m.f
+	}
+
+	/** Whether be Identity Matrix. */
+	isI(): boolean {
+		let {a, b, c, d, e, f} = this
+
+		return a === 1
+			&& b === 0
+			&& c === 0
+			&& d === 1
+			&& e === 0
+			&& f === 0
+	}
+
+	/** Whether be Zero Matrix. */
+	isZero(): boolean {
+		let {a, b, c, d, e, f} = this
+
+		return a === 0
+			&& b === 0
+			&& c === 0
+			&& d === 0
+			&& e === 0
+			&& f === 0
 	}
 
 	/** Left multiply `(this * m)` a matrix and returns a new matrix. */
@@ -497,7 +508,7 @@ export class Matrix implements MatrixData {
 	/** Get determinant value. */
 	getDeterminant(): number {
 		let {a, b, c, d} = this
-		return a * d - c * b
+		return a * d - b * c
 	}
 
 	/** Get matrix eigen values. */
@@ -605,48 +616,20 @@ export class Matrix implements MatrixData {
 		return new Size(a * width + c * height, b * width + d * height)
 	}
 
-	/** Convert to `matrix(...)` format. */
-	toString(): string {
-		let {a, b, c, d, e, f} = this
-		return `matrix(${a} ${b} ${c} ${d} ${e} ${f})`
-	}
-
-	/** Whether be Identity Matrix. */
-	isI(): boolean {
-		let {a, b, c, d, e, f} = this
-
-		return a === 1
-			&& b === 0
-			&& c === 0
-			&& d === 1
-			&& e === 0
-			&& f === 0
-	}
-
-	/** Whether be Zero Matrix. */
-	isZero(): boolean {
-		let {a, b, c, d, e, f} = this
-
-		return a === 0
-			&& b === 0
-			&& c === 0
-			&& d === 0
-			&& e === 0
-			&& f === 0
-	}
-
 	/** 
 	 * Mix with another matrix.
 	 * `rate` is the rate of `m`.
 	 */
 	mix(m: MatrixData, rate: number) {
+		let selfRate = 1 - rate
+
 		return new Matrix(
-			this.a * (1 - rate) + m.a * rate,
-			this.b * (1 - rate) + m.b * rate,
-			this.c * (1 - rate) + m.c * rate,
-			this.d * (1 - rate) + m.d * rate,
-			this.e * (1 - rate) + m.e * rate,
-			this.f * (1 - rate) + m.f * rate
+			this.a * selfRate + m.a * rate,
+			this.b * selfRate + m.b * rate,
+			this.c * selfRate + m.c * rate,
+			this.d * selfRate + m.d * rate,
+			this.e * selfRate + m.e * rate,
+			this.f * selfRate + m.f * rate
 		)
 	}
 
@@ -656,6 +639,12 @@ export class Matrix implements MatrixData {
 	 */
 	interpolate(rate: number) {
 		return this.mix(Matrix.I, 1 - rate)
+	}
+
+	/** Convert to `matrix(...)` format. */
+	toString(): string {
+		let {a, b, c, d, e, f} = this
+		return `matrix(${a}, ${b}, ${c}, ${d}, ${e}, ${f})`
 	}
 
 	/** Convert to JSON data. */

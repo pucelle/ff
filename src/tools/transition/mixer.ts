@@ -2,7 +2,10 @@ import {MathUtils} from '../../math'
 import {Color} from '../color'
 
 
-/** Make a mixer to mix two values at any rate later. */
+/** 
+ * Make a mixer to mix two values and make a getter,
+ * which can get a mixed value at any rate later.
+ */
 export function makeMixer<T extends TransitionableValue>(fromValue: T, toValue: T): Mixer<T> {
 	let fromType = typeof fromValue
 

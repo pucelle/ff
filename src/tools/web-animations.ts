@@ -12,8 +12,6 @@ export namespace WebAnimations {
 	/** Cache element and their current playing animation. */
 	const ElementAnimationCache: WeakMap<Element, Animation> = new WeakMap()
 
-	/** Cache element and their current playing animation. */
-	const ElementAnimationStopper: WeakMap<Element, () => void> = new WeakMap()
 
 	/**
 	 * Execute standard web animation on element.
@@ -68,13 +66,6 @@ export namespace WebAnimations {
 			return true
 		}
 
-		let stopper = ElementAnimationStopper.get(el)
-		if (stopper) {
-			stopper()
-
-			return true
-		}
-
 		return false
 	}
 
@@ -83,11 +74,6 @@ export namespace WebAnimations {
 	export function isPlaying(el: Element): boolean {
 		let animation = ElementAnimationCache.get(el)
 		if (animation) {
-			return true
-		}
-
-		let stopper = ElementAnimationStopper.get(el)
-		if (stopper) {
 			return true
 		}
 

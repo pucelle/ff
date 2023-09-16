@@ -8,13 +8,13 @@ import {ObjectUtils, FrameLoop, Timeout} from '../../utils'
 /** Transition events. */
 export interface TransitionEvents<T> {
 
-	/** On progress got update. */
+	/** On each time progress got update. */
 	'progress': (value: T, progress: number) => void
 
-	/** Begin to play transition. */
+	/** After begin to play transition. */
 	'started': () => void
 
-	/** Continue to play transition. */
+	/** After continue to play transition. */
 	'continued': () => void
 
 	/** After transition was cancelled. */
@@ -177,6 +177,7 @@ export class Transition<T extends TransitionableValue = any> extends EventFirer<
 
 	/** 
 	 * Play between from and to values.
+	 * Returns a promise which will be resolved after transition end.
 	 * Will apply start state immediately.
 	 */
 	playBetween(fromValue: T, toValue: T): Promise<boolean> {
@@ -193,6 +194,7 @@ export class Transition<T extends TransitionableValue = any> extends EventFirer<
 
 	/** 
 	 * Play from current value to new to value.
+	 * Returns a promise which will be resolved after transition end.
 	 * Work only when transition was started before.
 	 * Will smoothly transition from previous to current.
 	 * Will apply start state immediately.
@@ -263,7 +265,7 @@ export class Transition<T extends TransitionableValue = any> extends EventFirer<
 	}
 
 	/** 
-	 * Finish transition immediately,
+	 * Finish current transition immediately,
 	 * and apply final state.
 	 */
 	finish() {
@@ -278,7 +280,7 @@ export class Transition<T extends TransitionableValue = any> extends EventFirer<
 	
 	/** 
 	 * Cancel current transition if is playing.
-	 * Note after cancelled, will not apply final state.
+	 * Note after cancelled, will keep it's current state, but not apply final state.
 	 */
 	cancel() {
 		if (!this.running) {

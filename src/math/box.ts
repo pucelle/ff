@@ -1,5 +1,6 @@
 import {ListUtils} from '../utils'
-import {Direction, DirectionalObject} from './direction'
+import {Direction} from './direction'
+import {BoxEdgeDistances} from './box-edge-distances'
 import {LineSegment} from './line-segment'
 import {Point} from './point'
 import {Size} from './size'
@@ -9,7 +10,7 @@ import {Vector} from './vector'
 /** Represent a rectangle bounding box. */
 export class Box implements BoxLike {
 
-	/** Shared empty box, not writtable. */
+	/** Constant empty box, not writtable. */
 	static Empty: Readonly<Box> = Object.freeze(new Box(0, 0, 0, 0))
 
 	/** Empty box. */
@@ -129,7 +130,7 @@ export class Box implements BoxLike {
 	}
 
 	/** Whether is empty and not have any space. */
-	isEmpty(): boolean {
+	get empty(): boolean {
 		return this.width <= 0 && this.height <= 0
 	}
 
@@ -160,6 +161,20 @@ export class Box implements BoxLike {
 	/** Clone box, returns a new one. */
 	clone(): Box {
 		return new Box(this.x, this.y, this.width, this.height)
+	}
+
+	/** Whether intersect with another box. */
+	isIntersectWith(b: Box): boolean {
+		let left = Math.max(this.left, b.left)
+		let top = Math.max(this.top, b.top)
+		let right = Math.min(this.right, b.right)
+		let bottom = Math.min(this.bottom, b.bottom)
+
+		if (left > right || top > bottom) {
+			return false
+		}
+
+		return true
 	}
 
 	/** Round both position and size, returns a new box. */
@@ -254,8 +269,8 @@ export class Box implements BoxLike {
 	 * If self is much bigger and fully contains targeted box,
 	 * all values of returned object are positive.
 	 */
-	paddingTo(b: Box): DirectionalObject {
-		return new DirectionalObject(
+	paddingTo(b: Box): BoxEdgeDistances {
+		return new BoxEdgeDistances(
 			b.y - this.y,
 			this.right - b.right,
 			this.bottom - b.bottom,
@@ -276,10 +291,10 @@ export class Box implements BoxLike {
 	 * Note only box has any space will be union with.
 	 */
 	unionSelf(b: Box): this {
-		if (this.isEmpty()) {
+		if (this.empty) {
 			this.copyFrom(b)
 		}
-		else if (!b.isEmpty()) {
+		else if (!b.empty) {
 			let left = Math.min(this.x, b.x)
 			let top = Math.min(this.y, b.y)
 			let right = Math.max(this.right, b.right)
@@ -323,7 +338,7 @@ export class Box implements BoxLike {
 	differenceSelf(b: Box): this {
 		let intersected = this.intersect(b)
 
-		if (intersected.isEmpty()) {
+		if (intersected.empty) {
 			return this
 		}
 		
@@ -430,13 +445,13 @@ export class Box implements BoxLike {
 		return this
 	}
 
-	/** Expand by a directional object, returns a new box. */
-	expandByDirectionalObject(o: DirectionalObject): Box {
-		return this.clone().expandByDirectionalObjectSelf(o)
+	/** Expand by a box edge distances object, returns a new box. */
+	expandByBoxEdges(o: BoxEdgeDistances): Box {
+		return this.clone().expandByBoxEdgesSelf(o)
 	}
 
-	/** Expand by a directional object. */
-	expandByDirectionalObjectSelf(o: DirectionalObject): Box {
+	/** Expand by a box edge distances object. */
+	expandByBoxEdgesSelf(o: BoxEdgeDistances): Box {
 		let {top, right, bottom, left} = o
 		this.x = this.x - left
 		this.y = this.y - top
@@ -490,20 +505,6 @@ export class Box implements BoxLike {
 		this.y += vector.y
 
 		return this
-	}
-
-	/** Whether intersect with another box. */
-	isIntersectWith(b: Box): boolean {
-		let left = Math.max(this.left, b.left)
-		let top = Math.max(this.top, b.top)
-		let right = Math.min(this.right, b.right)
-		let bottom = Math.min(this.bottom, b.bottom)
-
-		if (left > right || top > bottom) {
-			return false
-		}
-
-		return true
 	}
 
 	/** Get the anchor point from direction. */

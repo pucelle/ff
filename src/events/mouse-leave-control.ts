@@ -55,7 +55,7 @@ export namespace MouseLeaveControl {
 				Locks.delete(controller, el)
 
 				// No lock existed, should finish leave.
-				if (!Locks.hasKey(controller)) {
+				if (!Locks.hasOf(controller)) {
 					controller.finishLeave()
 				}
 			}
@@ -165,7 +165,7 @@ export namespace MouseLeaveControl {
 			Locks.delete(this, this.popup)
 
 			// Not locked by other elements.
-			if (!Locks.hasKey(this)) {
+			if (!Locks.hasOf(this)) {
 				this.timeout.reset()
 			}
 		}
@@ -173,7 +173,7 @@ export namespace MouseLeaveControl {
 		private onTimeout() {
 
 			// May locks get changed, so should validate again.
-			if (!Locks.hasKey(this)) {
+			if (!Locks.hasOf(this)) {
 				this.finishLeave()
 			}
 		}

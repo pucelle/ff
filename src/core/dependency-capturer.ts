@@ -1,4 +1,4 @@
-import {DoubleKeysAllWeakMap, DoubleKeysMap, TwoWaySetMap} from '../structs'
+import {DoubleKeysBothWeakMap, DoubleKeysMap, TwoWaySetMap} from '../structs'
 
 
 type Target = object
@@ -22,7 +22,7 @@ export namespace DependencyCapturer {
 	const DependencyMap: TwoWaySetMap<Dependency, Callback> = new TwoWaySetMap()
 
 	/** Caches bound callback. */
-	const CallbackBoundMap: DoubleKeysAllWeakMap<Function, Target, Function> = new DoubleKeysAllWeakMap()
+	const CallbackBoundMap: DoubleKeysBothWeakMap<Function, Target, Function> = new DoubleKeysBothWeakMap()
 
 	/** Callback and dependencies stack list. */
 	const Stack: DependencyItem[] = []

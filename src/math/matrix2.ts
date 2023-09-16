@@ -43,7 +43,7 @@ export class Matrix2 {
 	}
 
 	/** Set data array, based on row-major order. */
-	protected set(
+	set(
 		n11: number, n12: number,
 		n21: number, n22: number,
 	) {
@@ -65,6 +65,14 @@ export class Matrix2 {
 		}
 	}
 
+	/** Copy values from a Matrix2 to current. */
+	copyFrom(m: Matrix2) {
+		this.data[0] = m.data[0]
+		this.data[1] = m.data[1]
+		this.data[2] = m.data[2]
+		this.data[3] = m.data[3]
+	}
+
 	/** Clone current matrix. */
 	clone(): Matrix2 {
 		let [
@@ -76,16 +84,6 @@ export class Matrix2 {
 			n11, n12,
 			n21, n22
 		)
-	}
-
-	/** Copy values from a Matrix2 to current. */
-	copyFrom(m: Matrix2): this {
-		this.data[0] = m.data[0]
-		this.data[1] = m.data[1]
-		this.data[2] = m.data[2]
-		this.data[3] = m.data[3]
-
-		return this
 	}
 
 	/** Whether equals to another matrix. */

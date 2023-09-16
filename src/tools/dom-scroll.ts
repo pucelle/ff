@@ -8,7 +8,7 @@ export namespace DOMScroll {
 
 	/**
 	 * Get scroll bar width.
-	 * After first time running, the returned value will keep unchanged.
+	 * After first time running, the returned value will keep constant.
 	 * Note that this method will cause reflow when call it the first time.
 	 */
 	export function getScrollbarWidth(): number {
@@ -42,7 +42,7 @@ export namespace DOMScroll {
 
 
 	/** 
-	 * Get the scroll direction of scroll wrapper, can be `x | y | ''`.
+	 * Get the scroll direction of scroll wrapper, may return `horizontal | horizontal | null`.
 	 * Note that this method may cause reflow.
 	 */
 	export function getScrollDirection(wrapper: HTMLElement): HVDirection | null {
@@ -61,7 +61,7 @@ export namespace DOMScroll {
 
 	/**
 	 * Get element's offset position relative to wrapper element.
-	 * This value equals to document position difference without any scrolling,
+	 * This value equals to their document position difference without any scrolling,
 	 * So it's not affected by scroll positions.
 	 */
 	export function getNonScrollOffset(el: HTMLElement, wrapper: HTMLElement, direction: HVDirection): number {
@@ -88,8 +88,9 @@ export namespace DOMScroll {
 
 	
 	/**
-	 * Scroll scrollbars of closest scroll wrapper for minimal distance to make element to be fully visible.
-	 * `gap`: Reserve a little distance from the element's edge to view area.
+	 * Scroll scrollbar in specified direction of closest scroll wrapper,
+	 * for minimal distance to make element to become fully visible.
+	 * `gap`: Reserve a little distance from the element's edge away from view area edge.
 	 * Returns `true` if scrolled.
 	 */
 	export function scrollToView(el: HTMLElement, gap: number = 0, duration: number = 0, easing: PerFrameEasingName = 'ease-out'): boolean {
@@ -186,7 +187,7 @@ export namespace DOMScroll {
 
 	/**
 	 * Scroll closest scrollbar to make element in the topest of the view area.
-	 * `gap`: Reserve a little distance from the element's edge to view area.
+	 * `gap`: Reserve a little distance from the element's edge away from view area edge.
 	 * Returns `true` if scrolled.
 	 */
 	export function scrollToTop(el: HTMLElement, gap: number = 0, duration: number = 0, easing: PerFrameEasingName = 'ease-out'): boolean {
@@ -196,7 +197,7 @@ export namespace DOMScroll {
 
 	/**
 	 * Scroll closest scrollbar to make element in the left most of the view area.
-	 * `gap`: Reserve a little distance from the element's edge to view area.
+	 * `gap`: Reserve a little distance from the element's edge away from view area edge.
 	 * Returns `true` if scrolled.
 	 */
 	export function scrollToLeft(el: HTMLElement, gap: number = 0, duration: number = 0, easing: PerFrameEasingName = 'ease-out'): boolean {

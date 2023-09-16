@@ -44,11 +44,9 @@ export class Point {
 	}
 
 	/** Copy values from a coord to current. */
-	copyFrom(coord: Coord): this {
+	copyFrom(coord: Coord) {
 		this.x = coord.x
 		this.y = coord.y
-
-		return this
 	}
 
 	/** Clone current point. */

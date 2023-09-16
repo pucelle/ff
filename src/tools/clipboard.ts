@@ -102,9 +102,9 @@ export namespace ClipboardAPI {
 	 * Try writting to system clipboard data, limit string type.
 	 * Note for your customized format, should use format type starts with `web `,
 	 * like `web text/custom`, `web text/mytype`.
-	 * If `canDropCustom` is specified as `true`, will drop custom data and write again after failed.
+	 * If `canDropWebCustomData` is specified as `true`, will drop web custom data and write again if failed.
 	 */
-	export async function write(data: Record<string, string | Blob>, canDropCustom: boolean = false): Promise<void> {
+	export async function write(data: Record<string, string | Blob>, canDropWebCustomData: boolean = false): Promise<void> {
 		await requestPermission('write')
 		let blobData = dataToBlobData(data)
 
@@ -114,7 +114,7 @@ export namespace ClipboardAPI {
 		catch (err) {
 
 			// Can drop some custom data items.
-			if (canDropCustom && Object.keys(blobData).find(key => key.startsWith('web '))) {
+			if (canDropWebCustomData && Object.keys(blobData).find(key => key.startsWith('web '))) {
 				blobData = Object.fromEntries(Object.entries(blobData).filter(([key]) => !key.startsWith('web ')))
 
 				if (Object.keys(blobData).length > 0) {
@@ -166,10 +166,10 @@ export namespace ClipboardAPI {
 /** 
  * When your app contains a copy & paste action buttons,
  * and system clipboard may be not fully available,
- * You may need an alternative way, and here it provides.
+ * You may need an alternative way, and here provides.
  * 
- * This class can detect whether system clipboard data available,
- * and use clipboard event or cached custom data if system clipboard is not available.
+ * This class can detect whether system clipboard data is available,
+ * and use clipboard event or storage cache if system clipboard is not available.
  * 
  * Note one this type of store can only process one single type of clipboard data.
  */
@@ -182,7 +182,7 @@ export class MixedClipboardStore<D extends Record<string, string> = any> {
 		this.name = name
 	}
 
-	/** Write clipboard data. */
+	/** Write clipboard data to mixed store. */
 	async write(data: D, e?: ClipboardEvent) {
 		if (e) {
 			ClipboardEventAPI.write(e, data)
@@ -196,11 +196,11 @@ export class MixedClipboardStore<D extends Record<string, string> = any> {
 			logger.warn(err)
 		}
 
-		// Also write to storage.
-		biggerStorage.set('flit-clipboard', data, 30 * 24 * 60 * 60)
+		// Also write to storage, cache it for at most 7 days.
+		biggerStorage.set('flit-clipboard', data, '7d')
 	}
 
-	/** Read clipboard data. */
+	/** Read clipboard data from mixed store. */
 	async read(limitType: 'text' | 'file' | 'all' = 'text', e?: ClipboardEvent): Promise<D | null> {
 		let data: D | null = null
 

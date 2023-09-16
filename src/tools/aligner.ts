@@ -1,4 +1,4 @@
-import {Box, Direction, DirectionalObject, Point} from '../math'
+import {Box, Direction, BoxEdgeDistances, Point} from '../math'
 import {DOMUtils} from '../utils'
 
 
@@ -127,7 +127,7 @@ export type AlignerPosition = 't'
 	| 'cl-cr'
 	| 'cr-cl'
 
-type AlignerDirectionMask = Record<DirectionalKey, boolean>
+type AlignerDirectionMask = Record<BoxEdgeDistanceKey, boolean>
 
 
 const DefaultAlignerOptions: Omit<Required<AlignerOptions>, 'triangle' | 'margin'> = {
@@ -205,7 +205,7 @@ export class Aligner implements Omit<AlignerOptions, 'margin'> {
 	private readonly directionMask: AlignerDirectionMask
 
 	/** Margin outside of `target` element. */
-	private readonly margins: DirectionalObject
+	private readonly margins: BoxEdgeDistances
 
 	/** Whether `to-align` element use fixed alignment position. */
 	private readonly useFixedAlignment: boolean
@@ -250,7 +250,7 @@ export class Aligner implements Omit<AlignerOptions, 'margin'> {
 		}
 
 		// If `target` is not visible.
-		if (targetRect.isEmpty()) {
+		if (targetRect.empty) {
 			return false
 		}
 
@@ -722,8 +722,8 @@ function parseAlignDirectionMask([d1, d2]: [Direction, Direction]): AlignerDirec
 
 
 /** Parse margin values to get a margin object, and apply triangle size to it. */
-function parseMargins(marginValue: number | number[], triangle: HTMLElement | undefined, directionMask: AlignerDirectionMask): DirectionalObject {
-	let margins = new DirectionalObject(...(typeof marginValue === 'number' ? [marginValue] : marginValue))
+function parseMargins(marginValue: number | number[], triangle: HTMLElement | undefined, directionMask: AlignerDirectionMask): BoxEdgeDistances {
+	let margins = new BoxEdgeDistances(...(typeof marginValue === 'number' ? [marginValue] : marginValue))
 
 	if (triangle) {
 		if (directionMask.top || directionMask.bottom) {
