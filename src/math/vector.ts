@@ -210,7 +210,11 @@ export class Vector {
 		return this
 	}
 
-	/** Complex divide by another vector, returns a new vector. */
+	/** 
+	 * Complex divide by another vector, returns a new vector.
+	 * `V1` divide `V2` is nearly equals rotating `V1` according to `V2` in opposite direction,
+	 * and divide model length of `V2`.
+	 */
 	complexDivide(v: Vector): Vector {
 		return this.clone().complexDivideSelf(v)
 	}
@@ -382,7 +386,7 @@ export class Vector {
 		// [a b] * [μ ν]^T = diff
 		// [μ ν]^T = [a b]^-1 * diff
 
-		return Matrix2.fromCoords(a, b).inverse().transferVector(this)
+		return Matrix2.fromCoords(a, b).inverse().transformVector(this)
 	}
 
 	/** Decompress current vector to `μ * a + ν * b`, got an vector pair `[μ * a, ν * b]`. */

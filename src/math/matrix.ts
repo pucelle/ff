@@ -6,24 +6,24 @@ import {Size} from './size'
 import {Matrix2} from './matrix2'
 
 
-/** Represent a 2D Matrix. */
+/** Represents a 2D Transform Matrix. */
 export class Matrix implements MatrixData {
 
-	/** Constant identity matrix. */
+	/** Constant Identity Matrix. */
 	static I: Readonly<Matrix> = Object.freeze(Matrix.i())
 
-	/** Default identity matrix. */
+	/** Returns a Identity Matrix. */
 	static i(): Matrix {
 		return new Matrix(1, 0, 0, 1, 0, 0)
 	}
 
-	/** Default zero matrix. */
+	/** Returns a Zero Matrix. */
 	static zero(): Matrix {
 		return new Matrix(0, 0, 0, 0, 0, 0)
 	}
 
 	/** 
-	 * Parse string like `matrix(...)`.
+	 * Parse string like `matrix(...)` to a matrix.
 	 * Returns a zero matrix if parse failed.
 	 */
 	static fromString(str: string): Matrix {
@@ -46,13 +46,13 @@ export class Matrix implements MatrixData {
 		return Matrix.zero()
 	}
 
-	/** Make matrix from Matrix like object. */
+	/** Make a matrix from a matrix like object. */
 	static fromMatrixLike(md: MatrixData): Matrix {
 		let {a, b, c, d, e, f} = md
 		return new Matrix(a, b, c, d, e, f)
 	}
 
-	/** Make a matrix, which will transfer `fromBox` to `toBox`. */
+	/** Make a transform matrix, which will convert `fromBox` to `toBox`. */
 	static fromBoxPair(fromBox: BoxLike, toBox: BoxLike): Matrix {
 		let fromX = fromBox.x + fromBox.width / 2
 		let fromY = fromBox.y + fromBox.height / 2
@@ -68,9 +68,9 @@ export class Matrix implements MatrixData {
 	}
 
 	/** 
-	 * Make a matrix, which will transfer `fromBox` to a box like `toBox`.
-	 * `contain`: after transfered, `fromBox` will be contained by `toBox`.
-	 * `cover`: after transfered, `fromBox` will cover `toBox`.
+	 * Make a transform matrix, which will convert `fromBox` to a box like `toBox` via `mode`:
+	 * `contain`: after converted, `fromBox` will be exactly contained by `toBox`.
+	 * `cover`: after converted, `fromBox` will exactly cover `toBox`.
 	 */
 	static fitBoxPair(fromBox: BoxLike, toBox: BoxLike, mode: 'contain' | 'cover' = 'contain'): Matrix {
 		let scaling = mode === 'contain'
@@ -92,7 +92,7 @@ export class Matrix implements MatrixData {
 
 	
 	/** 
-	 * Make a transform matrix which can be used to transform from two start points, to two final points.
+	 * Make a transform matrix which will transform from two start points, to two final points.
 	 * Ignore skew transform.
 	 * Can be used for calculating transform matrix of pinch event.
 	 */
@@ -154,7 +154,7 @@ export class Matrix implements MatrixData {
 		)
 		
 		let v = c3.diff(c4)
-		let {x: a, y: b} = m.inverseSelf().transferVector(v)
+		let {x: a, y: b} = m.inverseSelf().transformVector(v)
 		let c = -b
 		let d = a
 		let e = c3.x - a * c1.x + b * c1.y
@@ -164,7 +164,7 @@ export class Matrix implements MatrixData {
 	}
 		
 	/** 
-	 * Make a transform matrix which can be used to transform from two start points, to two final points.
+	 * Make a transform matrix which will transform from two start points, to two final points.
 	 * Ignore rotation part.
 	 * Can be used for calculating the transform matrix of pinch event.
 	 */
@@ -236,7 +236,7 @@ export class Matrix implements MatrixData {
 		this.f = f
 	}
 
-	/** Reset data to identify Matrix. */
+	/** Reset data values to become an Identify Matrix. */
 	reset() {
 		this.a = 1
 		this.b = 0
@@ -256,7 +256,7 @@ export class Matrix implements MatrixData {
 		this.f = m.f
 	}
 
-	/** Clone current matrix. */
+	/** Clone current matrix, returns a new one. */
 	clone(): Matrix {
 		let {a, b, c, d, e, f} = this
 		return new Matrix(a, b, c, d, e, f)
@@ -296,12 +296,85 @@ export class Matrix implements MatrixData {
 			&& f === 0
 	}
 
-	/** Left multiply `(this * m)` a matrix and returns a new matrix. */
+	/** Whether has only rotation happens. */
+	isRigid(): boolean {
+		let {a, b, c, d} = this
+
+		return a * a + b * b === 1
+			&& c * c + d * d === 1
+	}
+
+	/** Whether has only rotation and both-axises-equivalent scaling happens. */
+	isSimilar(): boolean {
+		let {a, b, c, d} = this
+		return a * a + b * b === c * c + d * d
+	}
+
+	/** Whether has skewed and cause two axis isn't perpendicular with each other anymore. */
+	isSkewed(): boolean {
+		let {a, b, c, d} = this
+		return a * a + c * c - b * b - d * d !== 0
+	}
+
+	/** 
+	 * Whether transform cause mirrored.
+	 * Means it will cause the backward to be in the front.
+	 */
+	isMirrored(): boolean {
+		return this.getDeterminant() < 0
+	}
+
+	/** Get the Matrix Determinant Value. */
+	getDeterminant(): number {
+		let {a, b, c, d} = this
+		return a * d - b * c
+	}
+
+	/** 
+	 * Get the Matrix Eigen Values.
+	 * Two eigen values will be sorted from lower to upper.
+	 */
+	getEigenValues(): [number, number] {
+
+		// λ1λ2 = det
+		// λ1 + λ2 = a + d
+		// λ^2 - (a + d) * λ + det = 0
+
+		let {a, b, c, d} = this
+		let det = a * d - b * c
+		let pad = a + d
+
+		return MathUtils.solveOneVariableQuadraticEquation(1, -pad, det) || [0, 0]
+	}
+
+	/** 
+	 * Get the primary scaling of current matrix.
+	 * Which equals the larger eigen value after absoluted.
+	 */
+	getPrimaryScaling(): number {
+		
+		// Another approximate algorithm is max(sqrt(a^2 + b^2), sqrt(b^2 + d^2), sqrt(d^2 + c^2), sqrt(c^2 + a^2)).
+		// Which eauqls the maximun scaling in 2 axes.
+		
+		let values = this.getEigenValues()
+		return Math.max(...values.map(Math.abs))
+	}
+
+	/** 
+	 * Get the secondary scaling of current matrix.
+	 * Which equals the smaller eigen value after absoluted.
+	 */
+	getSecondaryScaling(): number {
+		let values = this.getEigenValues()
+		return Math.min(...values.map(Math.abs))
+	}
+
+	/** Left multiply with `mr`, do `(this * mr)` and returns a new matrix. */
 	multiply(mr: MatrixData): Matrix {
 		return this.clone().multiplySelf(mr)
 	}
 
-	/** Left multiply `(this * mr)` a matrix to self. */
+	/** Left multiply `mr`, do `(this * mr)` and apply result to self. */
 	multiplySelf(mr: MatrixData): this {
 		let ml = this
 
@@ -322,12 +395,12 @@ export class Matrix implements MatrixData {
 		return this
 	}
 	
-	/** Multiply scalar and returns a new matrix. */
+	/** Multiply with a scalar value and returns a new matrix. */
 	multiplyScalar(scale: number): Matrix {
 		return this.clone().multiplyScalarSelf(scale)
 	}
 
-	/** Multiply scalar to self. */
+	/** Multiply with a scalar value to self. */
 	multiplyScalarSelf(scale: number): this {
 		this.a *= scale
 		this.b *= scale
@@ -339,12 +412,12 @@ export class Matrix implements MatrixData {
 		return this
 	}
 
-	/** Post / Right multiply `(ml * this)` a matrix and returns a new matrix. */
+	/** Post / Right multiply with `ml`,  do `(ml * this)` and returns a new matrix. */
 	postMultiply(ml: MatrixData): Matrix {
 		return this.clone().postMultiplySelf(ml)
 	}
 
-	/** Post / Right multiply `(ml * this)` a matrix to self. */
+	/** Post / Right multiply with `ml`, do `(ml * this)` and apply result to self. */
 	postMultiplySelf(ml: MatrixData): this {
 		let mr = this
 
@@ -505,79 +578,8 @@ export class Matrix implements MatrixData {
 		return this
 	}
 
-	/** Get determinant value. */
-	getDeterminant(): number {
-		let {a, b, c, d} = this
-		return a * d - b * c
-	}
-
-	/** Get matrix eigen values. */
-	getEigenValues(): [number, number] {
-
-		// λ1λ2 = det
-		// λ1 + λ2 = a + d
-		// λ^2 - (a + d) * λ + det = 0
-
-		let {a, b, c, d} = this
-		let det = a * d - b * c
-		let pad = a + d
-
-		return MathUtils.solveOneVariableQuadraticEquation(1, -pad, det) || [0, 0]
-	}
-
-	/** 
-	 * Get the primary scaling of current matrix.
-	 * Which means to calculate the larger absolute eigenvalue.
-	 */
-	getPrimaryScaling(): number {
-		
-		// Equals the larger absolute eigenvalue.
-		// A approximate algorithm is max(sqrt(a^2 + b^2), sqrt(b^2 + d^2), sqrt(d^2 + c^2), sqrt(c^2 + a^2)).
-		// Which eauqls the maximun scaling in 2 axes.
-		
-		let values = this.getEigenValues()
-		return Math.max(...values.map(Math.abs))
-	}
-
-	/** 
-	 * Get the secondary scaling of current matrix.
-	 * Which means to calculate the smaller absolute eigenvalue.
-	 */
-	getSecondaryScaling(): number {
-		let values = this.getEigenValues()
-		return Math.min(...values.map(Math.abs))
-	}
-
-	/** Whether has only rotation happens. */
-	isRigid(): boolean {
-		let {a, b, c, d} = this
-
-		return a * a + b * b === 1
-			&& c * c + d * d === 1
-	}
-
-	/** Only rotation and both-axises-equivalent scaling happens. */
-	isSimilar(): boolean {
-		let {a, b, c, d} = this
-		return a * a + b * b === c * c + d * d
-	}
-
-	/** Whether skewed and original axis doesn't perpendicular anymore. */
-	isSkewed(): boolean {
-		let {a, b, c, d} = this
-		return a * a + c * c - b * b - d * d !== 0
-	}
-
-	/** 
-	 * Whether being mirrored.
-	 * Means it will cause the backward to be in front.
-	 */
-	isMirrored(): boolean {
-		return this.getDeterminant() < 0
-	}
-
-	/** Transfor a Point to get a new one. */
-	transferPoint(point: Point): Point {
+	/** Transform a Point to get a new one. */
+	transformPoint(point: Point): Point {
 		let {a, b, c, d, e, f} = this
 		let {x, y} = point
 
@@ -587,8 +589,8 @@ export class Matrix implements MatrixData {
 		)
 	}
 
-	/** Transfor a Vector to get a new one. */
-	transferVector(vector: Vector): Vector {
+	/** Transform a Vector to get a new one. */
+	transformVector(vector: Vector): Vector {
 		let {a, b, c, d} = this
 		let {x, y} = vector
 
@@ -598,18 +600,18 @@ export class Matrix implements MatrixData {
 		)
 	}
 	
-	/** Transfor a box to get a new one. */
-	transferBox(box: Box): Box {
-		let p1 = this.transferPoint(new Point(box.x, box.y))
-		let p2 = this.transferPoint(new Point(box.right, box.y))
-		let p3 = this.transferPoint(new Point(box.x, box.bottom))
-		let p4 = this.transferPoint(new Point(box.right, box.bottom))
+	/** Transform a box to get a new one. */
+	transformBox(box: Box): Box {
+		let p1 = this.transformPoint(new Point(box.x, box.y))
+		let p2 = this.transformPoint(new Point(box.right, box.y))
+		let p3 = this.transformPoint(new Point(box.x, box.bottom))
+		let p4 = this.transformPoint(new Point(box.right, box.bottom))
 		
 		return Box.fromCoords(p1, p2, p3, p4)!
 	}
 
-	/** Transfor a size to a new one. */
-	transferSize(size: SizeLike): Size {
+	/** Transform a size to get a new one. */
+	transformSize(size: SizeLike): Size {
 		let {a, b, c, d} = this
 		let {width, height} = size
 
@@ -637,7 +639,7 @@ export class Matrix implements MatrixData {
 	 * Mix with I.
 	 * Returns I when `rate = 0`, returns current matrix when `rate = 1`.
 	 */
-	interpolate(rate: number) {
+	mixI(rate: number) {
 		return this.mix(Matrix.I, 1 - rate)
 	}
 

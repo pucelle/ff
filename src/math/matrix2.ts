@@ -1,5 +1,5 @@
 import {MathUtils} from './math-utils'
-import {Point} from './point'
+import {Size} from './size'
 import {Vector} from './vector'
 
 
@@ -10,8 +10,11 @@ import {Vector} from './vector'
  */
 export class Matrix2 {
 
+	/** Constant 2x2 identity matrix. */
+	static I = Object.seal(new Matrix2())
+
 	/** 2x2 identity matrix. */
-	static I() {
+	static i() {
 		return new Matrix2()
 	}
 
@@ -92,6 +95,52 @@ export class Matrix2 {
 			&& this.data[1] === m.data[1]
 			&& this.data[2] === m.data[2]
 			&& this.data[3] === m.data[3]
+	}
+
+	
+	/** Whether be Identity Matrix. */
+	isI(): boolean {
+		let [
+			n11, n21,
+			n12, n22,
+		] = this.data
+
+		return n11 === 1
+			&& n12 === 0
+			&& n21 === 0
+			&& n22 === 1
+	}
+
+	/** Whether be Zero Matrix. */
+	isZero(): boolean {
+		let [
+			n11, n21,
+			n12, n22,
+		] = this.data
+
+		return n11 === 0
+			&& n12 === 0
+			&& n21 === 0
+			&& n22 === 0
+	}
+
+	/** Get Matrix Determinant Value. */
+	getDeterminant(): number {
+		let [
+			n11, n21,
+			n12, n22,
+		] = this.data
+		
+		return n11 * n22 - n12 * n21
+	}
+
+	/** Get Matrix Eigen Values. */
+	getEigenValues(): [number, number] {
+		let [a, b, c, d] = this.data
+		let det = a * d - b * c
+		let pad = a + d
+
+		return MathUtils.solveOneVariableQuadraticEquation(1, -pad, det) || [0, 0]
 	}
 
 	/** Returns data in row-major order. */
@@ -239,26 +288,8 @@ export class Matrix2 {
 		return this
 	}
 
-	/** Get determinant value of current matrix. */
-	getDeterminant(): number {
-		let [
-			n11, n21,
-			n12, n22,
-		] = this.data
-		
-		return n11 * n22 - n12 * n21
-	}
-	/** Get matrix eigen values. */
-	getEigenValues(): [number, number] {
-		let [a, b, c, d] = this.data
-		let det = a * d - b * c
-		let pad = a + d
-
-		return MathUtils.solveOneVariableQuadraticEquation(1, -pad, det) || [0, 0]
-	}
-
-	/** Multiply matrix to a Vector and returns the result. */
-	transferVector(v: Vector): Vector {
+	/** Multiply with a Vector and returns the transformed vector. */
+	transformVector(v: Vector): Vector {
 		let [
 			n11, n21,
 			n12, n22,
@@ -272,19 +303,16 @@ export class Matrix2 {
 		)
 	}
 
-	/** Multiply matrix to a Point and returns the result. */
-	transferPoint(p: Point): Point {
+	/** Multiply with a size to get a new size. */
+	transformSize(size: SizeLike): Size {
 		let [
 			n11, n21,
 			n12, n22,
 		] = this.data
 
-		let {x, y} = p
+		let {width, height} = size
 
-		return new Point(
-			n11 * x + n12 * y,
-			n21 * x + n22 * y,
-		)
+		return new Size(n11 * width + n21 * height, n12 * width + n22 * height)
 	}
 
 	/** Print matrix in console table format. */

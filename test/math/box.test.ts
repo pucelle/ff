@@ -6,11 +6,8 @@ import {Point} from '../../src/math/point'
 
 describe('Test Box', () => {
 	
-	test('fromCoords', () => {
+	test('Box Static', () => {
 		expect(Box.fromCoords({x: 0, y: 0}, {x: 10, y: 10})).toEqual(new Box(0, 0, 10, 10))
-	})
-
-	test('fromUnion', () => {
 		expect(Box.fromUnion(new Box(0, 0, 10, 10), new Box(10, 10, 10, 10))).toEqual(new Box(0, 0, 20, 20))
 	})
 
@@ -57,6 +54,5 @@ describe('Test Box', () => {
 
 		b.reset()
 		expect(b.empty).toEqual(true)
-
 	})
 })

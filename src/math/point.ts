@@ -5,7 +5,7 @@ import {Vector} from './vector'
 /* Represent a point at 2d panel. */
 export class Point {
 
-	/** Zero point. */
+	/** Constant zero point. */
 	static Zero: Readonly<Point> = Object.freeze(new Point(0, 0))
 
 	/** Make a point from a coord. */
@@ -63,6 +63,11 @@ export class Point {
 	asVector(): Vector {
 		return new Vector(this.x, this.y)
 	}
+
+	/** Whether be zero point */
+	isZero(): boolean {
+		return this.x === 0 && this.y === 0
+	}
 	
 	/** Round position values, returns a new point. */
 	round(): Point {
@@ -116,13 +121,13 @@ export class Point {
 		return this
 	}
 
-	/** Minus a vector from current point, returns a new point. */
-	minus(v: Vector): Point {
-		return this.clone().minusSelf(v)
+	/** Sub a vector from current point, returns a new point. */
+	sub(v: Vector): Point {
+		return this.clone().subSelf(v)
 	}
 
-	/** Minus a vector from current point. */
-	minusSelf(v: Vector): this {
+	/** Sub a vector from current point. */
+	subSelf(v: Vector): this {
 		this.x -= v.x
 		this.y -= v.y
 

@@ -15,6 +15,16 @@ export class Size {
 		this.width = width
 		this.height = height
 	}
+	
+	/** Get area value, equals `width * height`. */
+	get area(): number {
+		return this.width * this.height
+	}
+
+	/** Whether is empty and not have any space. */
+	get empty(): boolean {
+		return this.width <= 0 && this.height <= 0
+	}
 
 	/** Set size values. */
 	set(width: number, height: number) {
