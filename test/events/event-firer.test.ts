@@ -1,8 +1,8 @@
-import {EventEmitter} from '../src'
+import {EventFirer} from '../../src/events/event-firer'
 
 
-test('Test Event Emitter', () => {
-	let e = new (EventEmitter as any)() as EventEmitter
+test('Test EventFirer', () => {
+	let e = new EventFirer()
 	let fn = jest.fn()
 	let scope = {}
 
@@ -15,7 +15,7 @@ test('Test Event Emitter', () => {
 	expect(e.hasListener('name', function(){})).toEqual(false)
 	expect(e.hasListener('name', fn, {})).toEqual(false)
 
-	e.emit('name')
+	e.fire('name')
 	expect(fn).toBeCalledTimes(1)
 	e.off('name', fn)
 
@@ -31,7 +31,7 @@ test('Test Event Emitter', () => {
 	expect(e.hasListener('name', fn, scope)).toEqual(false)
 
 	e.once('name_2', fn, scope)
-	e.emit('name_2')
+	e.fire('name_2')
 	expect(fn).toBeCalledTimes(2)
 
 	expect(e.hasListenerType('name_2')).toEqual(false)

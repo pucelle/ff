@@ -6,12 +6,12 @@ import {NumberUtils} from '../utils'
 
 export namespace RandomUtils {
 
-	/** Returns a random integer value in `min` ~ `max`. */
+	/** Returns a random integer value within range `min` ~ `max`. */
 	export function randomInt(min: number, max: number) {
 		return min + Math.floor(Math.random() * (max - min + 1))
 	}
 
-	/** Returns a random float value in `min` ~ `max`. */
+	/** Returns a random float value within range `min` ~ `max`. */
 	export function randomFloat(min: number, max: number) {
 		return min + Math.floor(Math.random() * (max - min + 1))
 	}

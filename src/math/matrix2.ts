@@ -5,8 +5,8 @@ import {Vector} from './vector'
 
 /** 
  * Represents a 2x2 Matrix.
- * It's nearly equals a Matrix without translate,
- * But more convinent when doing some calculations like inversing.
+ * It's nearly equals a Matrix after ignoring translate part.
+ * It more convinent when doing 2x2 calculations.
  */
 export class Matrix2 {
 
@@ -31,7 +31,10 @@ export class Matrix2 {
 		)
 	}
 	
-	/** Data array in column-major order. */
+	/** 
+	 * Data array in column-major order.
+	 * Not using `abcd` values because this struct can be extended to `3x3`, `4x4`.
+	 */
 	data!: number[]
 
 	/** Data arguments in row-major order. */

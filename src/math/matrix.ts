@@ -578,7 +578,7 @@ export class Matrix implements MatrixData {
 		return this
 	}
 
-	/** Transform a Point to get a new one. */
+	/** Transform a point to get a new one. */
 	transformPoint(point: Point): Point {
 		let {a, b, c, d, e, f} = this
 		let {x, y} = point
@@ -589,7 +589,7 @@ export class Matrix implements MatrixData {
 		)
 	}
 
-	/** Transform a Vector to get a new one. */
+	/** Transform a vector to get a new one. */
 	transformVector(vector: Vector): Vector {
 		let {a, b, c, d} = this
 		let {x, y} = vector
@@ -602,10 +602,10 @@ export class Matrix implements MatrixData {
 	
 	/** Transform a box to get a new one. */
 	transformBox(box: Box): Box {
-		let p1 = this.transformPoint(new Point(box.x, box.y))
-		let p2 = this.transformPoint(new Point(box.right, box.y))
-		let p3 = this.transformPoint(new Point(box.x, box.bottom))
-		let p4 = this.transformPoint(new Point(box.right, box.bottom))
+		let p1 = new Point(box.x, box.y).transformSelf(this)
+		let p2 = new Point(box.right, box.y).transformSelf(this)
+		let p3 = new Point(box.x, box.bottom).transformSelf(this)
+		let p4 = new Point(box.right, box.bottom).transformSelf(this)
 		
 		return Box.fromCoords(p1, p2, p3, p4)!
 	}

@@ -36,7 +36,7 @@ export namespace StringUtils {
 
 	/** Uppercase the first character of `string`: `abc` -> `Abc` */
 	export function toCapitalize(string: string): string {
-		return string.slice(0, 1).toUpperCase() + string.slice(1).toLowerCase()
+		return string.slice(0, 1).toUpperCase() + string.slice(1)
 	}
 
 	/** Convert `string` to camer case type: `a-bc` -> `Abc`. */

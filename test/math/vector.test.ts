@@ -109,8 +109,16 @@ describe('Test Vector', () => {
 		expect(v2.cross(v1)).toEqual(3)
 
 		expect(v1.projectTo(v2)).toEqual(new Vector(1.6, 0.8))
-		expect(v1.restAfterProjectTo(v2)).toEqual(new Vector(-0.6000000000000001, 1.2))
-		expect(v1.backProjectFrom(v2)).toEqual(new Vector(2.5000000000000004, 1.2500000000000002))
+
+		let temp = v1.restAfterProjectTo(v2)
+		temp.x = NumberUtils.toDecimal(temp.x, 8)
+		temp.y = NumberUtils.toDecimal(temp.y, 8)
+		expect(temp).toEqual(new Vector(-0.6, 1.2))
+
+		temp = v1.backProjectFrom(v2)
+		temp.x = NumberUtils.toDecimal(temp.x, 8)
+		temp.y = NumberUtils.toDecimal(temp.y, 8)
+		expect(temp).toEqual(new Vector(2.5, 1.25))
 
 		v.set(1, 1)
 		expect(v.decompresFactor(v1, v2)).toEqual(new Vector(1/3, 1/3))

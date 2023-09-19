@@ -1,4 +1,5 @@
 import {MathUtils} from './math-utils'
+import {Matrix} from './matrix'
 import {Vector} from './vector'
 
 
@@ -13,12 +14,12 @@ export class Point {
 		return new Point(coord.x, coord.y)
 	}
 
-	/** Make a point from an angle in degree. */
+	/** Make a point represent the end point of a rotating vector from an angle in degree. */
 	static fromDegree(degree: number): Point {
 		return Point.fromRadians(MathUtils.degreeToRadians(degree))
 	}
 
-	/** Make a point from an angle in radians. */
+	/** Make a point represent the end point of a rotating vector from an angle in radians. */
 	static fromRadians(radians: number): Point {
 		return new Point(Math.cos(radians), Math.sin(radians))
 	}
@@ -43,7 +44,7 @@ export class Point {
 		this.y = 0
 	}
 
-	/** Copy values from a coord to current. */
+	/** Copy values from a coord to current point. */
 	copyFrom(coord: Coord) {
 		this.x = coord.x
 		this.y = coord.y
@@ -64,17 +65,17 @@ export class Point {
 		return new Vector(this.x, this.y)
 	}
 
-	/** Whether be zero point */
+	/** Whether be zero point. */
 	isZero(): boolean {
 		return this.x === 0 && this.y === 0
 	}
 	
-	/** Round position values, returns a new point. */
+	/** Round point values, returns a new point. */
 	round(): Point {
 		return this.clone().roundSelf()
 	}
 
-	/** Round position values. */
+	/** Round point values. */
 	roundSelf(): this {
 		this.x = Math.round(this.x)
 		this.y = Math.round(this.y)
@@ -82,12 +83,12 @@ export class Point {
 		return this
 	}
 
-	/** Do Math Ceil at position values, returns a new point. */
+	/** Do Math Ceil to point values, returns a new point. */
 	ceil(): Point {
 		return this.clone().ceilSelf()
 	}
 
-	/** Do Math Ceil at position values. */
+	/** Do Math Ceil to point values. */
 	ceilSelf(): this {
 		this.x = Math.ceil(this.x)
 		this.y = Math.ceil(this.y)
@@ -95,12 +96,12 @@ export class Point {
 		return this
 	}
 
-	/** Do Math Floor at position values, returns a new point. */
+	/** Do Math Floor to point values, returns a new point. */
 	floor(): Point {
 		return this.clone().floorSelf()
 	}
 
-	/** Do Math Floor at position values. */
+	/** Do Math Floor to point values. */
 	floorSelf(): this {
 		this.x = Math.floor(this.x)
 		this.y = Math.floor(this.y)
@@ -121,12 +122,12 @@ export class Point {
 		return this
 	}
 
-	/** Sub a vector from current point, returns a new point. */
+	/** Subtract a vector from current point, returns a new point. */
 	sub(v: Vector): Point {
 		return this.clone().subSelf(v)
 	}
 
-	/** Sub a vector from current point. */
+	/** Subtract a vector from current point. */
 	subSelf(v: Vector): this {
 		this.x -= v.x
 		this.y -= v.y
@@ -134,12 +135,12 @@ export class Point {
 		return this
 	}
 
-	/** Make a translate by x,y, returns a new point. */
+	/** Translate current point by x, y value specified, returns a new point. */
 	translate(x: number, y: number): Point {
 		return this.clone().translateSelf(x, y)
 	}
 
-	/** Make a translate by x,y. */
+	/** Translate current point by x, y value specified. */
 	translateSelf(x: number, y: number): this {
 		this.x += x
 		this.y += y
@@ -147,7 +148,23 @@ export class Point {
 		return this
 	}
 
-	/** Minus another point to get a vector. */
+	/** Transform current point to get a new one. */
+	transform(matrix: Matrix): Point {
+		return this.clone().transformSelf(matrix)
+	}
+
+	/** Transform current point. */
+	transformSelf(matrix: Matrix): this {
+		let {a, b, c, d, e, f} = matrix
+		let {x, y} = this
+
+		this.x = a * x + c * y + e
+		this.y = b * x + d * y + f
+		
+		return this
+	}
+
+	/** Minus another point to get a difference vector. */
 	diff(p: Point): Vector {
 		let x = this.x - p.x
 		let y = this.y - p.y
@@ -155,7 +172,7 @@ export class Point {
 		return new Vector(x, y)
 	}
 
-	/** Mix with a point to get a new point. */
+	/** Mix with another point to get a new point. */
 	mix(p: Point, pRate: number): Point {
 		let x = this.x * (1 - pRate) + p.x * pRate
 		let y = this.y * (1 - pRate) + p.y * pRate

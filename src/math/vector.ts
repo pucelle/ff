@@ -1,4 +1,5 @@
 import {MathUtils} from './math-utils'
+import {Matrix} from './matrix'
 import {Matrix2} from './matrix2'
 import {Point} from './point'
 
@@ -14,12 +15,12 @@ export class Vector {
 		return new Vector(coord.x, coord.y)
 	}
 
-	/** Make a vector from an angle in degree. */
+	/** Make a vector to represent a rotating vector from an angle in degree. */
 	static fromDegree(degree: number): Vector {
 		return Vector.fromRadians(degree / 180 * Math.PI)
 	}
 
-	/** Make a vector from an angle in radians. */
+	/** Make a vector to represent a rotating vector from an angle in radians. */
 	static fromRadians(radians: number): Vector {
 		return new Vector(Math.cos(radians), Math.sin(radians))
 	}
@@ -56,7 +57,7 @@ export class Vector {
 	}
 
 	/** Whether vector values equals the coord parameters. */
-	equals(coord: Vector): boolean {
+	equals(coord: Coord): boolean {
 		return this.x === coord.x && this.y === coord.y
 	}
 
@@ -93,12 +94,12 @@ export class Vector {
 		return this
 	}
 
-	/** Do Math Ceil at vector values, returns a new vector. */
+	/** Do Math Ceil to vector values, returns a new vector. */
 	ceil(): Vector {
 		return this.clone().ceilSelf()
 	}
 
-	/** Do Math Ceil at vector values. */
+	/** Do Math Ceil to vector values. */
 	ceilSelf(): this {
 		this.x = Math.ceil(this.x)
 		this.y = Math.ceil(this.y)
@@ -106,12 +107,12 @@ export class Vector {
 		return this
 	}
 
-	/** Do Math Floor at vector values, returns a new vector. */
+	/** Do Math Floor to vector values, returns a new vector. */
 	floor(): Vector {
 		return this.clone().floorSelf()
 	}
 
-	/** Do Math Floor at vector values. */
+	/** Do Math Floor to vector values. */
 	floorSelf(): this {
 		this.x = Math.floor(this.x)
 		this.y = Math.floor(this.y)
@@ -129,7 +130,7 @@ export class Vector {
 		return Math.sqrt(this.x * this.x + this.y * this.y)
 	}
 
-	/** Add another vector, returns a new vector. */
+	/** Add another vector to current, returns a new vector. */
 	add(v: Vector): Vector {
 		return this.clone().addSelf(v)
 	}
@@ -142,7 +143,7 @@ export class Vector {
 		return this
 	}
 
-	/** Subtract another vector, returns a new vector. */
+	/** Subtract another vector from current, returns a new vector. */
 	sub(v: Vector): Vector {
 		return this.clone().subSelf(v)
 	}
@@ -168,12 +169,18 @@ export class Vector {
 		return this
 	}
 
-	/** Complex multiply with another vector, returns a new vector. */
+	/** 
+	 * Complex multiply with another vector, returns a new vector.
+	 * Complex multiply equals the multiply of vector rotation, and the multiply of vector model length.
+	 */
 	complexMultiply(v: Vector): Vector {
 		return this.clone().complexMultiplySelf(v)
 	}
 
-	/** Complex multiply with another vector. */
+	/** 
+	 * Complex multiply with another vector.
+	 * Complex multiply equals the multiply of vector rotation, and the multiply of vector model length.
+	 */
 	complexMultiplySelf(v: Vector): this {
 		let x = this.x * v.x - this.y * v.y
 		let y = this.x * v.y + this.y * v.x
@@ -212,14 +219,16 @@ export class Vector {
 
 	/** 
 	 * Complex divide by another vector, returns a new vector.
-	 * `V1` divide `V2` is nearly equals rotating `V1` according to `V2` in opposite direction,
-	 * and divide model length of `V2`.
+	 * Equals rotating according to conjugate of `v`, and divide v's model length.
 	 */
 	complexDivide(v: Vector): Vector {
 		return this.clone().complexDivideSelf(v)
 	}
 
-	/** Complex divide by another vector. */
+	/** 
+	 * Complex divide by another vector.
+	 * Equals rotating according to conjugate of `v`, and divide v's model length.
+	 */
 	complexDivideSelf(v: Vector): this {
 
 		// a ÷ b = a * conjugate(b) / |b|^2
@@ -247,7 +256,7 @@ export class Vector {
 		return this
 	}
 
-	/** Negative current vector to a new vector, returns the new one. */
+	/** Negative current vector to get a new vector, returns the new one. */
 	negative(): Vector {
 		return this.multiplyScalar(-1)
 	}
@@ -257,12 +266,12 @@ export class Vector {
 		return this.multiplyScalarSelf(-1)
 	}
 
-	/** Rotate an angle in radians, returns a new vector. */
+	/** Rotate current vector with an angle in radians, returns a new vector. */
 	rotate(radians: number): Vector {
 		return this.clone().rotateSelf(radians)
 	}
 
-	/** Rotate an angle in radians. */
+	/** Rotate current vector with an angle in radians. */
 	rotateSelf(radians: number): this {
 		let cos = Math.cos(radians)
 		let sin = Math.sin(radians)
@@ -274,22 +283,38 @@ export class Vector {
 		return this
 	}
 
-	/** Rotate an angle in degree, returns a new vector. */
+	/** Rotate current vector with an angle in degree, returns a new vector. */
 	rotateInDegree(degree: number): Vector {
 		return this.rotate(MathUtils.degreeToRadians(degree))
 	}
 
-	/** Rotate an angle in degree. */
+	/** Rotate current vector with an angle in degree. */
 	rotateInDegreeSelf(degree: number): this {
 		return this.rotateSelf(MathUtils.degreeToRadians(degree))
 	}
 
-	/** Normalize to an unit vector, returns the new vector.  */
+	/** Transform current vector to get a new one. */
+	transform(matrix: Matrix): Vector {
+		return this.clone().transformSelf(matrix)
+	}
+
+	/** Transform current vector. */
+	transformSelf(matrix: Matrix): this {
+		let {a, b, c, d} = matrix
+		let {x, y} = this
+
+		this.x = a * x + c * y,
+		this.y = b * x + d * y
+
+		return this
+	}
+
+	/** Normalize current vector to an Unit Vector, returns the new vector. */
 	normalize(): Vector {
 		return this.clone().normalizeSelf()
 	}
 	
-	/** Normalize to an unit vector.  */
+	/** Normalize current vector to an Unit Vector.  */
 	normalizeSelf(): this {
 		let length = this.getLength()
 		let scale = isFinite(length) ? 1 / length : 0
@@ -299,7 +324,7 @@ export class Vector {
 		return this
 	}
 
-	/** Mix with a vector to get a new vector. */
+	/** Mix with `v` to get a new one. */
 	mix(v: Vector, vRate: number): Vector {
 		let x = this.x * (1 - vRate) + v.x * vRate
 		let y = this.y * (1 - vRate) + v.y * vRate
@@ -307,17 +332,17 @@ export class Vector {
 		return new Vector(x, y)
 	}
 	
-	/** Get the rotate angle in radians that can rotate from a vector to current. */
+	/** Get the rotate angle in radians that can rotate from `v` to current. */
 	getRotateAngleFrom(v: Vector): number {
 		return this.complexDivide(v).angle()
 	}
 
-	/** Get the rotate angle in degree that can rotate from a vector to current. */
+	/** Get the rotate angle in degree that can rotate from `v` to current. */
 	getRotateAngleInDegreeFrom(v: Vector): number {
 		return MathUtils.radiansToDegree(this.getRotateAngleFrom(v))
 	}
 	
-	/** Get the rotate flag that represent whether rotation clockwise (1) or anti-clockwise (0). */
+	/** Get the rotate flag that represent whether rotation from `v` is clockwise(1) or anti-clockwise(0). */
 	getRotateFlagFrom(v: Vector): 0 | 1 {
 		let divided = this.complexDivide(v)
 		if (divided.y > 0) {
@@ -328,26 +353,23 @@ export class Vector {
 		}
 	}
 
-	/** Dot multiply current vector with another vector. */
+	/** Dot product current vector with `v`. */
 	dot(v: Vector): number {
 		return this.x * v.x + this.y * v.y
 	}
 
 	/** 
-	 * Calculate cross product value betweens current vector and another vector.
+	 * Calculate cross product value betweens current vector and `v`.
 	 * Returned value equals the area of parallelogram from these two vectors,
-	 * But be positive when the angle rotated from current vector to another less than `180`.
-	 * 
-	 * Otherwise, it seems no meaning for 2d vectors to do crossing,
-	 * here it just assumes that the z component is `0`, and do 3d crossing.
+	 * But be positive when the angle rotated from current vector to another less than `180°`.
 	 */
 	cross(v: Vector): number {
 		return this.x * v.y - this.y * v.x
 	}
 
 	/** 
-	 * Project current vector to another.
-	 * Returned vector will have the same direction with another vector.
+	 * Project current vector to `v`, returns the projected result.
+	 * Returned vector will have the same direction with `v`.
 	 */
 	projectTo(v: Vector): Vector {
 		return v.multiplyScalar(this.dot(v) / v.getLengthSquare())
@@ -360,12 +382,12 @@ export class Vector {
 
 	/** 
 	 * Already know that current vector is a projection vector,
-	 * and knows an vector point out the original direction,
-	 * Restore the original vector.
+	 * and knows an vector `directionV` pointed out the original direction,
+	 * restore the original vector and return it.
 	 */
 	backProjectFrom(directionV: Vector): Vector {
 
-		// Assume already project from `t` to `v`, get vector `p`.
+		// Assume it projects from `t` to `v`, get vector `p`.
 		// cosθ = t·v / (|t|*|v|)
 		// p = cosθ * |t| * v / |v|
 		// |p| = cosθ * |t|
@@ -380,7 +402,7 @@ export class Vector {
 		return directionV.multiplyScalar(tLength / dLength)
 	}
 
-	/** Decompress current vector to `μ * a + ν * b`, got `(μ, ν)`. */
+	/** Decompress current vector to `μ * a + ν * b`, returns factor vector of `(μ, ν)`. */
 	decompresFactor(a: Vector, b: Vector): Vector {
 
 		// [a b] * [μ ν]^T = diff
@@ -389,7 +411,7 @@ export class Vector {
 		return Matrix2.fromCoords(a, b).inverse().transformVector(this)
 	}
 
-	/** Decompress current vector to `μ * a + ν * b`, got an vector pair `[μ * a, ν * b]`. */
+	/** Decompress current vector to `μ * a + ν * b`, returns an vector pair `[μ * a, ν * b]`. */
 	decompress(a: Vector, b: Vector): [Vector, Vector] {
 		let {x: m, y: v} = this.decompresFactor(a, b)
 		return [a.multiplyScalar(m), b.multiplyScalar(v)]

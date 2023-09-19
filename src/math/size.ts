@@ -1,3 +1,5 @@
+import {Matrix} from "./matrix"
+
 export class Size {
 
 	/** Zero size object. */
@@ -15,13 +17,13 @@ export class Size {
 		this.width = width
 		this.height = height
 	}
-	
-	/** Get area value, equals `width * height`. */
+
+	/** Get area value of current size, equals `width * height`. */
 	get area(): number {
 		return this.width * this.height
 	}
 
-	/** Whether is empty and not have any space. */
+	/** Whether size is empty and not have any space. */
 	get empty(): boolean {
 		return this.width <= 0 && this.height <= 0
 	}
@@ -62,12 +64,12 @@ export class Size {
 		return this
 	}
 
-	/** Do Math Ceil at size values, returns a new box. */
+	/** Do Math Ceil to size values, returns a new box. */
 	ceil(): Size {
 		return this.clone().ceilSelf()
 	}
 
-	/** Do Math Ceil at size values. */
+	/** Do Math Ceil to size values. */
 	ceilSelf(): this {
 		this.width = Math.ceil(this.width)
 		this.height = Math.ceil(this.height)
@@ -75,12 +77,12 @@ export class Size {
 		return this
 	}
 
-	/** Do Math Floor at size values, returns a new box. */
+	/** Do Math Floor to size values, returns a new box. */
 	floor(): Size {
 		return this.clone().floorSelf()
 	}
 
-	/** Do Math Floor at size values. */
+	/** Do Math Floor to size values. */
 	floorSelf(): this {
 		this.width = Math.floor(this.width)
 		this.height = Math.floor(this.height)
@@ -92,6 +94,22 @@ export class Size {
 	equals(s: SizeLike): boolean {
 		return this.width === s.width
 			&& this.height === s.height
+	}
+
+	/** Transform current size to get a new one. */
+	transform(matrix: Matrix): Size {
+		return this.clone().transformSelf(matrix)
+	}
+
+	/** Transform current size to get a new one. */
+	transformSelf(matrix: Matrix): this {
+		let {a, b, c, d} = matrix
+		let {width, height} = this
+
+		this.width = a * width + c * height
+		this.height = b * width + d * height
+
+		return this
 	}
 
 	/** Convert to JSON data. */

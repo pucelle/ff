@@ -816,7 +816,7 @@ const ShiftedNumToKeyCodeMap: Record<string, {key: string, code: string}> = {
 }
 
 
-export namespace ShortcutKeys {
+export namespace EventKeys {
 
 	/** Whether pressed character key. */
 	export function pressedCharacterKey(event: KeyEventLike): boolean {
@@ -831,13 +831,13 @@ export namespace ShortcutKeys {
 	}
 
 
-	/** When pressed character key, like `A`, `1`. */
+	/** When event key is character key, like `A`, `1`. */
 	export function isCharacterKey(event: KeyEventLike): boolean {
-		return getKey(event).length === 1
+		return getShortcutKey(event).length === 1
 	}
 
 
-	/** When pressed only control key, like `Control - 17` or `Alt - 18`. */
+	/** When event key is only control key, like `Control` or `Alt`. */
 	export function isControlKey(event: KeyEventLike): boolean {
 		return [17, 18].includes(event.which)
 	}
@@ -848,7 +848,7 @@ export namespace ShortcutKeys {
 	 * `shiftDistinguish` determins whether consider pressing Shift key,
 	 * e.g., when `shiftDistinguish=true`will get `Shift+?` but not `Shift+/`.
 	 */
-	export function getKey(event: KeyEventLike, shiftDistinguish: boolean = false): ShortcutKey {
+	export function getShortcutKey(event: KeyEventLike, shiftDistinguish: boolean = false): ShortcutKey {
 		let useShift = event.shiftKey && shiftDistinguish
 		let key = useShift ? ShiftedNumToKeyCodeMap[event.which]?.key : NumToKeyCodeMap[event.which]?.key
 
@@ -866,7 +866,7 @@ export namespace ShortcutKeys {
 	 * e.g., `CtrlLeft` is different from `CtrlRight`.
 	 * Doesn't distinguish whether shift key pressed.
 	 */
-	export function getCode(event: KeyEventLike): ShortcutCode {
+	export function getShortcutCode(event: KeyEventLike): ShortcutCode {
 		let code = NumToKeyCodeMap[event.which]?.code as string
 
 		if (isControlKey(event)) {

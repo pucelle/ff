@@ -5,6 +5,7 @@ import {LineSegment} from './line-segment'
 import {Point} from './point'
 import {Size} from './size'
 import {Vector} from './vector'
+import {Matrix} from './matrix'
 
 
 /** Represent a rectangle bounding box. */
@@ -198,12 +199,12 @@ export class Box implements BoxLike {
 		return this
 	}
 
-	/** Do Math Ceil at position and size, returns a new box. */
+	/** Do Math Ceil to position and size, returns a new box. */
 	ceil(): Box {
 		return this.clone().ceilSelf()
 	}
 
-	/** Do Math Ceil at position and size. */
+	/** Do Math Ceil to position and size. */
 	ceilSelf(): this {
 		let {x: left, y: top, right, bottom} = this
 		left = Math.floor(left)
@@ -219,12 +220,12 @@ export class Box implements BoxLike {
 		return this
 	}
 
-	/** Do Math Floor at position and size, returns a new box. */
+	/** Do Math Floor to position and size, returns a new box. */
 	floor(): Box {
 		return this.clone().floorSelf()
 	}
 
-	/** Do Math Floor at position and size. */
+	/** Do Math Floor to position and size. */
 	floorSelf(): this {
 		let {x: left, y: top, right, bottom} = this
 		left = Math.ceil(left)
@@ -503,6 +504,38 @@ export class Box implements BoxLike {
 	translateBySelf(vector: Coord): this {
 		this.x += vector.x
 		this.y += vector.y
+
+		return this
+	}
+
+	/** Transform current box to get a new one. */
+	transform(matrix: Matrix): Box {
+		return this.clone().transformSelf(matrix)
+	}
+
+	/** Transform current box. */
+	transformSelf(matrix: Matrix): this {
+		let p1 = new Point(this.x, this.y).transformSelf(matrix)
+		let p2 = new Point(this.right, this.y).transformSelf(matrix)
+		let p3 = new Point(this.x, this.bottom).transformSelf(matrix)
+		let p4 = new Point(this.right, this.bottom).transformSelf(matrix)
+		
+		let left = p1.x
+		let top = p1.y
+		let right = p1.x
+		let bottom = p1.y
+
+		for (let p of [p2, p3, p4]) {
+			left = Math.min(left, p.x)
+			top = Math.min(top, p.y)
+			right = Math.max(right, p.x)
+			bottom = Math.max(bottom, p.y)
+		}
+
+		this.x = left
+		this.y = top
+		this.width = right - left
+		this.height = bottom - top
 
 		return this
 	}

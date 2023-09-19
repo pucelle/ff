@@ -63,7 +63,7 @@ export class RadialLine {
 		return result
 	}
 	
-	/** Get the closest intersect point with all edges of a box. */
+	/** Get the closest intersection point with all edges of a box. */
 	getClosestIntersectPointWithBox(box: Box): Point | null {
 
 		// Do 4 box edge distances intersection test.
@@ -77,9 +77,9 @@ export class RadialLine {
 	}
 
 	/** 
-	 * Get the closest intersect point with all edges of a box.
-	 * If doesn't intersected, extend the box edge distances and do again.
-	 * If still doesn't intersected, extend the radial line to it's back side.
+	 * Get the closest intersection point with all edges of a box.
+	 * If is not intersected, extend the box edge to lines and do again.
+	 * If is still not intersected, extend the radial line to it's back side.
 	 */
 	getExtendedClosestIntersectPointWithBox(box: Box): Point {
 
