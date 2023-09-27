@@ -96,7 +96,7 @@ export function watchOnce<T>(
 }
 
 
-/** Watch returned value of `fn` and calls `callback` after the value becomes true like. */
+/** Watch returned value of `fn` and calls `callback` after the value becomes `true` like. */
 export function watchUntil<T>(
 	fn: () => T,
 	callback: (trueValue: T) => void,

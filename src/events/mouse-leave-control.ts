@@ -1,11 +1,11 @@
 import {DOMEvents} from './dom-events'
-import {SetMap} from '../structs'
+import {TwoWaySetMap} from '../structs'
 import {Timeout} from '../utils'
 
 
 /*
 Assume:
-	`trigger1` cause `popup1` get poped-up.
+	`trigger1` cause `popup1` get popped-up.
 	`trigger2` is contained by `popup1`, and cause `popup2` get poped-up.
 	Mouse leaves `popup1`, enter `popup2`, `popup1` must not be closed.
 */
@@ -14,7 +14,11 @@ Assume:
 /** Options for mouse leave control. */
 export interface MouseLeaveControlOptions {
 
-	/** If mouse leaves all the elements and doesn't enter again, call callback. Default value is `200`. */
+	/** 
+	 * If mouse leaves all the elements and doesn't enter again during a duration
+	 * which is specified by this `delay` milliseconds, then calls callback.
+	 * Default value is `200`.
+	 */
 	delay?: number
 
 	/** 
@@ -34,28 +38,29 @@ export namespace MouseLeaveControl {
 	/** Existing mouse leave controllers. */
 	const Controllers: Set<MouseLeaveController> = new Set()
 
-	/** Controller, and all the elements that lock it. */
-	const Locks: SetMap<MouseLeaveController, Element> = new SetMap()
+	/** Locks betweens controllers and elements. */
+	const Locks: TwoWaySetMap<MouseLeaveController, Element> = new TwoWaySetMap()
 
 
-	/** Lock an element, makesure it can't be hidden before unlocking it. */
+	/** Lock an element, makesure it can't be hidden before been unlocked. */
 	export function lock(el: Element) {
 		for (let controller of Controllers.values()) {
-			if (controller.popupContains(el)) {
+			if (controller.isPopupContains(el)) {
 				Locks.add(controller, el)
+				clearDisconnectedTimeout.reset()
 			}
 		}
 	}
 
 
-	/** Release the lock of specified element, it can be hidden now. */
+	/** Release the lock of specified element, which can be hidden now. */
 	export function unlock(el: Element) {
 		for (let controller of Controllers.values()) {
 			if (Locks.has(controller, el)) {
 				Locks.delete(controller, el)
 
 				// No lock existed, should finish leave.
-				if (!Locks.hasOf(controller)) {
+				if (!Locks.hasLeft(controller)) {
 					controller.finishLeave()
 				}
 			}
@@ -68,13 +73,7 @@ export namespace MouseLeaveControl {
 	 * If it's not locked, you can destroy or reuse it immediately.
 	 */
 	export function checkLocked(el: Element): boolean {
-		for (let controller of Controllers.values()) {
-			if (Locks.has(controller, el)) {
-				return true
-			}
-		}
-	
-		return false
+		return Locks.hasRight(el)
 	}
 
 	
@@ -105,6 +104,36 @@ export namespace MouseLeaveControl {
 		let cancel = on(trigger, popup, wrappedCallback, options)
 
 		return cancel
+	}
+
+
+	const clearDisconnectedTimeout = new Timeout(clearDisconnectedInIdle, 60000)
+
+	async function clearDisconnectedInIdle() {
+		requestIdleCallback(clearDisconnected)
+	}
+
+	/** Clear all disconnected elements and empty controllers. */
+	function clearDisconnected() {
+		for (let [element, controllers] of Locks.rightEntries()) {
+			if (element.ownerDocument) {
+				continue
+			}
+
+			// `controllers` is not reset after deleting by element.
+			Locks.deleteRight(element)
+
+			for (let controller of controllers) {
+				if (!Locks.hasLeft(controller)) {
+					controller.finishLeave()
+				}
+			}
+		}
+
+		// Continue to clear if still has locks existed.
+		if (Locks.leftKeyCount() > 0) {
+			clearDisconnectedTimeout.reset()
+		}
 	}
 
 	
@@ -144,7 +173,7 @@ export namespace MouseLeaveControl {
 		}
 
 		/** Whether popup element constains specified element. */
-		popupContains(el: Element): boolean {
+		isPopupContains(el: Element): boolean {
 			return this.popup.contains(el)
 		}
 
@@ -165,7 +194,7 @@ export namespace MouseLeaveControl {
 			Locks.delete(this, this.popup)
 
 			// Not locked by other elements.
-			if (!Locks.hasOf(this)) {
+			if (!Locks.hasLeft(this)) {
 				this.timeout.reset()
 			}
 		}
@@ -173,11 +202,12 @@ export namespace MouseLeaveControl {
 		private onTimeout() {
 
 			// May locks get changed, so should validate again.
-			if (!Locks.hasOf(this)) {
+			if (!Locks.hasLeft(this)) {
 				this.finishLeave()
 			}
 		}
 
+		/** Finish leave by calling callback. */
 		finishLeave() {
 			this.callback()
 		}
@@ -196,7 +226,7 @@ export namespace MouseLeaveControl {
 		
 		/** Release all locks that binded to current controller. */
 		private releaseLocks() {
-			Locks.deleteOf(this)
+			Locks.deleteLeft(this)
 			unlock(this.trigger)
 		}
 	}

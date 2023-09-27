@@ -1,5 +1,5 @@
 export * from './decorators'
 export * from './dependency-capturer'
-export * from './mixins'
+export * from '../utils/mixin'
 export * from './watcher'
 import './types'

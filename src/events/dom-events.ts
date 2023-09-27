@@ -59,7 +59,7 @@ export namespace DOMEvents {
 
 	/** 
 	 * Unbind event listeners.
-	 * If listener bound a `scope`, here must match it to remove the listener.
+	 * If listener binds a `scope`, here must match it to remove the listener.
 	 */
 	export function off(el: EventTarget, type: string, handler: EventHandler, scope: any = null) {
 		let map = EventListenersCache.get(el)
@@ -83,7 +83,7 @@ export namespace DOMEvents {
 	}
 
 
-	/** From a mouse or touch event, to mouse event or the first touch. */
+	/** From a mouse or touch event, to get the same mouse event or the first touch. */
 	export function toSingle(e: MouseEvent | TouchEvent): MouseEvent | Touch | null {
 		if (e.type.startsWith('touch')) {
 			return (e as TouchEvent).touches[0] || (e as TouchEvent).changedTouches[0] || null
@@ -105,7 +105,7 @@ export namespace DOMEvents {
 
 
 	/** Whether event come from Apple Pencil. */
-	export function fromPencil(e: Event): boolean {
+	export function comeFromApplePencil(e: Event): boolean {
 		if (!(e.type.startsWith('touch'))) {
 			return false
 		}

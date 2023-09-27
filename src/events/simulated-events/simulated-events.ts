@@ -63,7 +63,7 @@ export namespace SimulatedEvents {
 
 	/** 
 	 * Unbind simulated event listeners.
-	 * If listener bound a `scope`, here must match it to remove the listener.
+	 * If listener binds a `scope`, here must match it to remove the listener.
 	 */
 	export function off<T extends EventType>(el: EventTarget, type: T, handler: Events[T], scope: any = null) {
 		let processor = getProcessor(el, type)

@@ -3,32 +3,32 @@ import {DoubleKeysBothWeakMap, DoubleKeysMap, TwoWaySetMap} from '../structs'
 
 type Target = object
 type Callback = Function
-type Dependency = Symbol
+type Dependency = Symbol | object
 
-interface DependencyItem {
+/** Contains captured depedencies, and the callback it need to call after any depedency get changed. */
+interface CapturedDependencies {
 	callback: Callback
 	dependencies: Set<Dependency>
 }
 
 
 /** 
- * Note once captured dependencies,
- * The dependencies can't be deleted partly,
- * can only delete fully according to `onDelete`.
+ * Capture depedencies when executing.
+ * And calls callback when any depedency get changed.
  */
 export namespace DependencyCapturer {
 
-	/** Caches Dependency <-> Reset Callback. */
+	/** Caches `Dependency <-> Callback`. */
 	const DependencyMap: TwoWaySetMap<Dependency, Callback> = new TwoWaySetMap()
 
-	/** Caches bound callback. */
-	const CallbackBoundMap: DoubleKeysBothWeakMap<Function, Target, Function> = new DoubleKeysBothWeakMap()
+	/** Caches all binded callbacks, `Callback -> Scope -> Binded Callback`. */
+	const BindedCallbackMap: DoubleKeysBothWeakMap<Function, Target, Function> = new DoubleKeysBothWeakMap()
 
 	/** Callback and dependencies stack list. */
-	const Stack: DependencyItem[] = []
+	const depStack: CapturedDependencies[] = []
 
 	/** Current callback and dependencies that is doing capturing. */
-	let current: DependencyItem | null = null
+	let currentDep: CapturedDependencies | null = null
 
 
 	/** 
@@ -51,64 +51,67 @@ export namespace DependencyCapturer {
 
 	/** 
 	 * Begin to capture dependencies.
-	 * Would suggest running following codes in `try{...}`.
-	 * Beware, different places of capturing with same callback,
-	 * same scope will overwrite each other.
+	 * Would suggest running following codes in a `try{...}` statement.
+	 * Beware of capturing with same callback and same scope in different places,
+	 * which will overwrite each other.
 	 */
 	export function startCapture(callback: Callback, scope: Target | null = null) {
-		let boundCallback = bindCallback(callback, scope)
+		let bindedCallback = bindCallback(callback, scope)
 
-		if (current) {
-			Stack.push(current)
+		if (currentDep) {
+			depStack.push(currentDep)
 		}
 
-		current = {
-			callback: boundCallback,
+		currentDep = {
+			callback: bindedCallback,
 			dependencies: new Set(),
 		}
 	}
 
 
 	function bindCallback(callback: Callback, scope: Target | null): Callback {
-		let boundCallback: Callback
+		let bindedCallback: Callback
 		if (scope) {
-			boundCallback = CallbackBoundMap.get(callback, scope)!
+			bindedCallback = BindedCallbackMap.get(callback, scope)!
 			
-			if (!boundCallback) {
-				boundCallback = callback.bind(scope) as Callback
-				CallbackBoundMap.set(callback, scope, boundCallback)
+			if (!bindedCallback) {
+				bindedCallback = callback.bind(scope) as Callback
+				BindedCallbackMap.set(callback, scope, bindedCallback)
 			}
 		}
 		else {
-			boundCallback = callback
+			bindedCallback = callback
 		}
 
-		return boundCallback
+		return bindedCallback
 	}
 
 
-	/** End capturing dependencies. */
+	/** 
+	 * End capturing dependencies.
+	 * You must ensure to ending each capturing, or fatul error will happen.
+	 */
 	export function endCapture() {
-		if (current!.dependencies.size > 0) {
-			DependencyMap.replaceRight(current!.callback, current!.dependencies)
+		if (currentDep!.dependencies.size > 0) {
+			DependencyMap.replaceRight(currentDep!.callback, currentDep!.dependencies)
 		}
 		else {
-			DependencyMap.deleteRight(current!.callback)
+			DependencyMap.deleteRight(currentDep!.callback)
 		}
 
-		if (Stack.length > 0) {
-			current = Stack.pop()!
+		if (depStack.length > 0) {
+			currentDep = depStack.pop()!
 		}
 		else {
-			current = null
+			currentDep = null
 		}
 	}
 
 
 	/** When doing getting property, add a dependency. */
 	export function onGet(dep: Dependency) {
-		if (current) {
-			current.dependencies.add(dep)
+		if (currentDep) {
+			currentDep.dependencies.add(dep)
 		}
 	}
 
@@ -126,12 +129,12 @@ export namespace DependencyCapturer {
 
 	/** Remove all depedencies of callback. */
 	export function remove(callback: Callback, scope: Target | null = null) {
-		let boundCallback = bindCallback(callback, scope)
-		DependencyMap.deleteRight(boundCallback)
+		let bindedCallback = bindCallback(callback, scope)
+		DependencyMap.deleteRight(bindedCallback)
 	}
 
 
-	/** Create symbols as depedencies for target object. */
+	/** Cache symbols as depedencies by target object. */
 	export class DepedencyMap {
 
 		private map: Map<Target, Dependency> = new Map()
@@ -149,8 +152,8 @@ export namespace DependencyCapturer {
 	}
 
 
-	/** Create symbols as depedencies for target object and a property. */
-	export class PropertiedDepedencyMap {
+	/** Cache symbols as depedencies by target object and a associated property name. */
+	export class SubDepedencyMap {
 
 		private map: DoubleKeysMap<Target, PropertyKey, Dependency> = new DoubleKeysMap()
 

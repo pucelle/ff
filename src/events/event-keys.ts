@@ -877,7 +877,10 @@ export namespace EventKeys {
 	}
 
 
-	/** Get control key code string. */
+	/** 
+	 * Get control key code string like `Ctrl+`, `Alt+`, `Shift+`.
+	 * Returns an empty string while no control key get pressed.
+	 */
 	export function getControlKeyCode(event: KeyEventLike): ControlKeyCode {
 		let codes = ''
 		

@@ -5,8 +5,8 @@ type Target = object
 type Proxied = object
 
 
-/** Proxy must use global symbols. */
-const PropertiedSymbolMap = new DependencyCapturer.PropertiedDepedencyMap()
+/** Proxy uses global symbols. */
+const SubSymbolMap = new DependencyCapturer.SubDepedencyMap()
 const SymbolMap = new DependencyCapturer.DepedencyMap()
 
 /** To find proxied object. */
@@ -26,7 +26,7 @@ export function observeAny(v: any): Proxied {
 /** Observe an object. */
 function observeObject(o: Target | Proxied | any): Proxied {
 
-	// May be already a proxied object.
+	// May become a proxied object already.
 	if (ProxySymbol in o) {
 		return o[ProxySymbol] as Proxied
 	}
@@ -62,7 +62,7 @@ function observeArray(a: Target): Proxied {
 const PlainObjectProxyHandler = {
 
 	get(o: Target | any, key: PropertyKey): Proxied {
-		DependencyCapturer.onGet(PropertiedSymbolMap.get(o, key))
+		DependencyCapturer.onGet(SubSymbolMap.get(o, key))
 		return observeAny(o[key])
 	},
 
@@ -71,7 +71,7 @@ const PlainObjectProxyHandler = {
 		o[key] = toValue
 
 		if (fromValue !== toValue) {
-			DependencyCapturer.onSet(PropertiedSymbolMap.get(o, key))
+			DependencyCapturer.onSet(SubSymbolMap.get(o, key))
 		}
 
 		return true
@@ -80,7 +80,7 @@ const PlainObjectProxyHandler = {
 	deleteProperty(o: any, key: PropertyKey): boolean {
 		let result = delete o[key]
 		if (result) {
-			DependencyCapturer.onSet(PropertiedSymbolMap.get(o, key))
+			DependencyCapturer.onSet(SubSymbolMap.get(o, key))
 		}
 
 		return result
@@ -88,7 +88,7 @@ const PlainObjectProxyHandler = {
 }
 
 
-/** For observing array. */
+/** For array observing. */
 const ArrayProxyHandler = {
 
 	get(a: Target | any, key: PropertyKey): Proxied {

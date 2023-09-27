@@ -57,7 +57,7 @@ export class EventFirer<E = any> implements EventTarget {
 
 	/** 
 	 * Unbind event listeners.
-	 * If listener bound a `scope`, here must match it to remove the listener.
+	 * If listener binds a `scope`, here must match it to remove the listener.
 	 */
 	off<T extends keyof E>(type: T | T[], handler: E[T], scope: any = null) {
 		for (let subType of Array.isArray(type) ? type : [type]) {
@@ -83,7 +83,7 @@ export class EventFirer<E = any> implements EventTarget {
 		let listeners = this.eventListenerMap.get(type as string)
 		if (listeners) {
 
-			// Avoid newly bound handler got fired.
+			// Avoid newly binded handler got fired.
 			listeners = [...listeners]
 
 			for (let i = 0; i < listeners.length; i++) {
