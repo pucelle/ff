@@ -1,6 +1,6 @@
 export * from './events'
 export * from './math'
-export * from './observer'
+export * from './observable'
 export * from './structs'
 export * from './tools'
 export * from './utils'

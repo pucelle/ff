@@ -139,7 +139,7 @@ export namespace DependencyCapturer {
 
 		private map: Map<Target, Dependency> = new Map()
 
-		/** Get a symbol for target object. */
+		/** Get a symbol as represent of depedency for target object. */
 		get(target: Target): Dependency {
 			let symbol = this.map.get(target)
 			if (!symbol) {
@@ -157,7 +157,7 @@ export namespace DependencyCapturer {
 
 		private map: DoubleKeysMap<Target, PropertyKey, Dependency> = new DoubleKeysMap()
 
-		/** Get a symbol for target object. */
+		/** Get a symbol as represent of depedency for target object. */
 		get(target: Target, property: PropertyKey): Dependency {
 			let symbol = this.map.get(target, property)
 			if (!symbol) {

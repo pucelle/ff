@@ -1,5 +1,5 @@
 export * from './box'
-export * from './box-edge-distances'
+export * from './box-distances'
 export * from './direction'
 export * from './integral-lookup'
 export * from './line-segment'

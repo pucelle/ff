@@ -2,18 +2,18 @@ import {Direction} from './direction'
 
 
 /** All 4 box edge distance keys. */
-export const BoxEdgeKeys: BoxEdgeDistanceKey[] = ['top', 'right', 'bottom', 'left']
+export const BoxDistanceKeys: BoxEdgeDistanceKey[] = ['top', 'right', 'bottom', 'left']
 
 
 /** Represents a box edge distances object, which including top, right, bottom, left values. */
-export class BoxEdgeDistances {
+export class BoxDistances {
 
 	/** Constant zero box edge distance object. */
-	static Zero: BoxEdgeDistances = Object.freeze(new BoxEdgeDistances())
+	static Zero: BoxDistances = Object.freeze(new BoxDistances())
 
 	/** Parse from a string to get a direction object. */
 	static fromString(string: string) {
-		return new BoxEdgeDistances(...string.split(/\s+/).map(s => Number(s)))
+		return new BoxDistances(...string.split(/\s+/).map(s => Number(s)))
 	}
 
 
@@ -56,7 +56,7 @@ export class BoxEdgeDistances {
 	}
 
 	/** Copy values from another box edge distance object. */
-	copyFrom(o: BoxEdgeDistances) {
+	copyFrom(o: BoxDistances) {
 		this.top = o.top
 		this.right = o.right
 		this.bottom = o.bottom
@@ -65,7 +65,7 @@ export class BoxEdgeDistances {
 
 	/** Clone current object. */
 	clone() {
-		return new BoxEdgeDistances(
+		return new BoxDistances(
 			this.top,
 			this.right,
 			this.bottom,
@@ -87,9 +87,9 @@ export class BoxEdgeDistances {
 	 * Collapse with several box edge distance objects into current,
 	 * pick maximum value in all the directions.
 	 */
-	collapse(...os: BoxEdgeDistances[]): this {
+	collapse(...os: BoxDistances[]): this {
 		for (let o of os) {
-			for (let key of BoxEdgeKeys) {
+			for (let key of BoxDistanceKeys) {
 				this[key] = Math.max(this[key], o[key])
 			}
 		}
@@ -101,7 +101,7 @@ export class BoxEdgeDistances {
 	 * Collapse with a box edge distance object,
 	 * pick maximum value at specified direction.
 	 */
-	collapseAt(o: BoxEdgeDistances, direction: Direction) {
+	collapseAt(o: BoxDistances, direction: Direction) {
 		let keys = direction.toBoxEdgeKeys()
 
 		for (let key of keys) {
@@ -124,7 +124,7 @@ export class BoxEdgeDistances {
 	}
 
 	/** Pick values by specified box edge distance keys, values at other directions will become `0`. */
-	pickBy(keys: BoxEdgeDistanceKey[]): BoxEdgeDistances {
+	pickBy(keys: BoxEdgeDistanceKey[]): BoxDistances {
 		let {top, right, bottom, left} = this
 
 		top = keys.includes('top') ? top : 0
@@ -132,7 +132,7 @@ export class BoxEdgeDistances {
 		bottom = keys.includes('bottom') ? bottom : 0
 		left = keys.includes('left') ? left : 0
 
-		return new BoxEdgeDistances(
+		return new BoxDistances(
 			top,
 			right,
 			bottom,
@@ -141,13 +141,13 @@ export class BoxEdgeDistances {
 	}
 
 	/** Pick values at specified direction, values at other directions will become `0`. */
-	pickAt(direction: Direction): BoxEdgeDistances {
+	pickAt(direction: Direction): BoxDistances {
 		let keys = direction.toBoxEdgeKeys()
 		return this.pickBy(keys)
 	}
 
 	/** Multiply scalar value, returns a new object. */
-	multiplyScalar(factor: number): BoxEdgeDistances {
+	multiplyScalar(factor: number): BoxDistances {
 		return this.clone().multiplyScalarSelf(factor)
 	}
 
@@ -163,7 +163,7 @@ export class BoxEdgeDistances {
 
 
 	/** Round all values, returns a new object. */
-	round(): BoxEdgeDistances {
+	round(): BoxDistances {
 		return this.clone().roundSelf()
 	}
 
@@ -178,7 +178,7 @@ export class BoxEdgeDistances {
 	}
 
 	/** Do Math Ceil for all values, returns a new object. */
-	ceil(): BoxEdgeDistances {
+	ceil(): BoxDistances {
 		return this.clone().ceilSelf()
 	}
 
@@ -193,7 +193,7 @@ export class BoxEdgeDistances {
 	}
 
 	/** Do Math Floor for all values, returns a new object. */
-	floor(): BoxEdgeDistances {
+	floor(): BoxDistances {
 		return this.clone().floorSelf()
 	}
 

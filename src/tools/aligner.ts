@@ -1,4 +1,4 @@
-import {Box, Direction, BoxEdgeDistances, Point} from '../math'
+import {Box, Direction, BoxDistances, Point} from '../math'
 import {DOMUtils} from '../utils'
 
 
@@ -205,7 +205,7 @@ export class Aligner implements Omit<AlignerOptions, 'margin'> {
 	private readonly directionMask: AlignerDirectionMask
 
 	/** Margin outside of `target` element. */
-	private readonly margins: BoxEdgeDistances
+	private readonly margins: BoxDistances
 
 	/** Whether `to-align` element use fixed alignment position. */
 	private readonly useFixedAlignment: boolean
@@ -722,8 +722,8 @@ function parseAlignDirectionMask([d1, d2]: [Direction, Direction]): AlignerDirec
 
 
 /** Parse margin values to get a margin object, and apply triangle size to it. */
-function parseMargins(marginValue: number | number[], triangle: HTMLElement | undefined, directionMask: AlignerDirectionMask): BoxEdgeDistances {
-	let margins = new BoxEdgeDistances(...(typeof marginValue === 'number' ? [marginValue] : marginValue))
+function parseMargins(marginValue: number | number[], triangle: HTMLElement | undefined, directionMask: AlignerDirectionMask): BoxDistances {
+	let margins = new BoxDistances(...(typeof marginValue === 'number' ? [marginValue] : marginValue))
 
 	if (triangle) {
 		if (directionMask.top || directionMask.bottom) {

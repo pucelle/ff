@@ -107,6 +107,7 @@ export namespace MouseLeaveControl {
 	}
 
 
+	/** Timeout counter to check and delete disconnected elements. */
 	const clearDisconnectedTimeout = new Timeout(clearDisconnectedInIdle, 60000)
 
 	async function clearDisconnectedInIdle() {
@@ -207,7 +208,7 @@ export namespace MouseLeaveControl {
 			}
 		}
 
-		/** Finish leave by calling callback. */
+		/** Finish leave by calling leave callback. */
 		finishLeave() {
 			this.callback()
 		}

@@ -2,7 +2,7 @@ import {NumberUtils} from '../utils'
 import {Vector} from './vector'
 
 
-/** All Direction values. */
+/** All Direction enumerable values. */
 export enum DirectionValue {
 	None = NaN,
 	Center = 0,

@@ -1,5 +1,5 @@
-import {observe, deepObserve, proxiedObserve, computed} from '../../src/observer/decorators'
-import {DependencyCapturer} from '../../src/observer/dependency-capturer'
+import {observable, deepObservable, proxiedObservable, computed} from '../../src/observable/decorators'
+import {DependencyCapturer} from '../../src/observable/dependency-capturer'
 
 
 describe('Test observer', () => {
@@ -10,7 +10,7 @@ describe('Test observer', () => {
 			update = jest.fn()
 		}
 	
-		observe(A.prototype, 'key')
+		observable(A.prototype, 'key')
 
 		
 		let a = new A()
@@ -33,7 +33,7 @@ describe('Test observer', () => {
 			update = jest.fn()
 		}
 	
-		deepObserve(A.prototype, 'key')
+		deepObservable(A.prototype, 'key')
 
 		
 		let a = new A()
@@ -58,7 +58,7 @@ describe('Test observer', () => {
 			update = jest.fn()
 		}
 	
-		proxiedObserve(A.prototype, 'key')
+		proxiedObservable(A.prototype, 'key')
 
 		
 		let a = new A()
@@ -84,7 +84,7 @@ describe('Test observer', () => {
 			}
 		}
 	
-		proxiedObserve(A.prototype, 'key')
+		proxiedObservable(A.prototype, 'key')
 		computed(A.prototype, 'com', Object.getOwnPropertyDescriptor(A.prototype, 'com')!)
 
 		

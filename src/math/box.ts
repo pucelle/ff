@@ -1,6 +1,6 @@
 import {ListUtils} from '../utils'
 import {Direction} from './direction'
-import {BoxEdgeDistances} from './box-edge-distances'
+import {BoxDistances} from './box-distances'
 import {LineSegment} from './line-segment'
 import {Point} from './point'
 import {Size} from './size'
@@ -270,8 +270,8 @@ export class Box implements BoxLike {
 	 * If self is much bigger and fully contains targeted box,
 	 * all values of returned object are positive.
 	 */
-	paddingTo(b: Box): BoxEdgeDistances {
-		return new BoxEdgeDistances(
+	paddingTo(b: Box): BoxDistances {
+		return new BoxDistances(
 			b.y - this.y,
 			this.right - b.right,
 			this.bottom - b.bottom,
@@ -447,12 +447,12 @@ export class Box implements BoxLike {
 	}
 
 	/** Expand by a box edge distances object, returns a new box. */
-	expandByBoxEdges(o: BoxEdgeDistances): Box {
+	expandByBoxEdges(o: BoxDistances): Box {
 		return this.clone().expandByBoxEdgesSelf(o)
 	}
 
 	/** Expand by a box edge distances object. */
-	expandByBoxEdgesSelf(o: BoxEdgeDistances): Box {
+	expandByBoxEdgesSelf(o: BoxDistances): Box {
 		let {top, right, bottom, left} = o
 		this.x = this.x - left
 		this.y = this.y - top
