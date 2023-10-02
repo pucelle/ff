@@ -1,4 +1,4 @@
-import {Direction, BoxEdgeDistances, Size} from '../../src/math'
+import {Direction, BoxDistances, Size} from '../../src/math'
 import {Box} from '../../src/math/box'
 import {LineSegment} from '../../src/math/line-segment'
 import {Point} from '../../src/math/point'
@@ -35,7 +35,7 @@ describe('Test Box', () => {
 		])
 
 		expect(b.size()).toEqual(new Size(10, 10))
-		expect(b.paddingTo(new Box(1, 1, 8, 8))).toEqual(new BoxEdgeDistances(1))
+		expect(b.paddingTo(new Box(1, 1, 8, 8))).toEqual(new BoxDistances(1))
 		expect(b.union(new Box(1, 1, 10, 10))).toEqual(new Box(0, 0, 11, 11))
 		expect(b.intersect(new Box(1, 1, 10, 10))).toEqual(new Box(1, 1, 9, 9))
 		expect(b.difference(new Box(0, 1, 10, 10))).toEqual(new Box(0, 0, 10, 1))
@@ -44,7 +44,7 @@ describe('Test Box', () => {
 		expect(b.unionAt(new Box(-1, -1, 12, 12), Direction.Top)).toEqual(new Box(0, -1, 10, 11))
 		expect(b.unionAt(new Box(-1, -1, 12, 12), Direction.Left)).toEqual(new Box(-1, 0, 11, 10))
 		expect(b.expand(1)).toEqual(new Box(-1, -1, 12, 12))
-		expect(b.expandByBoxEdges(new BoxEdgeDistances(1))).toEqual(new Box(-1, -1, 12, 12))
+		expect(b.expandByBoxEdges(new BoxDistances(1))).toEqual(new Box(-1, -1, 12, 12))
 
 		b.set(0, 0, 20, 20)
 		expect(b.area).toEqual(400)

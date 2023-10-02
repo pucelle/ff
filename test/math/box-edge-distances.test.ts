@@ -1,22 +1,22 @@
 import {Direction} from '../../src/math/direction'
-import {BoxEdgeDistances} from '../../src/math/box-edge-distances'
+import {BoxDistances} from '../../src/math/box-distances'
 
 
-describe('Test BoxEdgeDistances', () => {
+describe('Test BoxDistances', () => {
 
-	test('BoxEdgeDistances', () => {
-		let d = new BoxEdgeDistances(10)
+	test('BoxDistances', () => {
+		let d = new BoxDistances(10)
 		
 		expect(d.horizontal).toEqual(20)
 		expect(d.vertical).toEqual(20)
 		expect(d.getMaximumAbsuluteValue()).toEqual(10)
 
 		d.set(10)
-		d.collapse(new BoxEdgeDistances(20))
+		d.collapse(new BoxDistances(20))
 		expect(d.toArray()).toEqual([20, 20, 20, 20])
 
 		d.set(10)
-		d.collapseAt(new BoxEdgeDistances(20), Direction.Top)
+		d.collapseAt(new BoxDistances(20), Direction.Top)
 		expect(d.toArray()).toEqual([20, 10, 10, 10])
 
 		d.set(10)

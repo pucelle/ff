@@ -3,7 +3,7 @@ import {NumberUtils} from '../../src/utils/number'
 
 describe('Test number', () => {
 	test('toDecimal', () => {
-		expect(NumberUtils.toDecimal(123.456)).toEqual(123)
+		expect(NumberUtils.toDecimal(123.456, 0)).toEqual(123)
 		expect(NumberUtils.toDecimal(123.456, 2)).toEqual(123.46)
 		expect(NumberUtils.toDecimal(123.456, -2)).toEqual(100)
 		expect(NumberUtils.toDecimal(123.456, -3)).toEqual(0)

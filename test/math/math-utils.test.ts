@@ -16,7 +16,7 @@ describe('Test MathUtils', () => {
 
 		expect(MathUtils.solveOneVariableQuadraticEquation(1, 2, 1)).toEqual([-1, -1])
 		expect(MathUtils.solveOneVariableQuadraticEquation(1, 0, -1)).toEqual([-1, 1])
-		expect(MathUtils.solveOneVariableQuadraticEquation(1, 0, 1)).toEqual([])
+		expect(MathUtils.solveOneVariableQuadraticEquation(1, 0, 1)).toEqual(null)
 
 		expect(MathUtils.pickPeriodicValuesInRange(0.1, 1, 0, 2)).toEqual([0.1, 1.1])
 		expect(MathUtils.pickClosestPeriodicValueInRange(0.1, 1, 0, 2)).toEqual(0.1)
