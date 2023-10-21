@@ -114,6 +114,153 @@ export namespace ListUtils {
 	}
 
 
+	/** Ordering direction, `-1` to sort items from larger to smaller, while `1` to sort items from smaller to larger. */
+	export type OrderDirection = -1 | 1 | 'asc' | 'desc'
+
+	/** Ordering function that map each item to a sortable string or number. */
+	export type OrderFunction<T> = (item: T) => string | number | null | undefined
+
+	/** Order key or function, or `[order key or function, order direction]` tuple. */
+	export type OrderRule<T> = SortableKey<T> | OrderFunction<T> | [SortableKey<T> | OrderFunction<T>, OrderDirection]
+
+	/** Extract sortable keys from type `T`. */
+	export type SortableKey<T> = T extends object ? keyof T & (string | number) : never;
+
+	/** `[order key or function, order direction -1 or 1]` tuple. */
+	type NormativeOrderRules<T> = {fn: OrderFunction<T>, direction: -1 | 1}
+
+
+	/**
+	 * Compare with quick helper function `orderBy`,
+	 * an `Order` class can normalize and sorting parameters and resue it later.
+	 */
+	export class Order<T> {
+
+		/** Order rules after normalize. */
+		private orders: NormativeOrderRules<T>[] = []
+
+		constructor(...orders: OrderRule<T>[]) {
+			for (let order of orders) {
+				if (Array.isArray(order)) {
+					this.orders.push({
+						fn: this.normalizeOrderKey(order[0]), 
+						direction: this.normalizeOrderDirection(order[1]),
+					})
+				}
+				else {
+					this.orders.push({
+						fn: this.normalizeOrderKey(order), 
+						direction: 1,
+					})
+				}
+			}
+		}
+
+		private normalizeOrderKey(keyOrFn: SortableKey<T> | OrderFunction<T>): OrderFunction<T> {
+			if (typeof keyOrFn === 'string' || typeof keyOrFn === 'number') {
+				return ((item: T) => item[keyOrFn]) as OrderFunction<T>
+			}
+			else {
+				return keyOrFn
+			}
+		}
+
+		private normalizeOrderDirection(d: OrderDirection): -1 | 1 {
+			if (d === 'asc') {
+				return 1
+			}
+			else if (d === 'desc') {
+				return -1
+			}
+			else {
+				return d
+			}
+		}
+
+		/** 
+		 * Sort `list` inside it's memory, by current order.
+		 * `direction` specifies additional order adjustment.
+		 */
+		sort(list: T[], direction: OrderDirection = 1) {
+			let normalizedDirection = direction === 'asc' ? 1 : direction === 'desc' ? -1 : direction
+
+			list.sort((a, b) => {
+				return this.compare(a, b) * normalizedDirection
+			})
+		}
+
+		/**
+		 * Compare two items by current order.
+		 * Returns one of `0, -1, 1`.
+		 */
+		compare(a: T, b: T): 0 | -1 | 1 {
+			for (let {fn, direction} of this.orders) {
+				let ai = fn(a) as string | number
+				let bi = fn(b) as string | number
+
+				if (ai < bi) {
+					return -direction as -1 | 1
+				}
+
+				if (ai > bi) {
+					return direction
+				}
+			}
+
+			return 0
+		}
+
+		/** 
+		 * Binary find an insert index from a list, which has been sorted by current `Order`.
+		 * And make the list is still in sorted state after inserting the new value.
+		 * Returned index is betweens `0 ~ list length`.
+		 */
+		binaryFindInsertIndex(list: T[], item: T): number {
+			return binaryFindInsertIndex(list, item, i => this.compare(item, i))
+		}
+
+		/** 
+		 * Binary find an insert index from a list, which has been sorted by current `Order`.
+		 * And make the list is still in sorted state after inserting the new value.
+		 * Returned index is betweens `0 ~ list length`.
+		 * Note when some equal values exist, the returned index prefers lower.
+		 */
+		binaryFindLowerInsertIndex(list: T[], item: T): number {
+			return binaryFindLowerInsertIndex(list, item, i => this.compare(item, i))
+		}
+
+		/** 
+		 * Binary find an item from a list, which has been sorted by current `Order`.
+		 * Returns the found item, or `undefined` if nothing found.
+		 */
+		binaryFind(list: T[], item: T) {
+			return binaryFind(list, item, i => this.compare(item, i))
+		}
+		
+		/** 
+		 * Binary insert an item from a list, which has been sorted by current `Order`
+		 * After inserted, target list is still in sorted state.
+		 * Returns the insert index.
+		 * Uses `array.splice` to do inserting so watch the performance.
+		 */
+		binaryInsert(list: T[], item: T) {
+			return binaryInsert(list, item, i => this.compare(item, i))
+		}
+	}
+
+
+	/** 
+	 * Sort `list` inside it's memory, by specified orders.
+	 * Multiple order rules can be specified.
+	 */
+	export function orderBy<T>(list: T[], ...orders: OrderRule<T>[]): T[] {
+		let order = new Order(...orders)
+		order.sort(list)
+
+		return list
+	}
+
+
 	/**
 	 * Returns the index of the minimal value of all the items in list.
 	 * `map`: comparing the minimum item by this map function.
@@ -181,29 +328,29 @@ export namespace ListUtils {
 
 
 	/** 
-	 * Binary find a insert index from a list, which has sorted from lower to upper,
-	 * to make the list is still in sorted state after inserting the new value.
+	 * Binary find an insert index from a list, which has been sorted by `comparer`.
+	 * And make the list is still in sorted state after inserting the new value.
 	 * Returned index is betweens `0 ~ list length`.
 	 * Note when some equal values exist, the returned index prefers upper.
 	 * `comparer` is used to compare two values.
 	 */
-	export function binaryFindInsertIndex<T>(sorted: T[], toInsert: T, comparer: (v1: T, v2: T) => number): number {
-		if (sorted.length === 0) {
+	export function binaryFindInsertIndex<T>(sortedList: T[], toInsert: T, comparer: (v1: T, v2: T) => number): number {
+		if (sortedList.length === 0) {
 			return 0
 		}
-		else if (comparer(toInsert, sorted[0]) < 0) {
+		else if (comparer(toInsert, sortedList[0]) < 0) {
 			return 0
 		}
-		else if (comparer(toInsert, sorted[sorted.length - 1]) > 0) {
-			return sorted.length
+		else if (comparer(toInsert, sortedList[sortedList.length - 1]) > 0) {
+			return sortedList.length
 		}
 		else {
 			let start = 0
-			let end = sorted.length - 1
+			let end = sortedList.length - 1
 
 			while (start + 1 < end) {
 				let center = Math.floor((end + start) / 2)
-				let result = comparer(sorted[center], toInsert)
+				let result = comparer(sortedList[center], toInsert)
 		
 				if (result <= 0) {
 					start = center
@@ -220,19 +367,50 @@ export namespace ListUtils {
 
 
 	/** 
-	 * Binary find a insert index from a list, which has sorted from lower to upper,
-	 * to make the list is still in sorted state after inserting the new value.
+	 * Binary find an insert index from a list, which has been sorted by `comparer`.
+	 * And make the list is still in sorted state after inserting the new value.
 	 * Returned index is betweens `0 ~ list length`.
 	 * Note when some equal values exist, the returned index prefers lower.
 	 * `comparer` is used to compare two values.
 	 */
-	export function binaryFindLowerInsertIndex<T>(sorted: T[], toInsert: T, comparer: (value: T, compareValue: T) => number): number {
-		let index = binaryFindInsertIndex(sorted, toInsert, comparer)
+	export function binaryFindLowerInsertIndex<T>(sortedList: T[], toInsert: T, comparer: (value: T, compareValue: T) => number): number {
+		let index = binaryFindInsertIndex(sortedList, toInsert, comparer)
 
-		while (index > 0 && comparer(toInsert, sorted[index - 1]) === 0) {
+		while (index > 0 && comparer(toInsert, sortedList[index - 1]) === 0) {
 			index--
 		}
 
 		return index
+	}
+
+
+	/** 
+	 * Binary insert an item from a list, which has been sorted by `comparer`.
+	 * After inserted, target list is still in sorted state.
+	 * Returns the insert index.
+	 * Uses `array.splice` to do inserting so watch the performance.
+	 */
+	export function binaryInsert<T>(sortedList: T[], toInsert: T, comparer: (value: T, compareValue: T) => number): number {
+		let index = binaryFindInsertIndex(sortedList, toInsert, comparer)
+		sortedList.splice(index, 0, toInsert)
+		return index
+	}
+
+
+	/** 
+	 * Binary find an item from a list, which has been sorted by `comparer`.
+	 * Returns the found item, or `undefined` if nothing found.
+	 */
+	export function binaryFind<T>(sortedList: T[], like: T, comparer: (value: T, compareValue: T) => number): T | undefined {
+		let index = binaryFindInsertIndex(sortedList, like, comparer)
+		if (index === sortedList.length) {
+			return undefined
+		}
+
+		if (comparer(sortedList[index], like) === 0) {
+			return sortedList[index]
+		}
+
+		return undefined
 	}
 }

@@ -192,4 +192,32 @@ export namespace ValueListUtils {
 
 		return index
 	}
+
+	
+	/** 
+	 * Binary insert a numeric value from a list, which has been sorted from lower to upper.
+	 * After inserted, target list is still in sorted state.
+	 * Returns the insert index.
+	 * Uses `array.splice` to do inserting so watch the performance.
+	 */
+	export function binaryInsert(sorted: number[], toInsert: number): number {
+		let index = binaryFindInsertIndex(sorted, toInsert)
+		sorted.splice(index, 0, toInsert)
+		return index
+	}
+
+
+	/** Binary find a numeric value from a list, which has been sorted from lower to upper. */
+	export function binaryFind(sorted: number[], value: number): number | undefined {
+		let index = binaryFindInsertIndex(sorted, value)
+		if (index === sorted.length) {
+			return undefined
+		}
+
+		if (sorted[index] === value) {
+			return sorted[index]
+		}
+
+		return undefined
+	}
 }

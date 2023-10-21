@@ -39,6 +39,18 @@ describe('Test list', () => {
 		expect(ObjectUtils.mapToObject(ListUtils.groupBy([0,1,2,3,4,5,6,7,8,9], x => [x % 3, x]))).toEqual({0:[0,3,6,9], 1:[1,4,7], 2:[2,5,8]})
 	})
 
+	test('orderBy', () => {
+		expect(ListUtils.orderBy([3,2,1], v => v)).toEqual([1,2,3])
+		expect(ListUtils.orderBy([3,2,1], [v => v, 1])).toEqual([1,2,3])
+		expect(ListUtils.orderBy([1,2,3], [v => v, -1])).toEqual([3,2,1])
+
+		expect(ListUtils.orderBy([{a:2}, {a:1}], 'a')).toEqual([{a:1}, {a:2}])
+		expect(ListUtils.orderBy([{a:1, b:2}, {a:1, b:1}], ['a', 1], 'b')).toEqual([{a:1,b:1}, {a:1,b:2}])
+		expect(ListUtils.orderBy([{a:1, b:2}, {a:1, b:1}], ['a', 1], ['b', -1])).toEqual([{a:1,b:2}, {a:1,b:1}])
+
+		expect(ListUtils.orderBy([2, 1, null], v => v ?? -Infinity)).toEqual([null, 1, 2])
+	})
+
 	test('minIndex', () => {
 		expect(ListUtils.minIndex([1,1,2], x => x)).toEqual(0)
 		expect(ListUtils.minIndex([{a:1}, {a:1}, {a:2}], x => x.a)).toEqual(0)
