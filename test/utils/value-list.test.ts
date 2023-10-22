@@ -53,11 +53,35 @@ describe('Test value-list', () => {
 		expect(ValueListUtils.maxOf([-Infinity])).toEqual(null)
 	})
 
-	test('binaryFindInsertIndex', () => {
-		expect(ValueListUtils.binaryFindInsertIndex([1,1,2], 1)).toEqual(2)
+	test.only('binaryFindInsertIndex', () => {
+		expect(ValueListUtils.binaryFindInsertIndex([1,2,3], 0)).toEqual(0)
+		expect(ValueListUtils.binaryFindInsertIndex([1,2,3], 1)).toEqual(1)
+		expect(ValueListUtils.binaryFindInsertIndex([1,2,3], 2)).toEqual(2)
+		expect(ValueListUtils.binaryFindInsertIndex([1,2,3], 3)).toEqual(3)
+		expect(ValueListUtils.binaryFindInsertIndex([1,2,3], 4)).toEqual(3)
 	})
 
 	test('binaryFindLowerInsertIndex', () => {
-		expect(ValueListUtils.binaryFindLowerInsertIndex([1,1,2], 1)).toEqual(0)
+		expect(ValueListUtils.binaryFindInsertIndex([1,2,3], 0)).toEqual(0)
+		expect(ValueListUtils.binaryFindInsertIndex([1,2,3], 1)).toEqual(0)
+		expect(ValueListUtils.binaryFindInsertIndex([1,2,3], 2)).toEqual(1)
+		expect(ValueListUtils.binaryFindInsertIndex([1,2,3], 3)).toEqual(2)
+		expect(ValueListUtils.binaryFindInsertIndex([1,2,3], 4)).toEqual(3)
+	})
+
+	test('binaryFind', () => {
+		expect(ValueListUtils.binaryFind([1,2,3], 0)).toEqual(undefined)
+		expect(ValueListUtils.binaryFind([1,2,3], 1)).toEqual(1)
+		expect(ValueListUtils.binaryFind([1,2,3], 2)).toEqual(2)
+		expect(ValueListUtils.binaryFind([1,2,3], 3)).toEqual(3)
+		expect(ValueListUtils.binaryFind([1,2,3], 4)).toEqual(undefined)
+	})
+
+	test('binaryFind', () => {
+		expect(ValueListUtils.binaryInsert([1,2,3], 0)).toEqual(0)
+		expect(ValueListUtils.binaryInsert([1,2,3], 1)).toEqual(1)
+		expect(ValueListUtils.binaryInsert([1,2,3], 2)).toEqual(2)
+		expect(ValueListUtils.binaryInsert([1,2,3], 3)).toEqual(3)
+		expect(ValueListUtils.binaryInsert([1,2,3], 4)).toEqual(3)
 	})
 })

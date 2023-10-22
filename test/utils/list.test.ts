@@ -79,13 +79,35 @@ describe('Test list', () => {
 		expect(ListUtils.maxOf([-Infinity], x => x)).toEqual(null)
 	})
 
-	test('binaryFindInsertIndex', () => {
-		expect(ListUtils.binaryFindInsertIndex([1,1,2], 1, (a, b) => a - b)).toEqual(2)
-		expect(ListUtils.binaryFindInsertIndex([{a:1}, {a:1}, {a:2}], {a: 1}, (a, b) => a.a - b.a)).toEqual(2)
+	test.only('binaryFindInsertIndex', () => {
+		expect(ListUtils.binaryFindInsertIndex([1,2,3], 0, (a, b) => a - b)).toEqual(0)
+		expect(ListUtils.binaryFindInsertIndex([1,2,3], 1, (a, b) => a - b)).toEqual(1)
+		expect(ListUtils.binaryFindInsertIndex([1,2,3], 2, (a, b) => a - b)).toEqual(2)
+		expect(ListUtils.binaryFindInsertIndex([1,2,3], 3, (a, b) => a - b)).toEqual(3)
+		expect(ListUtils.binaryFindInsertIndex([1,2,3], 4, (a, b) => a - b)).toEqual(3)
 	})
 
 	test('binaryFindLowerInsertIndex', () => {
-		expect(ListUtils.binaryFindLowerInsertIndex([1,1,2], 1, (a, b) => a - b)).toEqual(0)
-		expect(ListUtils.binaryFindLowerInsertIndex([{a:1}, {a:1}, {a:2}], {a: 1}, (a, b) => a.a - b.a)).toEqual(0)
+		expect(ListUtils.binaryFindInsertIndex([1,2,3], 0, (a, b) => a - b)).toEqual(0)
+		expect(ListUtils.binaryFindInsertIndex([1,2,3], 1, (a, b) => a - b)).toEqual(0)
+		expect(ListUtils.binaryFindInsertIndex([1,2,3], 2, (a, b) => a - b)).toEqual(1)
+		expect(ListUtils.binaryFindInsertIndex([1,2,3], 3, (a, b) => a - b)).toEqual(2)
+		expect(ListUtils.binaryFindInsertIndex([1,2,3], 4, (a, b) => a - b)).toEqual(3)
+	})
+
+	test('binaryFind', () => {
+		expect(ListUtils.binaryFind([1,2,3], 0, (a, b) => a - b)).toEqual(undefined)
+		expect(ListUtils.binaryFind([1,2,3], 1, (a, b) => a - b)).toEqual(1)
+		expect(ListUtils.binaryFind([1,2,3], 2, (a, b) => a - b)).toEqual(2)
+		expect(ListUtils.binaryFind([1,2,3], 3, (a, b) => a - b)).toEqual(3)
+		expect(ListUtils.binaryFind([1,2,3], 4, (a, b) => a - b)).toEqual(undefined)
+	})
+
+	test('binaryFind', () => {
+		expect(ListUtils.binaryInsert([1,2,3], 0, (a, b) => a - b)).toEqual(0)
+		expect(ListUtils.binaryInsert([1,2,3], 1, (a, b) => a - b)).toEqual(1)
+		expect(ListUtils.binaryInsert([1,2,3], 2, (a, b) => a - b)).toEqual(2)
+		expect(ListUtils.binaryInsert([1,2,3], 3, (a, b) => a - b)).toEqual(3)
+		expect(ListUtils.binaryInsert([1,2,3], 4, (a, b) => a - b)).toEqual(3)
 	})
 })

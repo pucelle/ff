@@ -184,9 +184,16 @@ export namespace ListUtils {
 		sort(list: T[], direction: OrderDirection = 1) {
 			let normalizedDirection = direction === 'asc' ? 1 : direction === 'desc' ? -1 : direction
 
-			list.sort((a, b) => {
-				return this.compare(a, b) * normalizedDirection
-			})
+			if (normalizedDirection === 1) {
+				list.sort((a, b) => {
+					return this.compare(a, b)
+				})
+			}
+			else {
+				list.sort((a, b) => {
+					return -this.compare(a, b)
+				})
+			}
 		}
 
 		/**
@@ -338,31 +345,32 @@ export namespace ListUtils {
 		if (sortedList.length === 0) {
 			return 0
 		}
-		else if (comparer(toInsert, sortedList[0]) < 0) {
+
+		if (comparer(toInsert, sortedList[0]) < 0) {
 			return 0
 		}
-		else if (comparer(toInsert, sortedList[sortedList.length - 1]) > 0) {
+
+		if (comparer(toInsert, sortedList[sortedList.length - 1]) >= 0) {
 			return sortedList.length
 		}
-		else {
-			let start = 0
-			let end = sortedList.length - 1
 
-			while (start + 1 < end) {
-				let center = Math.floor((end + start) / 2)
-				let result = comparer(sortedList[center], toInsert)
-		
-				if (result <= 0) {
-					start = center
-				}
-				else {
-					end = center
-				}
+		let start = 0
+		let end = sortedList.length - 1
+
+		while (start + 1 < end) {
+			let center = Math.floor((end + start) / 2)
+			let result = comparer(sortedList[center], toInsert)
+	
+			if (result <= 0) {
+				start = center
 			}
-
-			// Value at start index always <= `value`, and value at end index always > `value`.
-			return end
+			else {
+				end = center
+			}
 		}
+
+		// Value at start index always <= `value`, and value at end index always > `value`.
+		return end
 	}
 
 

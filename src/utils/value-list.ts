@@ -154,31 +154,32 @@ export namespace ValueListUtils {
 		if (sorted.length === 0) {
 			return 0
 		}
-		else if (toInsert < sorted[0]) {
+
+		if (toInsert < sorted[0]) {
 			return 0
 		}
-		else if (toInsert >= sorted[sorted.length - 1]) {
+
+		if (toInsert >= sorted[sorted.length - 1]) {
 			return sorted.length
 		}
-		else {
-			let start = 0
-			let end = sorted.length - 1
 
-			while (start + 1 < end) {
-				let center = Math.floor((end + start) / 2)
-				let centerValue = sorted[center]
-		
-				if (centerValue <= toInsert) {
-					start = center
-				}
-				else {
-					end = center
-				}
+		let start = 0
+		let end = sorted.length - 1
+
+		while (start + 1 < end) {
+			let center = Math.floor((end + start) / 2)
+			let centerValue = sorted[center]
+	
+			if (centerValue <= toInsert) {
+				start = center
 			}
-
-			// Value at start index always <= `value`, and value at end index always > `value`.
-			return end
+			else {
+				end = center
+			}
 		}
+
+		// Value at start index always <= `value`, and value at end index always > `value`.
+		return end
 	}
 
 
