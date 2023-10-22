@@ -393,7 +393,7 @@ export namespace ListUtils {
 
 
 	/** 
-	 * Binary insert an item from a list, which has been sorted by `comparer`.
+	 * Binary insert an item to a list, which has been sorted by `comparer`.
 	 * After inserted, target list is still in sorted state.
 	 * Returns the insert index.
 	 * Uses `array.splice` to do inserting so watch the performance.

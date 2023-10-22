@@ -196,7 +196,7 @@ export namespace ValueListUtils {
 
 	
 	/** 
-	 * Binary insert a numeric value from a list, which has been sorted from lower to upper.
+	 * Binary insert a numeric value to a list, which has been sorted from lower to upper.
 	 * After inserted, target list is still in sorted state.
 	 * Returns the insert index.
 	 * Uses `array.splice` to do inserting so watch the performance.
