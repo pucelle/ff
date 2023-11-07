@@ -1,10 +1,3 @@
-interface WillUpdatable {
-
-	/** Notify that some depedencies have changed, and current object should be updated soon. */
-	willUpdate(): void
-}
-
-
 /** 
  * Observe specified property, returns a property decoration.
  * After observed, modifiying of this property will notify current object to call `willUpdate`.

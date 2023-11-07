@@ -1,5 +1,5 @@
 export * from './decorators'
 export * from './dependency-capturer'
-export * from '../utils/mixin'
 export * from './watcher'
+export * from './will-updatable'
 import './types'

@@ -2,7 +2,7 @@ import {Direction} from './direction'
 
 
 /** All 4 box edge distance keys. */
-export const BoxDistanceKeys: BoxEdgeDistanceKey[] = ['top', 'right', 'bottom', 'left']
+export const BoxDistanceKeys: BoxDistanceKey[] = ['top', 'right', 'bottom', 'left']
 
 
 /** Represents a box edge distances object, which including top, right, bottom, left values. */
@@ -110,7 +110,7 @@ export class BoxDistances {
 	}
 
 	/** Collapse box edge distance value by box edge distance key. */
-	collapseValueBy(key: BoxEdgeDistanceKey, value: number) {
+	collapseValueBy(key: BoxDistanceKey, value: number) {
 		this[key] = Math.max(this[key], value)
 	}
 
@@ -124,7 +124,7 @@ export class BoxDistances {
 	}
 
 	/** Pick values by specified box edge distance keys, values at other directions will become `0`. */
-	pickBy(keys: BoxEdgeDistanceKey[]): BoxDistances {
+	pickBy(keys: BoxDistanceKey[]): BoxDistances {
 		let {top, right, bottom, left} = this
 
 		top = keys.includes('top') ? top : 0
@@ -208,7 +208,7 @@ export class BoxDistances {
 	}
 	
 	/** Convert to JSON data. */
-	toJSON(): Record<BoxEdgeDistanceKey, number> {
+	toJSON(): Record<BoxDistanceKey, number> {
 		return {
 			top: this.top,
 			right: this.right,

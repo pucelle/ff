@@ -102,7 +102,7 @@ export class Direction {
 	}
 
 	/** Make direction from a box edge distance key. */
-	static fromBoxEdgeKey(key: BoxEdgeDistanceKey): Direction {
+	static fromBoxEdgeKey(key: BoxDistanceKey): Direction {
 		if (key === 'left') {
 			return Direction.Left
 		}
@@ -580,7 +580,7 @@ export class Direction {
 	 * Convert to a box edge distance key.
 	 * Returns `null` if not be straight.
 	 */
-	toBoxEdgeKey(): BoxEdgeDistanceKey | null {
+	toBoxEdgeKey(): BoxDistanceKey | null {
 		if (this === Direction.Left) {
 			return 'left'
 		}
@@ -602,7 +602,7 @@ export class Direction {
 	 * Convert to one or two directional keys.
 	 * Returns empty array for Center or None direction.
 	 */
-	toBoxEdgeKeys(): BoxEdgeDistanceKey[] {
+	toBoxEdgeKeys(): BoxDistanceKey[] {
 		if (this === Direction.Left) {
 			return ['left']
 		}

@@ -1,73 +1,89 @@
-let agent = navigator.userAgent
-
-
-/** Whether Tablet. */
-let tablet = /iPad|PlayBook/i.test(agent)
-	|| (/Android/i.test(agent) && !/Mobile/i.test(agent))
-	|| (/Firefox/i.test(agent) && /Tablet/i.test(agent))
-	|| /iPad/i.test(agent)
-
-/** Whether Mobile. */
-let mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(agent) || tablet
-
-/** System Platform info. */
-let platform: 'win' | 'mac' | 'linux' | 'others' = /Windows/i.test(agent) ? 'win'
-	: /Mac OS/i.test(agent) ? 'mac'
-	: /Linux/i.test(agent) ? 'linux'
-	: 'others'
-
-
-/** Identify browser and platform info. */
+/** Identify browser and platform or device info. */
 export const BrowserInfo = {
 	
-	/** System Platform info. */
-	platform,
+	/** Get Platform info. */
+	get platform(): 'win' | 'mac' | 'linux' | 'others'  {
+		return /Windows/i.test(navigator.userAgent) ? 'win'
+			: /Mac OS/i.test(navigator.userAgent) ? 'mac'
+			: /Linux/i.test(navigator.userAgent) ? 'linux'
+			: 'others'
+	},
 
-	/** Whether Windows. */
-	windows: platform === 'win',
+	/** Whether be Windows platform. */
+	get windows(): boolean {
+		return this.platform === 'win'
+	},
 
-	/** Whether Mac OS. */
-	mac: platform === 'mac',
+	/** Whether be Mac OS platform. */
+	get mac(): boolean {
+		return this.platform === 'win'
+	},
 
-	/** Whether Linux. */
-	linux: platform === 'linux',
+	/** Whether be Linux platform. */
+	get linux(): boolean {
+		return this.platform === 'win'
+	},
 
+	/** Whether be Mobile device. */
+	get mobile() {
+		return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || this.tablet
+	},
 
-	/** Whether iPad. */
-	ipad: /iPad/i.test(agent),
+	/** Whether be Tablet device. */
+	get tablet() {
+		return /iPad|PlayBook/i.test(navigator.userAgent)
+			|| (/Android/i.test(navigator.userAgent) && !/Mobile/i.test(navigator.userAgent))
+			|| (/Firefox/i.test(navigator.userAgent) && /Tablet/i.test(navigator.userAgent))
+			|| /iPad/i.test(navigator.userAgent)
+	},
 
-	/** Whether Tablet. */
-	tablet,
+	/** Whether be iPad. */
+	get ipad(): boolean {
+		return /iPad/i.test(navigator.userAgent)
+	},
 
-	/** Whether Mobile device. */
-	mobile,
-
-	/** Whether iOS System. */
-	ios: /iPhone|iPad|iPod/i.test(agent),
+	/** Whether be iOS System. */
+	get ios(): boolean {
+		return  /iPhone|iPad|iPod/i.test(navigator.userAgent)
+	},
 
 	/** Whether Android System. */
-	android: /Android/i.test(agent),
-	
+	get android(): boolean {
+		return /Android/i.test(navigator.userAgent)
+	},
 
 	/** Whether IE. */
-	ie: /MSIE|Trident/i.test(agent),
+	get ie(): boolean {
+		return /MSIE|Trident/i.test(navigator.userAgent)
+	},
 
 	/** Whether Firefox. */
-	firefox: /Firefox/i.test(agent),
-	
+	get firefox(): boolean {
+		return /Firefox/i.test(navigator.userAgent)
+	},
+
 	/** Whether Edge. */
-	edge: /Edge/i.test(agent),
+	get edge(): boolean {
+		return /Edge/i.test(navigator.userAgent)
+	},
 
 	/** Whether Chrome. */
-	chrome: /Chrome/i.test(agent),
+	get chrome(): boolean {
+		return /Chrome/i.test(navigator.userAgent)
+	},
 
 	/** Whether Safari. */
-	safari: /Safari/i.test(agent) && !/Chrome/i.test(agent),
-	
+	get safari(): boolean {
+		return /Safari/i.test(navigator.userAgent) && !/Chrome/i.test(navigator.userAgent)
+	},
 
 	/** Whether having pointable input device, like mouse or pencil. */
-	pointable: matchMedia('(pointer:fine)').matches,
+	get pointable(): boolean {
+		return matchMedia('(pointer:fine)').matches
+	},
 
 	/** Whether in Electron Environment. */
-	electron: /Electron/i.test(agent),
+	get electron(): boolean {
+		return /Electron/i.test(navigator.userAgent)
+	},
 }

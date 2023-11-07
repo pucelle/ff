@@ -127,7 +127,7 @@ export type AlignerPosition = 't'
 	| 'cl-cr'
 	| 'cr-cl'
 
-type AlignerDirectionMask = Record<BoxEdgeDistanceKey, boolean>
+type AlignerDirectionMask = Record<BoxDistanceKey, boolean>
 
 
 const DefaultAlignerOptions: Omit<Required<AlignerOptions>, 'triangle' | 'margin'> = {

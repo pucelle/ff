@@ -1,5 +1,5 @@
 /** 
- * Reuqest to get a promise, which will be resolved after previous task end,
+ * Request to get a promise, which will be resolved after previous task end,
  * and current task will be started immediately.
  */
 export class AsyncTaskQueue {

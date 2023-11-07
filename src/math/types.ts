@@ -29,7 +29,7 @@ interface MatrixData {
 }
 
 /** 4 box edge distance keys. */
-type BoxEdgeDistanceKey = 'top' | 'right' | 'bottom' | 'left'
+type BoxDistanceKey = 'top' | 'right' | 'bottom' | 'left'
 
 /** Horizontal or vertical. */
 type HVDirection = 'horizontal' | 'vertical'
