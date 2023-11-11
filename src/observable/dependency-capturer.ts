@@ -1,9 +1,9 @@
-import {DoubleKeysBothWeakMap, DoubleKeysMap, TwoWaySetMap} from '../structs'
+import {DoubleKeysBothWeakMap, DoubleKeysWeakMap, TwoWaySetWeakMap} from '../structs'
 
 
 type Target = object
 type Callback = Function
-type Dependency = Symbol | object
+type Dependency = object | Symbol
 
 /** Contains captured depedencies, and the callback it need to call after any depedency get changed. */
 interface CapturedDependencies {
@@ -19,7 +19,7 @@ interface CapturedDependencies {
 export namespace DependencyCapturer {
 
 	/** Caches `Dependency <-> Callback`. */
-	const DependencyMap: TwoWaySetMap<Dependency, Callback> = new TwoWaySetMap()
+	const DependencyMap: TwoWaySetWeakMap<Dependency, Callback> = new TwoWaySetWeakMap()
 
 	/** Caches all binded callbacks, `Callback -> Scope -> Binded Callback`. */
 	const BindedCallbackMap: DoubleKeysBothWeakMap<Function, Target, Function> = new DoubleKeysBothWeakMap()
@@ -137,7 +137,7 @@ export namespace DependencyCapturer {
 	/** Cache symbols as depedencies by target object. */
 	export class DepedencyMap {
 
-		private map: Map<Target, Dependency> = new Map()
+		private map: WeakMap<Target, Dependency> = new WeakMap()
 
 		/** Get a symbol as represent of depedency for target object. */
 		get(target: Target): Dependency {
@@ -155,7 +155,7 @@ export namespace DependencyCapturer {
 	/** Cache symbols as depedencies by target object and a associated property name. */
 	export class SubDepedencyMap {
 
-		private map: DoubleKeysMap<Target, PropertyKey, Dependency> = new DoubleKeysMap()
+		private map: DoubleKeysWeakMap<Target, PropertyKey, Dependency> = new DoubleKeysWeakMap()
 
 		/** Get a symbol as represent of depedency for target object. */
 		get(target: Target, property: PropertyKey): Dependency {
@@ -169,3 +169,4 @@ export namespace DependencyCapturer {
 		}
 	}
 }
+

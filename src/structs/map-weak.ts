@@ -494,7 +494,7 @@ export class DoubleKeysWeakSetMap<K1 extends object, K2, V> extends DoubleKeysWe
  * Map struct that can query from left to right and right to left.
  * `L -> R`
  * `R -> L`
- * `L` and `R` must be object types.
+ * `L` and `R` must be object type.
  */
 export class TwoWayWeakMap<L extends object, R extends object> {
 
@@ -558,7 +558,7 @@ export class TwoWayWeakMap<L extends object, R extends object> {
  * Map Struct that can query from left to right group and right to left group.
  * `L -> Iterable<R>`
  * `R -> Iterable<L>`
- * `L` and `R` must be object types.
+ * `L` and `R` must be object type.
  */
 export abstract class TwoWayIterableValueWeakMap<L extends object, R extends object, LI extends Iterable<L>, RI extends Iterable<R>> {
 
@@ -700,7 +700,7 @@ export abstract class TwoWayIterableValueWeakMap<L extends object, R extends obj
  * Map struct that can query from left to right list and right to left list.
  * `L -> R[]`
  * `R -> L[]`
- * `L` and `R` must be object types.
+ * `L` and `R` must be object type.
  */
 export class TwoWayListWeakMap<L extends object, R extends object> extends TwoWayIterableValueWeakMap<L, R, L[], R[]> {
 
@@ -739,7 +739,7 @@ export class TwoWayListWeakMap<L extends object, R extends object> extends TwoWa
  * Map struct that can query from left to right set and right to left set.
  * `L -> Set<R>`
  * `R -> Set<L>`
- * `L` and `R` must be object types.
+ * `L` and `R` must be object type.
  */
 export class TwoWaySetWeakMap<L extends object, R extends object> extends TwoWayIterableValueWeakMap<L, R, Set<L>, Set<R>> {
 

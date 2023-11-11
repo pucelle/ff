@@ -1,4 +1,4 @@
-import {observable, deepObservable, proxiedObservable, computed} from '../../src/observable/decorators'
+import {observable, deepObservable, proxied, computed} from '../../src/observable/decorators'
 import {DependencyCapturer} from '../../src/observable/dependency-capturer'
 
 
@@ -52,47 +52,75 @@ describe('Test observer', () => {
 		expect(a.update).toBeCalledTimes(2)
 	})
 
-	it('Test proxiedObserve', () => {
+	it.only('Test proxied', () => {
 		class A {
-			key!: {b: number}
+			key!: {b: number, c: number[]}
 			update = jest.fn()
 		}
 	
-		proxiedObservable(A.prototype, 'key')
+		proxied(A.prototype, 'key')
 
 		
 		let a = new A()
-		a.key = {b: 1}
+		a.key = {b: 1, c: [1]}
 		a.update()
 
-		DependencyCapturer.startCapture(a.update, a)
-		a.key.b
-		DependencyCapturer.endCapture()
+		function reCapture() {
+			DependencyCapturer.startCapture(a.update, a)
+			a.key.b
+			a.key.c[0]
 
+			// To pass this test,
+			// Must change `TwoWaySetMap` to `TwoWaySetWeakMap` at `dependency-capturer.ts`.
+			// Because jest env doesn't allow symbol as weak keys.
+			// Don't forget to change it back after test finished.
+			DependencyCapturer.endCapture()
+		}
+
+		reCapture()
 		a.key.b = 2
 		expect(a.update).toBeCalledTimes(2)
 
+		reCapture()
 		a.key.b = 2
 		expect(a.update).toBeCalledTimes(2)
+
+		reCapture()
+		a.key.c = [2]
+		expect(a.update).toBeCalledTimes(3)
+
+		reCapture()
+		a.key.c[0] = 3
+		expect(a.update).toBeCalledTimes(4)
+
+		reCapture()
+		a.key.c.push(3)
+		expect(a.update).toBeCalledTimes(5)
 	})
 
 	it('Test computed', () => {
 		class A {
-			key!: number
-			get com() {
-				return this.key
+			v!: number
+			get v1() {
+				return this.v
+			}
+			get v2() {
+				return this.v1 + 1
 			}
 		}
 	
-		proxiedObservable(A.prototype, 'key')
-		computed(A.prototype, 'com', Object.getOwnPropertyDescriptor(A.prototype, 'com')!)
+		proxied(A.prototype, 'v')
+		computed(A.prototype, 'v1', Object.getOwnPropertyDescriptor(A.prototype, 'v1')!)
+		computed(A.prototype, 'v2', Object.getOwnPropertyDescriptor(A.prototype, 'v2')!)
 
 		
 		let a = new A()
-		a.key = 1
-		expect(a.com).toEqual(1)
+		a.v = 1
+		expect(a.v1).toEqual(1)
+		expect(a.v2).toEqual(2)
 
-		a.key = 2
-		expect(a.com).toEqual(2)
+		a.v = 2
+		expect(a.v1).toEqual(2)
+		expect(a.v2).toEqual(3)
 	})
 })

@@ -1,9 +1,12 @@
 import {ObjectUtils} from '../utils'
 import {DependencyCapturer} from './dependency-capturer'
-import {observeAny} from './helpers/proxied-observer'
+import {proxyOf} from './proxy'
 
 
+// Distinguish to proxied.
 type Target = object
+
+const {onGet, onSet, startCapture, endCapture, DepedencyMap} = DependencyCapturer
 
 
 /** 
@@ -12,12 +15,12 @@ type Target = object
  */
 export function observable<V = any>(target: any, property: string) {
 	const ValueMap: WeakMap<Target, V> = new WeakMap()
-	const SymbolMap = new DependencyCapturer.DepedencyMap()
+	const SymbolMap = new DepedencyMap()
 
 	const getter = function(this: Target) {
 
 		// Add dependency.
-		DependencyCapturer.onGet(SymbolMap.get(this))
+		onGet(SymbolMap.get(this))
 
 		return ValueMap.get(this)
 	}
@@ -29,7 +32,7 @@ export function observable<V = any>(target: any, property: string) {
 			ValueMap.set(this, newValue)
 
 			// Notify dependency changes.
-			DependencyCapturer.onSet(SymbolMap.get(this))
+			onSet(SymbolMap.get(this))
 		}
 	}
 
@@ -49,10 +52,10 @@ export function observable<V = any>(target: any, property: string) {
  */
 export function deepObservable<V = any>(target: any, property: string) {
 	const ValueMap: WeakMap<Target, V> = new WeakMap()
-	const SymbolMap = new DependencyCapturer.DepedencyMap()
+	const SymbolMap = new DepedencyMap()
 
 	const getter = function(this: Target) {
-		DependencyCapturer.onGet(SymbolMap.get(this))
+		onGet(SymbolMap.get(this))
 		return ValueMap.get(this)
 	}
 
@@ -61,7 +64,7 @@ export function deepObservable<V = any>(target: any, property: string) {
 
 		if (!ObjectUtils.deepEqual(newValue, oldValue)) {
 			ValueMap.set(this, newValue)
-			DependencyCapturer.onSet(SymbolMap.get(this))
+			onSet(SymbolMap.get(this))
 		}
 	}
 
@@ -75,28 +78,28 @@ export function deepObservable<V = any>(target: any, property: string) {
 
 
 /** 
- * Use a proxy to watch property deeply, returns a property decoration.
- * After observed, modifiying of this property, and also all descendant properties,
+ * Proxy an object and all of it's descendant properties, returns a property decoration.
+ * After proxied, modifiying of this property, and also all of it's descendant properties,
  * will notify associated dependencies changed.
  * 
  * Note you should avoid using this frequently, because:
  * 1. It's 50x slower.
- * 2. Get this property what you get is not original object, but a proxied object.
+ * 2. Get this property from what you get is not original object, but a proxied object.
  */
-export function proxiedObservable<V = any>(target: any, property: string) {
+export function proxied<V = any>(target: any, property: string) {
 	const ValueMap: WeakMap<Target, V> = new WeakMap()
-	const SymbolMap = new DependencyCapturer.DepedencyMap()
+	const SymbolMap = new DepedencyMap()
 
 	const getter = function(this: Target) {
-		DependencyCapturer.onGet(SymbolMap.get(this))
+		onGet(SymbolMap.get(this))
 		return ValueMap.get(this)
 	}
 
 	const setter = function(this: Target, newValue: V) {
 		let oldValue = ValueMap.get(this)
 		if (newValue !== oldValue) {
-			ValueMap.set(this, observeAny(newValue) as V)
-			DependencyCapturer.onSet(SymbolMap.get(this))
+			ValueMap.set(this, proxyOf(newValue) as V)
+			onSet(SymbolMap.get(this))
 		}
 	}
 	
@@ -110,14 +113,14 @@ export function proxiedObservable<V = any>(target: any, property: string) {
 
 
 /** 
- * Make a computed value, used as accessor decoration.
+ * Make a computed value, returns an accessor decoration.
  * and automatically update the value by re-computing after any dependency changed.
  */
 export function computed<V = any>(_target: any, _property: string, descriptor: TypedPropertyDescriptor<V>) {
 	const originalGetter = descriptor.get!
 
 	const ValueMap: WeakMap<Target, V> = new WeakMap()
-	const SymbolMap = new DependencyCapturer.DepedencyMap()
+	const SymbolMap = new DepedencyMap()
 
 	const getter = function(this: Target) {
 		let hasValueSet = ValueMap.has(this)
@@ -132,7 +135,7 @@ export function computed<V = any>(_target: any, _property: string, descriptor: T
 		else {
 
 			// Start to capture dependency.
-			DependencyCapturer.startCapture(reset, this)
+			startCapture(reset, this)
 
 			try {
 				value = originalGetter.call(this)
@@ -144,12 +147,12 @@ export function computed<V = any>(_target: any, _property: string, descriptor: T
 			
 			// Always end capturing dependency.
 			finally {
-				DependencyCapturer.endCapture()
+				endCapture()
 			}
 		}
 
 		// computed value is also an observed value.
-		DependencyCapturer.onGet(SymbolMap.get(this))
+		onGet(SymbolMap.get(this))
 
 		return value!
 	}
@@ -158,7 +161,7 @@ export function computed<V = any>(_target: any, _property: string, descriptor: T
 		ValueMap.delete(this)!
 
 		// Reset is nearly equals set it.
-		DependencyCapturer.onSet(SymbolMap.get(this))
+		onSet(SymbolMap.get(this))
 	}
 
 	descriptor.get = getter

@@ -1,6 +1,7 @@
 /** 
- * Observe specified property, returns a property decoration.
+ * Watch specified property, returns a property decoration.
  * After observed, modifiying of this property will notify current object to call `willUpdate`.
+ * Compare with `observable`, this method 
  */
 export function causeUpdate<V = any>(target: WillUpdatable, property: string) {
 	const ValueMap: WeakMap<WillUpdatable, V> = new WeakMap()

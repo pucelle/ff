@@ -1,30 +1,31 @@
-import {DependencyCapturer} from '../dependency-capturer'
+import {DependencyCapturer} from './dependency-capturer'
 
 
 type Target = object
 type Proxied = object
 
 
-/** Proxy uses global symbols. */
-const SubSymbolMap = new DependencyCapturer.SubDepedencyMap()
-const SymbolMap = new DependencyCapturer.DepedencyMap()
-
 /** To find proxied object. */
+const {onGet, onSet} = DependencyCapturer
 const ProxySymbol = Symbol()
+const SubSymbolMap = new DependencyCapturer.SubDepedencyMap()
 
 
-/** Observe an object or an array if it is. */
-export function observeAny(v: any): Proxied {
+/** 
+ * Proxy an object or an array, returns the proxied content.
+ * Multiple times proxy a same object will always return the same output.
+ */
+export function proxyOf(v: any): Proxied {
 	if (!v || typeof v !== 'object') {
 		return v
 	}
 
-	return observeObject(v)
+	return proxyObject(v)
 }
 
 
-/** Observe an object. */
-function observeObject(o: Target | Proxied | any): Proxied {
+/** Proxy an object. */
+function proxyObject(o: Target | Proxied | any): Proxied {
 
 	// May become a proxied object already.
 	if (ProxySymbol in o) {
@@ -34,10 +35,10 @@ function observeObject(o: Target | Proxied | any): Proxied {
 	let proxy: any
 
 	if (Array.isArray(o)) {
-		proxy = observeArray(o)
+		proxy = proxyArray(o)
 	}
 	else {
-		proxy = observePlainObject(o)
+		proxy = proxyPlainObject(o)
 	}
 
 	o[ProxySymbol] = proxy
@@ -46,14 +47,14 @@ function observeObject(o: Target | Proxied | any): Proxied {
 }
 
 
-/** Observe an plain object. */
-function observePlainObject(o: Target): Proxied {
+/** Proxy an plain object. */
+function proxyPlainObject(o: Target): Proxied {
 	return new Proxy(o, PlainObjectProxyHandler)
 }
 
 
-/** Observe an array. */
-function observeArray(a: Target): Proxied {
+/** Proxy an array. */
+function proxyArray(a: Target): Proxied {
 	return new Proxy(a, ArrayProxyHandler)
 }
 
@@ -62,8 +63,8 @@ function observeArray(a: Target): Proxied {
 const PlainObjectProxyHandler = {
 
 	get(o: Target | any, key: PropertyKey): Proxied {
-		DependencyCapturer.onGet(SubSymbolMap.get(o, key))
-		return observeAny(o[key])
+		onGet(SubSymbolMap.get(o, key))
+		return proxyOf(o[key])
 	},
 
 	set(o: Target | any, key: PropertyKey, toValue: any): true {
@@ -71,7 +72,7 @@ const PlainObjectProxyHandler = {
 		o[key] = toValue
 
 		if (fromValue !== toValue) {
-			DependencyCapturer.onSet(SubSymbolMap.get(o, key))
+			onSet(SubSymbolMap.get(o, key))
 		}
 
 		return true
@@ -80,7 +81,7 @@ const PlainObjectProxyHandler = {
 	deleteProperty(o: any, key: PropertyKey): boolean {
 		let result = delete o[key]
 		if (result) {
-			DependencyCapturer.onSet(SubSymbolMap.get(o, key))
+			onSet(SubSymbolMap.get(o, key))
 		}
 
 		return result
@@ -88,22 +89,29 @@ const PlainObjectProxyHandler = {
 }
 
 
-/** For array observing. */
+/** For array proxy. */
 const ArrayProxyHandler = {
 
 	get(a: Target | any, key: PropertyKey): Proxied {
 		let value = a[key]
 		let type = typeof value
 
-		if (key in a) {
-			DependencyCapturer.onGet(SymbolMap.get(a))
-			return observeAny(value)
-		}
-		else if (type === 'function') {
-			return ArrayProxyMethods[key].bind(a) ?? a[key]
+		// Proxy returned element in array.
+		if (typeof key === 'number') {
+			onGet(a)
+			return proxyOf(value)
 		}
 
-		return value
+		// Proxy array methods.
+		else if (type === 'function') {
+			return ArrayProxyMethods[key] ?? a[key]
+		}
+
+		// Other properties, like `length`.
+		else {
+			onGet(a)
+			return value
+		}
 	},
 
 	set(a: Target | any, key: PropertyKey, toValue: any): true {
@@ -111,7 +119,7 @@ const ArrayProxyHandler = {
 		a[key] = toValue
 
 		if (fromValue !== toValue) {
-			DependencyCapturer.onSet(SymbolMap.get(a))
+			onSet(a)
 		}
 
 		return true
@@ -124,9 +132,9 @@ const ArrayProxyMethods: any = {
 
 	push: function(this: any[], ...values: any[]) {
 		let result = Array.prototype.push.call(this, ...values)
-		
+
 		if (values.length > 0) {
-			DependencyCapturer.onSet(SymbolMap.get(this))
+			onSet(this)
 		}
 
 		return result
@@ -136,7 +144,7 @@ const ArrayProxyMethods: any = {
 		let result = Array.prototype.unshift.call(this, ...values)
 
 		if (values.length > 0) {
-			DependencyCapturer.onSet(SymbolMap.get(this))
+			onSet(this)
 		}
 
 		return result
@@ -147,7 +155,7 @@ const ArrayProxyMethods: any = {
 		let result = Array.prototype.pop.call(this)
 
 		if (count > 0) {
-			DependencyCapturer.onSet(SymbolMap.get(this))
+			onSet(this)
 		}
 
 		return result
@@ -158,7 +166,7 @@ const ArrayProxyMethods: any = {
 		let result = Array.prototype.shift.call(this)
 
 		if (count > 0) {
-			DependencyCapturer.onSet(SymbolMap.get(this))
+			onSet(this)
 		}
 
 		return result
@@ -168,9 +176,16 @@ const ArrayProxyMethods: any = {
 		let result = Array.prototype.splice.call(this, fromIndex, removeCount, insertValues)
 
 		if (removeCount > 0 || insertValues.length > 0) {
-			DependencyCapturer.onSet(SymbolMap.get(this))
+			onSet(this)
 		}
 
+		return result
+	},
+
+	reverse: function(this: any[]) {
+		let result = Array.prototype.reverse.call(this)
+		onSet(this)
+		
 		return result
 	},
 }

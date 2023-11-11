@@ -1,4 +1,4 @@
 export * from './map'
-export * from './weak-map'
+export * from './map-weak'
 export * from './mini-heap'
 export * from './async-task-queue'
