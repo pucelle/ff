@@ -1,10 +1,11 @@
 import {observable, deepObservable, proxied, computed} from '../../src/observable/decorators'
 import {DependencyCapturer} from '../../src/observable/dependency-capturer'
+import {proxyOf} from '../../src/observable/proxy'
 
 
 describe('Test observer', () => {
 
-	it('Test observe', () => {
+	it('Test observable', () => {
 		class A {
 			key!: number
 			update = jest.fn()
@@ -52,7 +53,7 @@ describe('Test observer', () => {
 		expect(a.update).toBeCalledTimes(2)
 	})
 
-	it.only('Test proxied', () => {
+	it('Test proxied', () => {
 		class A {
 			key!: {b: number, c: number[]}
 			update = jest.fn()
@@ -68,7 +69,7 @@ describe('Test observer', () => {
 		function reCapture() {
 			DependencyCapturer.startCapture(a.update, a)
 			a.key.b
-			a.key.c[0]
+			a.key.c.length
 
 			// To pass this test,
 			// Must change `TwoWaySetMap` to `TwoWaySetWeakMap` at `dependency-capturer.ts`.
@@ -122,5 +123,13 @@ describe('Test observer', () => {
 		a.v = 2
 		expect(a.v1).toEqual(2)
 		expect(a.v2).toEqual(3)
+	})
+
+	it('Test proxyOf', () => {
+		let a = {}
+		let b = proxyOf(a)
+
+		expect(a === b).toEqual(false)
+		expect(proxyOf(b) === b).toEqual(true)
 	})
 })
