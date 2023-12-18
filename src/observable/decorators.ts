@@ -1,4 +1,3 @@
-import {ObjectUtils} from '../utils'
 import {DependencyCapturer} from './dependency-capturer'
 import {proxyOf} from './proxy'
 
@@ -13,7 +12,7 @@ const {onGet, onSet, startCapture, endCapture, DepedencyMap} = DependencyCapture
  * Observe specified property, returns a property decoration.
  * After observed, modifiying of this property will notify associated dependencies to change.
  */
-export function observable<V = any>(target: any, property: string) {
+export function observed<V = any>(target: any, property: string) {
 	const ValueMap: WeakMap<Target, V> = new WeakMap()
 	const SymbolMap = new DepedencyMap()
 
@@ -32,38 +31,6 @@ export function observable<V = any>(target: any, property: string) {
 			ValueMap.set(this, newValue)
 
 			// Notify dependency changes.
-			onSet(SymbolMap.get(this))
-		}
-	}
-
-	Object.defineProperty(target, property, {
-		configurable: false,
- 		enumerable: true,
-		get: getter,
-		set: setter,
-	})
-}
-
-
-/** 
- * Deeply observe specified property, returns a property decoration.
- * After observed, new value after set will be compare with old value using `deepEqual`,
- * and value is changed, will notify associated dependencies to change.
- */
-export function deepObservable<V = any>(target: any, property: string) {
-	const ValueMap: WeakMap<Target, V> = new WeakMap()
-	const SymbolMap = new DepedencyMap()
-
-	const getter = function(this: Target) {
-		onGet(SymbolMap.get(this))
-		return ValueMap.get(this)
-	}
-
-	const setter = function(this: Target, newValue: V) {
-		let oldValue = ValueMap.get(this)
-
-		if (!ObjectUtils.deepEqual(newValue, oldValue)) {
-			ValueMap.set(this, newValue)
 			onSet(SymbolMap.get(this))
 		}
 	}
@@ -114,7 +81,7 @@ export function proxied<V = any>(target: any, property: string) {
 
 /** 
  * Make a computed value, returns an accessor decoration.
- * and automatically update the value by re-computing after any dependency changed.
+ * and automatically re-computing the value after any dependency changed.
  */
 export function computed<V = any>(_target: any, _property: string, descriptor: TypedPropertyDescriptor<V>) {
 	const originalGetter = descriptor.get!

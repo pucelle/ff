@@ -1,17 +1,17 @@
-import {observable, deepObservable, proxied, computed} from '../../src/observable/decorators'
+import {observed, proxied, computed} from '../../src/observable/decorators'
 import {DependencyCapturer} from '../../src/observable/dependency-capturer'
 import {proxyOf} from '../../src/observable/proxy'
 
 
-describe('Test observer', () => {
+describe('Test observable', () => {
 
-	it('Test observable', () => {
+	it('Test observed', () => {
 		class A {
 			key!: number
 			update = jest.fn()
 		}
 	
-		observable(A.prototype, 'key')
+		observed(A.prototype, 'key')
 
 		
 		let a = new A()
@@ -28,31 +28,7 @@ describe('Test observer', () => {
 		expect(a.update).toBeCalledTimes(2)
 	})
 
-	it('Test deepObserve', () => {
-		class A {
-			key!: {b: number}
-			update = jest.fn()
-		}
 	
-		deepObservable(A.prototype, 'key')
-
-		
-		let a = new A()
-		a.key = {b: 1}
-		a.update()
-
-		DependencyCapturer.startCapture(a.update, a)
-		a.key
-		a.key.b
-		DependencyCapturer.endCapture()
-
-		a.key = {b: 2}
-		expect(a.update).toBeCalledTimes(2)
-
-		a.key = {b: 2}
-		expect(a.update).toBeCalledTimes(2)
-	})
-
 	it('Test proxied', () => {
 		class A {
 			key!: {b: number, c: number[]}

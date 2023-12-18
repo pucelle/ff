@@ -6,11 +6,11 @@ import {DOMUtils} from '../utils'
 export interface AlignerOptions {
 
  	/** 
-	  * The margin as gaps betweens `to-align` element and `target` element.
+	  * The gaps betweens `to-align` element and `target` element.
 	  * It equals expanding `target` element area with this value.
 	  * can be a number or a number array composed of 1-4 numbers, in `top right? bottom? left?` order.
 	  */
-	margin?: number | number[]
+	gap?: number | number[]
 
 	/** 
 	 * Whether stick `to-align` element to viewport edges.
@@ -130,14 +130,14 @@ export type AlignerPosition = 't'
 type AlignerDirectionMask = Record<BoxDistanceKey, boolean>
 
 
-const DefaultAlignerOptions: Omit<Required<AlignerOptions>, 'triangle' | 'margin'> = {
+const DefaultAlignerOptions: Omit<Required<AlignerOptions>, 'triangle' | 'gap'> = {
 	stickToEdges: true,
 	canSwapPosition: true,
 	canShrinkInY: false,
 	fixTriangle: false,
 }
 
-export class Aligner implements Omit<AlignerOptions, 'margin'> {
+export class Aligner implements Omit<AlignerOptions, 'gap'> {
 	
 	/**
 	 * Align `to-align` to `target` element with specified position.
@@ -205,7 +205,7 @@ export class Aligner implements Omit<AlignerOptions, 'margin'> {
 	private readonly directionMask: AlignerDirectionMask
 
 	/** Margin outside of `target` element. */
-	private readonly margins: BoxDistances
+	private readonly gaps: BoxDistances
 
 	/** Whether `to-align` element use fixed alignment position. */
 	private readonly useFixedAlignment: boolean
@@ -220,7 +220,7 @@ export class Aligner implements Omit<AlignerOptions, 'margin'> {
 
 		this.directions = parseAlignDirections(position)
 		this.directionMask = parseAlignDirectionMask(this.directions)
-		this.margins = parseMargins(options.margin || 0, this.triangle, this.directionMask)
+		this.gaps = parseGap(options.gap || 0, this.triangle, this.directionMask)
 
 		// If `target` element is not affected by document scrolling, `to-align` element should be the same.
 		// A potential problem here: once becomes fixed, can't be restored for reuseable popups.
@@ -416,8 +416,8 @@ export class Aligner implements Omit<AlignerOptions, 'margin'> {
 	/** Do vertical alignment. */
 	private alignVertical(y: number, directionMask: AlignerDirectionMask, rect: Box, targetRect: Box, triangleRelativeRect: Box | null): boolean {
 		let dh = document.documentElement.clientHeight
-		let spaceTop = targetRect.top - this.margins.top
-		let spaceBottom = dh - (targetRect.bottom + this.margins.bottom)
+		let spaceTop = targetRect.top - this.gaps.top
+		let spaceBottom = dh - (targetRect.bottom + this.gaps.bottom)
 		let overflowYSet = false
 		let h = rect.height
 
@@ -425,14 +425,14 @@ export class Aligner implements Omit<AlignerOptions, 'margin'> {
 
 			// Not enough space at top side, switch to bottom.
 			if (directionMask.top && y < 0 && spaceTop < spaceBottom && this.canSwapPosition) {
-				y = targetRect.bottom + this.margins.bottom
+				y = targetRect.bottom + this.gaps.bottom
 				directionMask.top = false
 				directionMask.bottom = true
 			}
 
 			// Not enough space at bottom side, switch to top.
 			else if (y + h > dh && spaceTop > spaceBottom && this.canSwapPosition) {
-				y = targetRect.top - this.margins.top - h
+				y = targetRect.top - this.gaps.top - h
 				directionMask.top = true
 				directionMask.bottom = false
 			}
@@ -497,22 +497,22 @@ export class Aligner implements Omit<AlignerOptions, 'margin'> {
 	/** Do herizontal alignment. */
 	private alignHorizontal(x: number, directionMask: AlignerDirectionMask, rect: Box, targetRect: Box, triangleRelativeRect: Box | null) {
 		let dw = document.documentElement.clientWidth
-		let spaceLeft = targetRect.left - this.margins.left
-		let spaceRight = dw - (targetRect.right + this.margins.right)
+		let spaceLeft = targetRect.left - this.gaps.left
+		let spaceRight = dw - (targetRect.right + this.gaps.right)
 		let w = rect.width
 
 		if (directionMask.left || directionMask.right) {
 
 			// Not enough space at left side.
 			if (directionMask.left && x < 0 && spaceLeft < spaceRight && this.canSwapPosition) {
-				x = targetRect.right + this.margins.right
+				x = targetRect.right + this.gaps.right
 				directionMask.left = false
 				directionMask.right = true
 			}
 
 			// Not enough space at right side.
 			else if (directionMask.right && x > dw - w && spaceLeft > spaceRight && this.canSwapPosition) {
-				x = targetRect.left - this.margins.left - w
+				x = targetRect.left - this.gaps.left - w
 				directionMask.left = true
 				directionMask.right = false
 			}
@@ -722,7 +722,7 @@ function parseAlignDirectionMask([d1, d2]: [Direction, Direction]): AlignerDirec
 
 
 /** Parse margin values to get a margin object, and apply triangle size to it. */
-function parseMargins(marginValue: number | number[], triangle: HTMLElement | undefined, directionMask: AlignerDirectionMask): BoxDistances {
+function parseGap(marginValue: number | number[], triangle: HTMLElement | undefined, directionMask: AlignerDirectionMask): BoxDistances {
 	let margins = new BoxDistances(...(typeof marginValue === 'number' ? [marginValue] : marginValue))
 
 	if (triangle) {
