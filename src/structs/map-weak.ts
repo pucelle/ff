@@ -2,7 +2,7 @@ import {IterableValueMap, ListMap, SetMap} from './map'
 
 
 /** `K => Iterable<V>` Map struct. */
-export abstract class IterableValueWeakMap<K extends object, V, I extends Iterable<V>> {
+export abstract class WeakIterableValueMap<K extends object, V, I extends Iterable<V>> {
 
 	protected map: WeakMap<K, I> = new WeakMap()
 
@@ -49,7 +49,7 @@ export abstract class IterableValueWeakMap<K extends object, V, I extends Iterab
  * `K => V[]` Map struct.
  * Good for purely adding.
  */
-export class ListWeakMap<K extends object, V> extends IterableValueWeakMap<K, V, V[]> {
+export class WeakListMap<K extends object, V> extends WeakIterableValueMap<K, V, V[]> {
 
 	has(k: K, v: V): boolean {
 		return !!this.map.get(k)?.includes(v)
@@ -109,7 +109,7 @@ export class ListWeakMap<K extends object, V> extends IterableValueWeakMap<K, V,
  * `K => Set<V>` Map Struct.
  * Good for dynamiclly adding & deleting.
  */
-export class SetWeakMap<K extends object, V> extends IterableValueWeakMap<K, V, Set<V>> {
+export class WeakSetMap<K extends object, V> extends WeakIterableValueMap<K, V, Set<V>> {
 
 	has(k: K, v: V): boolean {
 		return !!this.map.get(k)?.has(v)
@@ -144,75 +144,10 @@ export class SetWeakMap<K extends object, V> extends IterableValueWeakMap<K, V, 
 
 /** 
  * `K1 -> K2 -> V` Map Struct.
- * Index single value by a pair of object keys.
- * Both `K1` and `K2` must be an object type.
- */
-export class DoubleKeysBothWeakMap<K1 extends object, K2 extends object, V> {
-
-	private map: WeakMap<K1, WeakMap<K2, V>> = new WeakMap();
-
-	/** Has associated value by key pair. */
-	has(k1: K1, k2: K2): boolean {
-		let sub = this.map.get(k1)
-		if (!sub) {
-			return false
-		}
-
-		return sub.has(k2)
-	}
-
-	/** Has secondary map existed for first key. */
-	hasSecondOf(k1: K1): boolean {
-		return this.map.has(k1)
-	}
-
-	/** Get associated value by key pair. */
-	get(k1: K1, k2: K2): V | undefined {
-		let sub = this.map.get(k1)
-		if (!sub) {
-			return undefined
-		}
-
-		return sub.get(k2)
-	}
-
-	/** Set key pair and associated value. */
-	set(k1: K1, k2: K2, v: V) {
-		let sub = this.map.get(k1)
-		if (!sub) {
-			sub = new Map()
-			this.map.set(k1, sub)
-		}
-
-		sub.set(k2, v)
-	}
-
-	/** Delete all the associated values by key pair. */
-	delete(k1: K1, k2: K2) {
-		let sub = this.map.get(k1)
-		if (sub) {
-			sub.delete(k2)
-		}
-	}
-
-	/** Delete all associated secondary keys and values by first key. */
-	deleteOf(k1: K1) {
-		this.map.delete(k1)
-	}
-
-	/** Clear all the data. */
-	clear() {
-		this.map = new WeakMap()
-	}
-}
-
-
-/** 
- * `K1 -> K2 -> V` Map Struct.
  * Index values by a pair of keys.
  * `K1` must be an object type.
  */
-export class DoubleKeysWeakMap<K1 extends object, K2, V> {
+export class WeakDoubleKeysMap<K1 extends object, K2, V> {
 
 	private map: WeakMap<K1, Map<K2, V>> = new WeakMap();
 
@@ -306,16 +241,81 @@ export class DoubleKeysWeakMap<K1 extends object, K2, V> {
 
 
 /** 
+ * `K1 -> K2 -> V` Map Struct.
+ * Index single value by a pair of object keys.
+ * Both `K1` and `K2` must be an object type.
+ */
+export class WeakerDoubleKeysMap<K1 extends object, K2 extends object, V> {
+
+	private map: WeakMap<K1, WeakMap<K2, V>> = new WeakMap();
+
+	/** Has associated value by key pair. */
+	has(k1: K1, k2: K2): boolean {
+		let sub = this.map.get(k1)
+		if (!sub) {
+			return false
+		}
+
+		return sub.has(k2)
+	}
+
+	/** Has secondary map existed for first key. */
+	hasSecondOf(k1: K1): boolean {
+		return this.map.has(k1)
+	}
+
+	/** Get associated value by key pair. */
+	get(k1: K1, k2: K2): V | undefined {
+		let sub = this.map.get(k1)
+		if (!sub) {
+			return undefined
+		}
+
+		return sub.get(k2)
+	}
+
+	/** Set key pair and associated value. */
+	set(k1: K1, k2: K2, v: V) {
+		let sub = this.map.get(k1)
+		if (!sub) {
+			sub = new Map()
+			this.map.set(k1, sub)
+		}
+
+		sub.set(k2, v)
+	}
+
+	/** Delete all the associated values by key pair. */
+	delete(k1: K1, k2: K2) {
+		let sub = this.map.get(k1)
+		if (sub) {
+			sub.delete(k2)
+		}
+	}
+
+	/** Delete all associated secondary keys and values by first key. */
+	deleteOf(k1: K1) {
+		this.map.delete(k1)
+	}
+
+	/** Clear all the data. */
+	clear() {
+		this.map = new WeakMap()
+	}
+}
+
+
+/** 
  * `K1 -> K2 -> Iterable<V>` Map Struct.
  * Index a group of values by a pair of keys.
  * `K1` must be an object type.
  */
-export abstract class DoubleKeysWeakIterableValueMap<K1 extends object, K2, V, I extends Iterable<V>> {
+export abstract class WeakDoubleKeysIterableValueMap<K1 extends object, K2, V, I extends Iterable<V>, M extends IterableValueMap<K2, V, I>> {
 
-	protected map: WeakMap<K1, IterableValueMap<K2, V, I>> = new WeakMap()
+	protected map: WeakMap<K1, M> = new WeakMap()
 
 	/** Create sub map. */
-	protected abstract createSubMap(): IterableValueMap<K2, V, I>
+	protected abstract createSubMap(): M
 
 	/** Iterate associated secondary keys by first key. */
 	*secondKeysOf(k1: K1): Iterable<K2> {
@@ -406,6 +406,16 @@ export abstract class DoubleKeysWeakIterableValueMap<K1 extends object, K2, V, I
 		return sub.get(k2)
 	}
 
+	/** Get the map consist of second keys and values from the first key. */
+	getSecond(k1: K1): M | undefined {
+		return this.map.get(k1)
+	}
+
+	/** Replace with first key and associated map of second keys and values. */
+	setSecond(k1: K1, m: M) {
+		this.map.set(k1, m)
+	}
+
 	/** Add key pair and value. */
 	add(k1: K1, k2: K2, v: V) {
 		let sub = this.map.get(k1)
@@ -458,7 +468,7 @@ export abstract class DoubleKeysWeakIterableValueMap<K1 extends object, K2, V, I
  * Index value list by a pair of keys.
  * `K1` must be an object type.
  */
-export class DoubleKeysWeakListMap<K1 extends object, K2, V> extends DoubleKeysWeakIterableValueMap<K1, K2, V, V[]> {
+export class WeakDoubleKeysListMap<K1 extends object, K2, V> extends WeakDoubleKeysIterableValueMap<K1, K2, V, V[], ListMap<K2, V>> {
 
 	protected createSubMap(): ListMap<K2, V> {
 		return new ListMap()
@@ -482,7 +492,7 @@ export class DoubleKeysWeakListMap<K1 extends object, K2, V> extends DoubleKeysW
  * Index a set of values by a pair of keys.
  * `K1` must be an object type.
  */
-export class DoubleKeysWeakSetMap<K1 extends object, K2, V> extends DoubleKeysWeakIterableValueMap<K1, K2, V, Set<V>> {
+export class WeakDoubleKeysSetMap<K1 extends object, K2, V> extends WeakDoubleKeysIterableValueMap<K1, K2, V, Set<V>, SetMap<K2, V>> {
 
 	protected createSubMap(): SetMap<K2, V> {
 		return new SetMap()
@@ -496,7 +506,7 @@ export class DoubleKeysWeakSetMap<K1 extends object, K2, V> extends DoubleKeysWe
  * `R -> L`
  * `L` and `R` must be object type.
  */
-export class TwoWayWeakMap<L extends object, R extends object> {
+export class WeakTwoWayMap<L extends object, R extends object> {
 
 	private lm: WeakMap<L, R> = new WeakMap()
 	private rm: WeakMap<R, L> = new WeakMap()
@@ -560,10 +570,10 @@ export class TwoWayWeakMap<L extends object, R extends object> {
  * `R -> Iterable<L>`
  * `L` and `R` must be object type.
  */
-export abstract class TwoWayIterableValueWeakMap<L extends object, R extends object, LI extends Iterable<L>, RI extends Iterable<R>> {
+export abstract class WeakTwoWayIterableValueMap<L extends object, R extends object, LI extends Iterable<L>, RI extends Iterable<R>> {
 
-	protected lm: IterableValueWeakMap<L, R, RI>
-	protected rm: IterableValueWeakMap<R, L, LI>
+	protected lm: WeakIterableValueMap<L, R, RI>
+	protected rm: WeakIterableValueMap<R, L, LI>
 
 	constructor() {
 		this.lm = this.createSubMap()
@@ -571,7 +581,7 @@ export abstract class TwoWayIterableValueWeakMap<L extends object, R extends obj
 	}
 
 	/** Make the `IterableValueMap`. */
-	protected abstract createSubMap(): IterableValueWeakMap<any, any, any>
+	protected abstract createSubMap(): WeakIterableValueMap<any, any, any>
 
 	/** Has a left and right key pair. */
 	has(l: L, r: R): boolean {
@@ -635,7 +645,7 @@ export abstract class TwoWayIterableValueWeakMap<L extends object, R extends obj
 	}
 
 	/** Replace left and all it's assocated right keys. */
-	replaceLeft(l: L, rs: RI) {
+	setLeft(l: L, rs: RI) {
 		let oldRs = this.lm.get(l)
 
 		if (oldRs) {
@@ -661,7 +671,7 @@ export abstract class TwoWayIterableValueWeakMap<L extends object, R extends obj
 	}
 
 	/** Replace right and all it's assocated left keys. */
-	replaceRight(r: R, ls: LI) {
+	setRight(r: R, ls: LI) {
 		let oldLs = this.rm.get(r)
 
 		if (oldLs) {
@@ -702,13 +712,13 @@ export abstract class TwoWayIterableValueWeakMap<L extends object, R extends obj
  * `R -> L[]`
  * `L` and `R` must be object type.
  */
-export class TwoWayListWeakMap<L extends object, R extends object> extends TwoWayIterableValueWeakMap<L, R, L[], R[]> {
+export class WeakTwoWayListMap<L extends object, R extends object> extends WeakTwoWayIterableValueMap<L, R, L[], R[]> {
 
-	protected declare lm: ListWeakMap<L, R>
-	protected declare rm: ListWeakMap<R, L>
+	protected declare lm: WeakListMap<L, R>
+	protected declare rm: WeakListMap<R, L>
 
-	protected createSubMap(): ListWeakMap<L, R> {
-		return new ListWeakMap()
+	protected createSubMap(): WeakListMap<L, R> {
+		return new WeakListMap()
 	}
 
 	protected iterableHas(lrs: L[] | R[], lr: L | R) {
@@ -741,13 +751,13 @@ export class TwoWayListWeakMap<L extends object, R extends object> extends TwoWa
  * `R -> Set<L>`
  * `L` and `R` must be object type.
  */
-export class TwoWaySetWeakMap<L extends object, R extends object> extends TwoWayIterableValueWeakMap<L, R, Set<L>, Set<R>> {
+export class WeakTwoWaySetMap<L extends object, R extends object> extends WeakTwoWayIterableValueMap<L, R, Set<L>, Set<R>> {
 
-	protected declare lm: SetWeakMap<L, R>
-	protected declare rm: SetWeakMap<R, L>
+	protected declare lm: WeakSetMap<L, R>
+	protected declare rm: WeakSetMap<R, L>
 
-	protected createSubMap(): SetWeakMap<L, R> {
-		return new SetWeakMap()
+	protected createSubMap(): WeakSetMap<L, R> {
+		return new WeakSetMap()
 	}
 
 	protected iterableHas(lrs: Set<L> | Set<R>, lr: L | R) {

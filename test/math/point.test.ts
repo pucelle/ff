@@ -1,5 +1,4 @@
-import {Point} from '../../src/math/point'
-import {Vector} from '../../src/math/vector'
+import {Point, Vector} from '../../src/math'
 import {NumberUtils} from '../../src/utils'
 
 

@@ -1,5 +1,4 @@
-import {Vector} from '../../src/math/vector'
-import {Matrix2} from '../../src/math'
+import {Vector, Matrix2} from '../../src/math'
 
 
 describe('Test Matrix2', () => {

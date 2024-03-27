@@ -1,7 +1,7 @@
 import {DoubleTapEventProcessor, DoubleTapEvents} from './processors/double-tap'
 import {EventFirer} from '../event-firer'
 import {HoldEventProcessor, HoldEvents, PinchTransformEvents, PinchTransformProcessor, TapEventProcessor, TapEvents, PinchZoomEvents, PinchZoomProcessor, SlideEvents, SlideEventProcessor} from './processors'
-import {DoubleKeysWeakMap} from '../../structs'
+import {WeakDoubleKeysMap} from '../../structs'
 import {SimulatedEventsConfiguration} from './simulated-events-configuration'
 
 
@@ -31,7 +31,7 @@ export namespace SimulatedEvents {
 	export const Configuration = SimulatedEventsConfiguration
 
 	/** Shared Processors. */
-	const EventProcessorCache: DoubleKeysWeakMap<EventTarget, string, EventProcessor> = new DoubleKeysWeakMap()
+	const EventProcessorCache: WeakDoubleKeysMap<EventTarget, string, EventProcessor> = new WeakDoubleKeysMap()
 
 
 	/** Whether a specified name is simulated event type. */

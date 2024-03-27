@@ -6,13 +6,12 @@ type Proxied<T> = T extends object ? T & {ProxySymbol: T} : T
 
 /** To find proxied object. */
 const {onGet, onSet} = DependencyCapturer
-const SubSymbolMap = new DependencyCapturer.SubDepedencyMap()
 const ProxyMap: WeakMap<object | Proxied<any>, Proxied<any>> = new WeakMap()
 
 
 /** 
  * Proxy an object or an array, returns the proxied content.
- * Multiple times proxy a same object will always return the same output.
+ * Multiple times of proxy a same object will always return the same output.
  */
 export function proxyOf<T>(v: any): Proxied<T> {
 	if (!v || typeof v !== 'object') {
@@ -62,7 +61,7 @@ function proxyArray<T extends any[]>(a: T): Proxied<T> {
 const PlainObjectProxyHandler = {
 
 	get(o: any, key: PropertyKey): Proxied<any> {
-		onGet(SubSymbolMap.get(o, key))
+		onGet(o, key)
 		return proxyOf(o[key])
 	},
 
@@ -71,7 +70,7 @@ const PlainObjectProxyHandler = {
 		o[key] = toValue
 
 		if (fromValue !== toValue) {
-			onSet(SubSymbolMap.get(o, key))
+			onSet(o, key)
 		}
 
 		return true
@@ -80,7 +79,7 @@ const PlainObjectProxyHandler = {
 	deleteProperty(o: any, key: PropertyKey): boolean {
 		let result = delete o[key]
 		if (result) {
-			onSet(SubSymbolMap.get(o, key))
+			onSet(o, key)
 		}
 
 		return result
@@ -97,7 +96,7 @@ const ArrayProxyHandler = {
 
 		// Proxy returned element in array.
 		if (typeof key === 'number') {
-			onGet(a)
+			onGet(a, key)
 			return proxyOf(value)
 		}
 

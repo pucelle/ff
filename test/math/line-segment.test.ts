@@ -1,5 +1,4 @@
-import {Point} from '../../src/math/point'
-import {LineSegment} from '../../src/math/line-segment'
+import {Point, LineSegment} from '../../src/math'
 
 
 describe('Test LineSegment', () => {

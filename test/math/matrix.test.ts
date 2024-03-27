@@ -1,9 +1,5 @@
-import {Point} from '../../src/math/point'
-import {Box} from '../../src/math/box'
-import {Matrix} from '../../src/math/matrix'
+import {Point, Vector, Box, Matrix, Size} from '../../src/math'
 import {NumberUtils} from '../../src/utils'
-import {Vector} from '../../src/math/vector'
-import {Size} from '../../src/math/size'
 
 
 describe('Test Matrix', () => {

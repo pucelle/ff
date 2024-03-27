@@ -1,4 +1,4 @@
-import {Direction} from '../../src/math/direction'
+import {Direction} from '../../src/math'
 
 
 describe('Test Direction', () => {

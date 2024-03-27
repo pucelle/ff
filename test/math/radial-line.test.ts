@@ -1,9 +1,4 @@
-import {LineSegment} from '../../src/math/line-segment'
-import {Direction} from '../../src/math/direction'
-import {Point} from '../../src/math/point'
-import {RadialLine} from '../../src/math/radial-line'
-import {Vector} from '../../src/math/vector'
-import {Box} from '../../src/math/box'
+import {LineSegment, Direction, Point, RadialLine, Vector, Box} from '../../src/math'
 import {NumberUtils} from '../../src/utils'
 
 

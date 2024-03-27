@@ -17,16 +17,16 @@ export function watch<T>(
 	}
 
 	let depCapCallback = () => {
-		DependencyCapturer.captureExecution(assignValueFn, depCapCallback)
+		DependencyCapturer.captureExecutionOf(assignValueFn, depCapCallback)
 		callback(newValue, oldValue)
 		oldValue = newValue
 	}
 
-	DependencyCapturer.captureExecution(assignValueFn, depCapCallback)
+	DependencyCapturer.captureExecutionOf(assignValueFn, depCapCallback)
 	oldValue = newValue!
 
 	return () => {
-		DependencyCapturer.remove(depCapCallback)
+		DependencyCapturer.release(depCapCallback)
 	}
 }
 
@@ -50,7 +50,7 @@ export function watchImmediately<T>(
 	}
 
 	let depCapCallback = () => {
-		DependencyCapturer.captureExecution(assignValueFn, depCapCallback)
+		DependencyCapturer.captureExecutionOf(assignValueFn, depCapCallback)
 		callback(newValue, oldValue)
 		oldValue = newValue
 	}
@@ -58,7 +58,7 @@ export function watchImmediately<T>(
 	depCapCallback()
 
 	return () => {
-		DependencyCapturer.remove(depCapCallback)
+		DependencyCapturer.release(depCapCallback)
 	}
 }
 
@@ -82,16 +82,16 @@ export function watchOnce<T>(
 	}
 
 	let depCapCallback = () => {
-		DependencyCapturer.captureExecution(assignValueFn, depCapCallback)
+		DependencyCapturer.captureExecutionOf(assignValueFn, depCapCallback)
 		callback(newValue, oldValue)
-		DependencyCapturer.remove(depCapCallback)
+		DependencyCapturer.release(depCapCallback)
 	}
 
-	DependencyCapturer.captureExecution(assignValueFn, depCapCallback)
+	DependencyCapturer.captureExecutionOf(assignValueFn, depCapCallback)
 	oldValue = newValue!
 
 	return () => {
-		DependencyCapturer.remove(depCapCallback)
+		DependencyCapturer.release(depCapCallback)
 	}
 }
 
@@ -110,23 +110,23 @@ export function watchUntil<T>(
 	}
 
 	let depCapCallback = () => {
-		DependencyCapturer.captureExecution(assignValueFn, depCapCallback)
+		DependencyCapturer.captureExecutionOf(assignValueFn, depCapCallback)
 
 		if (newValue!) {
 			callback(newValue)
-			DependencyCapturer.remove(depCapCallback)
+			DependencyCapturer.release(depCapCallback)
 		}
 	}
 
-	DependencyCapturer.captureExecution(assignValueFn, depCapCallback)
+	DependencyCapturer.captureExecutionOf(assignValueFn, depCapCallback)
 
 	if (newValue!) {
 		callback(newValue)
-		DependencyCapturer.remove(depCapCallback)
+		DependencyCapturer.release(depCapCallback)
 	}
 
 	return () => {
-		DependencyCapturer.remove(depCapCallback)
+		DependencyCapturer.release(depCapCallback)
 	}
 }
 

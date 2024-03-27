@@ -308,12 +308,12 @@ export class DoubleKeysMap<K1, K2, V> {
  * `K1 -> K2 -> Iterable<V>` Map Struct.
  * Index a group of values by a pair of keys.
  */
-export abstract class DoubleKeysIterableValueMap<K1, K2, V, I extends Iterable<V>> {
+export abstract class DoubleKeysIterableValueMap<K1, K2, V, I extends Iterable<V>, M extends IterableValueMap<K2, V, I>> {
 
-	protected map: Map<K1, IterableValueMap<K2, V, I>> = new Map()
+	protected map: Map<K1, M> = new Map()
 
 	/** Create sub map. */
-	protected abstract createSubMap(): IterableValueMap<K2, V, I>
+	protected abstract createSubMap(): M
 
 	/** Iterate first keys. */
 	firstKeys(): Iterable<K1> {
@@ -429,6 +429,16 @@ export abstract class DoubleKeysIterableValueMap<K1, K2, V, I extends Iterable<V
 		return sub.get(k2)
 	}
 
+	/** Get the map consist of second keys and values from the first key. */
+	getSecond(k1: K1): M | undefined {
+		return this.map.get(k1)
+	}
+
+	/** Replace with first key and associated map of second keys and values. */
+	setSecond(k1: K1, m: M) {
+		this.map.set(k1, m)
+	}
+
 	/** Add key pair and associated value. */
 	add(k1: K1, k2: K2, v: V) {
 		let sub = this.map.get(k1)
@@ -480,7 +490,7 @@ export abstract class DoubleKeysIterableValueMap<K1, K2, V, I extends Iterable<V
  * `K1 -> K2 -> V[]` Map Struct.
  * Index a value list by a pair of keys.
  */
-export class DoubleKeysListMap<K1, K2, V> extends DoubleKeysIterableValueMap<K1, K2, V, V[]> {
+export class DoubleKeysListMap<K1, K2, V> extends DoubleKeysIterableValueMap<K1, K2, V, V[], ListMap<K2, V>> {
 
 	protected createSubMap(): ListMap<K2, V> {
 		return new ListMap()
@@ -503,7 +513,7 @@ export class DoubleKeysListMap<K1, K2, V> extends DoubleKeysIterableValueMap<K1,
  * `K1 -> K2 -> Set<V>` Map Struct.
  * Index a value set by a pair of keys.
  */
-export class DoubleKeysSetMap<K1, K2, V> extends DoubleKeysIterableValueMap<K1, K2, V, Set<V>> {
+export class DoubleKeysSetMap<K1, K2, V> extends DoubleKeysIterableValueMap<K1, K2, V, Set<V>, SetMap<K2, V>> {
 
 	protected createSubMap(): SetMap<K2, V> {
 		return new SetMap()

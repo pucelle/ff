@@ -1,15 +1,19 @@
-import {DoubleKeysBothWeakMap, DoubleKeysWeakMap, TwoWaySetWeakMap} from '../structs'
+import {WeakerDoubleKeysMap, SetMap} from '../structs'
+import {DependencyMap} from './dependency-map'
 
 
-type Target = object
-type Callback = Function
-type Dependency = object | Symbol
-
-/** Contains captured depedencies, and the callback it need to call after any depedency get changed. */
+/** Contains captured depedencies, and the refresh callback it need to call after any depedency get changed. */
 interface CapturedDependencies {
-	callback: Callback
-	dependencies: Set<Dependency>
+
+	// Refech callback, to call it after any depedency changed.
+	refreshCallback: Function
+
+	// Each object and accessed property.
+	dependencies: SetMap<object, PropertyKey>
 }
+
+
+const EmptyPropertyKey = 'EMPTY_KEY'
 
 
 /** 
@@ -19,10 +23,10 @@ interface CapturedDependencies {
 export namespace DependencyCapturer {
 
 	/** Caches `Dependency <-> Callback`. */
-	const DependencyMap: TwoWaySetWeakMap<Dependency, Callback> = new TwoWaySetWeakMap()
+	const DepMap: DependencyMap = new DependencyMap()
 
 	/** Caches all binded callbacks, `Callback -> Scope -> Binded Callback`. */
-	const BindedCallbackMap: DoubleKeysBothWeakMap<Function, Target, Function> = new DoubleKeysBothWeakMap()
+	const BindedCallbackMap: WeakerDoubleKeysMap<Function, object, Function> = new WeakerDoubleKeysMap()
 
 	/** Callback and dependencies stack list. */
 	const depStack: CapturedDependencies[] = []
@@ -32,10 +36,10 @@ export namespace DependencyCapturer {
 
 
 	/** 
-	 * Capture dependencies within the execution period of `fn`,
-	 * and execute it in a `try{...}`.
+	 * Execute `fn`, and captures all dependencies duraing execution,
+	 * Will execute `fn` in a `try{...}` statement.
 	 */
-	export function captureExecution(fn: () => void, callback: Callback, scope: Target | null = null) {
+	export function captureExecutionOf(fn: () => void, callback: Function, scope: object | null = null) {
 		startCapture(callback, scope)
 
 		try {
@@ -51,11 +55,9 @@ export namespace DependencyCapturer {
 
 	/** 
 	 * Begin to capture dependencies.
-	 * Would suggest running following codes in a `try{...}` statement.
-	 * Beware of capturing with same callback and same scope in different places,
-	 * which will overwrite each other.
+	 * Would suggest executing the codes following in a `try{...}` statement.
 	 */
-	export function startCapture(callback: Callback, scope: Target | null = null) {
+	export function startCapture(callback: Function, scope: object | null = null) {
 		let bindedCallback = bindCallback(callback, scope)
 
 		if (currentDep) {
@@ -63,24 +65,25 @@ export namespace DependencyCapturer {
 		}
 
 		currentDep = {
-			callback: bindedCallback,
-			dependencies: new Set(),
+			refreshCallback: bindedCallback,
+			dependencies: new SetMap(),
 		}
 	}
 
 
-	function bindCallback(callback: Callback, scope: Target | null): Callback {
-		let bindedCallback: Callback
-		if (scope) {
-			bindedCallback = BindedCallbackMap.get(callback, scope)!
-			
-			if (!bindedCallback) {
-				bindedCallback = callback.bind(scope) as Callback
-				BindedCallbackMap.set(callback, scope, bindedCallback)
-			}
+	/** 
+	 * Bind a callback and a scope to get a new callback function.
+	 * Will cache reuslt and always get same result for same parameters.
+	 */
+	function bindCallback(callback: Function, scope: object | null): Function {
+		if (!scope) {
+			return callback
 		}
-		else {
-			bindedCallback = callback
+
+		let bindedCallback = BindedCallbackMap.get(callback, scope)!			
+		if (!bindedCallback) {
+			bindedCallback = callback.bind(scope) as Function
+			BindedCallbackMap.set(callback, scope, bindedCallback)
 		}
 
 		return bindedCallback
@@ -89,15 +92,10 @@ export namespace DependencyCapturer {
 
 	/** 
 	 * End capturing dependencies.
-	 * You must ensure to ending each capturing, or fatul error will happen.
+	 * You must ensure to end each capture, or fatul error will happen.
 	 */
 	export function endCapture() {
-		if (currentDep!.dependencies.size > 0) {
-			DependencyMap.replaceRight(currentDep!.callback, currentDep!.dependencies)
-		}
-		else {
-			DependencyMap.deleteRight(currentDep!.callback)
-		}
+		DepMap.apply(currentDep!.refreshCallback, currentDep!.dependencies)
 
 		if (depStack.length > 0) {
 			currentDep = depStack.pop()!
@@ -109,16 +107,16 @@ export namespace DependencyCapturer {
 
 
 	/** When doing getting property, add a dependency. */
-	export function onGet(dep: Dependency) {
+	export function onGet(obj: object, prop: PropertyKey = EmptyPropertyKey) {
 		if (currentDep) {
-			currentDep.dependencies.add(dep)
+			currentDep.dependencies.add(obj, prop)
 		}
 	}
 
 
 	/** When doing setting property, notify the dependency is changed. */
-	export function onSet(dep: Dependency) {
-		let callbacks = DependencyMap.getLeft(dep)
+	export function onSet(obj: object, prop: PropertyKey = EmptyPropertyKey) {
+		let callbacks = DepMap.getRefreshCallbacks(obj, prop)
 		if (callbacks) {
 			for (let callback of callbacks) {
 				callback()
@@ -127,46 +125,10 @@ export namespace DependencyCapturer {
 	}
 
 
-	/** Remove all depedencies of callback. */
-	export function remove(callback: Callback, scope: Target | null = null) {
+	/** Remove all depedencies of a refresh callback. */
+	export function release(callback: Function, scope: object | null = null) {
 		let bindedCallback = bindCallback(callback, scope)
-		DependencyMap.deleteRight(bindedCallback)
-	}
-
-
-	/** Cache symbols as depedencies by target object. */
-	export class DepedencyMap {
-
-		private map: WeakMap<Target, Dependency> = new WeakMap()
-
-		/** Get a symbol as represent of depedency for target object. */
-		get(target: Target): Dependency {
-			let symbol = this.map.get(target)
-			if (!symbol) {
-				symbol = Symbol()
-				this.map.set(target, symbol)
-			}
-	
-			return symbol
-		}
-	}
-
-
-	/** Cache symbols as depedencies by target object and a associated property name. */
-	export class SubDepedencyMap {
-
-		private map: DoubleKeysWeakMap<Target, PropertyKey, Dependency> = new DoubleKeysWeakMap()
-
-		/** Get a symbol as represent of depedency for target object. */
-		get(target: Target, property: PropertyKey): Dependency {
-			let symbol = this.map.get(target, property)
-			if (!symbol) {
-				symbol = Symbol()
-				this.map.set(target, property, symbol)
-			}
-	
-			return symbol
-		}
+		DepMap.deleteRefreshCallback(bindedCallback)
 	}
 }
 
