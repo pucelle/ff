@@ -7,7 +7,7 @@ class ExtendedDoubleKeysWeakSetMap<K1 extends object, K2, V> extends WeakDoubleK
 	 * Add key1, group of key2, and value.
 	 * Improves a little performance compare with `add`.
 	 */
-	addExtendedGroup(k1: K1, k2s: Set<K2>, v: V) {
+	addByGroupOfSecondKeys(k1: K1, k2s: Set<K2>, v: V) {
 		let sub = this.map.get(k1)
 		if (!sub) {
 			sub = this.createSubMap()
@@ -73,7 +73,7 @@ export class DependencyMap {
 
 		// Add or replace.
 		for (let [obj, props] of deps.entries()) {
-			this.refreshMap.addExtendedGroup(obj, props, c)
+			this.refreshMap.addByGroupOfSecondKeys(obj, props, c)
 		}
 	}
 
