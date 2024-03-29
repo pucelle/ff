@@ -2,7 +2,7 @@
  * `@observable` decorates a class to make its properties become observable.
  * 
  * If a class is decorated as observable, its all public properties becomes
- * readonly outside of class scope, except decorates properties as `@input`.
+ * readonly outside of class private scope, except decorates properties as `@input`.
  * 
  * This is only a marker, it will be removed after compiled to js codes by `@pucelle/lupos-compiler`.
  */
@@ -12,10 +12,10 @@ export function observable(_constructor: Function) {
 
 
 /** 
- * `@input` decorates a property to make it can be assigned outside of class scope.
+ * `@input` decorates a property to make it can be assigned outside of class private scope.
  * 
  * If a class is decorated by `@observable`, its all public properties becomes
- * readonly outside of class scope, except decorates properties as `@input`.
+ * readonly outside of class private scope, except decorates properties as `@input`.
  * 
  * This is only a marker, it will be removed after compiled to js codes by `@pucelle/lupos-compiler`.
  */

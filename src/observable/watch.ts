@@ -1,7 +1,7 @@
 import {DependencyCapturer} from './dependency-capturer'
 
 
-/** Watch returned value of `fn` and calls `callback` after the value changed. */
+/** Watch returned value of `fn` and calls `callback` after the value becomes changed. */
 export function watch<T>(
 	fn: () => T,
 	callback: (newValue: T, oldValue: T | undefined) => void,
@@ -32,7 +32,7 @@ export function watch<T>(
 
 
 /**
- * Watch returned value of `fn` and calls `callback` after the value changed.
+ * Watch returned value of `fn` and calls `callback` after the value becomes changed.
  * Will call `callback` immediately.
  */
 export function watchImmediately<T>(
@@ -64,7 +64,7 @@ export function watchImmediately<T>(
 
 
 /**
- * Watch returned value of `fn` and calls `callback` after the value changed.
+ * Watch returned value of `fn` and calls `callback` after the value becomes changed.
  * Calls `callback` for only once.
  */
 export function watchOnce<T>(

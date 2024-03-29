@@ -1,5 +1,6 @@
 export * from './decorators-for-compiler'
 export * from './dependency-capturer'
-export * from './watch'
+export * from './proxy'
 export * from './compute'
+export * from './watch'
 export * from './types'

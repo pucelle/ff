@@ -1,4 +1,4 @@
-import {DependencyCapturer, compute} from '../../src/observable'
+import {DependencyCapturer, compute, proxyOf, watch} from '../../src/observable'
 
 
 describe('Test observable', () => {
@@ -48,6 +48,78 @@ describe('Test observable', () => {
 		DependencyCapturer.onSet(a.key.c)
 		expect(a.update).toBeCalledTimes(5)
 	})
+
+	
+	it('Test proxyOf', () => {
+		let a = proxyOf({b: 1, c: [1]})
+		let update = jest.fn()
+
+		function reCapture() {
+			DependencyCapturer.startCapture(update)
+			a.b
+			a.c.length
+
+			// To pass this test,
+			// Must change `TwoWaySetMap` to `TwoWaySetWeakMap` at `dependency-capturer.ts`.
+			// Because jest env doesn't allow symbol as weak keys.
+			// Don't forget to change it back after test finished.
+			DependencyCapturer.endCapture()
+		}
+
+		reCapture()
+		a.b = 2
+		expect(update).toBeCalledTimes(1)
+
+		reCapture()
+		a.b = 2
+		expect(update).toBeCalledTimes(1)
+
+		reCapture()
+		a.c = [2]
+		expect(update).toBeCalledTimes(2)
+
+		reCapture()
+		a.c[0] = 3
+		expect(update).toBeCalledTimes(3)
+
+		reCapture()
+		a.c.push(3)
+		expect(update).toBeCalledTimes(4)
+	})
+
+
+	it('Test proxyOf comparsion', () => {
+		let a = {}
+		let b = proxyOf(a)
+
+		expect(a === b).toEqual(false)
+		expect(proxyOf(b) === b).toEqual(true)
+	})
+
+
+
+	it('Test watch', () => {
+		let a = proxyOf({b: 1, c: [1]})
+		let update = jest.fn()
+
+		watch(() => {a.b, a.c[0]}, update)
+
+		a.b = 2
+		expect(update).toBeCalledTimes(1)
+
+		a.b = 2
+		expect(update).toBeCalledTimes(1)
+
+		a.c = [2]
+		expect(update).toBeCalledTimes(2)
+
+		a.c[0] = 3
+		expect(update).toBeCalledTimes(3)
+
+		a.c.push(3)
+		expect(update).toBeCalledTimes(4)
+	})
+
 
 	it('Test compute', () => {
 		class A {
