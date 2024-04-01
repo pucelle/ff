@@ -1,11 +1,11 @@
-import {DependencyCapturer} from './dependency-capturer'
+import {DependencyTracker} from './dependency-tracker'
 
 
 type Proxied<T> = T extends object ? T & {ProxySymbol: T} : T
 
 
 /** To find proxied object. */
-const {onGet, onSet} = DependencyCapturer
+const {onGet, onSet} = DependencyTracker
 const ProxyMap: WeakMap<object | Proxied<any>, Proxied<any>> = new WeakMap()
 
 

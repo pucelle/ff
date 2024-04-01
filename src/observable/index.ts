@@ -1,5 +1,5 @@
 export * from './decorators-for-compiler'
-export * from './dependency-capturer'
+export * from './dependency-tracker'
 export * from './proxy'
 export * from './compute'
 export * from './watch'

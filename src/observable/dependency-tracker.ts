@@ -13,14 +13,11 @@ interface CapturedDependencies {
 }
 
 
-const EmptyPropertyKey = 'EMPTY_KEY'
-
-
 /** 
- * Capture depedencies when executing.
+ * Track depedencies when executing.
  * And calls callback when any depedency get changed.
  */
-export namespace DependencyCapturer {
+export namespace DependencyTracker {
 
 	/** Caches `Dependency <-> Callback`. */
 	const DepMap: DependencyMap = new DependencyMap()
@@ -39,8 +36,8 @@ export namespace DependencyCapturer {
 	 * Execute `fn`, and captures all dependencies duraing execution,
 	 * Will execute `fn` in a `try{...}` statement.
 	 */
-	export function captureExecutionOf(fn: () => void, callback: Function, scope: object | null = null) {
-		startCapture(callback, scope)
+	export function trackExecutionOf(fn: () => void, callback: Function, scope: object | null = null) {
+		startTrack(callback, scope)
 
 		try {
 			fn()
@@ -49,7 +46,7 @@ export namespace DependencyCapturer {
 			console.error(err)
 		}
 
-		endCapture()
+		endTrack()
 	}
 
 
@@ -57,7 +54,7 @@ export namespace DependencyCapturer {
 	 * Begin to capture dependencies.
 	 * Would suggest executing the codes following in a `try{...}` statement.
 	 */
-	export function startCapture(callback: Function, scope: object | null = null) {
+	export function startTrack(callback: Function, scope: object | null = null) {
 		let bindedCallback = bindCallback(callback, scope)
 
 		if (currentDep) {
@@ -94,7 +91,7 @@ export namespace DependencyCapturer {
 	 * End capturing dependencies.
 	 * You must ensure to end each capture, or fatul error will happen.
 	 */
-	export function endCapture() {
+	export function endTrack() {
 		DepMap.apply(currentDep!.refreshCallback, currentDep!.dependencies)
 
 		if (depStack.length > 0) {
@@ -107,7 +104,7 @@ export namespace DependencyCapturer {
 
 
 	/** When doing getting property, add a dependency. */
-	export function onGet(obj: object, prop: PropertyKey = EmptyPropertyKey) {
+	export function onGet(obj: object, prop: PropertyKey = '') {
 		if (currentDep) {
 			currentDep.dependencies.add(obj, prop)
 		}
@@ -115,7 +112,7 @@ export namespace DependencyCapturer {
 
 
 	/** When doing setting property, notify the dependency is changed. */
-	export function onSet(obj: object, prop: PropertyKey = EmptyPropertyKey) {
+	export function onSet(obj: object, prop: PropertyKey = '') {
 		let callbacks = DepMap.getRefreshCallbacks(obj, prop)
 		if (callbacks) {
 			for (let callback of callbacks) {
@@ -126,7 +123,7 @@ export namespace DependencyCapturer {
 
 
 	/** Remove all depedencies of a refresh callback. */
-	export function release(callback: Function, scope: object | null = null) {
+	export function untrack(callback: Function, scope: object | null = null) {
 		let bindedCallback = bindCallback(callback, scope)
 		DepMap.deleteRefreshCallback(bindedCallback)
 	}

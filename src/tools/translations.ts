@@ -46,33 +46,9 @@ export class Translations {
 		return value
 	}
 	
-	/** 
-	 * Translate string like `DefaultValue@@key`.
-	 * Would choose `DefaultValue` part if no relevent translation data exist.
-	 */
-	translate(key: string, ...args: (string | number)[]): string {
-		let [defaultValue, id] = key.split('@@')
-		let data = this.data.get(this.language)
-		let value = defaultValue
-
-		if (!data) {
-			data = this.data.get('enus')
-		}
-
-		if (id) {
-			value = data![id] ?? defaultValue
-		}
-
-		if (args.length) {
-			value = StringUtils.format(value, args)
-		}
-
-		return value
-	}
-
-	/** Translate, and replace `"xxx"` to `<b>xxx</b>`. */
-	translateWithQuoteToBold(key: string, ...args: (string | number)[]): string {
-		let value = this.translate(key, ...args.map(arg => StringUtils.encodeHTML(String(arg))))
+	/** Translate, and replace quotes to `<b>`: `"xxx"` -> `<b>xxx</b>`. */
+	getBolded(key: string, ...args: (string | number)[]): string {
+		let value = this.get(key, ...args.map(arg => StringUtils.encodeHTML(String(arg))))
 		return value.replace(/"(.+?)"/g, '<b>$1</b>')
 	}
 }

@@ -1,4 +1,4 @@
-import {DependencyCapturer} from './dependency-capturer'
+import {DependencyTracker} from './dependency-tracker'
 
 
 /** Watch returned value of `fn` and calls `callback` after the value becomes changed. */
@@ -17,16 +17,16 @@ export function watch<T>(
 	}
 
 	let depCapCallback = () => {
-		DependencyCapturer.captureExecutionOf(assignValueFn, depCapCallback)
+		DependencyTracker.trackExecutionOf(assignValueFn, depCapCallback)
 		callback(newValue, oldValue)
 		oldValue = newValue
 	}
 
-	DependencyCapturer.captureExecutionOf(assignValueFn, depCapCallback)
+	DependencyTracker.trackExecutionOf(assignValueFn, depCapCallback)
 	oldValue = newValue!
 
 	return () => {
-		DependencyCapturer.release(depCapCallback)
+		DependencyTracker.untrack(depCapCallback)
 	}
 }
 
@@ -50,7 +50,7 @@ export function watchImmediately<T>(
 	}
 
 	let depCapCallback = () => {
-		DependencyCapturer.captureExecutionOf(assignValueFn, depCapCallback)
+		DependencyTracker.trackExecutionOf(assignValueFn, depCapCallback)
 		callback(newValue, oldValue)
 		oldValue = newValue
 	}
@@ -58,7 +58,7 @@ export function watchImmediately<T>(
 	depCapCallback()
 
 	return () => {
-		DependencyCapturer.release(depCapCallback)
+		DependencyTracker.untrack(depCapCallback)
 	}
 }
 
@@ -82,16 +82,16 @@ export function watchOnce<T>(
 	}
 
 	let depCapCallback = () => {
-		DependencyCapturer.captureExecutionOf(assignValueFn, depCapCallback)
+		DependencyTracker.trackExecutionOf(assignValueFn, depCapCallback)
 		callback(newValue, oldValue)
-		DependencyCapturer.release(depCapCallback)
+		DependencyTracker.untrack(depCapCallback)
 	}
 
-	DependencyCapturer.captureExecutionOf(assignValueFn, depCapCallback)
+	DependencyTracker.trackExecutionOf(assignValueFn, depCapCallback)
 	oldValue = newValue!
 
 	return () => {
-		DependencyCapturer.release(depCapCallback)
+		DependencyTracker.untrack(depCapCallback)
 	}
 }
 
@@ -110,23 +110,23 @@ export function watchUntil<T>(
 	}
 
 	let depCapCallback = () => {
-		DependencyCapturer.captureExecutionOf(assignValueFn, depCapCallback)
+		DependencyTracker.trackExecutionOf(assignValueFn, depCapCallback)
 
 		if (newValue!) {
 			callback(newValue)
-			DependencyCapturer.release(depCapCallback)
+			DependencyTracker.untrack(depCapCallback)
 		}
 	}
 
-	DependencyCapturer.captureExecutionOf(assignValueFn, depCapCallback)
+	DependencyTracker.trackExecutionOf(assignValueFn, depCapCallback)
 
 	if (newValue!) {
 		callback(newValue)
-		DependencyCapturer.release(depCapCallback)
+		DependencyTracker.untrack(depCapCallback)
 	}
 
 	return () => {
-		DependencyCapturer.release(depCapCallback)
+		DependencyTracker.untrack(depCapCallback)
 	}
 }
 

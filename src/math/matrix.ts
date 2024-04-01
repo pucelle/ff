@@ -69,8 +69,8 @@ export class Matrix implements MatrixData {
 
 	/** 
 	 * Make a transform matrix, which will convert `fromBox` to a box like `toBox` via `mode`:
-	 * `contain`: after converted, `fromBox` will be exactly contained by `toBox`.
-	 * `cover`: after converted, `fromBox` will exactly cover `toBox`.
+	 * - `contain`: after converted, `fromBox` will be exactly contained by `toBox`.
+	 * - `cover`: after converted, `fromBox` will exactly cover `toBox`.
 	 */
 	static fitBoxPair(fromBox: BoxLike, toBox: BoxLike, mode: 'contain' | 'cover' = 'contain'): Matrix {
 		let scaling = mode === 'contain'

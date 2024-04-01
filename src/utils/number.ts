@@ -3,7 +3,8 @@ export namespace NumberUtils {
 	/**
 	 * Convert number to make it in fixed-point notation.
 	 * Works like `number.toFixed`, but alway returns a number.
-	 * `decimalCount`: The decimal count that `number` will be fixed to.
+	 * - `decimalCount`: The decimal count that `number` will be fixed to.
+	 * 
 	 * e.g.:
 	 *   `toDecimal(12.345, 2) = 12.34`
 	 * 	 `toDecimal(12345, -2) = 12300`
@@ -27,7 +28,8 @@ export namespace NumberUtils {
 
 	/**
 	 * Nearly same with `number.toPrecision`, except it always returns a number.
-	 * `precision`: The precision value betweens `1-21`.
+	 * - `precision`: The precision value betweens `1-21`.
+	 * 
 	 * e.g.:
 	 *   `toPrecision(123.45, 1) = 100`
 	 *   `toPrecision(123.45, 2) = 120`

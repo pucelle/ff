@@ -102,7 +102,7 @@ export namespace DateUtils {
 
 	/**
 	 * Clones a date, returns a new date.
-	 * `units`: default value is `yMdhms`, can specify partial of it to do partly clone, rest values will be set to initial.
+	 * - `units`: default value is `yMdhms`, can specify partial of it to do partly clone, rest values will be set to initial.
 	 */
 	export function clone(date: Date = new Date(), units: string = DurationUnits): Date {
 		let dateValues = [...DurationUnits].map(unit => {
@@ -153,7 +153,7 @@ export namespace DateUtils {
 
 	/**
 	 * Returns a formatted date string.
-	 * `template`: date format template, default value is `yyyy-MM-dd hh:mm:ss`.
+	 * - `template`: date format template, default value is `yyyy-MM-dd hh:mm:ss`.
 	 */
 	export function format(date: Date, template = 'yyyy-MM-dd hh:mm:ss'): string {
 		return template.replace(/y+|M+|d+|h+|m+|s+/g, m0 => {

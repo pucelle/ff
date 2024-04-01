@@ -6,9 +6,8 @@ export namespace IntegralLookup {
 
 	/**
 	 * Locate the x value, at which the rate of the integral value equals `y`.
-	 * 
-	 * `yRate`: The integral rate betweens 0~1.
-	 * `integrogram`: Integrogram consist of accumulate values, first value `0` is dropped.
+	 * - `yRate`: The integral rate betweens 0~1.
+	 * - `integrogram`: Integrogram consist of accumulate values, first value `0` is dropped.
 	 * 
 	 * Histogram Values: [3, 2, 1]
 	 * Integrogram Values: [3, 5, 6]
@@ -41,8 +40,8 @@ export namespace IntegralLookup {
 	/**
 	 * Provide the x rate value, get the y value by an integrogram of y values.
 	 * 
-	 * `xRate`: The x value betweens 0~1.
-	 * `integrogram`: Integrogram consist of accumulate y values, first value `0` is dropped.
+	 * - `xRate`: The x value betweens 0~1.
+	 * - `integrogram`: Integrogram consist of accumulate y values, first value `0` is dropped.
 	 * 
 	 * Histogram Values: [3, 2, 1]
 	 * Integrogram Values: [3, 5, 6]

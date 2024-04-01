@@ -1,4 +1,4 @@
-import {DependencyCapturer} from './dependency-capturer'
+import {DependencyTracker} from './dependency-tracker'
 
 
 /** 
@@ -10,7 +10,7 @@ export function compute<V = any>(getter: () => V): () => V {
 	let assignValue = () => { value = getter() }
 
 	let depCapCallback = () => {
-		DependencyCapturer.captureExecutionOf(assignValue, depCapCallback)
+		DependencyTracker.trackExecutionOf(assignValue, depCapCallback)
 	}
 
 	return () => {

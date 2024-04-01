@@ -77,7 +77,7 @@ export namespace ListUtils {
 
 	/** 
 	 * Create an index map in `K => V` format.
-	 * `pairFn`: get key and value pair by it.
+	 * - `pairFn`: get key and value pair by it.
 	 */
 	export function indexBy<T, K, V>(list: Iterable<T>, pairFn: (value: T) => [K, V]): Map<K, V> {
 		let map: Map<K, V> = new Map()
@@ -93,7 +93,7 @@ export namespace ListUtils {
 
 	/** 
 	 * Create a group map in `K => V[]` format, just like SQL `group by` statement.
-	 * `pairFn`: get key and value pair by it.
+	 * - `pairFn`: get key and value pair by it.
 	 */
 	export function groupBy<T, K, V>(list: Iterable<T>, pairFn: (value: T) => [K, V]): Map<K, V[]> {
 		let map: Map<K, V[]> = new Map()
@@ -270,7 +270,8 @@ export namespace ListUtils {
 
 	/**
 	 * Returns the index of the minimal value of all the items in list.
-	 * `map`: comparing the minimum item by this map function.
+	 * - `map`: comparing the minimum item by this map function.
+	 * 
 	 * Returns `-1` if no items or all values are `Infinity`.
 	 */
 	export function minIndex<T>(list: T[], map: (item: T, index: number) => number): number {
@@ -292,7 +293,8 @@ export namespace ListUtils {
 
 	/**
 	 * Returns the index of the maximun value of all the items in list.
-	 * `map`: comparing the minimum item by this map function.
+	 * - `map`: comparing the minimum item by this map function.
+	 * 
 	 * Returns `-1` if no items or all values are `-Infinity`.
 	 */
 	export function maxIndex<T>(list: T[], map: (item: T, index: number) => number): number {
@@ -314,7 +316,8 @@ export namespace ListUtils {
 
 	/** 
 	 * Find the minimum item in a list.
-	 * `map`: comparing the minimum item by this map function.
+	 * - `map`: comparing the minimum item by this map function.
+	 * 
 	 * Returns `null` if no items or all values are `Infinity`.
 	 */
 	export function minOf<T>(list: T[], map: (item: T, index: number) => number): T | null {
@@ -325,7 +328,8 @@ export namespace ListUtils {
 
 	/** 
 	 * Find the maximum item in a list, comparing the minimum item by a `map` function.
-	 * `map`: comparing the minimum item by this map function.
+	 * - `map`: comparing the minimum item by this map function.
+	 * 
 	 * Returns `null` if no items or all values are `-Infinity`.
 	 */
 	export function maxOf<T>(list: T[], map: (item: T, index: number) => number): T | null {
