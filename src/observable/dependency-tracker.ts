@@ -35,9 +35,13 @@ export namespace DependencyTracker {
 	/** 
 	 * Execute `fn`, and captures all dependencies duraing execution,
 	 * Will execute `fn` in a `try{...}` statement.
+	 * If any dependent object get changed, calls callback.
+	 * 
+	 * Note for tracking same content, `callback` should keep consitant,
+	 * or it would cant replace old tracking.
 	 */
 	export function trackExecutionOf(fn: () => void, callback: Function, scope: object | null = null) {
-		startTrack(callback, scope)
+		beginTrack(callback, scope)
 
 		try {
 			fn()
@@ -54,7 +58,7 @@ export namespace DependencyTracker {
 	 * Begin to capture dependencies.
 	 * Would suggest executing the codes following in a `try{...}` statement.
 	 */
-	export function startTrack(callback: Function, scope: object | null = null) {
+	export function beginTrack(callback: Function, scope: object | null = null) {
 		let bindedCallback = bindCallback(callback, scope)
 
 		if (currentDep) {

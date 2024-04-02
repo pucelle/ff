@@ -7,17 +7,20 @@ import {DependencyTracker} from './dependency-tracker'
  */
 export function compute<V = any>(getter: () => V): () => V {
 	let value: V | undefined = undefined
-	let assignValue = () => { value = getter() }
+	let valueReset = true
 
-	let depCapCallback = () => {
-		DependencyTracker.trackExecutionOf(assignValue, depCapCallback)
+	let resetValue = () => {
+		value = undefined
+		valueReset = true
 	}
 
 	return () => {
+		if (valueReset) {
+			DependencyTracker.trackExecutionOf(() => {
+				value = getter()
+			}, resetValue)
 
-		// Assign value for the first time.
-		if (value === undefined) {
-			depCapCallback()
+			valueReset = false
 		}
 
 		return value!

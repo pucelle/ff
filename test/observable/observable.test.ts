@@ -1,4 +1,4 @@
-import {DependencyCapturer, compute, proxyOf, watch} from '../../src/observable'
+import {DependencyTracker, compute, proxyOf, Watcher} from '../../src/observable'
 
 
 describe('Test observable', () => {
@@ -14,38 +14,38 @@ describe('Test observable', () => {
 		a.update()
 
 		function reCapture() {
-			DependencyCapturer.startCapture(a.update, a)
+			DependencyTracker.beginTrack(a.update, a)
 
 			a.key.b
-			DependencyCapturer.onGet(a, 'key')
-			DependencyCapturer.onGet(a.key, 'b')
+			DependencyTracker.onGet(a, 'key')
+			DependencyTracker.onGet(a.key, 'b')
 
 			a.key.c.length
-			DependencyCapturer.onGet(a, 'key')
-			DependencyCapturer.onGet(a.key, 'c')
-			DependencyCapturer.onGet(a.key.c)
+			DependencyTracker.onGet(a, 'key')
+			DependencyTracker.onGet(a.key, 'c')
+			DependencyTracker.onGet(a.key.c)
 
-			DependencyCapturer.endCapture()
+			DependencyTracker.endTrack()
 		}
 
 		reCapture()
 		a.key.b = 2
-		DependencyCapturer.onSet(a.key, 'b')
+		DependencyTracker.onSet(a.key, 'b')
 		expect(a.update).toBeCalledTimes(2)
 
 		reCapture()
 		a.key.c = [2]
-		DependencyCapturer.onSet(a.key, 'c')
+		DependencyTracker.onSet(a.key, 'c')
 		expect(a.update).toBeCalledTimes(3)
 
 		reCapture()
 		a.key.c[0] = 3
-		DependencyCapturer.onSet(a.key.c)
+		DependencyTracker.onSet(a.key.c)
 		expect(a.update).toBeCalledTimes(4)
 
 		reCapture()
 		a.key.c.push(3)
-		DependencyCapturer.onSet(a.key.c)
+		DependencyTracker.onSet(a.key.c)
 		expect(a.update).toBeCalledTimes(5)
 	})
 
@@ -55,7 +55,7 @@ describe('Test observable', () => {
 		let update = jest.fn()
 
 		function reCapture() {
-			DependencyCapturer.startCapture(update)
+			DependencyTracker.beginTrack(update)
 			a.b
 			a.c.length
 
@@ -63,7 +63,7 @@ describe('Test observable', () => {
 			// Must change `TwoWaySetMap` to `TwoWaySetWeakMap` at `dependency-capturer.ts`.
 			// Because jest env doesn't allow symbol as weak keys.
 			// Don't forget to change it back after test finished.
-			DependencyCapturer.endCapture()
+			DependencyTracker.endTrack()
 		}
 
 		reCapture()
@@ -102,7 +102,7 @@ describe('Test observable', () => {
 		let a = proxyOf({b: 1, c: [1]})
 		let update = jest.fn()
 
-		watch(() => {a.b, a.c[0]}, update)
+		Watcher.watch(() => {a.b, a.c[0]}, update)
 
 		a.b = 2
 		expect(update).toBeCalledTimes(1)
@@ -133,16 +133,16 @@ describe('Test observable', () => {
 		}
 
 		let a = new A()
-		let v1 = compute(() => {DependencyCapturer.onGet(a, 'v'); return a.v})
-		let v2 = compute(() => {DependencyCapturer.onGet(a, 'v'); return a.v + 1})
+		let v1 = compute(() => {DependencyTracker.onGet(a, 'v'); return a.v})
+		let v2 = compute(() => {DependencyTracker.onGet(a, 'v'); return a.v + 1})
 
 		a.v = 1
-		DependencyCapturer.onSet(a, 'v')
+		DependencyTracker.onSet(a, 'v')
 		expect(v1()).toEqual(1)
 		expect(v2()).toEqual(2)
 
 		a.v = 2
-		DependencyCapturer.onSet(a, 'v')
+		DependencyTracker.onSet(a, 'v')
 		expect(v1()).toEqual(2)
 		expect(v2()).toEqual(3)
 	})
