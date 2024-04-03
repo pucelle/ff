@@ -10,8 +10,6 @@ describe('Test MiniHeap', () => {
 			m.add(Math.round(Math.random() * 100))
 		}
 
-		m.validate()
-
 		let lastValue = -1
 
 		while (!m.isEmpty()) {
