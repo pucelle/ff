@@ -1,4 +1,4 @@
-import {ListMap} from '../structs'
+import {WeakDoubleKeysListMap} from '../structs'
 import {Point} from '../math'
 
 
@@ -17,7 +17,7 @@ interface EventListener {
 export namespace DOMEvents {
 
 	/** Cache event listeners. */
-	const EventListenersCache: WeakMap<EventTarget, ListMap<string, EventListener>> = new WeakMap()
+	const EventListenerMap: WeakDoubleKeysListMap<EventTarget, string, EventListener> = new WeakDoubleKeysListMap()
 
 
 	/** 
@@ -40,19 +40,14 @@ export namespace DOMEvents {
 	function bindEvent(once: boolean, el: EventTarget, type: string, handler: EventHandler, scope: object | undefined, passive: boolean) {
 		let boundHandler = scope ? handler.bind(scope) : handler
 
-		let map = EventListenersCache.get(el)
-		if (!map) {
-			map = new ListMap()
-			EventListenersCache.set(el, map)
-		}
-
-		map.add(type, {
+		let eventListener = {
 			type: type,
 			handler,
 			boundHandler,
 			scope,
-		})
-		
+		}
+
+		EventListenerMap.add(el, type, eventListener)
 		el.addEventListener(type, boundHandler, {once, passive})
 	}
 
@@ -62,12 +57,7 @@ export namespace DOMEvents {
 	 * If listener binds a `scope`, here must match it to remove the listener.
 	 */
 	export function off(el: EventTarget, type: string, handler: EventHandler, scope: any = null) {
-		let map = EventListenersCache.get(el)
-		if (!map) {
-			return
-		}
-		
-		let listeners = map.get(type)
+		let listeners = EventListenerMap.get(el, type)
 		if (!listeners) {
 			return
 		}
@@ -77,7 +67,7 @@ export namespace DOMEvents {
 			
 			if (listener.handler === handler && (!scope || listener.scope === scope)) {
 				el.removeEventListener(type, listener.boundHandler)
-				map.delete(type, listener)
+				EventListenerMap.delete(el, type, listener)
 			}
 		}
 	}
