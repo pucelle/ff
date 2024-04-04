@@ -16,7 +16,10 @@ export namespace AnimationFrame {
 	let currentTimestamp: number = 0
 
 
-	/** Request for current animation frame. */
+	/** 
+	 * Request for current animation frame.
+	 * If current animation frame is started, calls callback soon.
+	 */
 	export function requestCurrent(callback: AnimationFrameCallback): number {
 		if (inCurrentFrame) {
 			let id = idSeed++

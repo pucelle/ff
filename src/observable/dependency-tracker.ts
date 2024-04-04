@@ -1,5 +1,6 @@
-import {WeakerDoubleKeysMap, SetMap} from '../structs'
-import {DependencyMap} from './dependency-map'
+import {SetMap} from '../structs'
+import {bindCallback} from './helpers/bind-callback'
+import {DependencyMap} from './helpers/dependency-map'
 
 
 /** Contains captured depedencies, and the refresh callback it need to call after any depedency get changed. */
@@ -21,9 +22,6 @@ export namespace DependencyTracker {
 
 	/** Caches `Dependency <-> Callback`. */
 	const DepMap: DependencyMap = new DependencyMap()
-
-	/** Caches all binded callbacks, `Callback -> Scope -> Binded Callback`. */
-	const BindedCallbackMap: WeakerDoubleKeysMap<Function, object, Function> = new WeakerDoubleKeysMap()
 
 	/** Callback and dependencies stack list. */
 	const depStack: CapturedDependencies[] = []
@@ -69,25 +67,6 @@ export namespace DependencyTracker {
 			refreshCallback: bindedCallback,
 			dependencies: new SetMap(),
 		}
-	}
-
-
-	/** 
-	 * Bind a callback and a scope to get a new callback function.
-	 * Will cache reuslt and always get same result for same parameters.
-	 */
-	function bindCallback(callback: Function, scope: object | null): Function {
-		if (!scope) {
-			return callback
-		}
-
-		let bindedCallback = BindedCallbackMap.get(callback, scope)!			
-		if (!bindedCallback) {
-			bindedCallback = callback.bind(scope) as Function
-			BindedCallbackMap.set(callback, scope, bindedCallback)
-		}
-
-		return bindedCallback
 	}
 
 

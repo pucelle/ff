@@ -1,4 +1,4 @@
-import {WeakDoubleKeysSetMap, SetMap} from '../structs'
+import {WeakDoubleKeysSetMap, SetMap} from '../../structs'
 
 
 class ExtendedDoubleKeysWeakSetMap<K1 extends object, K2, V> extends WeakDoubleKeysSetMap<K1, K2, V> {
