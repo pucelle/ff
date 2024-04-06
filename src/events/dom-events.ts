@@ -24,20 +24,28 @@ export namespace DOMEvents {
 	 * Bind a event listener on an event target.
 	 * Can specify `scope` to identify listener, and will pass it to listener handler.
 	 */
-	export function on(el: EventTarget, type: string, handler: EventHandler, scope: any = null, passive: boolean = false) {
-		bindEvent(false, el, type, handler, scope, passive)
+	export function on(el: EventTarget, type: string, handler: EventHandler, scope: any = null, options: AddEventListenerOptions | boolean = false) {
+		bindEvent(false, el, type, handler, scope, options)
 	}
 
 	/** 
 	 * Bind a event listener on event target, triggers for only once.
 	 * Can specify `scope` to identify listener, and will pass it to listener handler.
 	 */
-	export function once(el: EventTarget, type: string, handler: EventHandler, scope: any = null, passive: boolean = false) {
-		bindEvent(true, el, type, handler, scope, passive)
+	export function once(el: EventTarget, type: string, handler: EventHandler, scope: any = null, options: AddEventListenerOptions | boolean = false) {
+		bindEvent(true, el, type, handler, scope, options)
 	}
 
 
-	function bindEvent(once: boolean, el: EventTarget, type: string, handler: EventHandler, scope: object | undefined, passive: boolean) {
+	function bindEvent(once: boolean, el: EventTarget, type: string, handler: EventHandler, scope: object | undefined, options: AddEventListenerOptions | boolean) {
+		if (typeof options === 'boolean') {
+			options = {capture: options}
+		}
+
+		if (once) {
+			options.once = true
+		}
+
 		let boundHandler = scope ? handler.bind(scope) : handler
 
 		let eventListener = {
@@ -48,7 +56,7 @@ export namespace DOMEvents {
 		}
 
 		EventListenerMap.add(el, type, eventListener)
-		el.addEventListener(type, boundHandler, {once, passive})
+		el.addEventListener(type, boundHandler, options)
 	}
 
 

@@ -221,6 +221,8 @@ export namespace ListUtils {
 		 * Binary find an insert index from a list, which has been sorted by current `Order`.
 		 * And make the list is still in sorted state after inserting the new value.
 		 * Returned index is betweens `0 ~ list length`.
+		 * 
+		 * Note when some equal values exist, the returned index prefers upper.
 		 */
 		binaryFindInsertIndex(list: T[], item: T): number {
 			return binaryFindInsertIndex(list, item, i => this.compare(item, i))
@@ -240,7 +242,7 @@ export namespace ListUtils {
 		 * Binary find an item from a list, which has been sorted by current `Order`.
 		 * Returns the found item, or `undefined` if nothing found.
 		 */
-		binaryFind(list: T[], item: T) {
+		binaryFind(list: T[], item: T): T | undefined {
 			return binaryFind(list, item, i => this.compare(item, i))
 		}
 		
@@ -250,7 +252,7 @@ export namespace ListUtils {
 		 * Returns the insert index.
 		 * Uses `array.splice` to do inserting so watch the performance.
 		 */
-		binaryInsert(list: T[], item: T) {
+		binaryInsert(list: T[], item: T): number {
 			return binaryInsert(list, item, i => this.compare(item, i))
 		}
 	}
