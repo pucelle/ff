@@ -1,5 +1,5 @@
 /** 
- * Bundle several data items into one,
+ * Bundle all added data items into one during a micro task tick.
  * Can be used to bundle callback parameter to a group,
  * and calls with it as parameters for at most once in one micro task tick.
  */
@@ -36,7 +36,7 @@ abstract class Bundler<T, I extends Iterable<T>> {
 
 
 /** 
- * Bundle several data items into a list,
+ * Bundle all added data items into a list during a micro task tick.
  * Callback with bundled list as parameter for at most once in one micro task tick.
  */
 export class ListBundler<T = any> extends Bundler<T, T[]> {
@@ -51,7 +51,7 @@ export class ListBundler<T = any> extends Bundler<T, T[]> {
 
 
 /** 
- * Bundle several data items into a set,
+ * Bundle all added data items into a set during a micro task tick.
  * Callback with bundled set as parameter for at most once in one micro task tick.
  */
 export class SetBundler<T = any> extends Bundler<T, Set<T>> {

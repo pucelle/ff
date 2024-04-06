@@ -238,7 +238,7 @@ export namespace ObjectUtils {
 
 
 	/** Convert a map to an object with same key and value pairs. */
-	export function mapToObject<K extends string | number, V>(map: Map<K, V>): Record<K, V> {
+	export function objectFromMap<K extends string | number, V>(map: Map<K, V>): Record<K, V> {
 		let o: Record<K, V> = {} as any
 
 		for (let [k, v] of map.entries()) {

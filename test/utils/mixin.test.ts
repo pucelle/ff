@@ -1,4 +1,4 @@
-import {MixinUtils} from '../../src/utils/mixin'
+import {applyMixins} from '../../src/utils/mixin'
 
 
 describe('Test MixinUtils', () => {
@@ -23,7 +23,7 @@ describe('Test MixinUtils', () => {
 
 		interface A extends B, C {}
 
-		MixinUtils.applyMixins(A, B, C)
+		applyMixins(A, B, C)
 
 		let a = new A()
 		expect(a.b()).toEqual('b')
