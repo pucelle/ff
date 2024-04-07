@@ -567,22 +567,32 @@ export class TwoWayMap<L, R> {
 	}
 
 	/** Get right key by a left key. */
-	getLeft(l: L): R | undefined {
+	getByLeft(l: L): R | undefined {
 		return this.lm.get(l)
 	}
 
 	/** Get left key by a right key. */
-	getRight(r: R): L | undefined {
+	getByRight(r: R): L | undefined {
 		return this.rm.get(r)
 	}
 
 	/** 
 	 * Set a left and right key pair.
-	 * Note if left or right key is exist, would cause overwrite.
+	 * Note if left or right key is exist, would cause repetitive maps.
 	 */
 	set(l: L, r: R) {
 		this.lm.set(l, r)
 		this.rm.set(r, l)
+	}
+
+	/** 
+	 * Set a left and right key pair.
+	 * Avoid repetitive maps by pre-clear left and right maps.
+	 */
+	setNonRepetitive(l: L, r: R) {
+		this.deleteLeft(l)
+		this.deleteRight(r)
+		this.set(l, r)
 	}
 
 	/** Delete all associated right values by left key. */
@@ -703,13 +713,13 @@ export abstract class TwoWayIterableValueMap<L, R, LI extends Iterable<L>, RI ex
 		return this.rm.countOf(r)
 	}
 
-	/** Get associated right key by a left key. */
-	getLeft(l: L): RI | undefined {
+	/** Get associated right keys by a left key. */
+	getByLeft(l: L): RI | undefined {
 		return this.lm.get(l)
 	}
 
-	/** Get associated left key by a right key. */
-	getRight(r: R): LI | undefined {
+	/** Get associated left keys by a right key. */
+	getByRight(r: R): LI | undefined {
 		return this.rm.get(r)
 	}
 
@@ -727,7 +737,7 @@ export abstract class TwoWayIterableValueMap<L, R, LI extends Iterable<L>, RI ex
 
 	/** Delete by left key. */
 	deleteLeft(l: L) {
-		let rs = this.getLeft(l)
+		let rs = this.getByLeft(l)
 		if (rs) {
 			for (let r of rs) {
 				this.rm.delete(r, l)
@@ -739,7 +749,7 @@ export abstract class TwoWayIterableValueMap<L, R, LI extends Iterable<L>, RI ex
 
 	/** Delete by right key. */
 	deleteRight(r: R) {
-		let ls = this.getRight(r)
+		let ls = this.getByRight(r)
 		if (ls) {
 			for (let l of ls) {
 				this.lm.delete(l, r)

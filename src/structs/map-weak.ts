@@ -522,12 +522,12 @@ export class WeakTwoWayMap<L extends object, R extends object> {
 	}
 
 	/** Get right key by a left key. */
-	getLeft(l: L): R | undefined {
+	getByLeft(l: L): R | undefined {
 		return this.lm.get(l)
 	}
 
 	/** Get left key by a right key. */
-	getRight(r: R): L | undefined {
+	getByRight(r: R): L | undefined {
 		return this.rm.get(r)
 	}
 
@@ -598,13 +598,13 @@ export abstract class WeakTwoWayIterableValueMap<L extends object, R extends obj
 		return this.rm.hasOf(r)
 	}
 
-	/** Get associated right key by a left key. */
-	getLeft(l: L): RI | undefined {
+	/** Get associated right keys by a left key. */
+	getByLeft(l: L): RI | undefined {
 		return this.lm.get(l)
 	}
 
-	/** Get associated left key by a right key. */
-	getRight(r: R): LI | undefined {
+	/** Get associated left keys by a right key. */
+	getByRight(r: R): LI | undefined {
 		return this.rm.get(r)
 	}
 
@@ -622,7 +622,7 @@ export abstract class WeakTwoWayIterableValueMap<L extends object, R extends obj
 
 	/** Delete by left key. */
 	deleteLeft(l: L) {
-		let rs = this.getLeft(l)
+		let rs = this.getByLeft(l)
 		if (rs) {
 			for (let r of rs) {
 				this.rm.delete(r, l)
@@ -634,7 +634,7 @@ export abstract class WeakTwoWayIterableValueMap<L extends object, R extends obj
 
 	/** Delete by right key. */
 	deleteRight(r: R) {
-		let ls = this.getRight(r)
+		let ls = this.getByRight(r)
 		if (ls) {
 			for (let l of ls) {
 				this.lm.delete(l, r)
