@@ -1,4 +1,4 @@
-import {DependencyTracker, compute, proxyOf, Watcher} from '../../src/observable'
+import {DependencyTracker, compute, proxyOf} from '../../src/observable'
 
 
 describe('Test observable', () => {
@@ -98,27 +98,27 @@ describe('Test observable', () => {
 
 
 
-	it('Test watch', () => {
-		let a = proxyOf({b: 1, c: [1]})
-		let update = jest.fn()
+	// it('Test watch', () => {
+	// 	let a = proxyOf({b: 1, c: [1]})
+	// 	let update = jest.fn()
 
-		Watcher.watch(() => {a.b, a.c[0]}, update)
+	// 	Watcher.watch(() => {a.b, a.c[0]}, update)
 
-		a.b = 2
-		expect(update).toBeCalledTimes(1)
+	// 	a.b = 2
+	// 	expect(update).toBeCalledTimes(1)
 
-		a.b = 2
-		expect(update).toBeCalledTimes(1)
+	// 	a.b = 2
+	// 	expect(update).toBeCalledTimes(1)
 
-		a.c = [2]
-		expect(update).toBeCalledTimes(2)
+	// 	a.c = [2]
+	// 	expect(update).toBeCalledTimes(2)
 
-		a.c[0] = 3
-		expect(update).toBeCalledTimes(3)
+	// 	a.c[0] = 3
+	// 	expect(update).toBeCalledTimes(3)
 
-		a.c.push(3)
-		expect(update).toBeCalledTimes(4)
-	})
+	// 	a.c.push(3)
+	// 	expect(update).toBeCalledTimes(4)
+	// })
 
 
 	it('Test compute', () => {

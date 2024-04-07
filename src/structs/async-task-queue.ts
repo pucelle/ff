@@ -1,15 +1,12 @@
-/** 
- * Request to get a promise, which will be resolved after previous task end,
- * and current task will be started immediately.
- */
+/** Manage a task sequence, and process tasks one by one. */
 export class AsyncTaskQueue {
 
 	/** Callbacks to start next task. */
 	private startNextTaskCallback: (() => void)[] = []
 
 	/** 
-	 * Returns a promise, be resolved after current task be started.
-	 * Its promise resolve value is a callback, call it after current task is ended.
+	 * Request to get a promise, which will be resolved after previous task end,
+	 * and current task can be started immediately.
 	 */
 	request(): Promise<() => void> {
 		return new Promise((resolve) => {

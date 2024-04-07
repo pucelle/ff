@@ -29,14 +29,14 @@ describe('Test list', () => {
 	})
 
 	test('indexBy', () => {
-		expect(ObjectUtils.mapToObject(ListUtils.indexBy([1,2,3], (v) => [String(v), v]))).toEqual({1:1, 2:2, 3:3})
-		expect(ObjectUtils.mapToObject(ListUtils.indexBy([1,2,3], (v) => [String(v), v + v]))).toEqual({1:2, 2:4, 3:6})
-		expect(ObjectUtils.mapToObject(ListUtils.indexBy([1,2,3], (v) => [String(v), true]))).toEqual({1:true, 2:true, 3:true})
+		expect(ObjectUtils.objectFromMap(ListUtils.indexBy([1,2,3], (v) => [String(v), v]))).toEqual({1:1, 2:2, 3:3})
+		expect(ObjectUtils.objectFromMap(ListUtils.indexBy([1,2,3], (v) => [String(v), v + v]))).toEqual({1:2, 2:4, 3:6})
+		expect(ObjectUtils.objectFromMap(ListUtils.indexBy([1,2,3], (v) => [String(v), true]))).toEqual({1:true, 2:true, 3:true})
 	})
 
 	test('groupBy', () => {
-		expect(ObjectUtils.mapToObject(ListUtils.groupBy([{a:1}, {a:2}, {a:2}], x => [x.a, x]))).toEqual({1:[{a:1}], 2:[{a:2}, {a:2}]})
-		expect(ObjectUtils.mapToObject(ListUtils.groupBy([0,1,2,3,4,5,6,7,8,9], x => [x % 3, x]))).toEqual({0:[0,3,6,9], 1:[1,4,7], 2:[2,5,8]})
+		expect(ObjectUtils.objectFromMap(ListUtils.groupBy([{a:1}, {a:2}, {a:2}], x => [x.a, x]))).toEqual({1:[{a:1}], 2:[{a:2}, {a:2}]})
+		expect(ObjectUtils.objectFromMap(ListUtils.groupBy([0,1,2,3,4,5,6,7,8,9], x => [x % 3, x]))).toEqual({0:[0,3,6,9], 1:[1,4,7], 2:[2,5,8]})
 	})
 
 	test('orderBy', () => {

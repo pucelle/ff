@@ -1,40 +1,40 @@
 import {ListMap} from '../structs'
 
 
-/** Cache event listener and scope. */
-export interface EventListenerItem {
+/** Cache event handler and scope. */
+interface EventListenerItem {
 	handler: any
 	scope: any
 	once: boolean
 }
 
 /** Inder function parameters. */
-export type InferParameters<T> = T extends (...args: any) => any ? T extends (...args: infer P) => any ? P : any[] : any[]
+type InferParameters<T> = T extends (...args: any) => any ? T extends (...args: infer P) => any ? P : any[] : any[]
 
 
 /** 
  * For registering and firing event.
  * 
- * How to make event interfaces can extend?
+ * How to make event interfaces can be extended?
  * 
  * Assume:
- * 	`A<E> extents EventFirer<E> {}`
- * 	`B<E = BEvents> extents A<E> {}`
+ * - `A<E = any> extents EventFirer<E> {}`
+ * - `B<E = BEvents> extents A<E> {}`
  * 
- * And would like to infer event paramters, can declare method in B like:
- *     `(this: B) { this.on(...)}`
+ * To be able to infer event paramters for `B`, can declare it as `B<{}>`, like:
+ * - `(this: B<{}>) {this.on(...)}`
  */
-export class EventFirer<E = any> implements EventTarget {
+export class EventFirer<E = any> {
 
 	private eventListenerMap: ListMap<string, EventListenerItem> = new ListMap()
 	private broadcastToMap: Map<EventFirer, any[] | Record<any, any> | null> = new Map()
 
 	/** 
-	 * Bind event listeners.
-	 * Can specify `scope` to identify listener, and passes it to listener handler.
+	 * Bind event listener.
+	 * Can specify `scope` to identify listener, and will pass it to listener handler.
 	 */
-	on<T extends keyof E>(type: T | T[], handler: E[T], scope: any = null) {
-		for (let subType of Array.isArray(type) ? type : [type]) {
+	on<T extends keyof E>(type: T, handler: E[T], scope: any = null) {
+		for (let subType of [type]) {
 			this.eventListenerMap.add(subType as string, {
 				handler,
 				scope,
@@ -44,11 +44,11 @@ export class EventFirer<E = any> implements EventTarget {
 	}
 
 	/** 
-	 * Bind event listeners, trigger for only once.
+	 * Bind event listener, trigger for only once.
 	 * Can specify `scope` to identify listener, and will pass it to listener handler.
 	 */
-	once<T extends keyof E>(type: T | T[], handler: E[T], scope: any = null) {
-		for (let subType of Array.isArray(type) ? type : [type]) {
+	once<T extends keyof E>(type: T, handler: E[T], scope: any = null) {
+		for (let subType of [type]) {
 			this.eventListenerMap.add(subType as string, {
 				handler: handler,
 				scope,
@@ -58,11 +58,11 @@ export class EventFirer<E = any> implements EventTarget {
 	}
 
 	/** 
-	 * Unbind event listeners.
+	 * Unbind event listener.
 	 * If listener binds a `scope`, here must match it to remove the listener.
 	 */
-	off<T extends keyof E>(type: T | T[], handler: E[T], scope: any = null) {
-		for (let subType of Array.isArray(type) ? type : [type]) {
+	off<T extends keyof E>(type: T, handler: E[T], scope: any = null) {
+		for (let subType of [type]) {
 			let listeners = this.eventListenerMap.get(subType as string)
 			if (!listeners) {
 				continue
@@ -122,7 +122,7 @@ export class EventFirer<E = any> implements EventTarget {
 		}
 	}
 
-	/** Whether `listener` in type is being listening on. */
+	/** Whether `listener` with specified type is being listening on. */
 	hasListener(type: string, handler: Function, scope?: object): boolean {
 		let listeners = this.eventListenerMap?.get(type as any)
 		if (listeners) {
@@ -142,7 +142,7 @@ export class EventFirer<E = any> implements EventTarget {
 		return this.eventListenerMap.keyCount() > 0
 	}
 
-	/** Whether have registered listener in type. */
+	/** Whether have registered listener with type. */
 	hasListenerType<T extends keyof E>(type: T): boolean {
 		return this.eventListenerMap.hasOf(type as string) || false
 	}
@@ -160,26 +160,5 @@ export class EventFirer<E = any> implements EventTarget {
 	/** Cancel broadcasting to target. */
 	unBroadcastTo(target: EventFirer) {
 		this.broadcastToMap.delete(target)
-	}
-	
-	/** Just ensure it is compatible with `EventTarget`. */
-	addEventListener(type: string, callback: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean) {
-		if (typeof options === 'object' && options.once || options === true) {
-			this.once(type as any, callback as any)
-		}
-		else {
-			this.on(type as any, callback as any)
-		}
-	}
-
-	/** Just ensure it is compatible with `EventTarget`. */
-    dispatchEvent(event: Event): boolean {
-		this.fire(event.type as any, ...[event] as any)
-		return !event.cancelable || !event.defaultPrevented
-	}
-
-    /** Just ensure it is compatible with `EventTarget`. */
-    removeEventListener(type: string, callback: EventListenerOrEventListenerObject | null, _options?: EventListenerOptions | boolean) {
-		this.off(type as any, callback as any)
 	}
 }

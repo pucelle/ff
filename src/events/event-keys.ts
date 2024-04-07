@@ -864,7 +864,7 @@ export namespace EventKeys {
 	 * Get key string like `Ctrl+KeyA`, `Ctrl+Digit1`.
 	 * Compare with `getKey`, this one can get more details about keys,
 	 * e.g., `CtrlLeft` is different from `CtrlRight`.
-	 * Doesn't distinguish whether shift key pressed.
+	 * Doesn't distinguish whether shift key is pressed.
 	 */
 	export function getShortcutCode(event: KeyEventLike): ShortcutCode {
 		let code = NumToKeyCodeMap[event.which]?.code as string

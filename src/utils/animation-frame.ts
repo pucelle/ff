@@ -3,8 +3,8 @@ type AnimationFrameCallback = (timestamp: number) => void
 
 /** 
  * Using this AnimationFrame API can avoid stacked `requestAnimationFrame`.
- * E.g., calls `requestAnimationFrame` in an existed Animation Frame callback would cause it is postponed to next frame.
- * In this AnimationFrame API, it would be called in next micro task tick.
+ * E.g., calls `requestAnimationFrame` in an existed Animation Frame callback would cause it is postponed to next animation frame.
+ * Using `AnimationFrame.requestCurrent` instead, it would be called in current animation frame.
  */
 export namespace AnimationFrame {
 

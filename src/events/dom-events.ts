@@ -61,8 +61,8 @@ export namespace DOMEvents {
 
 
 	/** 
-	 * Unbind all event listeners that match parameters.
-	 * If `scope` was specified when binding, here it must provide the same parameter then can remove the listener.
+	 * Unbind all event listeners that match specified parameters.
+	 * If `handler` binds a `scope`, here it must provide the same value to remove the listener.
 	 */
 	export function off(el: EventTarget, type: string, handler: EventHandler, scope: any = null) {
 		let listeners = EventListenerMap.get(el, type)
@@ -92,12 +92,31 @@ export namespace DOMEvents {
 	}
 
 
-	/** Get the event happened position in screen origin. */
+	/** 
+	 * Get the event happened position in screen origin.
+	 * The **screen** is not the whole screen device pixels,
+	 * but the screen of your browser's content area.
+	 * 
+	 * Compare with **page**, **screen** origin is not affected by page scrolling. 
+	 */
 	export function getScreenPosition(e: MouseEvent | TouchEvent): Point {
 		let eventItem = DOMEvents.toSingle(e)
 
 		return eventItem
 			? new Point(eventItem.clientX, eventItem.clientY)
+			: new Point(0, 0)
+	}
+
+
+	/** 
+	 * Get the event happened position in page origin.
+	 * Compare with **screen**, **page** origin is affected by page scrolling. 
+	 */
+	export function getPagePosition(e: MouseEvent | TouchEvent): Point {
+		let eventItem = DOMEvents.toSingle(e)
+
+		return eventItem
+			? new Point(eventItem.pageX, eventItem.pageY)
 			: new Point(0, 0)
 	}
 

@@ -47,8 +47,8 @@ describe('Test Weak Map Structs', () => {
 		
 		m.set(a, b)
 
-		expect(m.getLeft(a)).toEqual(b)
-		expect(m.getRight(b)).toEqual(a)
+		expect(m.getByLeft(a)).toEqual(b)
+		expect(m.getByRight(b)).toEqual(a)
 		expect(m.hasLeft(a)).toEqual(true)
 		expect(m.hasRight(b)).toEqual(true)
 
@@ -68,15 +68,15 @@ describe('Test Weak Map Structs', () => {
 		m.add(a, b)
 		m.addIf(a, b)
 		m.addIf(a, c)
-		expect(m.getLeft(a)).toEqual([b, c])
-		expect(m.getRight(b)).toEqual([a])
+		expect(m.getByLeft(a)).toEqual([b, c])
+		expect(m.getByRight(b)).toEqual([a])
 		expect(m.has(a, b)).toEqual(true)
 		expect(m.hasLeft(a)).toEqual(true)
 		expect(m.hasRight(b)).toEqual(true)
 
 		m.setLeft(a, [d])
-		expect(m.getLeft(a)).toEqual([d])
-		expect(m.getRight(d)).toEqual([a])
+		expect(m.getByLeft(a)).toEqual([d])
+		expect(m.getByRight(d)).toEqual([a])
 
 		m.delete(a, d)
 		expect(m.hasLeft(a)).toEqual(false)
@@ -98,15 +98,15 @@ describe('Test Weak Map Structs', () => {
 		m.add(a, b)
 		m.add(a, c)
 
-		expect(m.getLeft(a)).toEqual(new Set([b, c]))
-		expect(m.getRight(b)).toEqual(new Set([a]))
+		expect(m.getByLeft(a)).toEqual(new Set([b, c]))
+		expect(m.getByRight(b)).toEqual(new Set([a]))
 		expect(m.has(a, b)).toEqual(true)
 		expect(m.hasLeft(a)).toEqual(true)
 		expect(m.hasRight(b)).toEqual(true)
 
 		m.setLeft(a, new Set([d]))
-		expect(m.getLeft(a)).toEqual(new Set([d]))
-		expect(m.getRight(d)).toEqual(new Set([a]))
+		expect(m.getByLeft(a)).toEqual(new Set([d]))
+		expect(m.getByRight(d)).toEqual(new Set([a]))
 
 		m.delete(a, d)
 		expect(m.hasLeft(a)).toEqual(false)

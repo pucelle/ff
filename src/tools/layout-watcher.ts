@@ -1,5 +1,5 @@
 import {Box} from '../math'
-import {ObjectUtils, Interval} from '../utils'
+import {ObjectUtils, Interval, AnimationFrame} from '../utils'
 
 
 /** Watcher types. */
@@ -153,7 +153,7 @@ export namespace LayoutWatcher {
 			this.resetState()
 
 			if (this.options.checkPerAnimationFrame) {
-				this.frameId = requestAnimationFrame(this.checkStateInAnimationFrame.bind(this))
+				this.frameId = AnimationFrame.requestCurrent(this.checkStateInAnimationFrame.bind(this))
 			}
 			else if (this.options.checkIntervalTime) {
 				this.interval = new Interval(this.checkStateInInterval.bind(this), this.options.checkIntervalTime)
@@ -210,7 +210,7 @@ export namespace LayoutWatcher {
 		private checkStateInAnimationFrame() {
 			let newState = this.stateGtter(this.el)
 			this.onNewState(newState)
-			this.frameId = requestAnimationFrame(this.checkStateInAnimationFrame.bind(this))
+			this.frameId = AnimationFrame.requestCurrent(this.checkStateInAnimationFrame.bind(this))
 		}
 
 		private checkStateInInterval() {
@@ -290,7 +290,7 @@ function unwatchDocumentChange(callback: () => void) {
 
 function emitDocumentChangeLater() {
 	if (!willEmitDocumentChange) {
-		requestAnimationFrame(emitDocumentChange)
+		AnimationFrame.requestCurrent(emitDocumentChange)
 		willEmitDocumentChange = true
 	}
 }

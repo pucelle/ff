@@ -73,6 +73,6 @@ describe('Test object', () => {
 	})
 
 	test('mapToObject', () => {
-		expect(ObjectUtils.mapToObject(new Map([['a', 1], ['b', 1]]))).toEqual({a:1, b:1})
+		expect(ObjectUtils.objectFromMap(new Map([['a', 1], ['b', 1]]))).toEqual({a:1, b:1})
 	})
 })
