@@ -6,8 +6,8 @@ export namespace NumberUtils {
 	 * - `decimalCount`: The decimal count that `number` will be fixed to.
 	 * 
 	 * e.g.:
-	 *   `toDecimal(12.345, 2) = 12.34`
-	 * 	 `toDecimal(12345, -2) = 12300`
+	 *   - `toDecimal(12.345, 2) = 12.34`
+	 * 	 - `toDecimal(12345, -2) = 12300`
 	 */
 	export function toDecimal(number: number, decimalCount: number): number {
 		if (number === 0) {
@@ -31,8 +31,8 @@ export namespace NumberUtils {
 	 * - `precision`: The precision value betweens `1-21`.
 	 * 
 	 * e.g.:
-	 *   `toPrecision(123.45, 1) = 100`
-	 *   `toPrecision(123.45, 2) = 120`
+	 *   - `toPrecision(123.45, 1) = 100`
+	 *   - `toPrecision(123.45, 2) = 120`
 	 */
 	export function toPrecision(number: number, precision: number): number {
 		return Number(number.toPrecision(precision))
@@ -42,7 +42,8 @@ export namespace NumberUtils {
 
 	/** 
 	 * Compute euclidian modulo of `m % n`, will always return positive value.
-	 * e.g., `-1 % 2` = 1.
+	 * 
+	 * e.g., `-1 % 2 = 1`.
 	 */
 	export function euclideanModulo(n: number, m: number): number {
 		return ((n % m) + m) % m
@@ -92,7 +93,7 @@ export namespace NumberUtils {
 
 
 
-	/** Get fract part from a number, always betweens `[0~1)`. */
+	/** Get fract part of a number, always betweens `[0~1)`. */
 	export function fract(n: number): number {
 		return n - Math.floor(n)
 	}

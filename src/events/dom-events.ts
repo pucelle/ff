@@ -13,7 +13,7 @@ interface EventListener {
 }
 
 
-/** Register document event handlers. */
+/** Help to bind and unbind document event handlers. */
 export namespace DOMEvents {
 
 	/** Cache event listeners. */
@@ -21,16 +21,16 @@ export namespace DOMEvents {
 
 
 	/** 
-	 * Bind a event listener on an event target.
-	 * Can specify `scope` to identify listener, and will pass it to listener handler.
+	 * Bind an event listener on an event target.
+	 * Can specify `scope` to identify listener when un-binding, and will pass it to listener handler.
 	 */
 	export function on(el: EventTarget, type: string, handler: EventHandler, scope: any = null, options: AddEventListenerOptions | boolean = false) {
 		bindEvent(false, el, type, handler, scope, options)
 	}
 
 	/** 
-	 * Bind a event listener on event target, triggers for only once.
-	 * Can specify `scope` to identify listener, and will pass it to listener handler.
+	 * Bind an event listener on an event target, triggers for only once.
+	 * Can specify `scope` to identify listener when un-binding, and will pass it to listener handler.
 	 */
 	export function once(el: EventTarget, type: string, handler: EventHandler, scope: any = null, options: AddEventListenerOptions | boolean = false) {
 		bindEvent(true, el, type, handler, scope, options)
@@ -61,8 +61,8 @@ export namespace DOMEvents {
 
 
 	/** 
-	 * Unbind event listeners.
-	 * If listener binds a `scope`, here must match it to remove the listener.
+	 * Unbind all event listeners that match parameters.
+	 * If `scope` was specified when binding, here it must provide the same parameter then can remove the listener.
 	 */
 	export function off(el: EventTarget, type: string, handler: EventHandler, scope: any = null) {
 		let listeners = EventListenerMap.get(el, type)
@@ -81,7 +81,7 @@ export namespace DOMEvents {
 	}
 
 
-	/** From a mouse or touch event, to get the same mouse event or the first touch. */
+	/** From a mouse or touch event, get the mouse event or the first touch in the touch list. */
 	export function toSingle(e: MouseEvent | TouchEvent): MouseEvent | Touch | null {
 		if (e.type.startsWith('touch')) {
 			return (e as TouchEvent).touches[0] || (e as TouchEvent).changedTouches[0] || null
@@ -102,7 +102,7 @@ export namespace DOMEvents {
 	}
 
 
-	/** Whether event come from Apple Pencil. */
+	/** Check whether event comes from Apple Pencil. */
 	export function comeFromApplePencil(e: Event): boolean {
 		if (!(e.type.startsWith('touch'))) {
 			return false
