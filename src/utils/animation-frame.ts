@@ -39,7 +39,10 @@ export namespace AnimationFrame {
 	}
 
 
-	/** Request for next animation frame. */
+	/** 
+	 * Request for next animation frame.
+	 * Equals to `requestAnimationFrame`.
+	 */
 	export function requestNext(callback: AnimationFrameCallback): number {
 		let id = idSeed++
 		nextCallbackMap.set(id, callback)
