@@ -1,14 +1,8 @@
 import {DOMEvents} from './dom-events'
-import {TwoWaySetMap} from '../structs'
+import {TwoWayMap} from '../structs'
 import {Timeout} from '../utils'
 
 
-/*
-Assume:
-	`trigger1` cause `popup1` get popped-up.
-	`trigger2` is contained by `popup1`, and cause `popup2` get poped-up.
-	Mouse leaves `popup1`, enter `popup2`, `popup1` must not be closed.
-*/
 
 
 /** Options for mouse leave control. */
@@ -29,58 +23,136 @@ export interface MouseLeaveControlOptions {
 }
 
 
+/*
+ * Example:
+ * 	- `trigger1` cause `popup1` get popped-up, creates `controller1`.
+ * 	- `trigger2` is contained by `popup1`, and cause `popup2` get poped-up, creates `controller2`.
+ *  - `trigger3` is contained by `popup2`, and cause `popup3` get poped-up, creates `controller3`.
+ *
+ * So:
+ * 	- `trigger1` cause `popup1` popped-up, `lockBy(trigger1)`, nothing happens.
+ *  - Mouse leave `trigger1`, nothing happens.
+ * 
+ *  - `trigger2` cause `popup2` popped-up, `lockBy(trigger2)`, create lock: `controller1 <-> trigger2`.
+ *  - Mouse leave `trigger2`, release lock `controller1 <-> trigger2`.
+ * 
+ *  - `trigger3` cause `popup3` popped-up, `lockBy(trigger3)`, create locks: `controller2 <-> trigger3` and `controller1 <-> trigger2`.
+ *  - Mouse leave `trigger2`, release locks `controller2 <-> trigger3` and `controller1 <-> trigger2`.
+ */
+
+
 /**
- * It's common that popup2 was triggered from pointing to a button at an existing popup1,
- * later when mouse moved to popup2, popup1 should also be kept to be visible.
+ * Assume you are programing a menu and submenu component,
+ * When mouse over a menu and open a submenu, previous menu should be kept visible,
+ * And after mouse leaves submenu, should hide both menu and submenu.
  */
 export namespace MouseLeaveControl {
 
-	/** Existing mouse leave controllers. */
+	/** All existing controllers. */
 	const Controllers: Set<MouseLeaveController> = new Set()
 
-	/** Locks betweens controllers and elements. */
-	const Locks: TwoWaySetMap<MouseLeaveController, Element> = new TwoWaySetMap()
+	/** All locked controllers, and the mapped trigger elements that lock them. */
+	const Locks: TwoWayMap<MouseLeaveController, Element> = new TwoWayMap()
 
+	/** Timeout counter to check and delete disconnected elements. */
+	const clearDisconnectedTimeout = new Timeout(clearDisconnectedOnIdle, 3000)
 
-	/** Lock an element, makesure it can't be hidden before been unlocked. */
-	export function lock(el: Element) {
-		for (let controller of Controllers.values()) {
-			if (controller.isPopupContains(el)) {
-				Locks.add(controller, el)
-				clearDisconnectedTimeout.reset()
+	/** After idle, clear disconnected elements, and their locked controllers. */
+	async function clearDisconnectedOnIdle() {
+		requestIdleCallback(clearDisconnected)
+	}
+
+	/** Clear all disconnected elements and their locked controllers. */
+	function clearDisconnected() {
+		for (let [controller, element] of Locks.entries()) {
+
+			// Element may be removed accidently, which cause locks cant be removed.
+			if (element.ownerDocument) {
+				continue
 			}
+
+			Locks.deleteRight(element)
+
+			// `controller` has no lock associated now, finish it.
+			controller.finishLeave()
+		}
+
+		// Continue to clear later if still has locks existed.
+		if (Locks.leftKeyCount() > 0) {
+			clearDisconnectedTimeout.reset()
 		}
 	}
 
 
-	/** Release the lock of specified element, which can be hidden now. */
-	export function unlock(el: Element) {
-		for (let controller of Controllers.values()) {
-			if (Locks.has(controller, el)) {
-				Locks.delete(controller, el)
+	/** Lock controllers by a trigger element, makesure it can't be hidden. */
+	export function lockBy(triggerEl: Element) {
+		let lockChanged = false
 
-				// No lock existed, should finish leave.
-				if (!Locks.hasLeft(controller)) {
-					controller.finishLeave()
+		while (true) {
+			let nextTriggerEl: Element | null = null
+
+			for (let controller of Controllers.values()) {
+				if (!controller.popup.contains(triggerEl)) {
+					continue
 				}
+
+				Locks.setNonRepetitive(controller, triggerEl)
+
+				// Lock next in sequence.
+				nextTriggerEl = controller.trigger
+				lockChanged = true
+				break
 			}
+
+			if (!nextTriggerEl) {
+				break
+			}
+			
+			triggerEl = nextTriggerEl
+		}
+
+		if (lockChanged) {
+			clearDisconnectedTimeout.reset()
+		}
+	}
+
+
+	/** Release the lock of controllers by a trigger element, make it can be hidden now. */
+	export function unlockBy(triggerEl: Element) {
+		while (true) {
+			let controller = Locks.getByRight(triggerEl)
+			if (!controller) {
+				break
+			}
+
+			controller.finishLeave()
+			Locks.deleteLeft(controller)
+
+			// Unlock next in sequence.
+			triggerEl = controller.trigger
 		}
 	}
 
 
 	/**
-	 * Checks whether element or any of it's ancestors was locked and kept to be visible.
-	 * If it's not locked, you can destroy or reuse it immediately.
+	 * Checks whether element or any of it's ancestral elements are inside a popup of any locked controller.
+	 * If it hasn't been locked, you can destroy or reuse it immediately.
 	 */
 	export function checkLocked(el: Element): boolean {
-		return Locks.hasRight(el)
+		for (let controller of Locks.leftKeys()) {
+			if (controller.popup.contains(el)) {
+				return true
+			}
+		}
+	
+		return false
 	}
 
 	
 	/**
-	 * Calls `callback` after mouse leaves both elements,
+	 * Calls `callback` after mouse leaves both elements
 	 * and all the poped-up contents for `ms` milliseconds.
-	 * It's usefull to manage mouse leave event of menu & submenus.
+	 * It's usefull to manage mouse leave event for menu & submenus.
 	 * Returns a cancel callback.
 	 */
 	export function on(trigger: Element, popup: Element, callback: () => void, options?: MouseLeaveControlOptions): () => void {
@@ -92,7 +164,7 @@ export namespace MouseLeaveControl {
 	/**
 	 * Calls `callback` for only once after mouse leaves both elements,
 	 * and all the poped-up contents for `ms` milliseconds.
-	 * It's usefull to manage mouse leave event of menu & submenus.
+	 * It's usefull to manage mouse leave event for menu & submenus.
 	 * Returns a cancel callback.
 	 */
 	export function once(trigger: Element, popup: Element, callback: () => void, options?: MouseLeaveControlOptions): () => void {
@@ -107,45 +179,15 @@ export namespace MouseLeaveControl {
 	}
 
 
-	/** Timeout counter to check and delete disconnected elements. */
-	const clearDisconnectedTimeout = new Timeout(clearDisconnectedInIdle, 60000)
-
-	async function clearDisconnectedInIdle() {
-		requestIdleCallback(clearDisconnected)
-	}
-
-	/** Clear all disconnected elements and empty controllers. */
-	function clearDisconnected() {
-		for (let [element, controllers] of Locks.rightEntries()) {
-			if (element.ownerDocument) {
-				continue
-			}
-
-			// `controllers` is not reset after deleting by element.
-			Locks.deleteRight(element)
-
-			for (let controller of controllers) {
-				if (!Locks.hasLeft(controller)) {
-					controller.finishLeave()
-				}
-			}
-		}
-
-		// Continue to clear if still has locks existed.
-		if (Locks.leftKeyCount() > 0) {
-			clearDisconnectedTimeout.reset()
-		}
-	}
-
 	
 	/** Manages a `trigger -> popup` pair. */
 	class MouseLeaveController {
 			
 		/** Trigger element. */
-		private readonly trigger: Element
+		readonly trigger: Element
 
 		/** Popup element. */
-		private readonly popup: Element
+		readonly popup: Element
 
 		/** `callback` after mouse leaves all of `els`. */
 		private callback: () => void
@@ -173,28 +215,17 @@ export namespace MouseLeaveControl {
 			Controllers.add(this)
 		}
 
-		/** Whether popup element constains specified element. */
-		isPopupContains(el: Element): boolean {
-			return this.popup.contains(el)
-		}
-
 		private onMouseEnter() {
 
-			// Lock trigger.
-			lock(this.trigger)
-
-			// Add a lock to lock itself because of mouse in.
-			Locks.add(this, this.popup)
+			// Lock by current trigger element.
+			lockBy(this.trigger)
 
 			this.timeout.cancel()
 		}
 
 		private onMouseLeave() {
 
-			// Unlock itself.
-			Locks.delete(this, this.popup)
-
-			// Not locked by other elements.
+			// Not been locked.
 			if (!Locks.hasLeft(this)) {
 				this.timeout.reset()
 			}
@@ -221,14 +252,8 @@ export namespace MouseLeaveControl {
 				DOMEvents.off(el, 'mouseleave', this.onMouseLeave, this)
 			}
 
-			this.releaseLocks()
+			unlockBy(this.trigger)
 			Controllers.delete(this)
-		}
-		
-		/** Release all locks that binded to current controller. */
-		private releaseLocks() {
-			Locks.deleteLeft(this)
-			unlock(this.trigger)
 		}
 	}
 }
