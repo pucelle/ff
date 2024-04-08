@@ -35,7 +35,7 @@ export namespace SimulatedEvents {
 
 
 	/** Whether a specified name is simulated event type. */
-	export function isSimulatedEventType(name: string): boolean {
+	export function isSimulatedEventType(name: string): name is EventType {
 		let groupName = name.replace(/:.+/, '')
 		return EventConstructors.hasOwnProperty(groupName)
 	}
