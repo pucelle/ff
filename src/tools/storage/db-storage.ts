@@ -100,7 +100,7 @@ export class DBStorage {
 				this.updateStores(request.result)
 			}
 
-			request.onsuccess = () => {
+			request.onsuccess = function() {
 				resolve(request.result)
 			}
 
@@ -170,7 +170,7 @@ export class DBStore<T = any> {
 
 	/** Package Request object to Promise. */
 	private requestToPromise<T = any>(request: IDBRequest<T>) {
-		return new Promise((resolve, reject) => {
+		return new Promise(function(resolve, reject) {
 			request.onsuccess = () => resolve(request.result)
 			request.onerror = reject
 		}) as Promise<T>

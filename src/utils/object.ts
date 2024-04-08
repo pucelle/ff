@@ -81,7 +81,7 @@ export namespace ObjectUtils {
 				return false
 			}
 			
-			return a.every((ai, index) => {
+			return a.every(function(ai, index) {
 				return deepEqual(ai, b[index], maxDepth - 1)
 			})
 		}

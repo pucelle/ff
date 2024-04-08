@@ -22,24 +22,24 @@ export namespace Watcher {
 			callback = callback.bind(scope)
 		}
 
-		let assign = () => {
+		let assign = function() {
 			newValue = fn()
 		}
 
-		let update = () => {
+		let update = function() {
 			DependencyTracker.trackExecutionOf(assign, onChange)
 			callback(newValue, oldValue)
 			oldValue = newValue
 		}
 
-		let onChange = () => {
+		let onChange = function() {
 			FrameQueue.enqueue(update)
 		}
 
 		DependencyTracker.trackExecutionOf(assign, onChange)
 		oldValue = newValue!
 
-		return () => {
+		return function() {
 			DependencyTracker.untrack(onChange)
 		}
 	}
@@ -63,23 +63,23 @@ export namespace Watcher {
 			callback = callback.bind(scope)
 		}
 
-		let assign = () => {
+		let assign = function() {
 			newValue = fn()
 		}
 
-		let update = () => {
+		let update = function() {
 			DependencyTracker.trackExecutionOf(assign, onChange)
 			callback(newValue, oldValue)
 			oldValue = newValue
 		}
 
-		let onChange = () => {
+		let onChange = function() {
 			FrameQueue.enqueue(update)
 		}
 
 		onChange()
 
-		return () => {
+		return function() {
 			DependencyTracker.untrack(onChange)
 		}
 	}
@@ -103,24 +103,24 @@ export namespace Watcher {
 			callback = callback.bind(scope)
 		}
 
-		let assign = () => {
+		let assign = function() {
 			newValue = fn()
 		}
 
-		let update = () => {
+		let update = function() {
 			DependencyTracker.trackExecutionOf(assign, onChange)
 			callback(newValue, oldValue)
 			DependencyTracker.untrack(onChange)
 		}
 
-		let onChange = () => {
+		let onChange = function() {
 			update()
 		}
 
 		DependencyTracker.trackExecutionOf(assign, onChange)
 		oldValue = newValue!
 
-		return () => {
+		return function() {
 			DependencyTracker.untrack(onChange)
 		}
 	}
@@ -141,11 +141,11 @@ export namespace Watcher {
 			callback = callback.bind(scope)
 		}
 
-		let assign = () => {
+		let assign = function() {
 			newValue = fn()
 		}
 
-		let update = () => {
+		let update = function() {
 			DependencyTracker.trackExecutionOf(assign, onChange)
 
 			if (newValue) {
@@ -154,7 +154,7 @@ export namespace Watcher {
 			}
 		}
 
-		let onChange = () => {
+		let onChange = function() {
 			update()
 		}
 
@@ -165,7 +165,7 @@ export namespace Watcher {
 			DependencyTracker.untrack(onChange)
 		}
 
-		return () => {
+		return function() {
 			if (!newValue) {
 				DependencyTracker.untrack(onChange)
 			}

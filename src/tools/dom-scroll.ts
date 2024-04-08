@@ -130,7 +130,7 @@ export namespace DOMScroll {
 					Transition.playBetween(
 						oldScrollY,
 						newScrollY,
-						(value: number) => {
+						function(value: number) {
 							wrapper!.scrollTop = value
 						},
 						duration,
@@ -166,7 +166,7 @@ export namespace DOMScroll {
 					Transition.playBetween(
 						oldScrollX,
 						newScrollX,
-						(value: number) => {
+						function(value: number) {
 							wrapper!.scrollLeft = value
 						},
 						duration,
@@ -224,7 +224,7 @@ export namespace DOMScroll {
 				Transition.playBetween(
 					oldScroll,
 					newScroll,
-					(value: number) => {
+					function(value: number) {
 						wrapper![property] = value
 					},
 					duration,

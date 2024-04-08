@@ -86,7 +86,7 @@ export namespace AnimationFrame {
 		processCallbacks()
 
 		// Current frame is sent after timeout.
-		setTimeout(() => {
+		setTimeout(function() {
 			inCurrentFrame = false
 		}, 0)
 	}

@@ -5,7 +5,7 @@ export namespace StringUtils {
 	 * Will keep the placeholders if no match found, so a template can be formatted by a parameter sequence.
 	 */
 	export function format(template: string, params: Record<string, string | number> | (string | number)[]): string {
-		return template.replace(/\{(\w+)\}/g, (m0: string, m1: string) => {
+		return template.replace(/\{(\w+)\}/g, function(m0: string, m1: string) {
 			let value = (params as any)[m1]
 			if (value === undefined) {
 				value = m0
@@ -46,7 +46,7 @@ export namespace StringUtils {
 
 	/** Convert `string` to dash case type by joining words with `-`: `a bc` -> `a-bc`. */
 	export function toDashCase(string: string): string {
-		return string.replace(/(^|.)([A-Z]+)/g, (m0: string, charBefore: string | undefined, upperChars: string) => {
+		return string.replace(/(^|.)([A-Z]+)/g, function(m0: string, charBefore: string | undefined, upperChars: string) {
 			if (charBefore && /[a-z ]/i.test(charBefore)) {
 				return charBefore + '-' + upperChars.toLowerCase()
 			}

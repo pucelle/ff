@@ -9,14 +9,14 @@ export function compute<V = any>(getter: () => V): () => V {
 	let value: V | undefined = undefined
 	let valueReset = true
 
-	let resetValue = () => {
+	let resetValue = function() {
 		value = undefined
 		valueReset = true
 	}
 
-	return () => {
+	return function() {
 		if (valueReset) {
-			DependencyTracker.trackExecutionOf(() => {
+			DependencyTracker.trackExecutionOf(function() {
 				value = getter()
 			}, resetValue)
 

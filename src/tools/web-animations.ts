@@ -39,13 +39,13 @@ export namespace WebAnimations {
 
 		ElementAnimationCache.set(el, animation)
 
-		return new Promise((resolve) => {
-			animation.addEventListener('finish', () => {
+		return new Promise(function(resolve) {
+			animation.addEventListener('finish', function() {
 				ElementAnimationCache.delete(el)
 				resolve(true)
 			}, false)
 
-			animation.addEventListener('cancel', () => {
+			animation.addEventListener('cancel', function() {
 				ElementAnimationCache.delete(el)
 				resolve(false)
 			}, false)

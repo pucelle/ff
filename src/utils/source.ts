@@ -5,14 +5,14 @@ export namespace SourceUtils {
 
 	/** Load image source and output an `<image>` element. */
 	export async function loadImage(url: string) {
-		return new Promise((resolve, reject) => {
+		return new Promise(function(resolve, reject) {
 			let image = new Image()
 
-			image.onload = () => {
+			image.onload = function() {
 				resolve(image)
 			}
 
-			image.onerror = (err) => {
+			image.onerror = function(err) {
 				reject(err)
 			}
 
@@ -31,12 +31,12 @@ export namespace SourceUtils {
 		let blob = await loadAsBlob(url)
 		let reader = new FileReader()
 
-		let promise =  new Promise((resolve, reject) => {
-			reader.onload = () => {
+		let promise =  new Promise(function(resolve, reject) {
+			reader.onload = function() {
 				resolve(reader.result as string)
 			}
 
-			reader.onerror = () => {
+			reader.onerror = function() {
 				reject()
 			}
 		}) as Promise<string>
@@ -64,7 +64,7 @@ export namespace SourceUtils {
 		a.remove()
 
 		// One minute should be enough to download completely.
-		setTimeout(() => {
+		setTimeout(function() {
 			URL.revokeObjectURL(url)
 		}, 60000)
 	}
@@ -117,7 +117,7 @@ export namespace SourceUtils {
 
 	/** Select file or folder, multiple or not. */
 	function selectFileOrFolder(mime: string, isFolder: boolean, isMultiple: boolean): Promise<FileList | null> {
-		return new Promise((resolve) => {
+		return new Promise(function(resolve) {
 			let input = document.createElement('input')
 			input.type = 'file'
 			input.accept = mime
@@ -129,7 +129,7 @@ export namespace SourceUtils {
 				input.setAttribute('webkitdirectory', '')
 			}
 			
-			input.onchange = () => {
+			input.onchange = function() {
 				resolve(input.files || null)
 			}
 
@@ -190,8 +190,8 @@ export namespace SourceUtils {
 		}
 
 		if (entry.isFile) {
-			yield await new Promise((resolve, reject) => {
-				(entry as FileSystemFileEntry).file((file: File) => {
+			yield await new Promise(function(resolve, reject) {
+				(entry as FileSystemFileEntry).file(function(file: File) {
 					resolve(file)
 				}, reject)
 			})
@@ -206,9 +206,9 @@ export namespace SourceUtils {
 		let reader = entry.createReader()
 
 		while (true) {
-			let entries = await new Promise((resolve, reject) => {
+			let entries = await new Promise(function(resolve, reject) {
 				reader.readEntries(
-					(entries: FileSystemEntry[]) => {
+					function(entries: FileSystemEntry[]) {
 						resolve(entries)
 					},
 					reject

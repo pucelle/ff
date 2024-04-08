@@ -50,7 +50,7 @@ export function makeMixer<T extends TransitionableValue>(fromValue: T, toValue: 
 
 
 function makeArrayMixer<T extends any[]>(fromValue: T, toValue: T): Mixer<T> {
-	let mixers = fromValue.map((f, index) => {
+	let mixers = fromValue.map(function(f, index) {
 		let mixer = makeMixer(f, (toValue as any[])[index])
 		return mixer
 	})

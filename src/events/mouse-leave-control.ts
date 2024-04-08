@@ -33,11 +33,11 @@ export interface MouseLeaveControlOptions {
  * 	- `trigger1` cause `popup1` popped-up, `lockBy(trigger1)`, nothing happens.
  *  - Mouse leave `trigger1`, nothing happens.
  * 
- *  - `trigger2` cause `popup2` popped-up, `lockBy(trigger2)`, create lock: `controller1 <-> trigger2`.
- *  - Mouse leave `trigger2`, release lock `controller1 <-> trigger2`.
+ *  - `trigger2` cause `popup2` popped-up, `lockBy(trigger2)`, create lock: `controller1 <=> trigger2`.
+ *  - Mouse leave `trigger2`, release lock `controller1 <=> trigger2`.
  * 
- *  - `trigger3` cause `popup3` popped-up, `lockBy(trigger3)`, create locks: `controller2 <-> trigger3` and `controller1 <-> trigger2`.
- *  - Mouse leave `trigger2`, release locks `controller2 <-> trigger3` and `controller1 <-> trigger2`.
+ *  - `trigger3` cause `popup3` popped-up, `lockBy(trigger3)`, create locks: `controller2 <=> trigger3` and `controller1 <=> trigger2`.
+ *  - Mouse leave `trigger2`, release locks `controller2 <=> trigger3` and `controller1 <=> trigger2`.
  */
 
 
@@ -48,8 +48,8 @@ export interface MouseLeaveControlOptions {
  */
 export namespace MouseLeaveControl {
 
-	/** All existing controllers. */
-	const Controllers: Set<MouseLeaveController> = new Set()
+	/** All controllers that begin to enter and not fully leave. */
+	const LiveControllers: Set<MouseLeaveController> = new Set()
 
 	/** All locked controllers, and the mapped trigger elements that lock them. */
 	const Locks: TwoWayMap<MouseLeaveController, Element> = new TwoWayMap()
@@ -91,7 +91,7 @@ export namespace MouseLeaveControl {
 		while (true) {
 			let nextTriggerEl: Element | null = null
 
-			for (let controller of Controllers.values()) {
+			for (let controller of LiveControllers.values()) {
 				if (!controller.popup.contains(triggerEl)) {
 					continue
 				}
@@ -168,7 +168,7 @@ export namespace MouseLeaveControl {
 	 * Returns a cancel callback.
 	 */
 	export function once(trigger: Element, popup: Element, callback: () => void, options?: MouseLeaveControlOptions): () => void {
-		let wrappedCallback = () => {
+		let wrappedCallback = function() {
 			cancel()
 			callback()
 		}
@@ -211,8 +211,6 @@ export namespace MouseLeaveControl {
 				DOMEvents.on(el, 'mouseenter', this.onMouseEnter, this)
 				DOMEvents.on(el, 'mouseleave', this.onMouseLeave, this)
 			}
-
-			Controllers.add(this)
 		}
 
 		private onMouseEnter() {
@@ -220,6 +218,7 @@ export namespace MouseLeaveControl {
 			// Lock by current trigger element.
 			lockBy(this.trigger)
 
+			LiveControllers.add(this)
 			this.timeout.cancel()
 		}
 
@@ -242,6 +241,7 @@ export namespace MouseLeaveControl {
 		/** Finish leave by calling leave callback. */
 		finishLeave() {
 			this.callback()
+			LiveControllers.delete(this)
 		}
 
 		cancel() {
@@ -253,7 +253,7 @@ export namespace MouseLeaveControl {
 			}
 
 			unlockBy(this.trigger)
-			Controllers.delete(this)
+			LiveControllers.delete(this)
 		}
 	}
 }

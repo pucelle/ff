@@ -20,7 +20,7 @@ interface CapturedDependencies {
  */
 export namespace DependencyTracker {
 
-	/** Caches `Dependency <-> Callback`. */
+	/** Caches `Dependency <=> Callback`. */
 	const DepMap: DependencyMap = new DependencyMap()
 
 	/** Callback and dependencies stack list. */

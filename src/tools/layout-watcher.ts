@@ -83,7 +83,7 @@ export namespace LayoutWatcher {
 		callback: LayoutWatcherCallback<T>,
 		options?: LayoutWatcherOptions
 	): () => void {
-		let wrappedCallback = (state: ReturnType<(typeof WatcherStateGetters)[T]>) => {
+		function wrappedCallback(state: ReturnType<(typeof WatcherStateGetters)[T]>) {
 			watcher.unwatch()
 			callback(state)
 		}
@@ -106,7 +106,7 @@ export namespace LayoutWatcher {
 		callback: LayoutWatcherCallback<T>,
 		options?: LayoutWatcherOptions
 	): () => void {
-		let wrappedCallback = (state: ReturnType<(typeof WatcherStateGetters)[T]>) => {
+		function wrappedCallback(state: ReturnType<(typeof WatcherStateGetters)[T]>) {
 			if (state) {
 				watcher.unwatch()
 			}
@@ -265,7 +265,7 @@ function watchDocumentChange(callback: () => void) {
 
 	mutationObserverCallbacks.push(callback)
 
-	return () => {
+	return function() {
 		unwatchDocumentChange(callback)
 	}
 }

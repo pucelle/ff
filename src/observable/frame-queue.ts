@@ -27,7 +27,7 @@ class Heap {
 	private heap: MiniHeap<{callback: Function, order: number}>
 
 	constructor() {
-		this.heap = new MiniHeap((a, b) => {
+		this.heap = new MiniHeap(function(a, b) {
 			return a.order - b.order
 		})
 	}

@@ -107,7 +107,7 @@ export namespace logger {
 			startTime = performance.now()
 		}
 
-		return () => {
+		return function() {
 			if (logLevel >= LogLevel.Log) {
 				let endTime = performance.now()
 				let costTime = NumberUtils.toDecimal(endTime - startTime, 2)
