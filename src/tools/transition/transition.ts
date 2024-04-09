@@ -2,7 +2,7 @@ import {EasingFunction, PerFrameEasingName, getEasingFunction} from './easing'
 import {MathUtils} from '../../math'
 import {makeMixer} from './mixer'
 import {EventFirer} from '../../events'
-import {ObjectUtils, FrameLoop, Timeout} from '../../utils'
+import {FrameLoop, Timeout} from '../../utils'
 
 
 /** Transition events. */
@@ -74,6 +74,7 @@ export class Transition<T extends TransitionableValue = any> extends EventFirer<
 	): Promise<boolean> {
 		let transition = new Transition({duration, easing})
 		transition.on('progress', handler)
+
 		return transition.playBetween(fromValue, toValue)
 	}
 
@@ -148,17 +149,20 @@ export class Transition<T extends TransitionableValue = any> extends EventFirer<
 	}
 
 	/** 
-	 * Update options.
-	 * Currently playing transition will be stopped and continue with new options.
-	 * `looseOptions` may have much more properties than required.
+	 * Update transition options.
+	 * Return whether any option has changed.
 	 */
-	assignOptions(looseOptions: Partial<TransitionOptions> = {}) {
-		let changed = ObjectUtils.assignExisted(this.fullOptions, looseOptions)
+	assignOptions(options: Partial<TransitionOptions> = {}): boolean {
+		let changed = false
 
-		// Replay transition.
-		if (changed && this.playing) {
-			this.playTo(this.toValue!)
+		for (let [key, value] of Object.entries(options) as Iterable<[keyof TransitionOptions, any]>) {
+			if (this.fullOptions[key] !== value) {
+				(this.fullOptions as any)[key] = value as any
+				changed = true
+			}
 		}
+
+		return changed
 	}
 
 	/** 
@@ -201,7 +205,7 @@ export class Transition<T extends TransitionableValue = any> extends EventFirer<
 	 */
 	playTo(toValue: T): Promise<boolean> {
 		if (this.fromValue === null) {
-			throw new Error(`Must call "playBetween" firstly.`)
+			throw new Error(`Must call "playBetween" firstly!`)
 		}
 
 		this.cancel()

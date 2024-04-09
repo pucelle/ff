@@ -137,7 +137,7 @@ export namespace ObjectUtils {
 
 	/**
 	 * Assign keys and values from `source` to `target`.
-	 * Will cover same-key values of `target`.
+	 * Will cover same-keyed values of the `target`.
 	 */
 	export function assign<T extends object, S extends object>(target: T, source: S, keys: (keyof S)[] = Object.keys(source) as (keyof S)[]): T & S {
 		for (let key of keys) {

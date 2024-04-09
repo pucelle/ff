@@ -10,7 +10,7 @@ export namespace WebAnimations {
 	export const DefaultEasing: WebAnimationEasingName = 'ease-out-quad'
 
 	/** Cache element and their current playing animation. */
-	const ElementAnimationCache: WeakMap<Element, Animation> = new WeakMap()
+	const ElementAnimationMap: WeakMap<Element, Animation> = new WeakMap()
 
 
 	/**
@@ -37,16 +37,16 @@ export namespace WebAnimations {
 			duration,
 		})
 
-		ElementAnimationCache.set(el, animation)
+		ElementAnimationMap.set(el, animation)
 
 		return new Promise(function(resolve) {
 			animation.addEventListener('finish', function() {
-				ElementAnimationCache.delete(el)
+				ElementAnimationMap.delete(el)
 				resolve(true)
 			}, false)
 
 			animation.addEventListener('cancel', function() {
-				ElementAnimationCache.delete(el)
+				ElementAnimationMap.delete(el)
 				resolve(false)
 			}, false)
 		}) as Promise<boolean>
@@ -58,10 +58,10 @@ export namespace WebAnimations {
 	 * Returns whether animation stopped.
 	 */
 	export function stop(el: Element): boolean {
-		let animation = ElementAnimationCache.get(el)
+		let animation = ElementAnimationMap.get(el)
 		if (animation) {
 			animation.cancel()
-			ElementAnimationCache.delete(el)
+			ElementAnimationMap.delete(el)
 
 			return true
 		}
@@ -72,7 +72,7 @@ export namespace WebAnimations {
 
 	/** Test whether element is playing an animation. */
 	export function isPlaying(el: Element): boolean {
-		let animation = ElementAnimationCache.get(el)
+		let animation = ElementAnimationMap.get(el)
 		if (animation) {
 			return true
 		}
