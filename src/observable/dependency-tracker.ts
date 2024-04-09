@@ -105,6 +105,35 @@ export namespace DependencyTracker {
 	}
 
 
+	/** When doing getting property, add a group of dependency. */
+	export function onGetBunched(obj: object, props: PropertyKey[]) {
+		if (currentDep) {
+			for (let prop of props) {
+				currentDep.dependencies.add(obj, prop)
+			}
+		}
+	}
+
+
+	/** When doing setting property, notify a group of dependencies are changed. */
+	export function onSetBunched(obj: object, props: PropertyKey[]) {
+		let callbackSet: Set<Function> = new Set()
+
+		for (let prop of props) {
+			let callbacks = DepMap.getRefreshCallbacks(obj, prop)
+			if (callbacks) {
+				for (let callback of callbacks) {
+					callbackSet.add(callback)
+				}
+			}
+		}
+
+		for (let callback of callbackSet) {
+			callback()
+		}
+	}
+
+
 	/** Remove all depedencies of a refresh callback. */
 	export function untrack(callback: Function, scope: object | null = null) {
 		let bindedCallback = bindCallback(callback, scope)
