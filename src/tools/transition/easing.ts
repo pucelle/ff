@@ -8,7 +8,7 @@ export type EasingFunction = (x: number) => number
 export type WebAnimationEasingName = keyof typeof CubicBezierEasingParameters | 'linear'
 
 /** Per Frame easing names, for per-frame animation and transition. */
-export type PerFrameEasingName = keyof typeof CubicBezierEasingParameters | keyof typeof CustomEasingFunctions
+export type TransitionEasingName = keyof typeof CubicBezierEasingParameters | keyof typeof CustomEasingFunctions
 
 
 /** 
@@ -103,7 +103,7 @@ const CustomEasingFunctions = {
 
 
 /** Cache compiled easing functions. */
-const EasingFunctionCache: Partial<Record<PerFrameEasingName, EasingFunction>> = {...CustomEasingFunctions}
+const EasingFunctionCache: Partial<Record<TransitionEasingName, EasingFunction>> = {...CustomEasingFunctions}
 
 
 /** From `https://easings.net/`. */
@@ -129,7 +129,7 @@ function bounceOut(x: number) {
  * Get a `(x) => y` easing function by easing name,
  * Used to mapped time percentage to it's value percentage.
  */
-export function getEasingFunction(name: PerFrameEasingName): EasingFunction {
+export function getEasingFunction(name: TransitionEasingName): EasingFunction {
 	if (EasingFunctionCache[name]) {
 		return EasingFunctionCache[name]!
 	}

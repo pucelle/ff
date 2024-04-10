@@ -1,4 +1,5 @@
 export * from './easing'
 export * from './mixer'
-export * from './transition'
+export * from './transition-css'
+export * from './transition-frame'
 import './types'

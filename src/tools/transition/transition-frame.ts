@@ -1,4 +1,4 @@
-import {EasingFunction, PerFrameEasingName, getEasingFunction} from './easing'
+import {EasingFunction, TransitionEasingName, getEasingFunction} from './easing'
 import {MathUtils} from '../../math'
 import {makeMixer} from './mixer'
 import {EventFirer} from '../../events'
@@ -41,7 +41,7 @@ export interface TransitionOptions {
 	 * Specifies default transition easing type.
 	 * Default value is `ease-out-quad`.
 	 */
-	easing: PerFrameEasingName
+	easing: TransitionEasingName
 
 	/** Transition delay in milliseconds. */
 	delay: number
@@ -55,27 +55,25 @@ const DefaultTransitionOptions: TransitionOptions = {
 }
 
 
-/** Make intermiediate values from start and end values. */
-export class Transition<T extends TransitionableValue = any> extends EventFirer<TransitionEvents<T>> {
+/** Transiton between start and end values per frame. */
+export class FrameTransition<T extends TransitionableValue = any> extends EventFirer<TransitionEvents<T>> {
 
 	/** Default transition options. */
 	static DefaultOptions: TransitionOptions = DefaultTransitionOptions
 
-	/** 
-	 * Play transition with configuration, and between from and to values.
-	 * Will apply start state immediately.
-	 */
+	/** Play transition with configuration, and between start and end values. */
 	static playBetween<T extends TransitionableValue>(
-		fromValue: T,
-		toValue: T,
+		startValue: T,
+		endValue: T,
 		handler: (value: T, progress: number) => void,
 		duration: number = DefaultTransitionOptions.duration,
-		easing: PerFrameEasingName = DefaultTransitionOptions.easing,
-	): Promise<boolean> {
-		let transition = new Transition({duration, easing})
+		easing: TransitionEasingName = DefaultTransitionOptions.easing,
+	): Promise<boolean>
+	{
+		let transition = new FrameTransition({duration, easing})
 		transition.on('progress', handler)
 
-		return transition.playBetween(fromValue, toValue)
+		return transition.playBetween(startValue, endValue)
 	}
 
 
@@ -107,13 +105,13 @@ export class Transition<T extends TransitionableValue = any> extends EventFirer<
 	 * Start value.
 	 * Readonly outside.
 	 */
-	fromValue: T | null = null
+	startValue: T | null = null
 
 	/** 
 	 * End value.
 	 * Readonly outside.
 	 */
-	toValue: T | null = null
+	endValue: T | null = null
 
 	/** 
 	 * Current value.
@@ -180,48 +178,55 @@ export class Transition<T extends TransitionableValue = any> extends EventFirer<
 	}
 
 	/** 
-	 * Play between from and to values.
-	 * Returns a promise which will be resolved after transition end.
-	 * Will apply start state immediately.
+	 * Set play from values.
+	 * Only cancel current transition and update start values.
+	 * Returns `this`.
 	 */
-	playBetween(fromValue: T, toValue: T): Promise<boolean> {
+	playFrom(startValue: T): this {
 		this.cancel()
-		
-		this.fromValue = fromValue
-		this.toValue = toValue
-		this.currentValue = fromValue
-		this.mixer = makeMixer(fromValue, toValue)
-		this.easingFn = getEasingFunction(this.fullOptions.easing)
+		this.startValue = startValue
+		this.currentValue = startValue
 
-		return this.startDeferredTransition()
+		return this
 	}
 
 	/** 
-	 * Play from current value to new to value.
+	 * Play from current value to end value.
 	 * Returns a promise which will be resolved after transition end.
-	 * Work only when transition was started before.
-	 * Will smoothly transition from previous to current.
-	 * Will apply start state immediately.
+	 * Work only when start value was set before.
 	 */
-	playTo(toValue: T): Promise<boolean> {
-		if (this.fromValue === null) {
-			throw new Error(`Must call "playBetween" firstly!`)
+	playTo(endValue: T): Promise<boolean> {
+		if (this.startValue === null) {
+			throw new Error(`Must call "playFrom" or "playBetween" firstly!`)
 		}
 
 		this.cancel()
 		
-		this.fromValue = this.currentValue
-		this.toValue = toValue
-		this.mixer = makeMixer(this.currentValue!, toValue)
+		this.startValue = this.currentValue
+		this.endValue = endValue
+		this.mixer = makeMixer(this.currentValue!, endValue)
 
-		return this.startDeferredTransition()
+		return this.startDeferred()
 	}
 
 	/** 
-	 * Start transition after delay milliseconds.
-	 * Cancel old one if exist.
+	 * Play between from and to values.
+	 * Returns a promise which will be resolved after transition end.
 	 */
-	private startDeferredTransition(): Promise<boolean> {
+	playBetween(startValue: T, endValue: T): Promise<boolean> {
+		this.cancel()
+		
+		this.startValue = startValue
+		this.endValue = endValue
+		this.currentValue = startValue
+		this.mixer = makeMixer(startValue, endValue)
+		this.easingFn = getEasingFunction(this.fullOptions.easing)
+
+		return this.startDeferred()
+	}
+
+	/** Start transition after delay milliseconds. */
+	private startDeferred(): Promise<boolean> {
 		if (this.running) {
 			this.fire('continued')
 		}

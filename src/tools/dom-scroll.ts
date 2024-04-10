@@ -1,4 +1,4 @@
-import {PerFrameEasingName, Transition} from './transition'
+import {TransitionEasingName, FrameTransition} from './transition'
 
 
 export namespace DOMScroll {
@@ -94,7 +94,7 @@ export namespace DOMScroll {
 	 * 
 	 * Returns `true` if scrolled.
 	 */
-	export function scrollToView(el: HTMLElement, gap: number = 0, duration: number = 0, easing: PerFrameEasingName = 'ease-out'): boolean {
+	export function scrollToView(el: HTMLElement, gap: number = 0, duration: number = 0, easing: TransitionEasingName = 'ease-out'): boolean {
 		let wrapper = getClosestScrollWrapper(el)
 		if (!wrapper) {
 			return false
@@ -127,7 +127,7 @@ export namespace DOMScroll {
 
 			if (newScrollY !== null && newScrollY !== oldScrollY) {
 				if (duration) {
-					Transition.playBetween(
+					FrameTransition.playBetween(
 						oldScrollY,
 						newScrollY,
 						function(value: number) {
@@ -163,7 +163,7 @@ export namespace DOMScroll {
 
 			if (newScrollX !== null && newScrollX !== oldScrollX) {
 				if (duration) {
-					Transition.playBetween(
+					FrameTransition.playBetween(
 						oldScrollX,
 						newScrollX,
 						function(value: number) {
@@ -192,7 +192,7 @@ export namespace DOMScroll {
 	 * 
 	 * Returns `true` if scrolled.
 	 */
-	export function scrollToTop(el: HTMLElement, gap: number = 0, duration: number = 0, easing: PerFrameEasingName = 'ease-out'): boolean {
+	export function scrollToTop(el: HTMLElement, gap: number = 0, duration: number = 0, easing: TransitionEasingName = 'ease-out'): boolean {
 		return scrollToStartPosition('vertical', el, gap, duration, easing)
 	}
 
@@ -203,12 +203,12 @@ export namespace DOMScroll {
 	 * 
 	 * Returns `true` if scrolled.
 	 */
-	export function scrollToLeft(el: HTMLElement, gap: number = 0, duration: number = 0, easing: PerFrameEasingName = 'ease-out'): boolean {
+	export function scrollToLeft(el: HTMLElement, gap: number = 0, duration: number = 0, easing: TransitionEasingName = 'ease-out'): boolean {
 		return scrollToStartPosition('vertical', el, gap, duration, easing)
 	}
 
 
-	function scrollToStartPosition(direction: HVDirection, el: HTMLElement, gap: number = 0, duration: number = 0, easing: PerFrameEasingName = 'ease-out'): boolean {
+	function scrollToStartPosition(direction: HVDirection, el: HTMLElement, gap: number = 0, duration: number = 0, easing: TransitionEasingName = 'ease-out'): boolean {
 		let wrapper = getClosestScrollWrapper(el)
 		if (!wrapper) {
 			return false
@@ -221,7 +221,7 @@ export namespace DOMScroll {
 
 		if (newScroll !== oldScroll) {
 			if (duration) {
-				Transition.playBetween(
+				FrameTransition.playBetween(
 					oldScroll,
 					newScroll,
 					function(value: number) {
