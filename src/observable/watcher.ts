@@ -1,5 +1,5 @@
 import {DependencyTracker} from './dependency-tracker'
-import {FrameQueue} from './frame-queue'
+import {UpdateQueue} from './update-queue'
 
 
 /** Contains some utility functions for watching observable properties. */
@@ -22,18 +22,18 @@ export namespace Watcher {
 			callback = callback.bind(scope)
 		}
 
-		let assign = function() {
+		function assign() {
 			newValue = fn()
 		}
 
-		let update = function() {
+		function update() {
 			DependencyTracker.trackExecutionOf(assign, onChange)
 			callback(newValue, oldValue)
 			oldValue = newValue
 		}
 
-		let onChange = function() {
-			FrameQueue.enqueue(update)
+		function onChange() {
+			UpdateQueue.enqueue(update)
 		}
 
 		DependencyTracker.trackExecutionOf(assign, onChange)
@@ -63,18 +63,18 @@ export namespace Watcher {
 			callback = callback.bind(scope)
 		}
 
-		let assign = function() {
+		function assign() {
 			newValue = fn()
 		}
 
-		let update = function() {
+		function update() {
 			DependencyTracker.trackExecutionOf(assign, onChange)
 			callback(newValue, oldValue)
 			oldValue = newValue
 		}
 
-		let onChange = function() {
-			FrameQueue.enqueue(update)
+		function onChange() {
+			UpdateQueue.enqueue(update)
 		}
 
 		onChange()
@@ -103,17 +103,17 @@ export namespace Watcher {
 			callback = callback.bind(scope)
 		}
 
-		let assign = function() {
+		function assign() {
 			newValue = fn()
 		}
 
-		let update = function() {
+		function update() {
 			DependencyTracker.trackExecutionOf(assign, onChange)
 			callback(newValue, oldValue)
 			DependencyTracker.untrack(onChange)
 		}
 
-		let onChange = function() {
+		function onChange() {
 			update()
 		}
 
@@ -141,11 +141,11 @@ export namespace Watcher {
 			callback = callback.bind(scope)
 		}
 
-		let assign = function() {
+		function assign() {
 			newValue = fn()
 		}
 
-		let update = function() {
+		function update() {
 			DependencyTracker.trackExecutionOf(assign, onChange)
 
 			if (newValue) {
@@ -154,7 +154,7 @@ export namespace Watcher {
 			}
 		}
 
-		let onChange = function() {
+		function onChange() {
 			update()
 		}
 
@@ -171,5 +171,4 @@ export namespace Watcher {
 			}
 		}
 	}
-
 }

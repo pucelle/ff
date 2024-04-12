@@ -59,7 +59,7 @@ export namespace FullscreenAPI {
 
 	/** Returns a promise which will be resolved by whether in fullscreen state after fullscreen state changed. */
 	function untilFullscreenChange(): Promise<boolean> {
-		return new Promise(function(resolve, reject) {
+		return new Promise((resolve, reject) => {
 			function onChange() {
 				resolve(isInFullscreen())
 				document.removeEventListener('fullscreenchange', onChange, false)

@@ -82,7 +82,7 @@ export namespace ClipboardAPI {
 
 	/** Read blob as string. */
 	function readBlobAsText(blob: Blob): Promise<string> {
-		return new Promise(function(resolve, reject) {
+		return new Promise((resolve, reject) => {
 			let reader = new FileReader()
 
 			reader.onload = function() {

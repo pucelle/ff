@@ -69,7 +69,7 @@ export enum EditType {
 /** Get a edit record from an old indices graph to a new one. */
 export function getEditRecord<T>(oldItems: T[], newItems: T[], willReuse: boolean): EditRecord[] {
 	if (newItems.length === 0) {
-		return oldItems.map((_item, index) => {
+		return oldItems.map(function(_item, index) {
 			return {
 				type: EditType.Delete,
 				nextOldIndex: index,
@@ -79,7 +79,7 @@ export function getEditRecord<T>(oldItems: T[], newItems: T[], willReuse: boolea
 		})
 	}
 	else if (oldItems.length === 0) {
-		return newItems.map((_item, index) => {
+		return newItems.map(function(_item, index) {
 			return {
 				type: EditType.Insert,
 				nextOldIndex: 0,

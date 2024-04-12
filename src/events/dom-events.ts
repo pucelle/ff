@@ -164,7 +164,7 @@ export namespace DOMEvents {
 				resolve()
 			}
 			else {
-				document.addEventListener('DOMContentLoaded', () => resolve(), {once: true})
+				document.addEventListener('DOMContentLoaded', function(){resolve()}, {once: true})
 			}
 		}) as Promise<void>
 	}

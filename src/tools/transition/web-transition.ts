@@ -1,111 +1,95 @@
 import {WebAnimationEasingName} from './easing'
-import {TransitionEvents, TransitionOptions} from './transition-frame'
+import {PerFrameTransitionEvents, PerFrameTransitionOptions} from './per-frame-transition'
 import {EventFirer} from '../event-firer'
 
 
-/** CSS Transition options. */
-export interface CSSTransitionOptions extends TransitionOptions {
-	easing: WebAnimationEasingName
+/** Web Transition options. */
+export interface WebTransitionOptions extends PerFrameTransitionOptions {
+	easing?: WebAnimationEasingName
 }
 
-/** CSS Transition events. */
-export type CSSTransitionEvents = Omit<TransitionEvents<any>, 'progress'>
+/** Web Transition events. */
+export type WebTransitionEvents = Omit<PerFrameTransitionEvents<any>, 'progress'>
+
+/** Represent the start and end frame. */
+export type WebTransitionKeyFrame = Partial<CSSStyleDeclaration>
 
 
-/** Numeric style property names than can apply transition to. */
-export type TransitionableProperty = 'width' |
-	'height' |
-	'opacity' |
-	'margin' |
-	'marginLeft' |
-	'marginRght' |
-	'marginTop' |
-	'marginBottom' |
-	'padding' |
-	'paddingLeft' |
-	'paddingRght' |
-	'paddingTop' |
-	'paddingBottom' |
-	'borderWidth' |
-	'borderLeftWidth' |
-	'borderRightWidth' |
-	'borderTopWidth' |
-	'borderBottomWidth' |
-	'transform'
-
-
-const DefaultCSSTransitionOptions: CSSTransitionOptions = {
+const DefaultWebTransitionOptions: Required<WebTransitionOptions> = {
 	duration: 200,
 	easing: 'ease-out-quad',
 	delay: 0,
 }
 
 /** The style property, which doesn't use `0` as default value. */
-const DefaultNotNumericProperties: Record<string, string> = {
+const DefaultNotNumericStyleProperties: Record<string, string> = {
 	transform: 'none'
 }
 
 
-/** Uses web animations apis to play css transition. */
-export class CSSTransition extends EventFirer<CSSTransitionEvents> {
-	
+/** Uses web animations apis to play style transition. */
+export class WebTransition extends EventFirer<WebTransitionEvents> {
+
+	/** Default web transition options. */
+	static DefaultOptions: Required<WebTransitionOptions> = DefaultWebTransitionOptions
+
 	/** Play transition with configuration, and between start and end frame. */
 	static playBetween(
 		el: Element,
-		startFrame: Keyframe,
-		endFrame: Keyframe,
-		duration: number = DefaultCSSTransitionOptions.duration,
-		easing: WebAnimationEasingName = DefaultCSSTransitionOptions.easing as WebAnimationEasingName,
+		startFrame: WebTransitionKeyFrame,
+		endFrame: WebTransitionKeyFrame,
+		duration: number = DefaultWebTransitionOptions.duration,
+		easing: WebAnimationEasingName = DefaultWebTransitionOptions.easing as WebAnimationEasingName,
 		delay: number = 0
 	): Promise<boolean>
 	{
-		let transition = new CSSTransition(el, {duration, easing, delay})
+		let transition = new WebTransition(el, {duration, easing, delay})
 		return transition.playBetween(startFrame, endFrame)
 	}
 
 	/**
-	 * Play css transition from specified start frame to current state.
+	 * Play web transition from specified start frame to current state.
 	 * After transition ended, go back to initial state.
 	 */
 	static playFrom(
 		el: Element,
-		startFrame: Keyframe,
+		startFrame: WebTransitionKeyFrame,
 		duration: number,
 		easing: WebAnimationEasingName,
 		delay: number = 0
 	): Promise<boolean>
 	{
-		let endFrame: Keyframe = {}
+		let endFrame: WebTransitionKeyFrame = {}
 		let style = getComputedStyle(el)
 
 		for (let property of Object.keys(startFrame)) {
-			endFrame[property] = (style as any)[property] || DefaultNotNumericProperties[property] || '0'
+			(endFrame as any)[property] = (style as any)[property] || DefaultNotNumericStyleProperties[property] || '0'
 		}
 
-		let transition = new CSSTransition(el, {duration, easing, delay})
+		let transition = new WebTransition(el, {duration, easing, delay})
 		return transition.playBetween(startFrame, endFrame)
 	}
 
 	/**
-	 * Play css transition from current state to specified end frame.
+	 * Play web transition from current state to specified end frame.
 	 * After transition ended, go back to initial state.
 	 */
 	static playTo(
 		el: Element,
-		endFrame: Keyframe,
+		endFrame: WebTransitionKeyFrame,
 		duration: number,
 		easing: WebAnimationEasingName,
 		delay: number = 0
 	): Promise<boolean>
 	{
-		let startFrame: Keyframe = {}
+		let startFrame: WebTransitionKeyFrame = {}
 		let style = getComputedStyle(el)
 
 		for (let property of Object.keys(endFrame)) {
-			startFrame[property] = (style as any)[property] || DefaultNotNumericProperties[property] || '0'
+			(startFrame as any)[property] = (style as any)[property] || DefaultNotNumericStyleProperties[property] || '0'
 		}
 
-		let transition = new CSSTransition(el, {duration, easing, delay})
+		let transition = new WebTransition(el, {duration, easing, delay})
 		return transition.playBetween(startFrame, endFrame)
 	}
 
@@ -114,7 +98,10 @@ export class CSSTransition extends EventFirer<CSSTransitionEvents> {
 	readonly el: Element
 
 	/** Options after fullfilled default values. */
-	private readonly fullOptions: CSSTransitionOptions
+	private readonly fullOptions: Required<WebTransitionOptions>
+
+	/** Running animation. */
+	private animation: Animation | null = null
 
 	/** Transition promise. */
 	private promise: Promise<boolean> | null = null
@@ -129,33 +116,33 @@ export class CSSTransition extends EventFirer<CSSTransitionEvents> {
 	 * Start frame.
 	 * Readonly outside.
 	 */
-	startFrame: Keyframe | null = null
+	startFrame: WebTransitionKeyFrame | null = null
 
 	/** 
 	 * End frame.
 	 * Readonly outside.
 	 */
-	endFrame: Keyframe | null = null
+	endFrame: WebTransitionKeyFrame | null = null
 
-	constructor(el: Element, options: Partial<CSSTransitionOptions> = {}) {
+	constructor(el: Element, options: WebTransitionOptions = {}) {
 		super()
 		this.el = el
-		this.fullOptions = {...DefaultCSSTransitionOptions, ...options}
+		this.fullOptions = {...DefaultWebTransitionOptions, ...options}
 	}
 
 	/** Whether transition is playing, or within delay period. */
 	get running(): boolean {
-		return !!this.promise
+		return !!this.animation
 	}
 
 	/** 
 	 * Update transition options.
 	 * Return whether any option has changed.
 	 */
-	assignOptions(options: Partial<TransitionOptions> = {}): boolean {
+	assignOptions(options: Partial<PerFrameTransitionOptions> = {}): boolean {
 		let changed = false
 
-		for (let [key, value] of Object.entries(options) as Iterable<[keyof TransitionOptions, any]>) {
+		for (let [key, value] of Object.entries(options) as Iterable<[keyof PerFrameTransitionOptions, any]>) {
 			if (this.fullOptions[key] !== value) {
 				(this.fullOptions as any)[key] = value as any
 				changed = true
@@ -168,7 +155,7 @@ export class CSSTransition extends EventFirer<CSSTransitionEvents> {
 	/** 
 	 * Be resolved after transition end.
 	 * Resolve parameter is whether transition finished.
-	 * If is not playing, resolved by `true`.
+	 * If is not playing, resolved by `true`, same as finish.
 	 */
 	async untilEnd(): Promise<boolean> {
 		if (this.promise) {
@@ -184,7 +171,7 @@ export class CSSTransition extends EventFirer<CSSTransitionEvents> {
 	 * Only cancel current transition and update start frames.
 	 * Returns `this`.
 	 */
-	playFrom(startFrame: Keyframe): this {
+	playFrom(startFrame: WebTransitionKeyFrame): this {
 		this.cancel()
 		this.startFrame = startFrame
 
@@ -192,12 +179,12 @@ export class CSSTransition extends EventFirer<CSSTransitionEvents> {
 	}
 
 	/** 
-	 * Play from current frame to new end frame.
+	 * Play from current frame to target end frame.
 	 * Returns a promise which will be resolved after transition end.
 	 * After transition ended, go back to initial state.
 	 * Work only when transition was started before.
 	 */
-	playTo(endFrame: Keyframe): Promise<boolean> {
+	playTo(endFrame: WebTransitionKeyFrame): Promise<boolean> {
 		if (this.startFrame === null) {
 			throw new Error(`Must call "playFrom" or "playBetween" firstly!`)
 		}
@@ -208,11 +195,11 @@ export class CSSTransition extends EventFirer<CSSTransitionEvents> {
 	}
 
 	/** 
-	 * Play between from and to values.
+	 * Play between start and end frames.
 	 * Returns a promise which will be resolved after transition end.
 	 * After transition ended, go back to initial state.
 	 */
-	playBetween(startFrame: Keyframe, endFrame: Keyframe): Promise<boolean> {
+	playBetween(startFrame: WebTransitionKeyFrame, endFrame: WebTransitionKeyFrame): Promise<boolean> {
 		this.cancel()
 		
 		this.startFrame = startFrame
@@ -230,21 +217,20 @@ export class CSSTransition extends EventFirer<CSSTransitionEvents> {
 			this.fire('started')
 		}
 
-		let animation = this.el.animate([this.startFrame!, this.endFrame!], {
-			easing: this.fullOptions.easing,
-			duration: this.fullOptions.duration,
-			delay: this.fullOptions.delay,
-		})
+		this.animation = this.el.animate(
+			[this.startFrame as any as Keyframe, this.endFrame as any as Keyframe],
+			this.fullOptions
+		)
 
 		this.promise = new Promise((resolve) => {
 			this.resolve = resolve
 
-			animation.addEventListener('finish', () => {
-				this.finish()
+			this.animation!.addEventListener('finish', () => {
+				this.onFinished()
 			}, false)
 
-			animation.addEventListener('cancel', () => {
-				this.cancel()
+			this.animation!.addEventListener('cancel', () => {
+				this.onCanceled()
 			}, false)
 		}) as Promise<boolean>
 
@@ -256,10 +242,14 @@ export class CSSTransition extends EventFirer<CSSTransitionEvents> {
 	 * and apply final state.
 	 */
 	finish() {
-		if (!this.running) {
+		if (!this.animation) {
 			return
 		}
 
+		this.animation.finish()
+	}
+
+	private onFinished() {
 		this.fire('finished')
 		this.end(true)
 	}
@@ -269,16 +259,21 @@ export class CSSTransition extends EventFirer<CSSTransitionEvents> {
 	 * Note after cancelled, will keep it's current state, but not apply final state.
 	 */
 	cancel() {
-		if (!this.running) {
+		if (!this.animation) {
 			return
 		}
 
+		this.animation.cancel()
+	}
+
+	private onCanceled() {
 		this.fire('cancelled')
 		this.end(false)
 	}
 
 	/** End, either finish or cancel. */
 	private end(finish: boolean) {
+		this.animation = null
 		this.promise = null
 
 		if (this.resolve) {

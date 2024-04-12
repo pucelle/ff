@@ -168,7 +168,7 @@ export namespace MouseLeaveControl {
 	 * Returns a cancel callback.
 	 */
 	export function once(trigger: Element, popup: Element, callback: () => void, options?: MouseLeaveControlOptions): () => void {
-		let wrappedCallback = function() {
+		function wrappedCallback() {
 			cancel()
 			callback()
 		}

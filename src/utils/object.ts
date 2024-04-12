@@ -136,11 +136,31 @@ export namespace ObjectUtils {
 
 
 	/**
-	 * Assign keys and values from `source` to `target`.
-	 * Will cover same-keyed values of the `target`.
+	 * Assign keys and values from `source` to `target`, overwrite same-keyed values of the `target`.
+	 * Can specifies `keys` to limit assigned properties.
 	 */
 	export function assign<T extends object, S extends object>(target: T, source: S, keys: (keyof S)[] = Object.keys(source) as (keyof S)[]): T & S {
 		for (let key of keys) {
+			let value = source[key]
+			if (value !== undefined) {
+				target[key as unknown as keyof T] = value as any
+			}
+		}
+
+		return target as T & S
+	}
+
+
+	/**
+	 * Assign keys and values from `source` to `target`, overwrite same-keyed values of the `target`.
+	 * Will skip specified `keys` of source object.
+	 */
+	export function assignExclude<T extends object, S extends object>(target: T, source: S, keys: (keyof S)[]): T & S {
+		for (let key of Object.keys(source) as (keyof S)[]) {
+			if (keys.includes(key)) {
+				continue
+			}
+
 			let value = source[key]
 			if (value !== undefined) {
 				target[key as unknown as keyof T] = value as any

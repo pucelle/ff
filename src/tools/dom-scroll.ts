@@ -1,4 +1,4 @@
-import {TransitionEasingName, FrameTransition} from './transition'
+import {TransitionEasingName, PerFrameTransition} from './transition'
 
 
 export namespace DOMScroll {
@@ -127,10 +127,10 @@ export namespace DOMScroll {
 
 			if (newScrollY !== null && newScrollY !== oldScrollY) {
 				if (duration) {
-					FrameTransition.playBetween(
+					PerFrameTransition.playBetween(
 						oldScrollY,
 						newScrollY,
-						function(value: number) {
+						(value: number) => {
 							wrapper!.scrollTop = value
 						},
 						duration,
@@ -163,10 +163,10 @@ export namespace DOMScroll {
 
 			if (newScrollX !== null && newScrollX !== oldScrollX) {
 				if (duration) {
-					FrameTransition.playBetween(
+					PerFrameTransition.playBetween(
 						oldScrollX,
 						newScrollX,
-						function(value: number) {
+						(value: number) => {
 							wrapper!.scrollLeft = value
 						},
 						duration,
@@ -221,10 +221,10 @@ export namespace DOMScroll {
 
 		if (newScroll !== oldScroll) {
 			if (duration) {
-				FrameTransition.playBetween(
+				PerFrameTransition.playBetween(
 					oldScroll,
 					newScroll,
-					function(value: number) {
+					(value: number) => {
 						wrapper![property] = value
 					},
 					duration,

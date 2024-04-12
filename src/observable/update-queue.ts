@@ -18,7 +18,7 @@ enum QueueUpdatePhase {
 
 
 /** Caches things that need to be update. */
-class Heap {
+class UpdateHeap {
 	
 	/** Cache existed callbacks. */
 	private set: Set<Function> = new Set()
@@ -65,10 +65,11 @@ class Heap {
 }
 
 
-export namespace FrameQueue{
+/** Enqueue updatable objects, later update them in order. */
+export namespace UpdateQueue{
 
 	/** Caches all callbacks in order. */
-	const heap: Heap = new Heap()
+	const heap: UpdateHeap = new UpdateHeap()
 
 	/** Callbacks wait to be called after all the things update. */
 	let completeCallbacks: (() => void)[] = []
@@ -131,9 +132,6 @@ export namespace FrameQueue{
 					catch (err) {
 						console.error(err)
 					}
-
-					// Wait for more callbacks enqueued.
-					await Promise.resolve()
 				}
 				while (!heap.isEmpty())
 			}
@@ -151,6 +149,7 @@ export namespace FrameQueue{
 				}
 			}
 
+			// Wait for a micro task tick.
 			await Promise.resolve()
 		}
 

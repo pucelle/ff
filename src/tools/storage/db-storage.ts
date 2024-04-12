@@ -1,5 +1,5 @@
 /** To config a DBStorage. */
-interface StoreOption {
+export interface DBStoreOptions {
 	name: string
 	keyPath?: string | string[]
 	autoIncrement?: boolean
@@ -16,7 +16,7 @@ export class DBStorage {
 	private version: number
 
 	/** Database options, can only add (must version plus) and can't modify existing. */
-	private storeOptions: StoreOption[]
+	private storeOptions: DBStoreOptions[]
 
 	/** Database. */
 	private db: IDBDatabase | null = null
@@ -26,7 +26,7 @@ export class DBStorage {
 
 	private cachedSupported: boolean | null = null
 
-	constructor(name: string, version: number, storeOptions: StoreOption[]) {
+	constructor(name: string, version: number, storeOptions: DBStoreOptions[]) {
 		this.name = name
 		this.version = version
 		this.storeOptions = storeOptions
@@ -170,8 +170,8 @@ export class DBStore<T = any> {
 
 	/** Package Request object to Promise. */
 	private requestToPromise<T = any>(request: IDBRequest<T>) {
-		return new Promise(function(resolve, reject) {
-			request.onsuccess = () => resolve(request.result)
+		return new Promise((resolve, reject) => {
+			request.onsuccess = function(){resolve(request.result)}
 			request.onerror = reject
 		}) as Promise<T>
 	}

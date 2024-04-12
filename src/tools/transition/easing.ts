@@ -58,11 +58,11 @@ const CubicBezierEasingParameters = {
 /** Cusmomized easing functions. */
 const CustomEasingFunctions = {
 
-	'linear': function(x: number): number {
+	'linear'(x: number): number {
 		return x
 	},
 
-	'ease-in-elastic': function (x: number) {
+	'ease-in-elastic'(x: number) {
 		return x === 0
 			? 0
 			: x === 1
@@ -70,7 +70,7 @@ const CustomEasingFunctions = {
 			: -Math.pow(2, 10 * x - 10) * Math.sin((x * 10 - 10.75) * (2 * Math.PI) / 3)
 	},
 
-	'ease-out-elastic': function (x: number) {
+	'ease-out-elastic'(x: number) {
 		return x === 0
 			? 0
 			: x === 1
@@ -78,7 +78,7 @@ const CustomEasingFunctions = {
 			: Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * (2 * Math.PI) / 3) + 1
 	},
 
-	'ease-in-out-elastic': function (x: number) {
+	'ease-in-out-elastic'(x: number) {
 		return x === 0
 			? 0
 			: x === 1
@@ -88,13 +88,13 @@ const CustomEasingFunctions = {
 			: (Math.pow(2, -20 * x + 10) * Math.sin((20 * x - 11.125) * (2 * Math.PI) / 4.5)) / 2 + 1
 	},
 
-	'ease-in-bounce': function (x: number) {
+	'ease-in-bounce'(x: number) {
 		return 1 - bounceOut(1 - x);
 	},
 
 	'ease-out-bounce': bounceOut,
 
-	'ease-in-out-bounce': function (x: number) {
+	'ease-in-out-bounce'(x: number) {
 		return x < 0.5
 			? (1 - bounceOut(1 - 2 * x)) / 2
 			: (1 + bounceOut(2 * x - 1)) / 2

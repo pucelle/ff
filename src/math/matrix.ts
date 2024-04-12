@@ -643,7 +643,7 @@ export class Matrix implements MatrixData {
 		return this.mix(Matrix.I, 1 - rate)
 	}
 
-	/** Convert to `matrix(...)` format. */
+	/** Convert to `matrix(...)` format, can be used as CSS transform value. */
 	toString(): string {
 		let {a, b, c, d, e, f} = this
 		return `matrix(${a}, ${b}, ${c}, ${d}, ${e}, ${f})`

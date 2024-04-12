@@ -9,7 +9,7 @@ export function compute<V = any>(getter: () => V): () => V {
 	let value: V | undefined = undefined
 	let valueReset = true
 
-	let resetValue = function() {
+	function resetValue() {
 		value = undefined
 		valueReset = true
 	}

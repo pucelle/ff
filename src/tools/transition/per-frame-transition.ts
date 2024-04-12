@@ -6,7 +6,7 @@ import {FrameLoop, Timeout} from '../../utils'
 
 
 /** Transition events. */
-export interface TransitionEvents<T> {
+export interface PerFrameTransitionEvents<T> {
 
 	/** On each time progress got update. */
 	'progress': (value: T, progress: number) => void
@@ -29,26 +29,26 @@ export interface TransitionEvents<T> {
 
 
 /** Transition options. */
-export interface TransitionOptions {
+export interface PerFrameTransitionOptions {
 
 	/** 
 	 * Specifies default transition duration in millseconds.
 	 * Default value is `200`.
 	 */
-	duration: number
+	duration?: number
 
 	/** 
 	 * Specifies default transition easing type.
 	 * Default value is `ease-out-quad`.
 	 */
-	easing: TransitionEasingName
+	easing?: TransitionEasingName
 
 	/** Transition delay in milliseconds. */
-	delay: number
+	delay?: number
 }
 
 
-const DefaultTransitionOptions: TransitionOptions = {
+const DefaultTransitionOptions: Required<PerFrameTransitionOptions> = {
 	duration: 200,
 	easing: 'ease-out-quad',
 	delay: 0,
@@ -56,10 +56,10 @@ const DefaultTransitionOptions: TransitionOptions = {
 
 
 /** Transiton between start and end values per frame. */
-export class FrameTransition<T extends TransitionableValue = any> extends EventFirer<TransitionEvents<T>> {
+export class PerFrameTransition<T extends TransitionableValue = any> extends EventFirer<PerFrameTransitionEvents<T>> {
 
 	/** Default transition options. */
-	static DefaultOptions: TransitionOptions = DefaultTransitionOptions
+	static DefaultOptions: Required<PerFrameTransitionOptions> = DefaultTransitionOptions
 
 	/** Play transition with configuration, and between start and end values. */
 	static playBetween<T extends TransitionableValue>(
@@ -70,10 +70,8 @@ export class FrameTransition<T extends TransitionableValue = any> extends EventF
 		easing: TransitionEasingName = DefaultTransitionOptions.easing,
 	): Promise<boolean>
 	{
-		let transition = new FrameTransition({duration, easing})
-		transition.on('progress', handler)
-
-		return transition.playBetween(startValue, endValue)
+		let transition = new PerFrameTransition({duration, easing})
+		return transition.playBetween(startValue, endValue, handler)
 	}
 
 
@@ -81,7 +79,7 @@ export class FrameTransition<T extends TransitionableValue = any> extends EventF
 	private easingFn: EasingFunction | null = null
 
 	/** Options after fullfilled default values. */
-	private fullOptions: TransitionOptions
+	private fullOptions: Required<PerFrameTransitionOptions>
 
 	/** Timeout when transition delay exist. */
 	private delayTimeout: Timeout
@@ -119,6 +117,9 @@ export class FrameTransition<T extends TransitionableValue = any> extends EventF
 	 */
 	currentValue: T | null = null
 
+	/** A replaceable onprocess handler. */
+	onprogress: ((value: T, progress: number) => void) | null = null
+
 	/** 
 	 * Current transition progress, betweens `0~1`,
 	 * before easing mapped.
@@ -126,11 +127,12 @@ export class FrameTransition<T extends TransitionableValue = any> extends EventF
 	 */
 	progress: number = 0
 
-	constructor(options: Partial<TransitionOptions> = {}) {
+	constructor(options: PerFrameTransitionOptions = {}) {
 		super()
 		this.fullOptions = {...DefaultTransitionOptions, ...options}
 		this.delayTimeout = new Timeout(this.startTransition.bind(this), this.fullOptions.delay)
 		this.frameLoop = new FrameLoop(this.onFrameLoop.bind(this))
+		this.easingFn = getEasingFunction(this.fullOptions.easing)
 	}
 
 	/** Whether transition is playing, or within delay period. */
@@ -150,14 +152,18 @@ export class FrameTransition<T extends TransitionableValue = any> extends EventF
 	 * Update transition options.
 	 * Return whether any option has changed.
 	 */
-	assignOptions(options: Partial<TransitionOptions> = {}): boolean {
+	assignOptions(options: Partial<PerFrameTransitionOptions> = {}): boolean {
 		let changed = false
 
-		for (let [key, value] of Object.entries(options) as Iterable<[keyof TransitionOptions, any]>) {
+		for (let [key, value] of Object.entries(options) as Iterable<[keyof PerFrameTransitionOptions, any]>) {
 			if (this.fullOptions[key] !== value) {
 				(this.fullOptions as any)[key] = value as any
 				changed = true
 			}
+		}
+
+		if (changed) {
+			this.easingFn = getEasingFunction(this.fullOptions.easing)
 		}
 
 		return changed
@@ -195,7 +201,7 @@ export class FrameTransition<T extends TransitionableValue = any> extends EventF
 	 * Returns a promise which will be resolved after transition end.
 	 * Work only when start value was set before.
 	 */
-	playTo(endValue: T): Promise<boolean> {
+	playTo(endValue: T, onprogress: ((value: T, progress: number) => void) | null = null): Promise<boolean> {
 		if (this.startValue === null) {
 			throw new Error(`Must call "playFrom" or "playBetween" firstly!`)
 		}
@@ -205,6 +211,7 @@ export class FrameTransition<T extends TransitionableValue = any> extends EventF
 		this.startValue = this.currentValue
 		this.endValue = endValue
 		this.mixer = makeMixer(this.currentValue!, endValue)
+		this.onprogress = onprogress
 
 		return this.startDeferred()
 	}
@@ -213,14 +220,14 @@ export class FrameTransition<T extends TransitionableValue = any> extends EventF
 	 * Play between from and to values.
 	 * Returns a promise which will be resolved after transition end.
 	 */
-	playBetween(startValue: T, endValue: T): Promise<boolean> {
+	playBetween(startValue: T, endValue: T, onprogress: ((value: T, progress: number) => void) | null = null): Promise<boolean> {
 		this.cancel()
 		
 		this.startValue = startValue
 		this.endValue = endValue
 		this.currentValue = startValue
 		this.mixer = makeMixer(startValue, endValue)
-		this.easingFn = getEasingFunction(this.fullOptions.easing)
+		this.onprogress = onprogress
 
 		return this.startDeferred()
 	}
@@ -264,6 +271,11 @@ export class FrameTransition<T extends TransitionableValue = any> extends EventF
 		let y = this.easingFn!(x)
 		this.progress = x
 		this.currentValue = this.mixer!(y)
+
+		if (this.onprogress) {
+			this.onprogress(this.currentValue, x)
+		}
+
 		this.fire('progress', this.currentValue, x)
 	}
 
