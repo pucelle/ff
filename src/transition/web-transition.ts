@@ -1,6 +1,6 @@
 import {WebAnimationEasingName} from './easing'
 import {PerFrameTransitionEvents, PerFrameTransitionOptions} from './per-frame-transition'
-import {EventFirer} from '../event-firer'
+import {EventFirer} from '../events'
 
 
 /** Web Transition options. */

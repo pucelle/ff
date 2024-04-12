@@ -1,4 +1,4 @@
-import {NumberUtils} from '../../utils'
+import {NumberUtils} from '../utils'
 
 
 /** Easing function. inputs `0~1`, outputs `0~1` normally. */

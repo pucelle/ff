@@ -1,5 +1,5 @@
-import {MathUtils} from '../../math'
-import {Color} from '../color'
+import {MathUtils} from '../math'
+import {Color} from '../tools'
 
 
 /** 

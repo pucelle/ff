@@ -1,5 +1,6 @@
 import {Box} from '../math'
-import {ObjectUtils, Interval, AnimationFrame} from '../utils'
+import {ObjectUtils} from '../utils'
+import {Interval, AnimationFrame} from '../tools'
 
 
 /** Watcher types. */

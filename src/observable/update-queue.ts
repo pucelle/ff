@@ -1,5 +1,5 @@
 import {MiniHeap} from '../structs'
-import {AnimationFrame} from '../utils'
+import {AnimationFrame} from '../tools'
 import {bindCallback} from './helpers/bind-callback'
 
 

@@ -1,4 +1,4 @@
-import {TransitionEasingName, PerFrameTransition} from './transition'
+import {TransitionEasingName, PerFrameTransition} from '../transition'
 
 
 export namespace DOMScroll {
