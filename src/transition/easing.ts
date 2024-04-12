@@ -7,7 +7,7 @@ export type EasingFunction = (x: number) => number
 /** Web Animation easing names, for web animation and transition. */
 export type WebAnimationEasingName = keyof typeof CubicBezierEasingParameters | 'linear'
 
-/** Per Frame easing names, for per-frame animation and transition. */
+/** Per frame easing names, for per-frame animation and transition. */
 export type TransitionEasingName = keyof typeof CubicBezierEasingParameters | keyof typeof CustomEasingFunctions
 
 
