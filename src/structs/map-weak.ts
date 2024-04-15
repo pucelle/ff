@@ -191,7 +191,7 @@ export class WeakDoubleKeysMap<K1 extends object, K2, V> {
 	}
 
 	/** Get the secondary key count by known first key. */
-	secondCountOf(k1: K1) {
+	secondKeyCountOf(k1: K1) {
 		return this.map.get(k1)?.size || 0
 	}
 
@@ -392,7 +392,7 @@ export abstract class WeakDoubleKeysIterableValueMap<K1 extends object, K2, V, I
 	}
 
 	/** Get the assocated secondary key count by first key. */
-	secondCountOf(k1: K1) {
+	secondKeyCountOf(k1: K1) {
 		return this.map.get(k1)?.keyCount()
 	}
 

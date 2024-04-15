@@ -249,12 +249,12 @@ export class DoubleKeysMap<K1, K2, V> {
 	}
 	
 	/** Get the count of all the first keys. */
-	firstCount(): number {
+	firstKeyCount(): number {
 		return this.map.size
 	}
 
 	/** Get the secondary key count by first key. */
-	secondCountOf(k1: K1) {
+	secondKeyCountOf(k1: K1) {
 		return this.map.get(k1)?.size || 0
 	}
 
@@ -415,7 +415,7 @@ export abstract class DoubleKeysIterableValueMap<K1, K2, V, I extends Iterable<V
 	}
 
 	/** Get the assocated secondary key count by first key. */
-	secondCountOf(k1: K1) {
+	secondKeyCountOf(k1: K1) {
 		return this.map.get(k1)?.keyCount()
 	}
 
