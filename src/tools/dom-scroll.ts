@@ -6,6 +6,10 @@ export namespace DOMScroll {
 	/** Cached scroll bar width. */
 	let scrollBarWidth: number | null = null
 
+	/** Cache the element and the transition playing. */
+	const ScrollTransition: Map<Element, PerFrameTransition> = new Map()
+
+
 	/**
 	 * Get scroll bar width.
 	 * After first time running, the returned value will keep constant.
@@ -105,6 +109,10 @@ export namespace DOMScroll {
 			return false
 		}
 
+		if (ScrollTransition.has(el)) {
+			ScrollTransition.get(el)!.cancel()
+		}
+
 		if (direction === 'vertical') {
 			let oldScrollY = wrapper.scrollTop
 			let newScrollY: number | null = null
@@ -127,15 +135,20 @@ export namespace DOMScroll {
 
 			if (newScrollY !== null && newScrollY !== oldScrollY) {
 				if (duration) {
-					PerFrameTransition.playBetween(
+					let transition = new PerFrameTransition({
+						duration,
+						easing,
+					})
+
+					transition.playBetween(
 						oldScrollY,
 						newScrollY,
 						(value: number) => {
 							wrapper!.scrollTop = value
-						},
-						duration,
-						easing,
+						}
 					)
+
+					ScrollTransition.set(el, transition)
 				}
 				else {
 					wrapper.scrollTop = newScrollY
@@ -163,15 +176,20 @@ export namespace DOMScroll {
 
 			if (newScrollX !== null && newScrollX !== oldScrollX) {
 				if (duration) {
-					PerFrameTransition.playBetween(
+					let transition = new PerFrameTransition({
+						duration,
+						easing,
+					})
+
+					transition.playBetween(
 						oldScrollX,
 						newScrollX,
 						(value: number) => {
 							wrapper!.scrollLeft = value
-						},
-						duration,
-						easing,
+						}
 					)
+
+					ScrollTransition.set(el, transition)
 				}
 				else {
 					wrapper.scrollLeft = newScrollX
@@ -183,7 +201,6 @@ export namespace DOMScroll {
 
 		return false
 	}
-
 
 
 	/**
@@ -213,6 +230,10 @@ export namespace DOMScroll {
 		if (!wrapper) {
 			return false
 		}
+
+		if (ScrollTransition.has(el)) {
+			ScrollTransition.get(el)!.cancel()
+		}
 		
 		let offset = getNonScrollOffset(el, wrapper, direction)
 		let property: 'scrollLeft' | 'scrollTop' = direction === 'horizontal' ? 'scrollLeft' : 'scrollTop'
@@ -221,15 +242,20 @@ export namespace DOMScroll {
 
 		if (newScroll !== oldScroll) {
 			if (duration) {
-				PerFrameTransition.playBetween(
+				let transition = new PerFrameTransition({
+					duration,
+					easing,
+				})
+
+				transition.playBetween(
 					oldScroll,
 					newScroll,
 					(value: number) => {
 						wrapper![property] = value
-					},
-					duration,
-					easing,
+					}
 				)
+
+				ScrollTransition.set(el, transition)
 			}
 			else {
 				wrapper[property] = newScroll
