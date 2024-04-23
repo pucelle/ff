@@ -46,7 +46,7 @@ export namespace DOMScroll {
 
 
 	/** 
-	 * Get the scroll direction of scroll wrapper, may return `horizontal | horizontal | null`.
+	 * Get the scroll direction of scroll wrapper, may return `horizontal | vertical | null`.
 	 * Note that this method may cause reflow.
 	 */
 	export function getScrollDirection(wrapper: HTMLElement): HVDirection | null {
@@ -94,11 +94,11 @@ export namespace DOMScroll {
 	/**
 	 * Scroll scrollbar in specified direction of closest scroll wrapper,
 	 * for minimal distance to make element to become fully visible.
-	 * - `gap`: Reserve a little distance from the element's edge away from view area edge.
+	 * - `gap`: Reserve a little distance from the element's edge away from scroll viewport edge.
 	 * 
-	 * Returns `true` if scrolled.
+	 * Returns a promise which will be resolved by whether scrolled.
 	 */
-	export function scrollToView(el: HTMLElement, gap: number = 0, duration: number = 0, easing: TransitionEasingName = 'ease-out'): boolean {
+	export async function scrollToView(el: HTMLElement, gap: number = 0, duration: number = 0, easing: TransitionEasingName = 'ease-out'): Promise<boolean> {
 		let wrapper = getClosestScrollWrapper(el)
 		if (!wrapper) {
 			return false
@@ -149,6 +149,8 @@ export namespace DOMScroll {
 					)
 
 					ScrollTransition.set(el, transition)
+
+					return transition.untilEnd()
 				}
 				else {
 					wrapper.scrollTop = newScrollY
@@ -190,6 +192,8 @@ export namespace DOMScroll {
 					)
 
 					ScrollTransition.set(el, transition)
+
+					return transition.untilEnd()
 				}
 				else {
 					wrapper.scrollLeft = newScrollX
@@ -204,28 +208,51 @@ export namespace DOMScroll {
 
 
 	/**
-	 * Scroll closest scrollbar to make element in the topest of the view area.
-	 * - `gap`: Reserve a little distance from the element's edge away from view area edge.
+	 * Scroll closest scrollbar to make element in the topest or left most of the scroll viewport.
+	 * - `gap`: Reserve a little distance from the element's edge away from scroll viewport edge.
 	 * 
-	 * Returns `true` if scrolled.
+	 * Returns a promise which will be resolved by whether scrolled.
 	 */
-	export function scrollToTop(el: HTMLElement, gap: number = 0, duration: number = 0, easing: TransitionEasingName = 'ease-out'): boolean {
+	export async function scrollToStart(el: HTMLElement, gap: number = 0, duration: number = 0, easing: TransitionEasingName = 'ease-out'): Promise<boolean> {
+		let scrollDirection = DOMScroll.getScrollDirection(el)
+		if (!scrollDirection) {
+			return false
+		}
+
+		return scrollToStartPosition(scrollDirection, el, gap, duration, easing)
+	}
+
+
+	/**
+	 * Scroll closest scrollbar to make element in the topest of the scroll viewport.
+	 * - `gap`: Reserve a little distance from the element's edge away from scroll viewport edge.
+	 * 
+	 * Returns a promise which will be resolved by whether scrolled.
+	 */
+	export function scrollToTop(el: HTMLElement, gap: number = 0, duration: number = 0, easing: TransitionEasingName = 'ease-out'): Promise<boolean> {
 		return scrollToStartPosition('vertical', el, gap, duration, easing)
 	}
 
 
 	/**
-	 * Scroll closest scrollbar to make element in the left most of the view area.
-	 * - `gap`: Reserve a little distance from the element's edge away from view area edge.
+	 * Scroll closest scrollbar to make element in the left most of the scroll viewport.
+	 * - `gap`: Reserve a little distance from the element's edge away from scroll viewport edge.
 	 * 
-	 * Returns `true` if scrolled.
+	 * Returns a promise which will be resolved by whether scrolled.
 	 */
-	export function scrollToLeft(el: HTMLElement, gap: number = 0, duration: number = 0, easing: TransitionEasingName = 'ease-out'): boolean {
+	export function scrollToLeft(el: HTMLElement, gap: number = 0, duration: number = 0, easing: TransitionEasingName = 'ease-out'): Promise<boolean> {
 		return scrollToStartPosition('vertical', el, gap, duration, easing)
 	}
 
 
-	function scrollToStartPosition(direction: HVDirection, el: HTMLElement, gap: number = 0, duration: number = 0, easing: TransitionEasingName = 'ease-out'): boolean {
+	async function scrollToStartPosition(
+		direction: HVDirection,
+		el: HTMLElement,
+		gap: number = 0,
+		duration: number = 0,
+		easing: TransitionEasingName = 'ease-out'
+	): Promise<boolean>
+	{
 		let wrapper = getClosestScrollWrapper(el)
 		if (!wrapper) {
 			return false
@@ -256,6 +283,8 @@ export namespace DOMScroll {
 				)
 
 				ScrollTransition.set(el, transition)
+
+				return transition.untilEnd()
 			}
 			else {
 				wrapper[property] = newScroll

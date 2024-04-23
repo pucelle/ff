@@ -1,5 +1,6 @@
 export * from './decorators-for-compiler'
 export * from './dependency-tracker'
+export * from './effect'
 export * from './proxy'
 export * from './compute'
 export * from './watcher'
