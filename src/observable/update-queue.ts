@@ -93,14 +93,20 @@ export namespace UpdateQueue{
 	}
 
 
-	/** Calls `callback` after all the enqueued callbacks were called. */
+	/** 
+	 * Calls `callback` after all the enqueued callbacks were called.
+	 * Can safely read computed style in `callback`.
+	 */
 	export function onComplete(callback: () => void) {
 		completeCallbacks.push(callback)
 		willUpdateIfNotYet()
 	}
 
 
-	/** Returns a promise which will be resolved after all the enqueued callbacks were called. */
+	/** 
+	 * Returns a promise which will be resolved after all the enqueued callbacks were called.
+	 * Can safely read computed style after returned promise resolved.
+	 */
 	export function untilComplete(): Promise<void> {
 		return new Promise(resolve => {
 			onComplete(resolve)

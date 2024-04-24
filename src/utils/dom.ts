@@ -1,3 +1,5 @@
+import {Size} from '../math'
+
 
 /** Type of style properties. */
 export type StylePropertyName = string & keyof CSSStyleDeclaration
@@ -74,6 +76,7 @@ export namespace DOMUtils {
 		return value ? parseFloat(value) || 0 : 0
 	}
 
+
 	/**
 	 * Get inner width of specified element, which equals `clientWidth - paddingWidths` or `width - paddingWidths - scrollbarWidth`.
 	 * Note that this method may cause page reflow.
@@ -103,6 +106,15 @@ export namespace DOMUtils {
 	}
 
 	/**
+	 * Get inner size of specified element, which equals `clientSize - paddingSizes` or `size - paddingSizes - scrollbarSize`.
+	 * Note that this method may cause page reflow.
+	 */
+	export function getInnerSize(el: Element): Size {
+		return new Size(getInnerWidth(el), getInnerHeight(el))
+	}
+
+
+	/**
 	 * Get outer width of specified element, which equals `offsetWidth + marginWidths`.
 	 * Note that this method may cause page reflow.
 	 */
@@ -117,7 +129,7 @@ export namespace DOMUtils {
 	}
 
 	/**
-	 * Get inner height of specified element, which equals `offsetHeight + marginHeights`.
+	 * Get outer height of specified element, which equals `offsetHeight + marginHeights`.
 	 * Note that this method may cause page reflow.
 	 */
 	export function getOuterHeight(el: HTMLElement) {
@@ -128,5 +140,13 @@ export namespace DOMUtils {
 		else {
 			return 0
 		}
+	}
+
+	/**
+	 * Get outer size of specified element, which equals `offsetSize + marginSizes`.
+	 * Note that this method may cause page reflow.
+	 */
+	export function getOuterSize(el: HTMLElement): Size {
+		return new Size(getOuterWidth(el), getOuterHeight(el))
 	}
 }
