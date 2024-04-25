@@ -437,7 +437,10 @@ export namespace ListUtils {
 	 * And make the list is still in sorted state after inserting the new value.
 	 * Returned index is betweens `0 ~ list length`.
 	 * Note when some equal values exist, the returned index prefers upper.
-	 * `fn` is used to know whether a value is larger or smaller.
+	 * 
+	 * `fn`: used to know whether a value is larger or smaller,
+	 * it returns positive value to move right,
+	 * and returns negative value to move left.
 	 */
 	export function quickBinaryFindInsertIndex<T>(sortedList: ArrayLike<T>, fn: (v: T) => number): number {
 		if (sortedList.length === 0) {
@@ -477,7 +480,10 @@ export namespace ListUtils {
 	 * And make the list is still in sorted state after inserting the new value.
 	 * Returned index is betweens `0 ~ list length`.
 	 * Note when some equal values exist, the returned index prefers lower.
-	 * `fn` is used to know whether a value is larger or smaller.
+	 * 
+	 * `fn`: used to know whether a value is larger or smaller,
+	 * it returns positive value to move right,
+	 * and returns negative value to move left.
 	 */
 	export function quickBinaryFindLowerInsertIndex<T>(sortedList: ArrayLike<T>, fn: (v: T) => number): number {
 		let index = quickBinaryFindInsertIndex(sortedList, fn)
@@ -493,7 +499,10 @@ export namespace ListUtils {
 	/** 
 	 * Binary find an item from a list, which has been sorted.
 	 * Returns the found item, or `undefined` if nothing found.
-	 * `fn` is used to know whether a value is larger or smaller.
+	 * 
+	 * `fn`: used to know whether a value is larger or smaller,
+	 * it returns positive value to move right,
+	 * and returns negative value to move left.
 	 */
 	export function quickBinaryFind<T>(sortedList: ArrayLike<T>, fn: (v: T) => number): T | undefined {
 		let index = quickBinaryFindLowerInsertIndex(sortedList, fn)

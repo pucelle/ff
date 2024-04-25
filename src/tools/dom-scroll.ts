@@ -32,31 +32,75 @@ export namespace DOMScroll {
 
 
 	/**
-	 * Find the closest scroll wrapper, which is the closest ancestor element,
-	 * and has `overflow: auto / scroll` set.
+	 * Find the closest scroll wrapper, which is the closest ancestor element, and contents overflow.
+	 * Note this method can test get scroll wrapper only when overflow happens.
 	 * Note that this method may cause reflow.
 	 */
 	export function getClosestScrollWrapper(el: HTMLElement): HTMLElement | null {
-		while (el && el.scrollWidth <= el.clientWidth && el.scrollHeight <= el.clientHeight) {
+		while (el) {
+			if (getOverflowDirection(el) !== null) {
+				return el
+			}
+
 			el = el.parentElement!
 		}
 
-		return el
+		return null
+	}
+
+
+	/**
+	 * Find the closest scroll wrapper, which is the closest ancestor element,
+	 * and has `overflow: auto / scroll` set.
+	 * Note this method can test get scroll wrapper only when overflow happens.
+	 * Note that this method may cause reflow.
+	 */
+	export function getCSSClosestScrollWrapper(el: HTMLElement): HTMLElement | null {
+		while (el) {
+			if (getCSSOverflowDirection(el) !== null) {
+				return el
+			}
+
+			el = el.parentElement!
+		}
+
+		return null
 	}
 
 
 	/** 
-	 * Get the scroll direction of scroll wrapper, may return `horizontal | vertical | null`.
-	 * Note that this method may cause reflow.
+	 * Get the overflow direction of scroll wrapper, may return `horizontal | vertical | null`.
+	 * Note this method can only test overflow direction when overflow happens.
+	 * Note this method may cause reflow.
 	 */
-	export function getScrollDirection(wrapper: HTMLElement): HVDirection | null {
+	export function getOverflowDirection(wrapper: HTMLElement): HVDirection | null {
 		let direction: HVDirection | null = null
 
-		if (wrapper.scrollHeight > wrapper.clientHeight) {
+		if (wrapper.scrollWidth > wrapper.clientWidth) {
+			direction = 'vertical'
+		}
+		else if (wrapper.scrollHeight > wrapper.clientHeight) {
 			direction = 'horizontal'
 		}
-		else if (wrapper.scrollWidth > wrapper.clientWidth) {
+
+		return direction
+	}
+
+
+	/** 
+	 * Get the overflow direction of scroll wrapper, which has `overflow: auto / scroll` set.
+	 * may return `horizontal | vertical | null`.
+	 * Note this method may cause reflow.
+	 */
+	export function getCSSOverflowDirection(wrapper: HTMLElement): HVDirection | null {
+		let direction: HVDirection | null = null
+		let style = getComputedStyle(wrapper)
+
+		if (style.overflowY === 'auto' || style.overflowY === 'scroll') {
 			direction = 'vertical'
+		}
+		else if (style.overflowX === 'auto' || style.overflowX === 'scroll') {
+			direction = 'horizontal'
 		}
 
 		return direction
@@ -104,7 +148,7 @@ export namespace DOMScroll {
 			return false
 		}
 
-		let direction = getScrollDirection(wrapper)
+		let direction = getOverflowDirection(wrapper)
 		if (!direction) {
 			return false
 		}
@@ -214,7 +258,7 @@ export namespace DOMScroll {
 	 * Returns a promise which will be resolved by whether scrolled.
 	 */
 	export async function scrollToStart(el: HTMLElement, gap: number = 0, duration: number = 0, easing: TransitionEasingName = 'ease-out'): Promise<boolean> {
-		let scrollDirection = DOMScroll.getScrollDirection(el)
+		let scrollDirection = DOMScroll.getOverflowDirection(el)
 		if (!scrollDirection) {
 			return false
 		}
