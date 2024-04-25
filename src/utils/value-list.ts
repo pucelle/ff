@@ -90,7 +90,7 @@ export namespace ValueListUtils {
 	 * Returns the index of the minimal value of all the values.
 	 * Returns `-1` if no values or all values are `Infinity`.
 	 */
-	export function minIndex(values: number[]): number {
+	export function minIndex(values: ArrayLike<number>): number {
 		let minIndex = -1
 		let minValue = Infinity
 
@@ -109,7 +109,7 @@ export namespace ValueListUtils {
 	 * Returns the index of the maximun value of all the values.
 	 * Returns `-1` if no values or all values are `-Infinity`.
 	 */
-	export function maxIndex(values: number[]): number {
+	export function maxIndex(values: ArrayLike<number>): number {
 		let maxIndex = -1
 		let maxValue = -Infinity
 
@@ -128,7 +128,7 @@ export namespace ValueListUtils {
 	 * Find the minimum value in a list.
 	 * Returns `null` if no items or all values are `Infinity`.
 	 */
-	export function minOf(values: number[]): number | null {
+	export function minOf(values: ArrayLike<number>): number | null {
 		let index = minIndex(values)
 		return index >= 0 ? values[index] : null
 	}
@@ -138,7 +138,7 @@ export namespace ValueListUtils {
 	 * Find the maximum value in a list.
 	 * Returns `null` if no items or all values are `-Infinity`.
 	 */
-	export function maxOf(values: number[]): number | null {
+	export function maxOf(values: ArrayLike<number>): number | null {
 		let index = maxIndex(values)
 		return index >= 0 ? values[index] : null
 	}
@@ -150,16 +150,16 @@ export namespace ValueListUtils {
 	 * Returned index betweens `0 ~ list length`.
 	 * Note when some equal values exist, the returned index prefers upper.
 	 */
-	export function binaryFindInsertIndex(sorted: number[], toInsert: number): number {
+	export function binaryFindInsertIndex(sorted: ArrayLike<number>, toInsert: number): number {
 		if (sorted.length === 0) {
 			return 0
 		}
 
-		if (toInsert < sorted[0]) {
+		if (sorted[0] > toInsert) {
 			return 0
 		}
 
-		if (toInsert >= sorted[sorted.length - 1]) {
+		if (sorted[sorted.length - 1] <= toInsert) {
 			return sorted.length
 		}
 
@@ -184,7 +184,7 @@ export namespace ValueListUtils {
 
 
 	/** `binaryFindInsertIndex` prefers upper index, this one prefers lower. */
-	export function binaryFindLowerInsertIndex(sorted: number[], toInsert: number): number {
+	export function binaryFindLowerInsertIndex(sorted: ArrayLike<number>, toInsert: number): number {
 		let index = binaryFindInsertIndex(sorted, toInsert)
 
 		while (index > 0 && sorted[index - 1] === toInsert) {
@@ -209,8 +209,8 @@ export namespace ValueListUtils {
 
 
 	/** Binary find a numeric value from a list, which has been sorted from lower to upper. */
-	export function binaryFind(sorted: number[], value: number): number | undefined {
-		let index = binaryFindInsertIndex(sorted, value)
+	export function binaryFind(sorted: ArrayLike<number>, value: number): number | undefined {
+		let index = binaryFindLowerInsertIndex(sorted, value)
 		if (index === sorted.length) {
 			return undefined
 		}

@@ -79,7 +79,7 @@ describe('Test list', () => {
 		expect(ListUtils.maxOf([-Infinity], x => x)).toEqual(null)
 	})
 
-	test.only('binaryFindInsertIndex', () => {
+	test('binaryFindInsertIndex', () => {
 		expect(ListUtils.binaryFindInsertIndex([1,2,3], 0, (a, b) => a - b)).toEqual(0)
 		expect(ListUtils.binaryFindInsertIndex([1,2,3], 1, (a, b) => a - b)).toEqual(1)
 		expect(ListUtils.binaryFindInsertIndex([1,2,3], 2, (a, b) => a - b)).toEqual(2)
@@ -88,11 +88,11 @@ describe('Test list', () => {
 	})
 
 	test('binaryFindLowerInsertIndex', () => {
-		expect(ListUtils.binaryFindInsertIndex([1,2,3], 0, (a, b) => a - b)).toEqual(0)
-		expect(ListUtils.binaryFindInsertIndex([1,2,3], 1, (a, b) => a - b)).toEqual(0)
-		expect(ListUtils.binaryFindInsertIndex([1,2,3], 2, (a, b) => a - b)).toEqual(1)
-		expect(ListUtils.binaryFindInsertIndex([1,2,3], 3, (a, b) => a - b)).toEqual(2)
-		expect(ListUtils.binaryFindInsertIndex([1,2,3], 4, (a, b) => a - b)).toEqual(3)
+		expect(ListUtils.binaryFindLowerInsertIndex([1,2,3], 0, (a, b) => a - b)).toEqual(0)
+		expect(ListUtils.binaryFindLowerInsertIndex([1,2,3], 1, (a, b) => a - b)).toEqual(0)
+		expect(ListUtils.binaryFindLowerInsertIndex([1,2,3], 2, (a, b) => a - b)).toEqual(1)
+		expect(ListUtils.binaryFindLowerInsertIndex([1,2,3], 3, (a, b) => a - b)).toEqual(2)
+		expect(ListUtils.binaryFindLowerInsertIndex([1,2,3], 4, (a, b) => a - b)).toEqual(3)
 	})
 
 	test('binaryFind', () => {
@@ -103,11 +103,35 @@ describe('Test list', () => {
 		expect(ListUtils.binaryFind([1,2,3], 4, (a, b) => a - b)).toEqual(undefined)
 	})
 
-	test('binaryFind', () => {
+	test('binaryInsert', () => {
 		expect(ListUtils.binaryInsert([1,2,3], 0, (a, b) => a - b)).toEqual(0)
 		expect(ListUtils.binaryInsert([1,2,3], 1, (a, b) => a - b)).toEqual(1)
 		expect(ListUtils.binaryInsert([1,2,3], 2, (a, b) => a - b)).toEqual(2)
 		expect(ListUtils.binaryInsert([1,2,3], 3, (a, b) => a - b)).toEqual(3)
 		expect(ListUtils.binaryInsert([1,2,3], 4, (a, b) => a - b)).toEqual(3)
+	})
+
+	test('quickBinaryFindInsertIndex', () => {
+		expect(ListUtils.quickBinaryFindInsertIndex([1,2,3], (a) => a - 0)).toEqual(0)
+		expect(ListUtils.quickBinaryFindInsertIndex([1,2,3], (a) => a - 1)).toEqual(1)
+		expect(ListUtils.quickBinaryFindInsertIndex([1,2,3], (a) => a - 2)).toEqual(2)
+		expect(ListUtils.quickBinaryFindInsertIndex([1,2,3], (a) => a - 3)).toEqual(3)
+		expect(ListUtils.quickBinaryFindInsertIndex([1,2,3], (a) => a - 4)).toEqual(3)
+	})
+
+	test('quickBinaryFindLowerInsertIndex', () => {
+		expect(ListUtils.quickBinaryFindLowerInsertIndex([1,2,3], (a) => a - 0)).toEqual(0)
+		expect(ListUtils.quickBinaryFindLowerInsertIndex([1,2,3], (a) => a - 1)).toEqual(0)
+		expect(ListUtils.quickBinaryFindLowerInsertIndex([1,2,3], (a) => a - 2)).toEqual(1)
+		expect(ListUtils.quickBinaryFindLowerInsertIndex([1,2,3], (a) => a - 3)).toEqual(2)
+		expect(ListUtils.quickBinaryFindLowerInsertIndex([1,2,3], (a) => a - 4)).toEqual(3)
+	})
+
+	test('quickBinaryFind', () => {
+		expect(ListUtils.quickBinaryFind([1,2,3], (a) => a - 0)).toEqual(undefined)
+		expect(ListUtils.quickBinaryFind([1,2,3], (a) => a - 1)).toEqual(1)
+		expect(ListUtils.quickBinaryFind([1,2,3], (a) => a - 2)).toEqual(2)
+		expect(ListUtils.quickBinaryFind([1,2,3], (a) => a - 3)).toEqual(3)
+		expect(ListUtils.quickBinaryFind([1,2,3], (a) => a - 4)).toEqual(undefined)
 	})
 })
