@@ -1,5 +1,5 @@
-import * as ListUtils from '../../src/utils/list'
-import * as ObjectUtils from '../../src/utils/object'
+import * as ListUtils from '../../src/utils/list-utils'
+import * as ObjectUtils from '../../src/utils/object-utils'
 
 
 describe('Test list', () => {

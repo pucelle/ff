@@ -1,4 +1,4 @@
-import * as NumberUtils from './number'
+import * as NumberUtils from './number-utils'
 
 
 /** 

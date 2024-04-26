@@ -1,4 +1,4 @@
-import * as DateUtils from '../../src/utils/date'
+import * as DateUtils from '../../src/utils/date-utils'
 
 
 describe('Test date', () => {

@@ -148,7 +148,7 @@ export function maxOf(values: ArrayLike<number>): number | null {
  * Returned index betweens `0 ~ list length`.
  * Note when some equal values exist, the returned index prefers upper.
  */
-export function binaryFindInsertIndex(sorted: ArrayLike<number>, toInsert: number): number {
+export function binaryFindInsertIndex<T extends number | string>(sorted: ArrayLike<T>, toInsert: T): number {
 	if (sorted.length === 0) {
 		return 0
 	}
@@ -182,7 +182,7 @@ export function binaryFindInsertIndex(sorted: ArrayLike<number>, toInsert: numbe
 
 
 /** `binaryFindInsertIndex` prefers upper index, this one prefers lower. */
-export function binaryFindLowerInsertIndex(sorted: ArrayLike<number>, toInsert: number): number {
+export function binaryFindLowerInsertIndex<T extends number | string>(sorted: ArrayLike<T>, toInsert: T): number {
 	let index = binaryFindInsertIndex(sorted, toInsert)
 
 	while (index > 0 && sorted[index - 1] === toInsert) {
@@ -199,7 +199,7 @@ export function binaryFindLowerInsertIndex(sorted: ArrayLike<number>, toInsert: 
  * Returns the insert index.
  * Uses `array.splice` to do inserting so watch the performance.
  */
-export function binaryInsert(sorted: number[], toInsert: number): number {
+export function binaryInsert<T extends number | string>(sorted: T[], toInsert: T): number {
 	let index = binaryFindInsertIndex(sorted, toInsert)
 	sorted.splice(index, 0, toInsert)
 	return index
@@ -207,7 +207,7 @@ export function binaryInsert(sorted: number[], toInsert: number): number {
 
 
 /** Binary find a numeric value from a list, which has been sorted from lower to upper. */
-export function binaryFind(sorted: ArrayLike<number>, value: number): number | undefined {
+export function binaryFind<T extends number | string>(sorted: ArrayLike<T>, value: T): T | undefined {
 	let index = binaryFindLowerInsertIndex(sorted, value)
 	if (index === sorted.length) {
 		return undefined

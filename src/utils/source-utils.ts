@@ -1,4 +1,5 @@
-import {sleep} from "./function"
+import {sleep} from './function'
+
 
 /** Load image source and output an `<image>` element. */
 export async function loadImage(url: string) {

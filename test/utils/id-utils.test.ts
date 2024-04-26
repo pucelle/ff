@@ -1,4 +1,4 @@
-import * as IDUtils from '../../src/utils/id'
+import * as IDUtils from '../../src/utils/id-utils'
 
 
 describe('Test date', () => {

@@ -165,4 +165,4 @@ export class WebStorage {
 
 
 /** Default global web storage API. */
-export const webStorage = /*#__PURE__*/new WebStorage('ff_')
+export const webStorage = new WebStorage('ff_')

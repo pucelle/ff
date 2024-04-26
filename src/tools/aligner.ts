@@ -1,5 +1,5 @@
 import {Box, Direction, BoxDistances, Point} from '../math'
-import * as DOMUtils from './dom'
+import * as DOMUtils from './dom-utils'
 
 
 /** Options for aligning two elements. */
