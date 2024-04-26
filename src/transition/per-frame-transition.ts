@@ -2,7 +2,7 @@ import {EasingFunction, TransitionEasingName, getEasingFunction} from './easing'
 import {MathUtils} from '../math'
 import {makeMixer} from './mixer'
 import {EventFirer} from '../events'
-import {FrameLoop, Timeout} from '../tools'
+import {FrameLoop, Timeout} from '../utils'
 
 
 /** Transition events. */

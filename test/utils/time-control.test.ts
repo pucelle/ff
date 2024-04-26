@@ -1,4 +1,4 @@
-import {Debounce, Interval, Throttle, timeout, Timeout} from '../../src/tools/time-control'
+import {Debounce, Interval, Throttle, timeout, Timeout} from '../../src/utils/time-control'
 import {TimeUtils} from '../../src/utils/time'
 
 

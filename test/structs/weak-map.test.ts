@@ -147,7 +147,7 @@ describe('Test Weak Map Structs', () => {
 
 		m.set(a, 'b', 'c')
 
-		expect(m.secondCountOf(a)).toEqual(1)
+		expect(m.secondKeyCountOf(a)).toEqual(1)
 		expect([...m.secondEntriesOf(a)]).toEqual([['b', 'c']])
 		expect(m.get(a, 'b')).toEqual('c')
 		expect(m.has(a, 'b')).toEqual(true)
@@ -174,7 +174,7 @@ describe('Test Weak Map Structs', () => {
 		m.add(a, 'b', 'd')
 
 		expect(m.countOf(a, 'b')).toEqual(2)
-		expect(m.secondCountOf(a)).toEqual(1)
+		expect(m.secondKeyCountOf(a)).toEqual(1)
 		expect([...m.secondEntriesOf(a)]).toEqual([['b', ['c', 'd']]])
 		expect([...m.secondFlatEntriesOf(a)]).toEqual([['b', 'c'], ['b', 'd']])
 		expect(m.get(a, 'b')).toEqual(['c', 'd'])
@@ -203,7 +203,7 @@ describe('Test Weak Map Structs', () => {
 		m.add(a, 'b', 'd')
 
 		expect(m.countOf(a, 'b')).toEqual(2)
-		expect(m.secondCountOf(a)).toEqual(1)
+		expect(m.secondKeyCountOf(a)).toEqual(1)
 		expect([...m.secondEntriesOf(a)]).toEqual([['b', new Set(['c', 'd'])]])
 		expect([...m.secondFlatEntriesOf(a)]).toEqual([['b', 'c'], ['b', 'd']])
 		expect(m.get(a, 'b')).toEqual(new Set(['c', 'd']))

@@ -176,8 +176,8 @@ describe('Test Map Structs', () => {
 
 		m.set('a', 'b', 'c')
 
-		expect(m.firstCount()).toEqual(1)
-		expect(m.secondCountOf('a')).toEqual(1)
+		expect(m.firstKeyCount()).toEqual(1)
+		expect(m.secondKeyCountOf('a')).toEqual(1)
 		expect([...m.entries()]).toEqual([['a', new Map([['b', 'c']])]])
 		expect([...m.flatEntries()]).toEqual([['a', 'b', 'c']])
 		expect([...m.secondEntriesOf('a')]).toEqual([['b', 'c']])
@@ -208,7 +208,7 @@ describe('Test Map Structs', () => {
 		m.add('a', 'b', 'd')
 
 		expect(m.countOf('a', 'b')).toEqual(2)
-		expect(m.secondCountOf('a')).toEqual(1)
+		expect(m.secondKeyCountOf('a')).toEqual(1)
 		expect([...m.entries()]).toEqual([['a', 'b', ['c', 'd']]])
 		expect([...m.flatEntries()]).toEqual([['a', 'b', 'c'], ['a', 'b', 'd']])
 		expect([...m.secondEntriesOf('a')]).toEqual([['b', ['c', 'd']]])
@@ -240,7 +240,7 @@ describe('Test Map Structs', () => {
 		m.add('a', 'b', 'd')
 
 		expect(m.countOf('a', 'b')).toEqual(2)
-		expect(m.secondCountOf('a')).toEqual(1)
+		expect(m.secondKeyCountOf('a')).toEqual(1)
 		expect([...m.entries()]).toEqual([['a', 'b', new Set(['c', 'd'])]])
 		expect([...m.flatEntries()]).toEqual([['a', 'b', 'c'], ['a', 'b', 'd']])
 		expect([...m.secondEntriesOf('a')]).toEqual([['b', new Set(['c', 'd'])]])

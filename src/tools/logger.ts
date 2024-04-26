@@ -12,21 +12,14 @@ export enum LogLevel {
 }
 
 
-/** Log different levels of message. */
+/** 
+ * Log different levels of message.
+ * Note default log level is `Log`, verbose messages are ignored.
+ */
 export namespace logger {
 
-	/** Whether in development environment. */
-	export let inDevelopment = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
-
-	/** Current log level. */
-	export let logLevel = inDevelopment ? LogLevel.Verbose : LogLevel.None
-
-
-	// Reset logLevel from url search parameters.
-	let levelFromPath = location.search.match(/loglevel=(\d+)/)?.[1]
-	if (levelFromPath) {
-		logLevel = Number(levelFromPath)
-	}
+	/** Current log level, defaults to `Log`, verbose messages are ignored. */
+	export let logLevel = LogLevel.None
 
 
 	// Log log level.

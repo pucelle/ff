@@ -1,7 +1,8 @@
 {
 	"compilerOptions": {
-		"module": "commonjs",
-		"target": "es2019",
+		"module": "ESNext",
+		"moduleResolution": "Node",
+		"target": "ES2019",
 		"lib": ["esnext", "dom", "dom.iterable"],
 		"rootDir": "src",
 		"outDir": "out",
@@ -12,7 +13,8 @@
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true,
 		"noImplicitAny": true,
-		"noImplicitThis": true
+		"noImplicitThis": true,
+		"esModuleInterop": true
 	},
 	"exclude": [
 		"node_modules",

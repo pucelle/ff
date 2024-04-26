@@ -1,4 +1,4 @@
-import {MathUtils} from '.'
+import {MathUtils} from './math-utils'
 import {ValueListUtils} from '../utils'
 
 

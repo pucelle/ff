@@ -1,6 +1,6 @@
 import {DOMEvents} from './dom-events'
 import {TwoWayMap} from '../structs'
-import {Timeout} from '../tools'
+import {Timeout} from '../utils'
 
 
 /** Options for mouse leave control. */

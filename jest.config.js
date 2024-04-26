@@ -1,11 +1,7 @@
 module.exports = {
-	preset: 'ts-jest',
-	globals: {
-		'ts-jest': {
-			tsconfig: {
-				target: 'ES2020'
-			}
-		}
+	preset: "ts-jest",
+	transform: {
+		"^.+\\.tsx?$": "ts-jest",
 	},
 	testEnvironment: "node",
 	testMatch: [
