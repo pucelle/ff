@@ -1,7 +1,7 @@
 import {Vector} from './vector'
 import {Point} from './point'
 import {Box} from './box'
-import {MathUtils} from './math-utils'
+import * as MathUtils from './math-utils'
 import {Size} from './size'
 import {Matrix2} from './matrix2'
 

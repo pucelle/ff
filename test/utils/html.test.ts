@@ -1,4 +1,4 @@
-import {HTMLUtils} from '../../src/utils/html'
+import * as HTMLUtils from '../../src/utils/html'
 
 
 describe('Test HTMLUtils', () => {

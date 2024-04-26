@@ -20,78 +20,77 @@ const EventConstructors: Record<string, {new(el: EventTarget): EventProcessor}> 
 
 
 /** Can help to process complex simulated events. */
-export namespace SimulatedEvents {
 
-	/** Simulated event types. */
-	export type Events = HoldEvents & DoubleTapEvents & PinchTransformEvents & PinchZoomEvents & TapEvents & SlideEvents
-	type EventType = keyof Events & string
-
-
-	/** Configations. */
-	export const Configuration = SimulatedEventsConfiguration
-
-	/** Shared Processors. */
-	const EventProcessorCache: WeakDoubleKeysMap<EventTarget, string, EventProcessor> = new WeakDoubleKeysMap()
+/** Simulated event types. */
+export type Events = HoldEvents & DoubleTapEvents & PinchTransformEvents & PinchZoomEvents & TapEvents & SlideEvents
+type EventType = keyof Events & string
 
 
-	/** Whether a specified name is simulated event type. */
-	export function isSimulatedEventType(name: string): name is EventType {
-		let groupName = name.replace(/:.+/, '')
-		return EventConstructors.hasOwnProperty(groupName)
-	}
+/** Configations. */
+export const Configuration = SimulatedEventsConfiguration
+
+/** Shared Processors. */
+const EventProcessorCache: WeakDoubleKeysMap<EventTarget, string, EventProcessor> = new WeakDoubleKeysMap()
 
 
-	/** 
-	 * Bind a simulated event listener on an event target.
-	 * Can specify `scope` to identify listener, and will pass it to listener handler.
-	 */
-	export function on<T extends EventType>(el: EventTarget, type: T, handler: Events[T], scope: any = null) {
-		let processor = getProcessor(el, type)
-		processor.on(type, handler, scope)
-	}
+/** Whether a specified name is simulated event type. */
+export function isSimulatedEventType(name: string): name is EventType {
+	let groupName = name.replace(/:.+/, '')
+	return EventConstructors.hasOwnProperty(groupName)
+}
 
 
-	/** 
-	 * Bind a event listener on event target, triggers for only once.
-	 * Can specify `scope` to identify listener, and will pass it to listener handler.
-	 */
-	export function once<T extends EventType>(el: EventTarget, type: T, handler: Events[T], scope: any = null) {
-		let processor = getProcessor(el, type)
-		processor.once(type, handler, scope)
-	}
+/** 
+ * Bind a simulated event listener on an event target.
+ * Can specify `scope` to identify listener, and will pass it to listener handler.
+ */
+export function on<T extends EventType>(el: EventTarget, type: T, handler: Events[T], scope: any = null) {
+	let processor = getProcessor(el, type)
+	processor.on(type, handler, scope)
+}
 
 
-	/** 
-	 * Unbind simulated event listeners.
-	 * If listener binds a `scope`, here must match it to remove the listener.
-	 */
-	export function off<T extends EventType>(el: EventTarget, type: T, handler: Events[T], scope: any = null) {
-		let processor = getProcessor(el, type)
-		processor.off(type, handler, scope)
-
-		if (!processor.hasListeners()) {
-			processor.remove()
-			deleteProcessor(el, type)
-		}
-	}
-	
-
-	function getProcessor(el: EventTarget, type: EventType): EventProcessor {
-		let groupName = type.replace(/:.+/, '')
-		let processor = EventProcessorCache.get(el, groupName)
-
-		if (!processor) {
-			let Processor = EventConstructors[groupName]
-			processor = new Processor(el)
-			EventProcessorCache.set(el, groupName, processor)
-		}
-
-		return processor
-	}
+/** 
+ * Bind a event listener on event target, triggers for only once.
+ * Can specify `scope` to identify listener, and will pass it to listener handler.
+ */
+export function once<T extends EventType>(el: EventTarget, type: T, handler: Events[T], scope: any = null) {
+	let processor = getProcessor(el, type)
+	processor.once(type, handler, scope)
+}
 
 
-	function deleteProcessor(el: EventTarget, type: EventType) {
-		let groupName = type.replace(/:.+/, '')
-		EventProcessorCache.delete(el, groupName)
+/** 
+ * Unbind simulated event listeners.
+ * If listener binds a `scope`, here must match it to remove the listener.
+ */
+export function off<T extends EventType>(el: EventTarget, type: T, handler: Events[T], scope: any = null) {
+	let processor = getProcessor(el, type)
+	processor.off(type, handler, scope)
+
+	if (!processor.hasListeners()) {
+		processor.remove()
+		deleteProcessor(el, type)
 	}
 }
+
+
+function getProcessor(el: EventTarget, type: EventType): EventProcessor {
+	let groupName = type.replace(/:.+/, '')
+	let processor = EventProcessorCache.get(el, groupName)
+
+	if (!processor) {
+		let Processor = EventConstructors[groupName]
+		processor = new Processor(el)
+		EventProcessorCache.set(el, groupName, processor)
+	}
+
+	return processor
+}
+
+
+function deleteProcessor(el: EventTarget, type: EventType) {
+	let groupName = type.replace(/:.+/, '')
+	EventProcessorCache.delete(el, groupName)
+}
+

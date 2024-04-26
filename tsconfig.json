@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"module": "ESNext",
 		"moduleResolution": "Node",
-		"target": "ES2019",
+		"target": "ES2022",
 		"lib": ["esnext", "dom", "dom.iterable"],
 		"rootDir": "src",
 		"outDir": "out",
@@ -13,8 +13,7 @@
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true,
 		"noImplicitAny": true,
-		"noImplicitThis": true,
-		"esModuleInterop": true
+		"noImplicitThis": true
 	},
 	"exclude": [
 		"node_modules",

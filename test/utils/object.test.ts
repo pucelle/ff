@@ -1,4 +1,4 @@
-import {ObjectUtils} from '../../src/utils/object'
+import * as ObjectUtils from '../../src/utils/object'
 import {Vector} from '../../src/math/vector'
 
 

@@ -14,130 +14,124 @@ interface CapturedDependencies {
 }
 
 
+/** Caches `Dependency <=> Callback`. */
+const DepMap: DependencyMap = new DependencyMap()
+
+/** Callback and dependencies stack list. */
+const depStack: CapturedDependencies[] = []
+
+/** Current callback and dependencies that is doing capturing. */
+let currentDep: CapturedDependencies | null = null
+
+
 /** 
- * Track depedencies when executing.
- * And calls callback when any depedency get changed.
+ * Execute `fn`, and captures all dependencies duraing execution,
+ * Will execute `fn` in a `try{...}` statement.
+ * If any dependent object get changed, calls callback.
+ * 
+ * Note for tracking same content, `callback` should keep consitant,
+ * or it would cant replace old tracking.
  */
-export namespace DependencyTracker {
+export function trackExecutionOf(fn: () => void, callback: Function, scope: object | null = null) {
+	beginTrack(callback, scope)
 
-	/** Caches `Dependency <=> Callback`. */
-	const DepMap: DependencyMap = new DependencyMap()
-
-	/** Callback and dependencies stack list. */
-	const depStack: CapturedDependencies[] = []
-
-	/** Current callback and dependencies that is doing capturing. */
-	let currentDep: CapturedDependencies | null = null
-
-
-	/** 
-	 * Execute `fn`, and captures all dependencies duraing execution,
-	 * Will execute `fn` in a `try{...}` statement.
-	 * If any dependent object get changed, calls callback.
-	 * 
-	 * Note for tracking same content, `callback` should keep consitant,
-	 * or it would cant replace old tracking.
-	 */
-	export function trackExecutionOf(fn: () => void, callback: Function, scope: object | null = null) {
-		beginTrack(callback, scope)
-
-		try {
-			fn()
-		}
-		catch (err) {
-			console.error(err)
-		}
-
-		endTrack()
+	try {
+		fn()
+	}
+	catch (err) {
+		console.error(err)
 	}
 
+	endTrack()
+}
 
-	/** 
-	 * Begin to capture dependencies.
-	 * Would suggest executing the codes following in a `try{...}` statement.
-	 */
-	export function beginTrack(callback: Function, scope: object | null = null) {
-		let bindedCallback = bindCallback(callback, scope)
 
-		if (currentDep) {
-			depStack.push(currentDep)
-		}
+/** 
+ * Begin to capture dependencies.
+ * Would suggest executing the codes following in a `try{...}` statement.
+ */
+export function beginTrack(callback: Function, scope: object | null = null) {
+	let bindedCallback = bindCallback(callback, scope)
 
-		currentDep = {
-			refreshCallback: bindedCallback,
-			dependencies: new SetMap(),
-		}
+	if (currentDep) {
+		depStack.push(currentDep)
 	}
 
-
-	/** 
-	 * End capturing dependencies.
-	 * You must ensure to end each capture, or fatul error will happen.
-	 */
-	export function endTrack() {
-		DepMap.apply(currentDep!.refreshCallback, currentDep!.dependencies)
-
-		if (depStack.length > 0) {
-			currentDep = depStack.pop()!
-		}
-		else {
-			currentDep = null
-		}
+	currentDep = {
+		refreshCallback: bindedCallback,
+		dependencies: new SetMap(),
 	}
+}
 
 
-	/** When doing getting property, add a dependency. */
-	export function onGet(obj: object, prop: PropertyKey = '') {
-		if (currentDep) {
-			currentDep.dependencies.add(obj, prop)
-		}
+/** 
+ * End capturing dependencies.
+ * You must ensure to end each capture, or fatul error will happen.
+ */
+export function endTrack() {
+	DepMap.apply(currentDep!.refreshCallback, currentDep!.dependencies)
+
+	if (depStack.length > 0) {
+		currentDep = depStack.pop()!
 	}
-
-
-	/** When doing setting property, notify the dependency is changed. */
-	export function onSet(obj: object, prop: PropertyKey = '') {
-		let callbacks = DepMap.getRefreshCallbacks(obj, prop)
-		if (callbacks) {
-			for (let callback of callbacks) {
-				callback()
-			}
-		}
+	else {
+		currentDep = null
 	}
+}
 
 
-	/** When doing getting property, add a group of dependency. */
-	export function onGetBunched(obj: object, props: PropertyKey[]) {
-		if (currentDep) {
-			for (let prop of props) {
-				currentDep.dependencies.add(obj, prop)
-			}
-		}
+/** When doing getting property, add a dependency. */
+export function onGet(obj: object, prop: PropertyKey = '') {
+	if (currentDep) {
+		currentDep.dependencies.add(obj, prop)
 	}
+}
 
 
-	/** When doing setting property, notify a group of dependencies are changed. */
-	export function onSetBunched(obj: object, props: PropertyKey[]) {
-		let callbackSet: Set<Function> = new Set()
-
-		for (let prop of props) {
-			let callbacks = DepMap.getRefreshCallbacks(obj, prop)
-			if (callbacks) {
-				for (let callback of callbacks) {
-					callbackSet.add(callback)
-				}
-			}
-		}
-
-		for (let callback of callbackSet) {
+/** When doing setting property, notify the dependency is changed. */
+export function onSet(obj: object, prop: PropertyKey = '') {
+	let callbacks = DepMap.getRefreshCallbacks(obj, prop)
+	if (callbacks) {
+		for (let callback of callbacks) {
 			callback()
 		}
 	}
+}
 
 
-	/** Remove all depedencies of a refresh callback. */
-	export function untrack(callback: Function, scope: object | null = null) {
-		let bindedCallback = bindCallback(callback, scope)
-		DepMap.deleteRefreshCallback(bindedCallback)
+/** When doing getting property, add a group of dependency. */
+export function onGetBunched(obj: object, props: PropertyKey[]) {
+	if (currentDep) {
+		for (let prop of props) {
+			currentDep.dependencies.add(obj, prop)
+		}
 	}
 }
+
+
+/** When doing setting property, notify a group of dependencies are changed. */
+export function onSetBunched(obj: object, props: PropertyKey[]) {
+	let callbackSet: Set<Function> = new Set()
+
+	for (let prop of props) {
+		let callbacks = DepMap.getRefreshCallbacks(obj, prop)
+		if (callbacks) {
+			for (let callback of callbacks) {
+				callbackSet.add(callback)
+			}
+		}
+	}
+
+	for (let callback of callbackSet) {
+		callback()
+	}
+}
+
+
+/** Remove all depedencies of a refresh callback. */
+export function untrack(callback: Function, scope: object | null = null) {
+	let bindedCallback = bindCallback(callback, scope)
+	DepMap.deleteRefreshCallback(bindedCallback)
+}
+
 

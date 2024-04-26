@@ -1,4 +1,4 @@
-import {AnimationFrame} from './animation-frame'
+import * as AnimationFrame from './animation-frame'
 
 
 /** Base class for Timeout, Interval... */

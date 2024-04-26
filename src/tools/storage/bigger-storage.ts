@@ -190,6 +190,6 @@ export class BiggerStorage {
 
 
 /** Default global bigger storage API. */
-export const biggerStorage = new BiggerStorage(
-	new DBStorage('ff_storage', 1, [{name: 'storage'}])
+export const biggerStorage = /*#__PURE__*/new BiggerStorage(
+	/*#__PURE__*/new DBStorage('ff_storage', 1, [{name: 'storage'}])
 )

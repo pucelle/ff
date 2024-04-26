@@ -12,96 +12,90 @@ export enum LogLevel {
 }
 
 
-/** 
- * Log different levels of message.
- * Note default log level is `Log`, verbose messages are ignored.
- */
-export namespace logger {
+/** Log different levels of message. */
+export class Logger {
 
 	/** Current log level, defaults to `Log`, verbose messages are ignored. */
-	export let logLevel = LogLevel.None
+	logLevel = LogLevel.None
+	
+	/** Recording once target. */
+	private onceTargetMap: Set<string | number> = new Set()
 
-
-	// Log log level.
-	if (logLevel !== LogLevel.None) {
-		console.log(`Current log level is "${LogLevel[logLevel]}"`)
+	/** Default log level is `Log`, verbose messages are ignored. */
+	constructor(logLevel: LogLevel = LogLevel.Log) {
+		this.logLevel = logLevel
 	}
 	
-
 	/** Log verbose message if should. */
-	export function verbose(message: string) {
-		if (logLevel >= LogLevel.Verbose) {
+	verbose(message: string) {
+		if (this.logLevel >= LogLevel.Verbose) {
 			console.log('%c' + message, 'color: #999')
 		}
 	}
 
 	/** Log very verbose message if should. */
-	export function veryVerbose(message: string) {
-		if (logLevel >= LogLevel.VeryVerbose) {
+	veryVerbose(message: string) {
+		if (this.logLevel >= LogLevel.VeryVerbose) {
 			console.log('%c' + message, 'color: #bbb')
 		}
 	}
 
 	/** Log message if should. */
-	export function log(message: any) {
-		if (logLevel >= LogLevel.Log) {
+	log(message: any) {
+		if (this.logLevel >= LogLevel.Log) {
 			console.log(message)
 		}
 	}
 
 	/** Log warning message if should. */
-	export function warn(message: any) {
-		if (logLevel >= LogLevel.Warn) {
+	warn(message: any) {
+		if (this.logLevel >= LogLevel.Warn) {
 			console.warn(message)
 		}
 	}
 
 	/** Log error message if should. */
-	export function error(message: any) {
-		if (logLevel >= LogLevel.Error) {
+	error(message: any) {
+		if (this.logLevel >= LogLevel.Error) {
 			console.error(message)
 		}
 	}
 
 
-	/** Recording once target. */
-	const OnceTargetMap: Set<string | number> = new Set()
-
 	/** Log normal message if should, only once for specified target. */
-	export function logOnce(message: string, target: string | number) {
-		if (!OnceTargetMap.has(target)) {
-			OnceTargetMap.add(target)
-			log(message)
+	logOnce(message: string, target: string | number) {
+		if (!this.onceTargetMap.has(target)) {
+			this.onceTargetMap.add(target)
+			this.log(message)
 		}
 	}
 
 	/** Log warn message if should, only once for specified target. */
-	export function warnOnce(message: string, target: string | number) {
-		if (!OnceTargetMap.has(target)) {
-			OnceTargetMap.add(target)
-			warn(message)
+	warnOnce(message: string, target: string | number) {
+		if (!this.onceTargetMap.has(target)) {
+			this.onceTargetMap.add(target)
+			this.warn(message)
 		}
 	}
 
 	/** Log error message if should, only once for specified target. */
-	export function errorOnce(message: string, target: string | number) {
-		if (!OnceTargetMap.has(target)) {
-			OnceTargetMap.add(target)
-			error(message)
+	errorOnce(message: string, target: string | number) {
+		if (!this.onceTargetMap.has(target)) {
+			this.onceTargetMap.add(target)
+			this.error(message)
 		}
 	}
 
-	
 	/** Start a new time interval counter. */
-	export function timeStart(name: string) {
+	timeStart(name: string) {
 		let startTime = 0
 
-		if (logLevel >= LogLevel.Log) {
+		if (this.logLevel >= LogLevel.Log) {
 			startTime = performance.now()
 		}
 
-		return function() {
-			if (logLevel >= LogLevel.Log) {
+		return () => {
+			if (this.logLevel >= LogLevel.Log) {
 				let endTime = performance.now()
 				let costTime = NumberUtils.toDecimal(endTime - startTime, 2)
 				let message = `${name} cost ${costTime} ms`
@@ -110,9 +104,12 @@ export namespace logger {
 					console.log('%c' + message, 'color: #c80')
 				}
 				else {
-					log(message)
+					this.log(message)
 				}
 			}
 		}
 	}
 }
+
+/** Default log level logger. */
+export const logger = new Logger()

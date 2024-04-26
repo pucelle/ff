@@ -816,86 +816,83 @@ const ShiftedNumToKeyCodeMap: Record<string, {key: string, code: string}> = {
 }
 
 
-export namespace EventKeys {
+/** Whether pressed character key. */
+export function pressedCharacterKey(event: KeyEventLike): boolean {
+	let key = NumToKeyCodeMap[event.which]?.key
+	return key && key.length === 1 && !pressedControlKey(event)
+}
 
-	/** Whether pressed character key. */
-	export function pressedCharacterKey(event: KeyEventLike): boolean {
-		let key = NumToKeyCodeMap[event.which]?.key
-		return key && key.length === 1 && !pressedControlKey(event)
+
+/** Whether pressed control key. */
+export function pressedControlKey(event: KeyEventLike): boolean {
+	return !!(event.ctrlKey || event.metaKey)
+}
+
+
+/** When event key is character key, like `A`, `1`. */
+export function isCharacterKey(event: KeyEventLike): boolean {
+	return getShortcutKey(event).length === 1
+}
+
+
+/** When event key is only control key, like `Control` or `Alt`. */
+export function isControlKey(event: KeyEventLike): boolean {
+	return [17, 18].includes(event.which)
+}
+
+
+/** 
+ * Get key string like `Ctrl+A`, `Ctrl+1`.
+ * `shiftDistinguish` determins whether consider pressing Shift key,
+ * e.g., when `shiftDistinguish=true`will get `Shift+?` but not `Shift+/`.
+ */
+export function getShortcutKey(event: KeyEventLike, shiftDistinguish: boolean = false): ShortcutKey {
+	let useShift = event.shiftKey && shiftDistinguish
+	let key = useShift ? ShiftedNumToKeyCodeMap[event.which]?.key : NumToKeyCodeMap[event.which]?.key
+
+	if (isControlKey(event)) {
+		key = ''
+	}
+	
+	return getControlKeyCode(event) + StringUtils.toCapitalize(key || '') as ShortcutKey
+}
+
+
+/** 
+ * Get key string like `Ctrl+KeyA`, `Ctrl+Digit1`.
+ * Compare with `getKey`, this one can get more details about keys,
+ * e.g., `CtrlLeft` is different from `CtrlRight`.
+ * Doesn't distinguish whether shift key is pressed.
+ */
+export function getShortcutCode(event: KeyEventLike): ShortcutCode {
+	let code = NumToKeyCodeMap[event.which]?.code as string
+
+	if (isControlKey(event)) {
+		code = ''
 	}
 
+	return getControlKeyCode(event) + StringUtils.toCapitalize(code || '') as ShortcutCode
+}
 
-	/** Whether pressed control key. */
-	export function pressedControlKey(event: KeyEventLike): boolean {
-		return !!(event.ctrlKey || event.metaKey)
+
+/** 
+ * Get control key code string like `Ctrl+`, `Alt+`, `Shift+`.
+ * Returns an empty string while no control key get pressed.
+ */
+export function getControlKeyCode(event: KeyEventLike): ControlKeyCode {
+	let codes = ''
+	
+	if (event.ctrlKey || event.metaKey) {
+		codes += 'Ctrl+'
 	}
 
-
-	/** When event key is character key, like `A`, `1`. */
-	export function isCharacterKey(event: KeyEventLike): boolean {
-		return getShortcutKey(event).length === 1
+	if (event.altKey) {
+		codes += 'Alt+'
 	}
 
-
-	/** When event key is only control key, like `Control` or `Alt`. */
-	export function isControlKey(event: KeyEventLike): boolean {
-		return [17, 18].includes(event.which)
+	if (event.shiftKey) {
+		codes += 'Shift+'
 	}
-
-
-	/** 
-	 * Get key string like `Ctrl+A`, `Ctrl+1`.
-	 * `shiftDistinguish` determins whether consider pressing Shift key,
-	 * e.g., when `shiftDistinguish=true`will get `Shift+?` but not `Shift+/`.
-	 */
-	export function getShortcutKey(event: KeyEventLike, shiftDistinguish: boolean = false): ShortcutKey {
-		let useShift = event.shiftKey && shiftDistinguish
-		let key = useShift ? ShiftedNumToKeyCodeMap[event.which]?.key : NumToKeyCodeMap[event.which]?.key
-
-		if (isControlKey(event)) {
-			key = ''
-		}
-		
-		return getControlKeyCode(event) + StringUtils.toCapitalize(key || '') as ShortcutKey
-	}
-
-
-	/** 
-	 * Get key string like `Ctrl+KeyA`, `Ctrl+Digit1`.
-	 * Compare with `getKey`, this one can get more details about keys,
-	 * e.g., `CtrlLeft` is different from `CtrlRight`.
-	 * Doesn't distinguish whether shift key is pressed.
-	 */
-	export function getShortcutCode(event: KeyEventLike): ShortcutCode {
-		let code = NumToKeyCodeMap[event.which]?.code as string
-
-		if (isControlKey(event)) {
-			code = ''
-		}
-
-		return getControlKeyCode(event) + StringUtils.toCapitalize(code || '') as ShortcutCode
-	}
-
-
-	/** 
-	 * Get control key code string like `Ctrl+`, `Alt+`, `Shift+`.
-	 * Returns an empty string while no control key get pressed.
-	 */
-	export function getControlKeyCode(event: KeyEventLike): ControlKeyCode {
-		let codes = ''
-		
-		if (event.ctrlKey || event.metaKey) {
-			codes += 'Ctrl+'
-		}
-
-		if (event.altKey) {
-			codes += 'Alt+'
-		}
-
-		if (event.shiftKey) {
-			codes += 'Shift+'
-		}
-		
-		return codes as ControlKeyCode
-	}
+	
+	return codes as ControlKeyCode
 }

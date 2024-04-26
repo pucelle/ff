@@ -52,193 +52,190 @@ const WatcherStateGetters = {
 }
 
 
-export namespace LayoutWatcher {
+/**
+ * Watch specified layout state, trigger `callback` if this state get changed.
+ * Note that this method may slow page speed and cause additional reflow.
+ * Returns a cancel function.
+ */
+export function watch<T extends LayoutWatcherType>(
+	el: HTMLElement,
+	type: T,
+	callback: LayoutWatcherCallback<T>,
+	options?: LayoutWatcherOptions
+): () => void {
+	let watcher = new Watcher(el, type, callback, options)
+	watcher.watch()
 
-	/**
-	 * Watch specified layout state, trigger `callback` if this state get changed.
-	 * Note that this method may slow page speed and cause additional reflow.
-	 * Returns a cancel function.
-	 */
-	export function watch<T extends LayoutWatcherType>(
-		el: HTMLElement,
-		type: T,
-		callback: LayoutWatcherCallback<T>,
-		options?: LayoutWatcherOptions
-	): () => void {
-		let watcher = new Watcher(el, type, callback, options)
-		watcher.watch()
+	return () => watcher.unwatch()
+}
 
-		return () => watcher.unwatch()
+
+/**
+ * Watch specified layout state, trigger `callback` if this state get changed, and cancel watching.
+ * Note that this method may slow page speed and cause additional reflow.
+ * Returns a cancel function.
+ */
+export function watchOnce<T extends LayoutWatcherType>(
+	el: HTMLElement,
+	type: T,
+	callback: LayoutWatcherCallback<T>,
+	options?: LayoutWatcherOptions
+): () => void {
+	function wrappedCallback(state: ReturnType<(typeof WatcherStateGetters)[T]>) {
+		watcher.unwatch()
+		callback(state)
 	}
 
+	let watcher = new Watcher(el, type, wrappedCallback, options)
+	watcher.watch()
 
-	/**
-	 * Watch specified layout state, trigger `callback` if this state get changed, and cancel watching.
-	 * Note that this method may slow page speed and cause additional reflow.
-	 * Returns a cancel function.
-	 */
-	export function watchOnce<T extends LayoutWatcherType>(
-		el: HTMLElement,
-		type: T,
-		callback: LayoutWatcherCallback<T>,
-		options?: LayoutWatcherOptions
-	): () => void {
-		function wrappedCallback(state: ReturnType<(typeof WatcherStateGetters)[T]>) {
+	return () => watcher.unwatch()
+}
+
+
+/**
+ * Watch specified layout state, trigger `callback` if the state becomes `true` and never trigger again.
+ * Note that this method may slow page speed and cause additional reflow.
+ * Returns a cancel function.
+ */
+export function watchUntil<T extends 'show' | 'hide' | 'inview' | 'outview'>(
+	el: HTMLElement,
+	type: T,
+	callback: LayoutWatcherCallback<T>,
+	options?: LayoutWatcherOptions
+): () => void {
+	function wrappedCallback(state: ReturnType<(typeof WatcherStateGetters)[T]>) {
+		if (state) {
 			watcher.unwatch()
-			callback(state)
-		}
-
-		let watcher = new Watcher(el, type, wrappedCallback, options)
-		watcher.watch()
-
-		return () => watcher.unwatch()
-	}
-
-
-	/**
-	 * Watch specified layout state, trigger `callback` if the state becomes `true` and never trigger again.
-	 * Note that this method may slow page speed and cause additional reflow.
-	 * Returns a cancel function.
-	 */
-	export function watchUntil<T extends 'show' | 'hide' | 'inview' | 'outview'>(
-		el: HTMLElement,
-		type: T,
-		callback: LayoutWatcherCallback<T>,
-		options?: LayoutWatcherOptions
-	): () => void {
-		function wrappedCallback(state: ReturnType<(typeof WatcherStateGetters)[T]>) {
-			if (state) {
-				watcher.unwatch()
-			}
-			
-			callback(state)
-		}
-
-		let watcher = new Watcher(el, type, wrappedCallback, options)
-		watcher.watch()
-
-		return () => watcher.unwatch()
-	}
-
-
-	export class Watcher<T extends LayoutWatcherType> {
-
-		/** Watcher state type, can be `show | hide | inview | outview | size | rect`. */
-		private readonly type: T
-
-		/** Element being watching state at. */
-		private readonly el: HTMLElement
-
-		private readonly callback: LayoutWatcherCallback<T>
-		private readonly options: LayoutWatcherOptions
-		private readonly stateGtter: typeof WatcherStateGetters[T]
-
-		private observer: any = null
-		private frameId: number | null = null
-		private interval: Interval | null = null
-		private oldState: any = null
-		private unwatchChange: (() => void)| null = null
-
-		constructor(el: HTMLElement, type: T, callback: LayoutWatcherCallback<T>, options: LayoutWatcherOptions = {}) {
-			this.el = el
-			this.type = type
-			this.callback = callback
-			this.options = options
-
-			this.stateGtter = WatcherStateGetters[type]
-		}
-
-		/** Begin to watch. */
-		watch() {
-			this.resetState()
-
-			if (this.options.checkPerAnimationFrame) {
-				this.frameId = AnimationFrame.requestCurrent(this.checkStateInAnimationFrame.bind(this))
-			}
-			else if (this.options.checkIntervalTime) {
-				this.interval = new Interval(this.checkStateInInterval.bind(this), this.options.checkIntervalTime)
-			}
-			else if (this.type === 'size' && typeof (window as any).ResizeObserver === 'function' && !this.options.checkIntervalTime) {
-				this.observer = new (window as any).ResizeObserver(this.onResize.bind(this))
-				this.observer.observe(this.el)
-			}
-			else if ((this.type === 'inview' || this.type === 'outview')
-				&& typeof IntersectionObserver === 'function' && !this.options.checkIntervalTime
-			) {
-				this.observer = new IntersectionObserver(this.onInviewChange.bind(this))
-				this.observer.observe(this.el)
-			}
-			else {
-				this.unwatchChange = watchDocumentChange(this.checkStateInInterval.bind(this))
-			}
-		}
-
-		/** End watch. */
-		unwatch() {
-			if (this.observer) {
-				this.observer.disconnect()
-			}
-			else if (this.options.checkIntervalTime) {
-				this.interval?.cancel()
-			}
-			else if (this.options.checkPerAnimationFrame) {
-				if (this.frameId) {
-					cancelAnimationFrame(this.frameId)
-				}
-			}
-			else {
-				this.unwatchChange?.()
-			}
 		}
 		
-		private onResize(entries: any) {
-			for (let {contentRect} of entries) {
-				this.onNewState({
-					width: contentRect.width,
-					height: contentRect.height
-				})
-			}
-		}
+		callback(state)
+	}
 
-		private onInviewChange(entries: IntersectionObserverEntry[]) {
-			for (let {intersectionRatio} of entries) {
-				let newState = this.type === 'inview' ? intersectionRatio > 0 : intersectionRatio === 0
-				this.onNewState(newState)
-			}
-		}
+	let watcher = new Watcher(el, type, wrappedCallback, options)
+	watcher.watch()
 
-		private checkStateInAnimationFrame() {
-			let newState = this.stateGtter(this.el)
-			this.onNewState(newState)
+	return () => watcher.unwatch()
+}
+
+
+export class Watcher<T extends LayoutWatcherType> {
+
+	/** Watcher state type, can be `show | hide | inview | outview | size | rect`. */
+	private readonly type: T
+
+	/** Element being watching state at. */
+	private readonly el: HTMLElement
+
+	private readonly callback: LayoutWatcherCallback<T>
+	private readonly options: LayoutWatcherOptions
+	private readonly stateGtter: typeof WatcherStateGetters[T]
+
+	private observer: any = null
+	private frameId: number | null = null
+	private interval: Interval | null = null
+	private oldState: any = null
+	private unwatchChange: (() => void)| null = null
+
+	constructor(el: HTMLElement, type: T, callback: LayoutWatcherCallback<T>, options: LayoutWatcherOptions = {}) {
+		this.el = el
+		this.type = type
+		this.callback = callback
+		this.options = options
+
+		this.stateGtter = WatcherStateGetters[type]
+	}
+
+	/** Begin to watch. */
+	watch() {
+		this.resetState()
+
+		if (this.options.checkPerAnimationFrame) {
 			this.frameId = AnimationFrame.requestCurrent(this.checkStateInAnimationFrame.bind(this))
 		}
+		else if (this.options.checkIntervalTime) {
+			this.interval = new Interval(this.checkStateInInterval.bind(this), this.options.checkIntervalTime)
+		}
+		else if (this.type === 'size' && typeof (window as any).ResizeObserver === 'function' && !this.options.checkIntervalTime) {
+			this.observer = new (window as any).ResizeObserver(this.onResize.bind(this))
+			this.observer.observe(this.el)
+		}
+		else if ((this.type === 'inview' || this.type === 'outview')
+			&& typeof IntersectionObserver === 'function' && !this.options.checkIntervalTime
+		) {
+			this.observer = new IntersectionObserver(this.onInviewChange.bind(this))
+			this.observer.observe(this.el)
+		}
+		else {
+			this.unwatchChange = watchDocumentChange(this.checkStateInInterval.bind(this))
+		}
+	}
 
-		private checkStateInInterval() {
-			let newState = this.stateGtter(this.el)
+	/** End watch. */
+	unwatch() {
+		if (this.observer) {
+			this.observer.disconnect()
+		}
+		else if (this.options.checkIntervalTime) {
+			this.interval?.cancel()
+		}
+		else if (this.options.checkPerAnimationFrame) {
+			if (this.frameId) {
+				cancelAnimationFrame(this.frameId)
+			}
+		}
+		else {
+			this.unwatchChange?.()
+		}
+	}
+	
+	private onResize(entries: any) {
+		for (let {contentRect} of entries) {
+			this.onNewState({
+				width: contentRect.width,
+				height: contentRect.height
+			})
+		}
+	}
+
+	private onInviewChange(entries: IntersectionObserverEntry[]) {
+		for (let {intersectionRatio} of entries) {
+			let newState = this.type === 'inview' ? intersectionRatio > 0 : intersectionRatio === 0
 			this.onNewState(newState)
 		}
+	}
 
-		private onNewState(newState: any) {
-			if (!ObjectUtils.deepEqual(newState, this.oldState)) {
-				this.oldState = newState
-				this.callback(newState)
-			}
-		}
-		
-		/** Check state manually. */
-		checkState() {
-			let newState = this.stateGtter(this.el) as any
+	private checkStateInAnimationFrame() {
+		let newState = this.stateGtter(this.el)
+		this.onNewState(newState)
+		this.frameId = AnimationFrame.requestCurrent(this.checkStateInAnimationFrame.bind(this))
+	}
 
-			if (!ObjectUtils.deepEqual(newState, this.oldState)) {
-				this.oldState = newState
-				this.callback(newState)
-			}
+	private checkStateInInterval() {
+		let newState = this.stateGtter(this.el)
+		this.onNewState(newState)
+	}
+
+	private onNewState(newState: any) {
+		if (!ObjectUtils.deepEqual(newState, this.oldState)) {
+			this.oldState = newState
+			this.callback(newState)
 		}
-		
-		/** Reset current state. */
-		resetState() {
-			this.oldState = this.stateGtter(this.el)
+	}
+	
+	/** Check state manually. */
+	checkState() {
+		let newState = this.stateGtter(this.el) as any
+
+		if (!ObjectUtils.deepEqual(newState, this.oldState)) {
+			this.oldState = newState
+			this.callback(newState)
 		}
+	}
+	
+	/** Reset current state. */
+	resetState() {
+		this.oldState = this.stateGtter(this.el)
 	}
 }
 

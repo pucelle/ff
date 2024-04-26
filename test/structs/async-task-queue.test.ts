@@ -1,5 +1,5 @@
 import {AsyncTaskQueue} from '../../src/structs/async-task-queue'
-import {TimeUtils} from '../../src/utils'
+import {sleep} from '../../src/utils'
 
 
 describe('Test AsyncTaskQueue', () => {
@@ -10,19 +10,19 @@ describe('Test AsyncTaskQueue', () => {
 		let f2 = jest.fn()
 
 		q.enqueue(async () => {
-			await TimeUtils.sleep(10)
+			await sleep(10)
 			f1()
 		})
 
 		q.enqueue(async () => {
-			await TimeUtils.sleep(10)
+			await sleep(10)
 			f2()
 		})
 
-		await TimeUtils.sleep(11)
-		expect(f1).toBeCalledTimes(1)
-		expect(f2).toBeCalledTimes(0)
-		await TimeUtils.sleep(10)
-		expect(f2).toBeCalledTimes(1)
+		await sleep(11)
+		expect(f1).toHaveBeenCalledTimes(1)
+		expect(f2).toHaveBeenCalledTimes(0)
+		await sleep(10)
+		expect(f2).toHaveBeenCalledTimes(1)
 	})
 })

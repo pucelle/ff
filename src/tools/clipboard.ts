@@ -2,165 +2,151 @@ import {logger} from './logger'
 import {biggerStorage} from './storage'
 
 
-/** 
- * Handle clipboard event data read and write.
- * Note `ClipboardEventData` doesn't share customized content with `ClipboardAPI` data.
- * If only want read and write clipboard data by copy & cut & paste event, use this.
- */
-export namespace ClipboardEventAPI {
+/** Reference to `https://github.com/w3c/editing/blob/gh-pages/docs/clipboard-pickling/explainer.md`. */
 
-	/** Read clipboard event data as an data object, can limit type. */
-	export async function read(e: ClipboardEvent, limitType: 'text' | 'file' | 'all' = 'text'): Promise<Record<string, string | File> | null> {
-		let data: Record<string, string | File> | null = null
 
-		if (e.clipboardData) {
-			data = {}
+/** Read clipboard event data as an data object, can limit type. */
+export async function readFromEvent(e: ClipboardEvent, limitType: 'text' | 'file' | 'all' = 'text'): Promise<Record<string, string | File> | null> {
+	let data: Record<string, string | File> | null = null
 
-			for (let item of e.clipboardData.items) {
-				if (item.kind === 'string') {
-					if (limitType === 'text' || limitType === 'all') {
-						data[item.type] = await new Promise(resolve => item.getAsString(resolve))
-					}
+	if (e.clipboardData) {
+		data = {}
+
+		for (let item of e.clipboardData.items) {
+			if (item.kind === 'string') {
+				if (limitType === 'text' || limitType === 'all') {
+					data[item.type] = await new Promise(resolve => item.getAsString(resolve))
 				}
-				else if (item.kind === 'file') {
-					if (limitType === 'file' || limitType === 'all') {
-						data[item.type] = item.getAsFile()!
-					}
+			}
+			else if (item.kind === 'file') {
+				if (limitType === 'file' || limitType === 'all') {
+					data[item.type] = item.getAsFile()!
 				}
 			}
 		}
-
-		return data	
 	}
 
-	/** Set clipboard event data from an data object, limit string type. */
-	export function write(e: ClipboardEvent, data: Record<string, string>) {
-		for (let [key, value] of Object.entries(data)) {
-			e.clipboardData?.setData(key, value)
+	return data	
+}
+
+/** Set clipboard event data from an data object, limit string type. */
+export function writeToEvent(e: ClipboardEvent, data: Record<string, string>) {
+	for (let [key, value] of Object.entries(data)) {
+		e.clipboardData?.setData(key, value)
+	}
+}
+
+/** Try reading system clipboard data, can limit type. */
+export async function read(limitType: 'text' | 'file' | 'all' = 'text'): Promise<Record<string, string | Blob> | null> {
+	await requestPermission('read')
+
+	let clipboardItems = await navigator.clipboard.read()
+	let data: Record<string, string | Blob> = {}
+
+	if (!clipboardItems || clipboardItems.length === 0) {
+		return data
+	}
+
+	for (let item of clipboardItems) {
+		for (let type of item.types) {
+			if (type.startsWith('text/')) {
+				if (limitType === 'text' || limitType === 'all') {
+					data[type] = await readBlobAsText(await item.getType(type))
+				}
+			}
+			else {
+				if (limitType === 'file' || limitType === 'all') {
+					data[type] = await item.getType(type)
+				}
+			}
 		}
 	}
+
+	return data
+}
+
+
+/** Read blob as string. */
+function readBlobAsText(blob: Blob): Promise<string> {
+	return new Promise((resolve, reject) => {
+		let reader = new FileReader()
+
+		reader.onload = function() {
+			resolve(reader.result as string)
+		}
+
+		reader.onerror = function(err) {
+			reject(err)
+		}
+
+		reader.readAsText(blob)
+	})
 }
 
 
 /** 
- * Read and write clipboard data based on clipboard API.
- * Reference to `https://github.com/w3c/editing/blob/gh-pages/docs/clipboard-pickling/explainer.md`.
- * Note `ClipboardAPI` doesn't share customized content with `ClipboardEventData` data.
- * If only read and write not only in copy & cut & paste event, you should use this.
+ * Try writting to system clipboard data, limit string type.
+ * Note for your customized format, should use format type starts with `web `,
+ * like `web text/custom`, `web text/mytype`.
+ * If `canDropWebCustomData` is specified as `true`, will drop web custom data and write again if failed.
  */
-export namespace ClipboardAPI {
+export async function write(data: Record<string, string | Blob>, canDropWebCustomData: boolean = false): Promise<void> {
+	await requestPermission('write')
+	let blobData = dataToBlobData(data)
 
-	/** Try reading system clipboard data, can limit type. */
-	export async function read(limitType: 'text' | 'file' | 'all' = 'text'): Promise<Record<string, string | Blob> | null> {
-		await requestPermission('read')
-
-		let clipboardItems = await navigator.clipboard.read()
-		let data: Record<string, string | Blob> = {}
-
-		if (!clipboardItems || clipboardItems.length === 0) {
-			return data
-		}
-
-		for (let item of clipboardItems) {
-			for (let type of item.types) {
-				if (type.startsWith('text/')) {
-					if (limitType === 'text' || limitType === 'all') {
-						data[type] = await readBlobAsText(await item.getType(type))
-					}
-				}
-				else {
-					if (limitType === 'file' || limitType === 'all') {
-						data[type] = await item.getType(type)
-					}
-				}
-			}
-		}
-
-		return data
+	try {
+		await navigator.clipboard.write([new ClipboardItem(blobData)])
 	}
+	catch (err) {
 
+		// Can drop some custom data items.
+		if (canDropWebCustomData && Object.keys(blobData).find(key => key.startsWith('web '))) {
+			blobData = Object.fromEntries(Object.entries(blobData).filter(([key]) => !key.startsWith('web ')))
 
-	/** Read blob as string. */
-	function readBlobAsText(blob: Blob): Promise<string> {
-		return new Promise((resolve, reject) => {
-			let reader = new FileReader()
-
-			reader.onload = function() {
-				resolve(reader.result as string)
-			}
-
-			reader.onerror = function(err) {
-				reject(err)
-			}
-
-			reader.readAsText(blob)
-		})
-	}
-
-
-	/** 
-	 * Try writting to system clipboard data, limit string type.
-	 * Note for your customized format, should use format type starts with `web `,
-	 * like `web text/custom`, `web text/mytype`.
-	 * If `canDropWebCustomData` is specified as `true`, will drop web custom data and write again if failed.
-	 */
-	export async function write(data: Record<string, string | Blob>, canDropWebCustomData: boolean = false): Promise<void> {
-		await requestPermission('write')
-		let blobData = dataToBlobData(data)
-
-		try {
-			await navigator.clipboard.write([new ClipboardItem(blobData)])
-		}
-		catch (err) {
-
-			// Can drop some custom data items.
-			if (canDropWebCustomData && Object.keys(blobData).find(key => key.startsWith('web '))) {
-				blobData = Object.fromEntries(Object.entries(blobData).filter(([key]) => !key.startsWith('web ')))
-
-				if (Object.keys(blobData).length > 0) {
-					await navigator.clipboard.write([new ClipboardItem(blobData)])
-				}
-				else {
-					throw err
-				}
+			if (Object.keys(blobData).length > 0) {
+				await navigator.clipboard.write([new ClipboardItem(blobData)])
 			}
 			else {
 				throw err
 			}
 		}
-	}
-
-
-	/** 
-	 * Request clipboard read / write permission,
-	 * browser must get focus recently.
-	 * On Safari, URL must be https type, and must request in an event loop.
-	 */
-	async function requestPermission(name: 'read' | 'write') {
-		let result = await navigator.permissions.query({name: 'clipboard-' + name as any})
-		if (result.state == 'granted' || result.state == 'prompt') {
-			return
-		}
 		else {
-			throw new Error(result.state)
+			throw err
 		}
-	}
-	
-
-	/** Convert all string type of data item to blob. */
-	function dataToBlobData(data: Record<string, string | Blob>): Record<string, Blob> {
-		let blobData: Record<string, Blob> = {}
-
-		for (let [key, value] of Object.entries(data)) {
-			if (typeof value === 'string') {
-				value = new Blob([value], {type: key})
-			}
-			blobData[key] = value
-		}
-
-		return blobData
 	}
 }
+
+
+/** 
+ * Request clipboard read / write permission,
+ * browser must get focus recently.
+ * On Safari, URL must be https type, and must request in an event loop.
+ */
+async function requestPermission(name: 'read' | 'write') {
+	let result = await navigator.permissions.query({name: 'clipboard-' + name as any})
+	if (result.state == 'granted' || result.state == 'prompt') {
+		return
+	}
+	else {
+		throw new Error(result.state)
+	}
+}
+
+
+/** Convert all string type of data item to blob. */
+function dataToBlobData(data: Record<string, string | Blob>): Record<string, Blob> {
+	let blobData: Record<string, Blob> = {}
+
+	for (let [key, value] of Object.entries(data)) {
+		if (typeof value === 'string') {
+			value = new Blob([value], {type: key})
+		}
+		blobData[key] = value
+	}
+
+	return blobData
+}
+
 
 	
 /** 
@@ -185,12 +171,12 @@ export class MixedClipboardStore<D extends Record<string, string> = any> {
 	/** Write clipboard data to mixed store. */
 	async write(data: D, e?: ClipboardEvent) {
 		if (e) {
-			ClipboardEventAPI.write(e, data)
+			writeToEvent(e, data)
 			e.preventDefault()
 		}
 
 		try {
-			await ClipboardAPI.write(data)
+			await write(data)
 		}
 		catch (err) {
 			logger.warn(err)
@@ -205,7 +191,7 @@ export class MixedClipboardStore<D extends Record<string, string> = any> {
 		let data: D | null = null
 
 		try{
-			let nvData = await ClipboardAPI.read(limitType) as D | null
+			let nvData = await read(limitType) as D | null
 			if (nvData) {
 				data = nvData
 			}
@@ -215,7 +201,7 @@ export class MixedClipboardStore<D extends Record<string, string> = any> {
 		}
 
 		if (e) {
-			let evData = await ClipboardEventAPI.read(e, limitType) as D | null
+			let evData = await readFromEvent(e, limitType) as D | null
 			if (evData) {
 				data = {...(data || {}), ...evData}
 			}

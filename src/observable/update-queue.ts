@@ -65,88 +65,70 @@ class UpdateHeap {
 }
 
 
-/** Enqueue updatable objects, later update them in order. */
-export namespace UpdateQueue{
+/** Caches all callbacks in order. */
+const heap: UpdateHeap = new UpdateHeap()
 
-	/** Caches all callbacks in order. */
-	const heap: UpdateHeap = new UpdateHeap()
+/** Callbacks wait to be called after all the things update. */
+let completeCallbacks: (() => void)[] = []
 
-	/** Callbacks wait to be called after all the things update. */
-	let completeCallbacks: (() => void)[] = []
-
-	/** What's updating right now. */
-	let phase: QueueUpdatePhase = QueueUpdatePhase.NotStarted
+/** What's updating right now. */
+let phase: QueueUpdatePhase = QueueUpdatePhase.NotStarted
 
 
-	/** 
-	 * Enqueue a callback with a scope, will call it before the next animate frame.
-	 * Multiple times add same callbacks during same animate frame will work for only once.
-	 * `order` specifies the callback order.
-	 */
-	export function enqueue(callback: () => void, scope: object | null = null, order: number = 0) {
-		if (heap.has(callback, scope)) {
-			return
-		}
-
-		heap.add(callback, scope, order)
-		willUpdateIfNotYet()
+/** 
+ * Enqueue a callback with a scope, will call it before the next animate frame.
+ * Multiple times add same callbacks during same animate frame will work for only once.
+ * `order` specifies the callback order.
+ */
+export function enqueue(callback: () => void, scope: object | null = null, order: number = 0) {
+	if (heap.has(callback, scope)) {
+		return
 	}
 
+	heap.add(callback, scope, order)
+	willUpdateIfNotYet()
+}
 
-	/** 
-	 * Calls `callback` after all the enqueued callbacks were called.
-	 * Can safely read computed style in `callback`.
-	 */
-	export function onComplete(callback: () => void) {
-		completeCallbacks.push(callback)
-		willUpdateIfNotYet()
+
+/** 
+ * Calls `callback` after all the enqueued callbacks were called.
+ * Can safely read computed style in `callback`.
+ */
+export function onComplete(callback: () => void) {
+	completeCallbacks.push(callback)
+	willUpdateIfNotYet()
+}
+
+
+/** 
+ * Returns a promise which will be resolved after all the enqueued callbacks were called.
+ * Can safely read computed style after returned promise resolved.
+ */
+export function untilComplete(): Promise<void> {
+	return new Promise(resolve => {
+		onComplete(resolve)
+	})
+}
+
+
+/** Enqueue a update task if not have. */
+function willUpdateIfNotYet() {
+	if (phase === QueueUpdatePhase.NotStarted) {
+		AnimationFrame.requestCurrent(update)
+		phase = QueueUpdatePhase.Prepended
 	}
+}
 
 
-	/** 
-	 * Returns a promise which will be resolved after all the enqueued callbacks were called.
-	 * Can safely read computed style after returned promise resolved.
-	 */
-	export function untilComplete(): Promise<void> {
-		return new Promise(resolve => {
-			onComplete(resolve)
-		})
-	}
+/** Do updating. */
+async function update() {
+	phase = QueueUpdatePhase.Updating
 
+	while (!heap.isEmpty() || completeCallbacks.length > 0) {
+		while (!heap.isEmpty()) {
+			do {
+				let callback = heap.shift()!
 
-	/** Enqueue a update task if not have. */
-	function willUpdateIfNotYet() {
-		if (phase === QueueUpdatePhase.NotStarted) {
-			AnimationFrame.requestCurrent(update)
-			phase = QueueUpdatePhase.Prepended
-		}
-	}
-
-
-	/** Do updating. */
-	async function update() {
-		phase = QueueUpdatePhase.Updating
-
-		while (!heap.isEmpty() || completeCallbacks.length > 0) {
-			while (!heap.isEmpty()) {
-				do {
-					let callback = heap.shift()!
-
-					try {
-						callback()
-					}
-					catch (err) {
-						console.error(err)
-					}
-				}
-				while (!heap.isEmpty())
-			}
-
-			let oldCallbacks = completeCallbacks
-			completeCallbacks = []
-
-			// Calls callbacks, all components and watchers become stable now.
-			for (let callback of oldCallbacks) {
 				try {
 					callback()
 				}
@@ -154,12 +136,26 @@ export namespace UpdateQueue{
 					console.error(err)
 				}
 			}
-
-			// Wait for a micro task tick.
-			await Promise.resolve()
+			while (!heap.isEmpty())
 		}
 
-		// Back to start stage.
-		phase = QueueUpdatePhase.NotStarted
+		let oldCallbacks = completeCallbacks
+		completeCallbacks = []
+
+		// Calls callbacks, all components and watchers become stable now.
+		for (let callback of oldCallbacks) {
+			try {
+				callback()
+			}
+			catch (err) {
+				console.error(err)
+			}
+		}
+
+		// Wait for a micro task tick.
+		await Promise.resolve()
 	}
+
+	// Back to start stage.
+	phase = QueueUpdatePhase.NotStarted
 }

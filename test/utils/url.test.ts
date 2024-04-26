@@ -1,4 +1,4 @@
-import {URLUtils} from '../../src/utils/url'
+import * as URLUtils from '../../src/utils/url'
 
 
 describe('Test url', () => {

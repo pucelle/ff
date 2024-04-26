@@ -38,19 +38,19 @@ export class Color {
 
 		// hex.
 		if (/^#[0-9a-f]{3,8}$/i.test(str)) {
-			rgba = ColorHelper.parseHEX(str)
+			rgba = parseHEX(str)
 		}
 
 		// rgb, rgba.
 		else if (/^(rgba?)/i.test(str)) {
-			rgba = ColorHelper.parseRGBA(str)
+			rgba = parseRGBA(str)
 		}
 		
 		// hsl.
 		else if (/^(hsla?)/i.test(str)) {
-			let hsla = ColorHelper.parseHSLA(str)
+			let hsla = parseHSLA(str)
 			if (hsla) {
-				rgba = ColorHelper.HSLA2RGBA(hsla)
+				rgba = HSLA2RGBA(hsla)
 			}
 		}
 
@@ -67,7 +67,7 @@ export class Color {
 	 * H betweens `0~6`, SL betweens `0~1`.
 	 */
 	static fromHSL(h: number, s: number, l: number): Color {
-		let rgba = ColorHelper.HSLA2RGBA({h, s, l, a: 1})
+		let rgba = HSLA2RGBA({h, s, l, a: 1})
 		let {r, g, b, a} = rgba
 
 		return new Color(r, g, b, a)
@@ -78,7 +78,7 @@ export class Color {
 	 * H betweens `0~6`, SLA betweens `0~1`.
 	 */
 	static fromHSLA(h: number, s: number, l: number, a: number): Color {
-		let rgba = ColorHelper.HSLA2RGBA({h, s, l, a})
+		let rgba = HSLA2RGBA({h, s, l, a})
 		let {r, g, b} = rgba
 		
 		return new Color(r, g, b, a)
@@ -200,7 +200,7 @@ export class Color {
 
 	/** Convert to `HSL(...)` format. */
 	toHSL() {
-		let hsla = ColorHelper.RGBA2HSLA(this)
+		let hsla = RGBA2HSLA(this)
 		let {h, s, l} = hsla
 
 		h = NumberUtils.clamp(Math.round(h * 60), 0, 360)
@@ -212,7 +212,7 @@ export class Color {
 
 	/** Convert to `HSLA(...)` format. */
 	toHSLA() {
-		let hsla = ColorHelper.RGBA2HSLA(this)
+		let hsla = RGBA2HSLA(this)
 		let {h, s, l, a} = hsla
 
 		h = NumberUtils.clamp(Math.round(h * 60), 0, 360)
@@ -269,8 +269,8 @@ export class Color {
 	 * `inverseRate` specifies the minimum light difference rate when the color value exceed.
 	 */
 	improveContrast(compareColor: Color, minimumLightContrast: number = 0.2, minimumLightContrastRateToInverse: number = 0.5) {
-		let hsl = ColorHelper.RGBA2HSLA(this)
-		let compareHSL = ColorHelper.RGBA2HSLA(compareColor)
+		let hsl = RGBA2HSLA(this)
+		let compareHSL = RGBA2HSLA(compareColor)
 
 		// Cacl the light diff in HSL color space.
 		let hslDiff = Math.abs(hsl.l - compareHSL.l)
@@ -317,195 +317,192 @@ export class Color {
 }
 
 
-/** Color utility functions. */
-namespace ColorHelper {
 
-	/** 
-	 * Parse HEX color format like:
-	 * `#368`, `#123456`, '#00000000'
-	 */
-	export function parseHEX(hex: string): RGBA | null {
-		if (!/^#([0-9a-f]{3}|[0-9a-f]{6}||[0-9a-f]{8})$/i.test(hex)) {
-			return null
-		}
-
-		// `#368`
-		if (hex.length === 4) {
-			return {
-				r: parseInt(hex[1], 16) * 17 / 255,
-				g: parseInt(hex[2], 16) * 17 / 255,
-				b: parseInt(hex[3], 16) * 17 / 255,
-				a: 1,
-			}
-		}
-
-		// `#123456`
-		else if (hex.length === 7) {
-			return {
-				r: parseInt(hex.slice(1, 3), 16) / 255,
-				g: parseInt(hex.slice(3, 5), 16) / 255,
-				b: parseInt(hex.slice(5, 7), 16) / 255,
-				a: 1,
-			}
-		}
-
-		// `#00000000`
-		else if (hex.length === 9) {
-			let a = parseInt(hex.slice(7, 9), 16)
-
-			// 0 -> 0
-			// 128 -> 0.5
-			// 255 -> 1
-			if (a <= 128) {
-				a /= 256
-			}
-			else {
-				a = (a - 1) / 254
-			}
-
-			return {
-				r: parseInt(hex.slice(1, 3), 16) / 255,
-				g: parseInt(hex.slice(3, 5), 16) / 255,
-				b: parseInt(hex.slice(5, 7), 16) / 255,
-				a,
-			}
-		}
-
-		else {
-			return null
-		}
-	}
-
-
-	/** 
-	 * Parse RGBA? color format like:
-	 * `RGB(200, 200, 0)`, `RGBA(200, 200, 200, 0.5)`, `RGBA(#000, 0.5)`
-	 */
-	export function parseRGBA(str: string): RGBA | null {
-
-		// `RGB(200, 200, 0)`
-		let match = str.match(/^rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i)
-		if (match) {
-			return {
-				r: Number(match[1]) / 255,
-				g: Number(match[2]) / 255,
-				b: Number(match[3]) / 255,
-				a: 1,
-			}
-		}
-
-		// `RGBA(200, 200, 200, 0.5)`
-		match = str.match(/^rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([\d.]+)\s*\)$/i)
-		if (match) {
-			return {
-				r: Number(match[1]) / 255,
-				g: Number(match[2]) / 255,
-				b: Number(match[3]) / 255,
-				a: Number(match[4]),
-			}
-		}
-
-		// `RGBA(#000, 0.5)`
-		match = str.match(/^rgba\(\s*(#[0-9a-fA-F]{3,6})\s*,\s*([\d.]+)\s*\)$/i)
-		if (match) {
-			return {...ColorHelper.parseHEX(match[1])!, a: Number(match[2])}
-		}
-
+/** 
+ * Parse HEX color format like:
+ * `#368`, `#123456`, '#00000000'
+ */
+export function parseHEX(hex: string): RGBA | null {
+	if (!/^#([0-9a-f]{3}|[0-9a-f]{6}||[0-9a-f]{8})$/i.test(hex)) {
 		return null
 	}
 
-
-	/** 
-	 * Parse HSLA? color format like:
-	 * `HSL(100, 60%, 80%)`, `HSLA(100, 60%, 80%, 0.5)`
-	 */
-	export function parseHSLA(str: string): HSLA | null {
-
-		// `HSL(100, 60%, 80%)`
-		let match = str.match(/^hsl\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*\)$/i)
-		if (match) {
-			return {
-				h: Number(match[1]) / 60,
-				s: Number(match[2]) / 100,
-				l: Number(match[3]) / 100,
-				a: 1,
-			}
-		}
-
-		// `HSLA(100, 60%, 80%, 0.5)`
-		match = str.match(/^hsla\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*,\s*([\d.]+)\s*\)$/i)
-		if (match) {
-			return {
-				h: Number(match[1]) / 60,
-				s: Number(match[2]) / 100,
-				l: Number(match[3]) / 100,
-				a: Number(match[4]),
-			}
-		}
-
-		return null
-
-	}
-
-	/** Convert HSLA to RGBA. */
-	export function HSLA2RGBA(hsla: HSLA): RGBA {
-		let {h, s, l, a} = hsla
-		let maxOfRGB = l <= 0.5 ? l * (s + 1) : l + s - (l * s)
-		let minOfRGB = l * 2 - maxOfRGB
-		
+	// `#368`
+	if (hex.length === 4) {
 		return {
-			r: hue2RGB(minOfRGB, maxOfRGB, (h + 2) % 6),
-			g: hue2RGB(minOfRGB, maxOfRGB, h),
-			b: hue2RGB(minOfRGB, maxOfRGB, (h - 2 + 6) % 6),
+			r: parseInt(hex[1], 16) * 17 / 255,
+			g: parseInt(hex[2], 16) * 17 / 255,
+			b: parseInt(hex[3], 16) * 17 / 255,
+			a: 1,
+		}
+	}
+
+	// `#123456`
+	else if (hex.length === 7) {
+		return {
+			r: parseInt(hex.slice(1, 3), 16) / 255,
+			g: parseInt(hex.slice(3, 5), 16) / 255,
+			b: parseInt(hex.slice(5, 7), 16) / 255,
+			a: 1,
+		}
+	}
+
+	// `#00000000`
+	else if (hex.length === 9) {
+		let a = parseInt(hex.slice(7, 9), 16)
+
+		// 0 -> 0
+		// 128 -> 0.5
+		// 255 -> 1
+		if (a <= 128) {
+			a /= 256
+		}
+		else {
+			a = (a - 1) / 254
+		}
+
+		return {
+			r: parseInt(hex.slice(1, 3), 16) / 255,
+			g: parseInt(hex.slice(3, 5), 16) / 255,
+			b: parseInt(hex.slice(5, 7), 16) / 255,
 			a,
 		}
 	}
 
-	/** Convert Hue and RGB range to one RGB value. */
-	function hue2RGB(minOfRGB: number, maxOfRGB: number, hueDiff: number): number {
-		if (hueDiff < 1) {
-			return (maxOfRGB - minOfRGB) * hueDiff + minOfRGB
-		}
-		else if (hueDiff < 3) {
-			return maxOfRGB
-		}
-		else if (hueDiff < 4) {
-			return (maxOfRGB - minOfRGB) * (4 - hueDiff) + minOfRGB
-		}
-		else {
-			return minOfRGB
+	else {
+		return null
+	}
+}
+
+
+/** 
+ * Parse RGBA? color format like:
+ * `RGB(200, 200, 0)`, `RGBA(200, 200, 200, 0.5)`, `RGBA(#000, 0.5)`
+ */
+export function parseRGBA(str: string): RGBA | null {
+
+	// `RGB(200, 200, 0)`
+	let match = str.match(/^rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i)
+	if (match) {
+		return {
+			r: Number(match[1]) / 255,
+			g: Number(match[2]) / 255,
+			b: Number(match[3]) / 255,
+			a: 1,
 		}
 	}
 
-	/** Convert RGBA to HSLA. */
-	export function RGBA2HSLA(rgba: RGBA): HSLA {
-		let {r, g, b, a} = rgba
-		let minOfRGB = Math.min(Math.min(r, g), b)
-		let maxOfRGB = Math.max(Math.max(r, g), b)
-		let l = (minOfRGB + maxOfRGB) / 2
-	
-		let s = minOfRGB == maxOfRGB
-			? 0
-			: (maxOfRGB - minOfRGB) / (l <= 0.5 ? minOfRGB + maxOfRGB : 2 - minOfRGB - maxOfRGB)
-	
-		let h = 0
-	
-		if (s == 0) {}
-		else if (r == maxOfRGB) {
-			h = ((g - b) / (maxOfRGB - minOfRGB) + 6) % 6
-		}
-		else if (g == maxOfRGB) {
-			h = (b - r) / (maxOfRGB - minOfRGB) + 2
-		}
-		else if (b == maxOfRGB) {
-			h = (r - g) / (maxOfRGB - minOfRGB) + 4
-		}
-	
+	// `RGBA(200, 200, 200, 0.5)`
+	match = str.match(/^rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([\d.]+)\s*\)$/i)
+	if (match) {
 		return {
-			h,
-			s,
-			l,
-			a,
+			r: Number(match[1]) / 255,
+			g: Number(match[2]) / 255,
+			b: Number(match[3]) / 255,
+			a: Number(match[4]),
 		}
+	}
+
+	// `RGBA(#000, 0.5)`
+	match = str.match(/^rgba\(\s*(#[0-9a-fA-F]{3,6})\s*,\s*([\d.]+)\s*\)$/i)
+	if (match) {
+		return {...parseHEX(match[1])!, a: Number(match[2])}
+	}
+
+	return null
+}
+
+
+/** 
+ * Parse HSLA? color format like:
+ * `HSL(100, 60%, 80%)`, `HSLA(100, 60%, 80%, 0.5)`
+ */
+export function parseHSLA(str: string): HSLA | null {
+
+	// `HSL(100, 60%, 80%)`
+	let match = str.match(/^hsl\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*\)$/i)
+	if (match) {
+		return {
+			h: Number(match[1]) / 60,
+			s: Number(match[2]) / 100,
+			l: Number(match[3]) / 100,
+			a: 1,
+		}
+	}
+
+	// `HSLA(100, 60%, 80%, 0.5)`
+	match = str.match(/^hsla\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*,\s*([\d.]+)\s*\)$/i)
+	if (match) {
+		return {
+			h: Number(match[1]) / 60,
+			s: Number(match[2]) / 100,
+			l: Number(match[3]) / 100,
+			a: Number(match[4]),
+		}
+	}
+
+	return null
+
+}
+
+/** Convert HSLA to RGBA. */
+export function HSLA2RGBA(hsla: HSLA): RGBA {
+	let {h, s, l, a} = hsla
+	let maxOfRGB = l <= 0.5 ? l * (s + 1) : l + s - (l * s)
+	let minOfRGB = l * 2 - maxOfRGB
+	
+	return {
+		r: hue2RGB(minOfRGB, maxOfRGB, (h + 2) % 6),
+		g: hue2RGB(minOfRGB, maxOfRGB, h),
+		b: hue2RGB(minOfRGB, maxOfRGB, (h - 2 + 6) % 6),
+		a,
+	}
+}
+
+/** Convert Hue and RGB range to one RGB value. */
+function hue2RGB(minOfRGB: number, maxOfRGB: number, hueDiff: number): number {
+	if (hueDiff < 1) {
+		return (maxOfRGB - minOfRGB) * hueDiff + minOfRGB
+	}
+	else if (hueDiff < 3) {
+		return maxOfRGB
+	}
+	else if (hueDiff < 4) {
+		return (maxOfRGB - minOfRGB) * (4 - hueDiff) + minOfRGB
+	}
+	else {
+		return minOfRGB
+	}
+}
+
+/** Convert RGBA to HSLA. */
+export function RGBA2HSLA(rgba: RGBA): HSLA {
+	let {r, g, b, a} = rgba
+	let minOfRGB = Math.min(Math.min(r, g), b)
+	let maxOfRGB = Math.max(Math.max(r, g), b)
+	let l = (minOfRGB + maxOfRGB) / 2
+
+	let s = minOfRGB == maxOfRGB
+		? 0
+		: (maxOfRGB - minOfRGB) / (l <= 0.5 ? minOfRGB + maxOfRGB : 2 - minOfRGB - maxOfRGB)
+
+	let h = 0
+
+	if (s == 0) {}
+	else if (r == maxOfRGB) {
+		h = ((g - b) / (maxOfRGB - minOfRGB) + 6) % 6
+	}
+	else if (g == maxOfRGB) {
+		h = (b - r) / (maxOfRGB - minOfRGB) + 2
+	}
+	else if (b == maxOfRGB) {
+		h = (r - g) / (maxOfRGB - minOfRGB) + 4
+	}
+
+	return {
+		h,
+		s,
+		l,
+		a,
 	}
 }

@@ -31,22 +31,22 @@ describe('Test observable', () => {
 		reCapture()
 		a.key.b = 2
 		DependencyTracker.onSet(a.key, 'b')
-		expect(a.update).toBeCalledTimes(2)
+		expect(a.update).toHaveBeenCalledTimes(2)
 
 		reCapture()
 		a.key.c = [2]
 		DependencyTracker.onSet(a.key, 'c')
-		expect(a.update).toBeCalledTimes(3)
+		expect(a.update).toHaveBeenCalledTimes(3)
 
 		reCapture()
 		a.key.c[0] = 3
 		DependencyTracker.onSet(a.key.c)
-		expect(a.update).toBeCalledTimes(4)
+		expect(a.update).toHaveBeenCalledTimes(4)
 
 		reCapture()
 		a.key.c.push(3)
 		DependencyTracker.onSet(a.key.c)
-		expect(a.update).toBeCalledTimes(5)
+		expect(a.update).toHaveBeenCalledTimes(5)
 	})
 
 	
@@ -68,23 +68,23 @@ describe('Test observable', () => {
 
 		reCapture()
 		a.b = 2
-		expect(update).toBeCalledTimes(1)
+		expect(update).toHaveBeenCalledTimes(1)
 
 		reCapture()
 		a.b = 2
-		expect(update).toBeCalledTimes(1)
+		expect(update).toHaveBeenCalledTimes(1)
 
 		reCapture()
 		a.c = [2]
-		expect(update).toBeCalledTimes(2)
+		expect(update).toHaveBeenCalledTimes(2)
 
 		reCapture()
 		a.c[0] = 3
-		expect(update).toBeCalledTimes(3)
+		expect(update).toHaveBeenCalledTimes(3)
 
 		reCapture()
 		a.c.push(3)
-		expect(update).toBeCalledTimes(4)
+		expect(update).toHaveBeenCalledTimes(4)
 	})
 
 
@@ -105,19 +105,19 @@ describe('Test observable', () => {
 	// 	Watcher.watch(() => {a.b, a.c[0]}, update)
 
 	// 	a.b = 2
-	// 	expect(update).toBeCalledTimes(1)
+	// 	expect(update).toHaveBeenCalledTimes(1)
 
 	// 	a.b = 2
-	// 	expect(update).toBeCalledTimes(1)
+	// 	expect(update).toHaveBeenCalledTimes(1)
 
 	// 	a.c = [2]
-	// 	expect(update).toBeCalledTimes(2)
+	// 	expect(update).toHaveBeenCalledTimes(2)
 
 	// 	a.c[0] = 3
-	// 	expect(update).toBeCalledTimes(3)
+	// 	expect(update).toHaveBeenCalledTimes(3)
 
 	// 	a.c.push(3)
-	// 	expect(update).toBeCalledTimes(4)
+	// 	expect(update).toHaveBeenCalledTimes(4)
 	// })
 
 

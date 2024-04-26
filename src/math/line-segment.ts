@@ -61,7 +61,7 @@ export class LineSegment {
 
 /** 
  * Do intersection test with line segments or radial lines.
- * If 
+ * It expands line segments or radial lines and do intersection test.
  */
 export function normalIntersect(pv1: {point: Point, vector: Vector}, pv2: {point: Point, vector: Vector}): LineIntersection | null {
 	let a = pv1.point

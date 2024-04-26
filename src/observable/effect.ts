@@ -1,5 +1,5 @@
-import {DependencyTracker} from './dependency-tracker'
-import {UpdateQueue} from './update-queue'
+import * as DependencyTracker from './dependency-tracker'
+import * as UpdateQueue from './update-queue'
 
 
 /** 

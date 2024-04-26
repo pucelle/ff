@@ -1,4 +1,4 @@
-import {MathUtils} from './math-utils'
+import * as MathUtils from './math-utils'
 import {Matrix} from './matrix'
 import {Vector} from './vector'
 

@@ -1,5 +1,5 @@
 import {TaskQueue, TaskQueueState} from '../../src/tools/task-queue'
-import {TimeUtils} from '../../src/utils'
+import {sleep} from '../../src/utils'
 
 
 describe('Test queue', () => {
@@ -8,14 +8,14 @@ describe('Test queue', () => {
 	test('each', async () => {
 		let fn = jest.fn()
 		await TaskQueue.each(a, fn, 2)
-		expect(fn).toBeCalledTimes(a.length)
+		expect(fn).toHaveBeenCalledTimes(a.length)
 		expect(fn.mock.calls).toEqual(a.map(i => [i]))
 	})
 
 	test('map', async () => {
-		let fn = jest.fn(async (i) => {await TimeUtils.sleep(); return i})
+		let fn = jest.fn(async (i) => {await sleep(); return i})
 		let values = await TaskQueue.map(a, fn, 2)
-		expect(fn).toBeCalledTimes(a.length)
+		expect(fn).toHaveBeenCalledTimes(a.length)
 		expect(fn.mock.calls).toEqual(a.map(i => [i]))
 		expect(values).toEqual(a)
 	})
@@ -56,7 +56,7 @@ describe('Test queue', () => {
 		expect(q.start()).toEqual(true)
 		expect(q.state).toEqual(TaskQueueState.Running)
 
-		await TimeUtils.sleep(10)
+		await sleep(10)
 		expect(q.state).toEqual(TaskQueueState.Finished)
 	})
 
@@ -68,7 +68,7 @@ describe('Test queue', () => {
 		})
 
 		q.start()
-		await TimeUtils.sleep(10)
+		await sleep(10)
 		expect(q.state).toEqual(TaskQueueState.Finished)
 	})
 
@@ -82,7 +82,7 @@ describe('Test queue', () => {
 		q.start()
 		expect(q.pause()).toEqual(true)
 		expect(q.pause()).toEqual(false)
-		await TimeUtils.sleep(10)
+		await sleep(10)
 		expect(q.resume()).toEqual(true)
 		expect(q.resume()).toEqual(false)
 
@@ -115,7 +115,7 @@ describe('Test queue', () => {
 			data: a,
 			handler: () => {
 				return {
-					promise: TimeUtils.sleep(),
+					promise: sleep(),
 					abort
 				}
 			}
@@ -123,7 +123,7 @@ describe('Test queue', () => {
 
 		q.start()
 		expect(q.abort()).toEqual(true)
-		expect(abort).toBeCalledTimes(2)
+		expect(abort).toHaveBeenCalledTimes(2)
 	})
 
 	test('retry', async () => {
@@ -138,7 +138,7 @@ describe('Test queue', () => {
 		expect(q.retry()).toEqual(true)
 		expect(q.totalCount).toEqual(a.length)
 		expect(q.failedCount).toEqual(0)
-		await TimeUtils.sleep(10)
+		await sleep(10)
 		expect(q.state).toEqual(TaskQueueState.Finished)
 	})
 
@@ -155,7 +155,7 @@ describe('Test queue', () => {
 		})
 
 		q.start()
-		await TimeUtils.sleep(10)
+		await sleep(10)
 		q.clear()
 		expect(q.failedCount).toEqual(0)
 		expect(q.totalCount).toEqual(0)
@@ -169,14 +169,14 @@ describe('Test queue', () => {
 		})
 
 		q.start()
-		await TimeUtils.sleep(10)
+		await sleep(10)
 
 		expect(q.state).toEqual(TaskQueueState.Finished)
 		q.push(10)
 		q.start()
 		expect(q.state).toEqual(TaskQueueState.Running)
 
-		await TimeUtils.sleep(10)
+		await sleep(10)
 		expect(q.state).toEqual(TaskQueueState.Finished)
 		q.unshift(10)
 		q.start()
@@ -200,7 +200,7 @@ describe('Test queue', () => {
 		expect(q.remove(4)).toEqual([4])
 		expect(q.find(n => n === 10)).toEqual(undefined)
 		expect(q.remove(10)).toEqual([])
-		await TimeUtils.sleep(10)
+		await sleep(10)
 
 		expect(q.find(n => n === 6)).toEqual(6)
 		expect(q.remove(6)).toEqual([6])
@@ -221,7 +221,7 @@ describe('Test queue', () => {
 		q.start()
 		expect(q.removeWhere(n => n === 4)).toEqual([4])
 		expect(q.removeWhere(n => n === 10)).toEqual([])
-		await TimeUtils.sleep(10)
+		await sleep(10)
 		
 		expect(q.removeWhere(n => n === 6)).toEqual([6])
 	})
@@ -256,7 +256,7 @@ describe('Test queue', () => {
 		expect(q.unprocessedTaskData).toEqual([6,7,8,9])
 
 		q.resume()
-		await TimeUtils.sleep(10)
+		await sleep(10)
 
 		expect(q.totalCount).toEqual(a.length)
 		expect(q.failedCount).toEqual(1)
@@ -277,7 +277,7 @@ describe('Test queue', () => {
 		})
 		
 		q.start()
-		await TimeUtils.sleep(10)
+		await sleep(10)
 		expect(q.state).toEqual(TaskQueueState.Aborted)
 		expect(q.start()).toEqual(true)
 	})
@@ -299,7 +299,7 @@ describe('Test queue', () => {
 		})
 		
 		q.start()
-		await TimeUtils.sleep(10)
+		await sleep(10)
 		expect(retried).toEqual(5)
 		expect(q.state).toEqual(TaskQueueState.Finished)
 		expect(q.totalCount).toEqual(a.length)

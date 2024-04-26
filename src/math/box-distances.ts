@@ -2,7 +2,7 @@ import {Direction} from './direction'
 
 
 /** All 4 box edge distance keys. */
-export const BoxDistanceKeys: BoxDistanceKey[] = ['top', 'right', 'bottom', 'left']
+const BoxDistanceKeys: BoxDistanceKey[] = ['top', 'right', 'bottom', 'left']
 
 
 /** Represents a box edge distances object, which including top, right, bottom, left values. */

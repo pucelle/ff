@@ -16,7 +16,7 @@ test('Test EventFirer', () => {
 	expect(e.hasListener('name', fn, {})).toEqual(false)
 
 	e.fire('name')
-	expect(fn).toBeCalledTimes(1)
+	expect(fn).toHaveBeenCalledTimes(1)
 	e.off('name', fn)
 
 	expect(e.hasListenerType('name')).toEqual(false)
@@ -32,7 +32,7 @@ test('Test EventFirer', () => {
 
 	e.once('name_2', fn, scope)
 	e.fire('name_2')
-	expect(fn).toBeCalledTimes(2)
+	expect(fn).toHaveBeenCalledTimes(2)
 
 	expect(e.hasListenerType('name_2')).toEqual(false)
 	expect(e.hasListener('name_2', fn)).toEqual(false)

@@ -1,4 +1,4 @@
-import {DependencyTracker} from './dependency-tracker'
+import * as DependencyTracker from './dependency-tracker'
 
 
 /** 

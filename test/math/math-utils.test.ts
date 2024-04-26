@@ -1,4 +1,4 @@
-import {MathUtils} from '../../src/math/math-utils'
+import {MathUtils} from '../../src/math'
 import {NumberUtils} from '../../src/utils'
 
 

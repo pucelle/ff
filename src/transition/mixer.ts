@@ -44,7 +44,7 @@ export function makeMixer<T extends TransitionableValue>(fromValue: T, toValue: 
 
 	// Not mixable.
 	else {
-		throw new Error(`"${fromValue}" and "${toValue}" are not mixable!`)
+		throw new Error(`"${fromValue}" is not mixable with "${toValue}"!`)
 	}
 }
 

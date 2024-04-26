@@ -1,4 +1,4 @@
-import {DependencyTracker} from './dependency-tracker'
+import * as DependencyTracker from './dependency-tracker'
 
 
 type Proxied<T> = T extends object ? T & {ProxySymbol: T} : T

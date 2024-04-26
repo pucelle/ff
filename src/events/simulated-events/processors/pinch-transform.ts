@@ -1,5 +1,5 @@
 import {Matrix, Point} from '../../../math'
-import {DOMEvents} from '../../dom-events'
+import * as DOMEvents from '../../dom-events'
 import {EventFirer} from '../../event-firer'
 
 

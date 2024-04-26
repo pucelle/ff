@@ -1,4 +1,4 @@
-import {ListUtils, ObjectUtils, TimeUtils} from '../utils'
+import {ListUtils, ObjectUtils, sleep} from '../utils'
 import {EventFirer} from '../events'
 
 
@@ -416,7 +416,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 			this.fire('taskfinished', task.item, value)
 
 			if (this.delayMs > 0) {
-				await TimeUtils.sleep(this.delayMs)
+				await sleep(this.delayMs)
 			}
 
 			this.tryNextTask()

@@ -1,6 +1,6 @@
 import {Vector} from '../../../math'
 import {Timeout} from '../../../utils'
-import {DOMEvents} from '../../dom-events'
+import * as DOMEvents from '../../dom-events'
 import {EventFirer} from '../../event-firer'
 import {SimulatedEventsConfiguration} from '../simulated-events-configuration'
 
