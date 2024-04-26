@@ -292,13 +292,13 @@ export class Matrix2 {
 	}
 
 	/** Multiply with a Vector and returns the transformed vector. */
-	transformVector(v: Vector): Vector {
+	transformVector(vector: Coord): Vector {
 		let [
 			n11, n21,
 			n12, n22,
 		] = this.data
 
-		let {x, y} = v
+		let {x, y} = vector
 
 		return new Vector(
 			n11 * x + n12 * y,

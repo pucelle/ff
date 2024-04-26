@@ -12,7 +12,7 @@ export class Matrix implements MatrixData {
 	/** Constant Identity Matrix. */
 	static I: Readonly<Matrix> = Object.freeze(Matrix.i())
 
-	/** Returns a Identity Matrix. */
+	/** Returns a new Identity Matrix. */
 	static i(): Matrix {
 		return new Matrix(1, 0, 0, 1, 0, 0)
 	}
@@ -579,7 +579,7 @@ export class Matrix implements MatrixData {
 	}
 
 	/** Transform a point to get a new one. */
-	transformPoint(point: Point): Point {
+	transformPoint(point: Coord): Point {
 		let {a, b, c, d, e, f} = this
 		let {x, y} = point
 
@@ -590,7 +590,7 @@ export class Matrix implements MatrixData {
 	}
 
 	/** Transform a vector to get a new one. */
-	transformVector(vector: Vector): Vector {
+	transformVector(vector: Coord): Vector {
 		let {a, b, c, d} = this
 		let {x, y} = vector
 
@@ -601,11 +601,11 @@ export class Matrix implements MatrixData {
 	}
 	
 	/** Transform a box to get a new one. */
-	transformBox(box: Box): Box {
+	transformBox(box: BoxLike): Box {
 		let p1 = new Point(box.x, box.y).transformSelf(this)
-		let p2 = new Point(box.right, box.y).transformSelf(this)
-		let p3 = new Point(box.x, box.bottom).transformSelf(this)
-		let p4 = new Point(box.right, box.bottom).transformSelf(this)
+		let p2 = new Point(box.x + box.width, box.y).transformSelf(this)
+		let p3 = new Point(box.x, box.y + box.height).transformSelf(this)
+		let p4 = new Point(box.x + box.width, box.y + box.height).transformSelf(this)
 		
 		return Box.fromCoords(p1, p2, p3, p4)!
 	}
