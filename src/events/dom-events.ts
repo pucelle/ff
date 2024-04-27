@@ -90,13 +90,11 @@ export function toSingle(e: MouseEvent | TouchEvent): MouseEvent | Touch | null 
 
 
 /** 
- * Get the event happened position in screen origin.
- * The **screen** is not the whole screen device pixels,
- * but the screen of your browser's content area.
- * 
- * Compare with **page**, **screen** origin is not affected by page scrolling. 
+ * Get the event happened position in client origin.
+ * The `client` represents your browser's viewport area.
+ * Compare with `page`, `client` origin is not affected by page scrolling. 
  */
-export function getScreenPosition(e: MouseEvent | TouchEvent): Point {
+export function getClientPosition(e: MouseEvent | TouchEvent): Point {
 	let eventItem = toSingle(e)
 
 	return eventItem
@@ -107,7 +105,7 @@ export function getScreenPosition(e: MouseEvent | TouchEvent): Point {
 
 /** 
  * Get the event happened position in page origin.
- * Compare with **screen**, **page** origin is affected by page scrolling. 
+ * Compare with `client` origin, `page` origin is affected by page scrolling. 
  */
 export function getPagePosition(e: MouseEvent | TouchEvent): Point {
 	let eventItem = toSingle(e)

@@ -74,7 +74,7 @@ export function watchImmediately<T>(
 		UpdateQueue.enqueue(update)
 	}
 
-	onChange()
+	update()
 
 	return function() {
 		DependencyTracker.untrack(onChange)

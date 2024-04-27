@@ -21,12 +21,12 @@ const EventConstructors: Record<string, {new(el: EventTarget): EventProcessor}> 
 
 /** Can help to process complex simulated events. */
 
-/** Simulated event types. */
-export type Events = HoldEvents & DoubleTapEvents & PinchTransformEvents & PinchZoomEvents & TapEvents & SlideEvents
+/** Simulated events and types. */
+type Events = HoldEvents & DoubleTapEvents & PinchTransformEvents & PinchZoomEvents & TapEvents & SlideEvents
 type EventType = keyof Events & string
 
 
-/** Configations. */
+/** Simulated event configations. */
 export const Configuration = SimulatedEventsConfiguration
 
 /** Shared Processors. */

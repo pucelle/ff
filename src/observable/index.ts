@@ -1,6 +1,6 @@
 export * from './decorators-for-compiler'
 export * from './effect'
-export * from './proxy'
+export * from './proxy-of'
 export * from './compute'
 export * from './barrier-queue'
 

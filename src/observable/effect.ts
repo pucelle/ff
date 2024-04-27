@@ -3,7 +3,7 @@ import * as UpdateQueue from './update-queue'
 
 
 /** 
- * Execute `fn`, and if any depedency it used get changed, re-execute `fn`.
+ * Execute `fn` immediately, and if any depedency it used get changed, re-execute `fn`.
  * Note `fn` can only be called once in a event loop.
  */
 export function createEffect(fn: () => void): () => void {
@@ -15,7 +15,7 @@ export function createEffect(fn: () => void): () => void {
 		UpdateQueue.enqueue(update)
 	}
 
-	DependencyTracker.trackExecutionOf(fn, onChange)
+	update()
 
 	return function() {
 		DependencyTracker.untrack(onChange)

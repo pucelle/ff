@@ -8,6 +8,7 @@ describe('Test Box', () => {
 		expect(Box.fromUnion(new Box(0, 0, 10, 10), new Box(10, 10, 10, 10))).toEqual(new Box(0, 0, 20, 20))
 	})
 
+	
 	test('Box properties', () => {
 		let b = new Box(0, 0, 10, 10)
 		expect(b.left).toEqual(0)

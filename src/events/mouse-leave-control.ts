@@ -15,7 +15,7 @@ export interface MouseLeaveControlOptions {
 
 	/** 
 	 * When already knows that mouse is inside any of current elements, set this to `true`.
-	 * E.g., show popup immediately, only need to hide popup after capturing mouse leave.
+	 * E.g., when need to show popup immediately, only need to hide popup after mouse leave.
 	 */
 	mouseIn?: boolean
 }
@@ -69,7 +69,7 @@ function clearDisconnected() {
 		Locks.deleteRight(element)
 
 		// `controller` has no lock associated now, finish it.
-		controller.finishLeave()
+		controller.finish()
 	}
 
 	// Continue to clear later if still has locks existed.
@@ -80,7 +80,7 @@ function clearDisconnected() {
 
 
 /** Lock controllers by a trigger element, makesure it can't be hidden. */
-export function lockBy(triggerEl: Element) {
+function lockBy(triggerEl: Element) {
 	let lockChanged = false
 
 	while (true) {
@@ -113,14 +113,14 @@ export function lockBy(triggerEl: Element) {
 
 
 /** Release the lock of controllers by a trigger element, make it can be hidden now. */
-export function unlockBy(triggerEl: Element) {
+function unlockBy(triggerEl: Element) {
 	while (true) {
 		let controller = Locks.getByRight(triggerEl)
 		if (!controller) {
 			break
 		}
 
-		controller.finishLeave()
+		controller.finish()
 		Locks.deleteLeft(controller)
 
 		// Unlock next in sequence.
@@ -229,13 +229,15 @@ class MouseLeaveController {
 
 		// May locks get changed, so should validate again.
 		if (!Locks.hasLeft(this)) {
-			this.finishLeave()
+			this.finish()
 		}
 	}
 
 	/** Finish leave by calling leave callback. */
-	finishLeave() {
+	finish() {
 		this.callback()
+		
+		unlockBy(this.trigger)
 		LiveControllers.delete(this)
 	}
 

@@ -1,6 +1,14 @@
 import {MiniHeap} from '../structs'
 
 
+/** State of BarrierQueue. */
+enum BarrierQueueState {
+	Pending,
+	WillResolve,
+	Resolving,
+}
+
+
 /** 
  * `enqueue` to request with a `step` parameter and get a promise.
  * Later same stepped promises will be resolved one time,
@@ -11,8 +19,11 @@ export class BarrierQueue {
 	/** Caches step -> resolve function list. */
 	private map: Map<number, {promise: Promise<void>, resolve: Function}> = new Map()
 
-	/** Dynamically inserting items and order them to get the minimum one. */
+	/** Can dynamically insert items and order them to get the minimum one. */
 	private heap: MiniHeap<number>
+
+	/** Current state. */
+	private state: BarrierQueueState = BarrierQueueState.Pending
 
 	constructor() {
 		this.heap = new MiniHeap(function(a, b) {
@@ -43,18 +54,37 @@ export class BarrierQueue {
 		})
 
 		this.heap.add(step)
+		this.willResolve()
 
 		return promise
 	}
 
-	/** Resolves all barriers order by step. */
+	/** Ensure will resolve in the next micro task. */
+	private async willResolve() {
+		if (this.state === BarrierQueueState.Pending) {
+			this.state = BarrierQueueState.WillResolve
+			
+			await Promise.resolve()
+			this.resolve()
+		}
+	}
+
+	/** Resolves all barriers in the order of barrier step. */
 	async resolve() {
+		if (this.state !== BarrierQueueState.WillResolve) {
+			return
+		}
+
+		this.state = BarrierQueueState.Resolving
+
 		while (!this.isEmpty()) {
 			await this.resolveLatestStep()
 
 			// Wait for more next stepped barriers come.
 			await Promise.resolve()
 		}
+
+		this.state = BarrierQueueState.Pending
 	}
 
 	/** Resolves latest stepped barrier. */

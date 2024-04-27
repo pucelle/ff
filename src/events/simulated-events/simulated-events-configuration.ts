@@ -15,6 +15,6 @@ export const SimulatedEventsConfiguration = {
 	/** If duration longer, will not be recognized as sliding. */
 	maximumSlideDuration: 1000,
 
-	/** The minimum angle from a direction to be recognized as sliding in this direction. */
+	/** The minimum angle from a direction can be recognized as sliding in this direction. */
 	minimumSlideAngle: 30,
 }
