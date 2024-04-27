@@ -1,7 +1,7 @@
-import {DurationObject} from '../../src/utils/duration'
+import {DurationObject} from '../../src/utils/duration-object'
 
 
-describe('Test duration', () => {
+describe('Test DurationObject', () => {
 	test('fromString', () => {
 		expect(DurationObject.fromString('1y1M1d').data).toEqual({y:1, d:1, M:1, h:0, m:0, s:0})
 		expect(DurationObject.fromString('1h1m1s').data).toEqual({y:0, d:0, M:0, h:1, m:1, s:1})

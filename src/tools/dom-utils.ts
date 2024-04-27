@@ -69,7 +69,7 @@ export function getStyleValue(el: Element, propertyName: StylePropertyName): str
  * Get computed style value from an element, and convert it to a number.
  * Note that this method may cause reflow.
  */
-export function getStyleValueAsNumber(el: Element, property: StylePropertyName): number {
+export function getNumericStyleValue(el: Element, property: StylePropertyName): number {
 	let value = getStyleValue(el, property)
 	return value ? parseFloat(value) || 0 : 0
 }
@@ -82,7 +82,7 @@ export function getStyleValueAsNumber(el: Element, property: StylePropertyName):
 export function getInnerWidth(el: Element): number {
 	let w = el.clientWidth
 	if (w) {
-		return el.clientWidth - getStyleValueAsNumber(el, 'paddingLeft') - getStyleValueAsNumber(el, 'paddingRight')
+		return el.clientWidth - getNumericStyleValue(el, 'paddingLeft') - getNumericStyleValue(el, 'paddingRight')
 	}
 	else {
 		return 0
@@ -96,7 +96,7 @@ export function getInnerWidth(el: Element): number {
 export function getInnerHeight(el: Element): number {
 	let h = el.clientHeight
 	if (h) {
-		return h - getStyleValueAsNumber(el, 'paddingTop') - getStyleValueAsNumber(el, 'paddingBottom')
+		return h - getNumericStyleValue(el, 'paddingTop') - getNumericStyleValue(el, 'paddingBottom')
 	}
 	else {
 		return 0
@@ -119,7 +119,7 @@ export function getInnerSize(el: Element): Size {
 export function getOuterWidth(el: HTMLElement) {
 	let w = el.offsetWidth
 	if (w) {
-		return w + getStyleValueAsNumber(el, 'marginLeft') + getStyleValueAsNumber(el, 'marginRight')
+		return w + getNumericStyleValue(el, 'marginLeft') + getNumericStyleValue(el, 'marginRight')
 	}
 	else {
 		return 0
@@ -133,7 +133,7 @@ export function getOuterWidth(el: HTMLElement) {
 export function getOuterHeight(el: HTMLElement) {
 	let h = el.offsetHeight
 	if (h) {
-		return h + getStyleValueAsNumber(el, 'marginTop') + getStyleValueAsNumber(el, 'marginBottom')
+		return h + getNumericStyleValue(el, 'marginTop') + getNumericStyleValue(el, 'marginBottom')
 	}
 	else {
 		return 0

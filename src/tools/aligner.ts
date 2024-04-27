@@ -614,7 +614,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 				transforms.push(`translateX(${translateX}px)`)
 			}
 			else {
-				x -= DOMUtils.getStyleValueAsNumber(this.toAlign, 'borderLeftWidth')
+				x -= DOMUtils.getNumericStyleValue(this.toAlign, 'borderLeftWidth')
 				triangle.style.left = x + 'px'
 			}
 
@@ -655,7 +655,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 				transforms.push(`translateY(${translateY}px)`)
 			}
 			else if (!this.fixTriangle) {
-				y -= DOMUtils.getStyleValueAsNumber(this.toAlign, 'borderTopWidth')
+				y -= DOMUtils.getNumericStyleValue(this.toAlign, 'borderTopWidth')
 				triangle.style.top = y + 'px'
 			}
 

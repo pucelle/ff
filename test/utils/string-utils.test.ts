@@ -1,7 +1,7 @@
 import * as StringUtils from '../../src/utils/string-utils'
 
 
-describe('Test string', () => {
+describe('Test StringUtils', () => {
 	
 	test('format', () => {
 		expect(StringUtils.format('a{0}{1}d', ['b','c'])).toEqual('abcd')

@@ -2,7 +2,7 @@ import * as ListUtils from '../../src/utils/list-utils'
 import * as ObjectUtils from '../../src/utils/object-utils'
 
 
-describe('Test list', () => {
+describe('Test ListUtils', () => {
 	test('repeatForTimes', () => {
 		expect(ListUtils.repeatForTimes(1, 3)).toEqual([1,1,1])
 		expect(ListUtils.repeatForTimes('a', 3)).toEqual(['a', 'a', 'a'])

@@ -1,7 +1,7 @@
 import * as DateUtils from '../../src/utils/date-utils'
 
 
-describe('Test date', () => {
+describe('Test DateUtils', () => {
 	let d = new Date()
 
 	test('getValue', () => {

@@ -3,7 +3,7 @@ module.exports = {
 	transform: {
 		"^.+\\.tsx?$": ["ts-jest", {}],
 	},
-	testEnvironment: "node",
+	testEnvironment: "jsdom",
 	testMatch: [
 		"**/test/**/*.test.ts"
 	],

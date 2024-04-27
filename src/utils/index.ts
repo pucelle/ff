@@ -1,4 +1,4 @@
-export * from './duration'
+export * from './duration-object'
 export * from './function'
 export * from './mixin'
 export * from './time-control'

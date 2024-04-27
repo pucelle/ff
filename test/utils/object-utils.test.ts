@@ -2,7 +2,7 @@ import * as ObjectUtils from '../../src/utils/object-utils'
 import {Vector} from '../../src/math/vector'
 
 
-describe('Test object', () => {
+describe('Test ObjectUtils', () => {
 	let a = {a: 1, b: "2", c: false, d: [3, {d: 4}], e: {f: 4}}
 	let b = JSON.parse(JSON.stringify(a))
 

@@ -1,7 +1,7 @@
 import * as NumberUtils from '../../src/utils/number-utils'
 
 
-describe('Test number', () => {
+describe('Test NumberUtils', () => {
 	test('toDecimal', () => {
 		expect(NumberUtils.toDecimal(123.456, 0)).toEqual(123)
 		expect(NumberUtils.toDecimal(123.456, 2)).toEqual(123.46)

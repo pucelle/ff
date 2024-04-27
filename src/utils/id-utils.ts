@@ -16,7 +16,16 @@ export function shortUid(length: number = 12): string {
 
 /** Create a global-unique id, 36 chars long. */
 export function guid(): string {
-	return (crypto as any).randomUUID()
+	return crypto.randomUUID?.()
+
+	// Reference from https://stackoverflow.com/a/2117523/2800218
+	|| '10000000-1000-4000-8000-100000000000'.replace(
+		/[018]/g,
+		function(c: string) {
+			let n = Number(c)
+			return (n ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> n / 4).toString(16)
+		}
+	)
 }
 
 

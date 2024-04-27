@@ -1,7 +1,7 @@
 import * as ValueListUtils from '../../src/utils/value-list-utils'
 
 
-describe('Test value-list', () => {
+describe('Test ValueListUtils', () => {
 	test('unique', () => {
 		expect(ValueListUtils.unique([1,2,3,3])).toEqual([1,2,3])
 	})

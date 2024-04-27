@@ -1,1 +1,1 @@
-export * from './simulated-events'
+export * as SimulatedEvents from './simulated-events'

@@ -1,4 +1,4 @@
-import {range} from '../../src/utils/function'
+import {range, sleep} from '../../src/utils/function'
 
 
 describe('Test range', () => {
@@ -17,5 +17,15 @@ describe('Test range', () => {
 
 	test('range step 0', () => {
 		expect(() => [...range(0, 1, 0)]).toThrow(RangeError)
+	})
+
+	test('sleep', async () => {
+		let startTime = Date.now()
+		await sleep()
+		expect(Date.now() - startTime).toBeLessThan(50)
+
+		startTime = Date.now()
+		await sleep(100)
+		expect(Date.now() - startTime - 100).toBeLessThan(50)
 	})
 })

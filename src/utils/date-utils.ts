@@ -1,7 +1,7 @@
-import {DurationUnits, DurationObject} from './duration'
+import {DurationUnits, DurationObject} from './duration-object'
 
 
-/** Get one of the date values by specified `unit`. */
+/** Get one of the date values from a date object by specified `unit`. */
 export function getValue(date: Date, unit: DurationUnit): number {
 	switch (unit) {
 		case 'y':
@@ -28,7 +28,10 @@ export function getValue(date: Date, unit: DurationUnit): number {
 }
 
 
-/** Set one of date values by specified `unit`. */
+/** 
+ * Set one of date values of a date by specified `unit`.
+ * Returns the time offset in milliseconds since January 1, 1970 UTC.
+ */
 export function setValue(date: Date, value: number, unit: DurationUnit): number {
 	switch (unit) {
 		case 'y':
@@ -56,7 +59,7 @@ export function setValue(date: Date, value: number, unit: DurationUnit): number 
 
 
 /**
- * Whether date values from year to second are associated with a real date.
+ * Check whether date values from year to second are associated with a real date.
  * `y` is the Year count.
  * `M` is the Month count.
  * `d` is the Date count, note it starts from `1`, not `0`.
@@ -76,7 +79,7 @@ export function isValid(y: number, M: number, d: number = 1, h: number = 0, m: n
 }
 
 
-/** Whether year part of `date` is leap year, and contains 366 days. */
+/** Whether year part of `date` is a leap year, and contains 366 days. */
 export function isLeapYear(date: Date): boolean {
 	let year = date.getFullYear()
 	return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)
