@@ -1,5 +1,5 @@
 import {EventFirer} from '../events'
-import {CallbackBundler} from './bundler'
+import {EmptyBundler} from './bundler'
 import {webStorage} from './storage'
 
 
@@ -72,7 +72,7 @@ export class Settings<O extends object> extends EventFirer<SettingsEvents<O>> {
 export class StorableSettings<O extends object> extends Settings<O> {
 
 	protected readonly storageKey: string
-	protected saveBoundler: CallbackBundler
+	protected saveBoundler: EmptyBundler
 
 	constructor(storageKey: string, defaultData: O) {
 		if (!storageKey) {
@@ -82,7 +82,7 @@ export class StorableSettings<O extends object> extends Settings<O> {
 		super(webStorage.get(storageKey, {}), defaultData)
 
 		this.storageKey = storageKey
-		this.saveBoundler = new CallbackBundler(this.saveStorageData.bind(this))
+		this.saveBoundler = new EmptyBundler(this.saveStorageData.bind(this))
 		this.initEvents()
 	}
 

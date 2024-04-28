@@ -6,6 +6,10 @@ export interface DBStoreOptions {
 }
 
 
+/** Cached whether supported. */
+let cachedSupported: boolean | null = null
+
+
 /** Cache data using `indexedDB`. */
 export class DBStorage {
 
@@ -24,8 +28,6 @@ export class DBStorage {
 	/** Opening Database promise. */
 	private openPromise: Promise<IDBDatabase> | null = null
 
-	private cachedSupported: boolean | null = null
-
 	constructor(name: string, version: number, storeOptions: DBStoreOptions[]) {
 		this.name = name
 		this.version = version
@@ -34,8 +36,8 @@ export class DBStorage {
 
 	/** Check whether supported indexedDB. */
 	async isSupported(): Promise<boolean> {
-		if (this.cachedSupported !== null) {
-			return this.cachedSupported
+		if (cachedSupported !== null) {
+			return cachedSupported
 		}
 
 		if (!window.indexedDB) {
@@ -44,10 +46,10 @@ export class DBStorage {
 
 		try {
 			await this.getDB()
-			return this.cachedSupported = true
+			return cachedSupported = true
 		}
 		catch (err) {
-			return this.cachedSupported = false
+			return cachedSupported = false
 		}
 	}
 

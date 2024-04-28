@@ -7,7 +7,7 @@ export type StylePropertyName = string & keyof CSSStyleDeclaration
 
 /** 
  * Whether `node` is before of or contains `compareNode`.
- * `canEqual` specifies whether two nodes can be equal.
+ * `canEqual` specifies whether two nodes can be equivalent.
  */
 export function isNodeBefore(node: Node, compareNode: Node, canEqual: boolean = false): boolean {
 	let result = compareNode.compareDocumentPosition(node)
@@ -17,7 +17,7 @@ export function isNodeBefore(node: Node, compareNode: Node, canEqual: boolean = 
 
 /** 
  * Whether `node` is after of or been contained by `compareNode`.
- * `canEqual` specifies whether two nodes can be equal.
+ * `canEqual` specifies whether two nodes can be equivalent.
  */
 export function isNodeAfter(node: Node, compareNode: Node, canEqual: boolean = false): boolean {
 	let result = compareNode.compareDocumentPosition(node)
@@ -25,7 +25,10 @@ export function isNodeAfter(node: Node, compareNode: Node, canEqual: boolean = f
 }
 
 
-/** Get index of node among it's node siblings. */
+/** 
+ * Get index of node among it's node siblings.
+ * Note this method will iterate sibling nodes.
+ */
 export function nodeIndexOf(node: Node): number {
 	if (!node.parentNode) {
 		return -1
@@ -61,8 +64,16 @@ export function elementIndexOf(el: Element): number {
  * Get computed style value from an element.
  * Note that this method may cause reflow.
  */
-export function getStyleValue(el: Element, propertyName: StylePropertyName): string {
-	return getComputedStyle(el)[propertyName as any]
+export function getStyleValue(el: Element, property: StylePropertyName): string {
+	return getComputedStyle(el)[property as any]
+}
+
+/**
+ * Set style value for an element.
+ * Note that this method may cause reflow.
+ */
+export function setStyleValue(el: HTMLElement, property: StylePropertyName, value: string) {
+	(el.style as any)[property] = value
 }
 
 /**
@@ -73,6 +84,15 @@ export function getNumericStyleValue(el: Element, property: StylePropertyName): 
 	let value = getStyleValue(el, property)
 	return value ? parseFloat(value) || 0 : 0
 }
+
+/**
+ * Set style value for an element, convert number value to pixels.
+ * Note that this method may cause reflow.
+ */
+export function setNumericStyleValue(el: HTMLElement, property: StylePropertyName, value: number) {
+	(el.style as any)[property] = value + 'px'
+}
+
 
 
 /**
@@ -110,6 +130,7 @@ export function getInnerHeight(el: Element): number {
 export function getInnerSize(el: Element): Size {
 	return new Size(getInnerWidth(el), getInnerHeight(el))
 }
+
 
 
 /**

@@ -53,7 +53,7 @@ export function getClosestScrollWrapper(el: HTMLElement): HTMLElement | null {
  * Note this method can test get scroll wrapper only when overflow happens.
  * Note that this method may cause reflow.
  */
-export function getCSSClosestScrollWrapper(el: HTMLElement): HTMLElement | null {
+export function getClosestCSSScrollWrapper(el: HTMLElement): HTMLElement | null {
 	while (el) {
 		if (getCSSOverflowDirection(el) !== null) {
 			return el
@@ -87,7 +87,8 @@ export function getOverflowDirection(wrapper: HTMLElement): HVDirection | null {
 
 /** 
  * Get the overflow direction of scroll wrapper, which has `overflow: auto / scroll` set.
- * may return `horizontal | vertical | null`.
+ * May return `horizontal | vertical | null`.
+ * If can overflow in both directions, returns `vertical`.
  * Note this method may cause reflow.
  */
 export function getCSSOverflowDirection(wrapper: HTMLElement): HVDirection | null {

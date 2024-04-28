@@ -1,25 +1,28 @@
-/** Identify browser and platform or device info. */
+/** 
+ * Identify browser and platform or device info.
+ * I would suggest you DON'T use this module when possible.
+ */
 export const BrowserInfo = {
 	
-	/** Get Platform info. */
+	/** Get platform info. */
 	get platform(): 'win' | 'mac' | 'linux' | 'others'  {
-		return /Windows/i.test(navigator.userAgent) ? 'win'
+		return /Windows NT/i.test(navigator.userAgent) ? 'win'
 			: /Mac OS/i.test(navigator.userAgent) ? 'mac'
 			: /Linux/i.test(navigator.userAgent) ? 'linux'
 			: 'others'
 	},
 
-	/** Whether be Windows platform. */
+	/** Whether on Windows platform. */
 	get windows(): boolean {
 		return this.platform === 'win'
 	},
 
-	/** Whether be Mac OS platform. */
+	/** Whether on Mac OS platform. */
 	get mac(): boolean {
 		return this.platform === 'win'
 	},
 
-	/** Whether be Linux platform. */
+	/** Whether on Linux platform. */
 	get linux(): boolean {
 		return this.platform === 'win'
 	},

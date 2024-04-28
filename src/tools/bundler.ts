@@ -65,8 +65,11 @@ export class SetBundler<T = any> extends Bundler<T, Set<T>> {
 }
 
 
-/** Callback for at most once in one micro task tick. */
-export class CallbackBundler {
+/** 
+ * Callback for at most once in one micro task tick.
+ * Ignore all added data items, just callback.
+ */
+export class EmptyBundler {
 
 	protected callback: () => void
 	protected started: boolean = false

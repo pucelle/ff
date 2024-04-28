@@ -1,34 +1,15 @@
 import {DurationObject} from '../../utils'
 
+
+/** Cached whether supported. */
+let cachedSupported: boolean | null = null
+
+
 /** 
  * Read and write JSON type of data according to `localStorage` API.
  * Cache memory limination is about 5M.
  */
 export class WebStorage {
-
-	static _cachedSupported: boolean | null = null
-
-	/** 
-	 * Whether support `localStorage` API.
-	 * Normally returns `false` in private mode.
-	 */
-	static isSupported(): boolean {
-		if (this._cachedSupported !== null) {
-			return this._cachedSupported
-		}
-
-		try {
-			let key = 'flit_test_supported'
-			localStorage[key] = 'test'
-			let supported = localStorage[key] === 'test'
-			delete localStorage[key]
-			return supported
-		}
-		catch (e) {
-			return false
-		}
-	}
-
 
 	/** Storage key prefix. */
 	private prefix: string = ''
@@ -40,9 +21,30 @@ export class WebStorage {
 		this.prefix = prefix
 	}
 
+	/** 
+	 * Whether support `localStorage` API.
+	 * Normally it returns `false` in private mode.
+	 */
+	isSupported(): boolean {
+		if (cachedSupported !== null) {
+			return cachedSupported
+		}
+
+		try {
+			let key = 'flit_test_supported'
+			localStorage[key] = 'test'
+			let supported = localStorage[key] === 'test'
+			delete localStorage[key]
+			return cachedSupported = supported
+		}
+		catch (e) {
+			return false
+		}
+	}
+
 	/** Whether has value storaged by it's associated key. */
 	has(key: string): boolean {
-		if (!WebStorage.isSupported()) {
+		if (!this.isSupported()) {
 			return false
 		}
 
@@ -57,7 +59,7 @@ export class WebStorage {
 	get(key: string): any
 
 	get(key: string, defaultValue: any = null): any {
-		if (!WebStorage.isSupported()) {
+		if (!this.isSupported()) {
 			return defaultValue
 		}
 
@@ -69,7 +71,7 @@ export class WebStorage {
 		}
 
 		if (value && typeof value === 'string') {
-			try{
+			try {
 				value = JSON.parse(value)
 				let expires = localStorage[key + this.expiringSuffix]
 				if (expires && expires < Date.now()) {
@@ -92,19 +94,22 @@ export class WebStorage {
 
 	/** 
 	 * Set a key value pair.
-	 * Can set `expireDuration` after which the specified data will become expired.
+	 * `expireDuration`: specifies after which the specified data will become expired.
+	 * it can be a duration object, duration string, or a second count.
 	 */
 	set(key: string, value: any, expireDuration?: DurationObject | string | number): boolean {
-		if (!WebStorage.isSupported()) {
+		if (!this.isSupported()) {
 			return false
 		}
 
 		key = this.prefix + key
 		localStorage[key] = JSON.stringify(value)
 
-		let seconds = expireDuration ? DurationObject.fromAny(expireDuration).toSeconds() : 0
-		if (seconds > 0) {
-			localStorage[key + this.expiringSuffix] = Date.now() + seconds * 1000
+		if (expireDuration) {
+			let seconds = DurationObject.fromAny(expireDuration).toSeconds()
+			if (seconds > 0) {
+				localStorage[key + this.expiringSuffix] = Date.now() + seconds * 1000
+			}
 		}
 
 		return true
@@ -112,7 +117,7 @@ export class WebStorage {
 
 	/** Delete value in key, returns whether deleted. */
 	delete(key: string): boolean {
-		if (!WebStorage.isSupported()) {
+		if (!this.isSupported()) {
 			return false
 		}
 
