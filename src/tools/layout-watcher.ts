@@ -47,7 +47,7 @@ const WatcherStateGetters = {
 	},
 	
 	rect(el: HTMLElement): BoxLike {
-		return Box.fromLike(el.getBoundingClientRect()).toJSON()
+		return Box.fromLike(el.getBoundingClientRect())
 	},
 }
 

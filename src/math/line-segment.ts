@@ -34,6 +34,7 @@ export class LineSegment {
 		return new LineSegment(point1, point2.diff(point1))
 	}
 
+	
 	point: Point
 	vector: Vector
 

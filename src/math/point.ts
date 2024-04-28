@@ -24,6 +24,7 @@ export class Point {
 		return new Point(Math.cos(radians), Math.sin(radians))
 	}
 
+	
 	x: number
 	y: number
 

@@ -11,7 +11,7 @@ export class BoxDistances {
 	/** Constant zero box edge distance object. */
 	static Zero: BoxDistances = Object.freeze(new BoxDistances())
 
-	/** Parse from a string to get a direction object. */
+	/** Parse from a string to get an edge distance object. */
 	static fromString(string: string) {
 		return new BoxDistances(...string.split(/\s+/).map(s => Number(s)))
 	}

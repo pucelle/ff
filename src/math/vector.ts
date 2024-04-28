@@ -1,3 +1,4 @@
+import {Direction} from './direction'
 import * as MathUtils from './math-utils'
 import {Matrix} from './matrix'
 import {Matrix2} from './matrix2'
@@ -25,6 +26,12 @@ export class Vector {
 		return new Vector(Math.cos(radians), Math.sin(radians))
 	}
 
+	/** Make a vector from a direction, x and y values are betweens `-1~1`.. */
+	static fromDirection(direction: Direction): Vector {
+		return direction.toVector()
+	}
+
+	
 	x: number
 	y: number
 

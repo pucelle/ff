@@ -5,6 +5,7 @@ export * from './time-control'
 
 export * as AnimationFrame from './animation-frame'
 export * as DateUtils from './date-utils'
+export * as DOMUtils from './dom-utils'
 export * as HTMLUtils from './html-utils'
 export * as IDUtils from './id-utils'
 export * as ListUtils from './list-utils'

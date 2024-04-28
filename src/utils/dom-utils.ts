@@ -1,6 +1,3 @@
-import {Size} from '../math'
-
-
 /** Type of style properties. */
 export type StylePropertyName = string & keyof CSSStyleDeclaration
 
@@ -127,8 +124,11 @@ export function getInnerHeight(el: Element): number {
  * Get inner size of specified element, which equals `clientSize - paddingSizes` or `size - paddingSizes - scrollbarSize`.
  * Note that this method may cause page reflow.
  */
-export function getInnerSize(el: Element): Size {
-	return new Size(getInnerWidth(el), getInnerHeight(el))
+export function getInnerSize(el: Element): SizeLike {
+	return {
+		width: getInnerWidth(el),
+		height: getInnerHeight(el),
+	}
 }
 
 
@@ -165,6 +165,9 @@ export function getOuterHeight(el: HTMLElement) {
  * Get outer size of specified element, which equals `offsetSize + marginSizes`.
  * Note that this method may cause page reflow.
  */
-export function getOuterSize(el: HTMLElement): Size {
-	return new Size(getOuterWidth(el), getOuterHeight(el))
+export function getOuterSize(el: HTMLElement): SizeLike {
+	return {
+		width: getOuterWidth(el),
+		height: getOuterHeight(el),
+	}
 }

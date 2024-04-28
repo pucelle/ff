@@ -1,5 +1,5 @@
 import {Box, Direction, BoxDistances, Point} from '../math'
-import * as DOMUtils from './dom-utils'
+import * as DOMUtils from '../utils/dom-utils'
 
 
 /** Options for aligning two elements. */
@@ -212,8 +212,8 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 	/** Whether `to-align` element use fixed alignment position. */
 	private readonly useFixedAlignment: boolean
 
-	private cachedRect: Box | null = null
-	private cachedTargetRect: Box | null = null
+	private cachedRectBox: Box | null = null
+	private cachedTargetRectBox: Box | null = null
 
 	constructor(el: HTMLElement, target: Element, position: string, options: AlignerOptions = {}) {
 		this.toAlign = el
@@ -243,11 +243,11 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 		this.resetToAlignStyles()
 
 		let directionMask = {...this.directionMask}
-		let rect = getRect(this.toAlign)
-		let targetRect = getRect(this.target)
+		let rect = getRectBox(this.toAlign)
+		let targetRect = getRectBox(this.target)
 
 		// Both rects are not changed.
-		if (this.cachedRect?.equals(rect) && this.cachedTargetRect?.equals(targetRect)) {
+		if (this.cachedRectBox?.equals(rect) && this.cachedTargetRectBox?.equals(targetRect)) {
 			return true
 		}
 
@@ -257,7 +257,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 		}
 
 		// Whether `target` in viewport.
-		let targetInViewport = isRectIntersectWithViewport(targetRect)
+		let targetInViewport = isRectBoxIntersectWithViewport(targetRect)
 		let willAlign = targetInViewport || !this.stickToEdges
 		if (!willAlign) {
 			return false
@@ -266,7 +266,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 		// `to-align` may be shrinked into the edge and it's width get limited.
 		if (this.shouldClearToAlignPosition(rect)) {
 			this.clearToAlignPosition()
-			rect = getRect(this.toAlign)
+			rect = getRectBox(this.toAlign)
 		}
 
 		// Get triangle rect based on `to-align` origin.
@@ -288,8 +288,8 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 			this.alignTriangle(directionMask, rect, targetRect, triangleRelativeRect!)
 		}
 
-		this.cachedRect = rect
-		this.cachedTargetRect = targetRect
+		this.cachedRectBox = rect
+		this.cachedTargetRectBox = targetRect
 	
 		return true
 	}
@@ -328,7 +328,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 			this.triangle.style.transform = ''
 		}
 
-		let relativeTriangleRect = this.triangle ? getRect(this.triangle) : null
+		let relativeTriangleRect = this.triangle ? getRectBox(this.triangle) : null
 		if (relativeTriangleRect) {
 			relativeTriangleRect.translateSelf(-rect.x, -rect.y)
 		}
@@ -744,13 +744,13 @@ function parseGap(marginValue: number | number[], triangle: HTMLElement | undefi
 
 
 /** Check if rect box intersect with viewport. */
-function getRect(el: Element): Box {
+function getRectBox(el: Element): Box {
 	return Box.fromLike(el.getBoundingClientRect())
 }
 
 
 /** Check if rect box intersect with viewport. */
-function isRectIntersectWithViewport(rect: Box) {
+function isRectBoxIntersectWithViewport(rect: Box) {
 	let w = document.documentElement.clientWidth
 	let h = document.documentElement.clientHeight
 

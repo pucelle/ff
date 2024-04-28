@@ -8,7 +8,6 @@ export * from './storage'
 export * from './task-queue'
 
 export * as ClipboardAPI from './clipboard-api'
-export * as DOMUtils from './dom-utils'
 export * as DOMScroll from './dom-scroll'
 export * as FullscreenAPI from './fullscreen-api'
 export * as LayoutWatcher from './layout-watcher'

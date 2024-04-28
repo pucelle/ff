@@ -69,6 +69,7 @@ export class Box implements BoxLike {
 		return new Box(left, top, right - left, bottom - top)
 	}
 
+	
 	x: number
 	y: number
 	width: number

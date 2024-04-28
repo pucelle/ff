@@ -29,6 +29,7 @@ export class RadialLine {
 		return new RadialLine(point1, point2.diff(point1))
 	}
 
+	
 	readonly point: Point
 	readonly vector: Vector
 

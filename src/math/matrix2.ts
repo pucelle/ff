@@ -31,6 +31,7 @@ export class Matrix2 {
 		)
 	}
 	
+	
 	/** 
 	 * Data array in column-major order.
 	 * Not using `abcd` values because this struct can be extended to `3x3`, `4x4`.
