@@ -1,4 +1,4 @@
-import {DependencyTracker, compute} from '../../src/observable'
+import {DependencyTracker, compute} from '../../src'
 
 
 describe('Test compute', () => {

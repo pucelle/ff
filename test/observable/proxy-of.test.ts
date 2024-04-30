@@ -1,4 +1,4 @@
-import {DependencyTracker, proxyOf} from '../../src/observable'
+import {DependencyTracker, proxyOf} from '../../src'
 
 
 describe('Test proxyOf', () => {

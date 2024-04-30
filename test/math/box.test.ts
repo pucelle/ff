@@ -1,4 +1,4 @@
-import {Direction, BoxDistances, Size, Box, LineSegment, Point} from '../../src/math'
+import {Direction, BoxDistances, Size, Box, LineSegment, Point} from '../../src'
 
 
 describe('Test Box', () => {

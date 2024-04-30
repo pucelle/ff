@@ -1,5 +1,4 @@
-import * as ObjectUtils from '../../src/utils/object-utils'
-import {Vector} from '../../src/math/vector'
+import {ObjectUtils, Vector} from '../../src'
 
 
 describe('Test ObjectUtils', () => {

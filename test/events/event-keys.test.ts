@@ -1,4 +1,4 @@
-import * as EventKeys from '../../src/events/event-keys'
+import {EventKeys} from '../../src'
 
 
 describe('Test EventKeys', () => {

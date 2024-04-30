@@ -1,4 +1,4 @@
-import {GlobalTranslations} from '../../src/tools/translations'
+import {GlobalTranslations} from '../../src'
 
 
 describe('Test translations', () => {

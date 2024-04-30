@@ -1,5 +1,5 @@
-import {webStorage} from '../../src/tools'
-import {sleep} from '../../src/utils'
+import {webStorage} from '../../src'
+import {sleep} from '../../src'
 
 
 describe('Test storage', () => {

@@ -1,4 +1,4 @@
-import {DependencyTracker, UpdateQueue, Watcher} from '../../src/observable'
+import {DependencyTracker, UpdateQueue, Watcher} from '../../src'
 
 
 describe('Test watch', () => {

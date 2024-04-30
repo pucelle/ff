@@ -1,4 +1,4 @@
-import {applyMixins} from '../../src/utils/mixin'
+import {applyMixins} from '../../src'
 
 
 describe('Test MixinUtils', () => {

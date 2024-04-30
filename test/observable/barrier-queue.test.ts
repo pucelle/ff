@@ -1,4 +1,4 @@
-import {BarrierQueue} from '../../src/observable/barrier-queue'
+import {BarrierQueue} from '../../src'
 
 
 describe('Test BarrierQueue', () => {

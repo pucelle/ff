@@ -1,4 +1,4 @@
-import {DoubleKeysListMap, DoubleKeysMap, DoubleKeysSetMap, ListMap, SetMap, TwoWayListMap, TwoWayMap, TwoWaySetMap} from '../../src/structs/map'
+import {DoubleKeysListMap, DoubleKeysMap, DoubleKeysSetMap, ListMap, SetMap, TwoWayListMap, TwoWayMap, TwoWaySetMap} from '../../src'
 
 
 describe('Test Map Structs', () => {

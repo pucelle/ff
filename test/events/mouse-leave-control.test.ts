@@ -1,5 +1,4 @@
-import {MouseLeaveControl} from '../../src/events'
-import {sleep} from '../../src/utils'
+import {MouseLeaveControl, sleep} from '../../src'
 
 
 describe('Test MouseLeaveControl', () => {

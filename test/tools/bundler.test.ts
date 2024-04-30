@@ -1,4 +1,4 @@
-import {ListBundler, SetBundler, EmptyBundler} from '../../src/tools'
+import {ListBundler, SetBundler, EmptyBundler} from '../../src'
 
 
 describe('Test Bundler', () => {

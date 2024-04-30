@@ -1,4 +1,4 @@
-import {DependencyTracker, UpdateQueue, createEffect} from '../../src/observable'
+import {DependencyTracker, UpdateQueue, createEffect} from '../../src'
 
 
 describe('Test effect', () => {

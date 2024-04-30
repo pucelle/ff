@@ -1,4 +1,4 @@
-import {Color} from '../../src/tools/color'
+import {Color} from '../../src'
 
 
 describe('Test transition', () => {

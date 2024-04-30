@@ -1,4 +1,4 @@
-import {UpdateQueue} from '../../src/observable'
+import {UpdateQueue} from '../../src'
 
 
 describe('Test UpdateQueue', () => {

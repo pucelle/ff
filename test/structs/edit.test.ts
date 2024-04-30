@@ -1,4 +1,4 @@
-import {EditType, getEditRecord} from '../../src/structs/edit'
+import {EditType, getEditRecord} from '../../src'
 
 
 function restoredGraphEdit<T>(oldItems: T[], newItems: T[], willReuse: boolean) {

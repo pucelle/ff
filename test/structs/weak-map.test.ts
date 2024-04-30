@@ -1,4 +1,4 @@
-import {WeakDoubleKeysListMap, WeakDoubleKeysMap, WeakDoubleKeysSetMap, WeakListMap, WeakSetMap, WeakTwoWayListMap, WeakTwoWayMap, WeakTwoWaySetMap, WeakerDoubleKeysMap} from '../../src/structs/map-weak'
+import {WeakDoubleKeysListMap, WeakDoubleKeysMap, WeakDoubleKeysSetMap, WeakListMap, WeakSetMap, WeakTwoWayListMap, WeakTwoWayMap, WeakTwoWaySetMap, WeakerDoubleKeysMap} from '../../src'
 
 
 describe('Test Weak Map Structs', () => {

@@ -1,4 +1,4 @@
-import {DOMScroll} from '../../src/tools'
+import {DOMScroll} from '../../src'
 
 
 describe('DOMScroll', () => {

@@ -1,4 +1,4 @@
-import {MiniHeap} from '../../src/structs/mini-heap'
+import {MiniHeap} from '../../src'
 
 
 describe('Test MiniHeap', () => {

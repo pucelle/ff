@@ -6,6 +6,7 @@ export * from './logger'
 export * from './settings'
 export * from './storage'
 export * from './task-queue'
+export * from './translations'
 
 export * as ClipboardAPI from './clipboard-api'
 export * as DOMScroll from './dom-scroll'

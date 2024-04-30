@@ -1,5 +1,4 @@
-import {AsyncTaskQueue} from '../../src/structs/async-task-queue'
-import {sleep} from '../../src/utils'
+import {AsyncTaskQueue, sleep} from '../../src'
 
 
 describe('Test AsyncTaskQueue', () => {

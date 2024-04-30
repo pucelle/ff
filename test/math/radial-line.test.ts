@@ -1,5 +1,4 @@
-import {LineSegment, Direction, Point, RadialLine, Vector, Box} from '../../src/math'
-import {NumberUtils} from '../../src/utils'
+import {LineSegment, Direction, Point, RadialLine, Vector, Box, NumberUtils} from '../../src'
 
 
 describe('Test RadialLine', () => {

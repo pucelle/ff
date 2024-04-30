@@ -1,4 +1,4 @@
-import {Direction, BoxDistances} from '../../src/math'
+import {Direction, BoxDistances} from '../../src'
 
 
 describe('Test BoxDistances', () => {

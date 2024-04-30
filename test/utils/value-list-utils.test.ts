@@ -1,4 +1,4 @@
-import * as ValueListUtils from '../../src/utils/value-list-utils'
+import {ValueListUtils} from '../../src'
 
 
 describe('Test ValueListUtils', () => {

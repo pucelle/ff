@@ -9,6 +9,7 @@
 		"type": "git",
 		"url": "https://github.com/pucelle/ff.git"
 	},
+	"type": "module",
 	"main": "out/index.js",
 	"types": "out/index.d.ts",
 	"sideEffects": false,

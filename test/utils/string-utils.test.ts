@@ -1,4 +1,4 @@
-import * as StringUtils from '../../src/utils/string-utils'
+import {StringUtils} from '../../src'
 
 
 describe('Test StringUtils', () => {

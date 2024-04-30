@@ -1,4 +1,4 @@
-import {EventFirer} from '../../src/events/event-firer'
+import {EventFirer} from '../../src'
 
 
 describe('Test EventFirer', () => {

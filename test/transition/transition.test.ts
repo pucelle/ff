@@ -1,4 +1,4 @@
-import {TransitionEasingName, getEasingFunction, makeMixer} from '../../src/transition'
+import {TransitionEasingName, getEasingFunction, makeMixer} from '../../src'
 
 
 describe('Test transition', () => {

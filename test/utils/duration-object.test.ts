@@ -1,4 +1,4 @@
-import {DurationObject} from '../../src/utils/duration-object'
+import {DurationObject} from '../../src'
 
 
 describe('Test DurationObject', () => {

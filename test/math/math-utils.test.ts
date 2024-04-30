@@ -1,5 +1,4 @@
-import {MathUtils} from '../../src/math'
-import {NumberUtils} from '../../src/utils'
+import {MathUtils, NumberUtils} from '../../src'
 
 
 describe('Test MathUtils', () => {

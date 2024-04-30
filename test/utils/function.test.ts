@@ -1,4 +1,4 @@
-import {range, sleep} from '../../src/utils/function'
+import {range, sleep} from '../../src'
 
 
 describe('Test range', () => {

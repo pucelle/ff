@@ -1,4 +1,4 @@
-import {IntegralLookup} from '../../src/math'
+import {IntegralLookup} from '../../src'
 
 
 describe('Test IntegralLookUp', () => {

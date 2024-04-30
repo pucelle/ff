@@ -1,4 +1,4 @@
-import {DOMUtils} from '../../src/tools'
+import {DOMUtils} from '../../src'
 
 
 describe('DOMUtils', () => {

@@ -1,5 +1,4 @@
-import {TaskQueue, TaskQueueState} from '../../src/tools/task-queue'
-import {sleep} from '../../src/utils'
+import {TaskQueue, TaskQueueState, sleep} from '../../src'
 
 
 describe('Test queue', () => {

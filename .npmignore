@@ -1,11 +1,10 @@
 node_modules
 .vscode
-coverage
+.VSCodeCounter
 docs
 src
 test
 jest.config.js
 tsconfig.json
-typedoc.json
 README.md
 *.tgz

@@ -1,4 +1,4 @@
-import {DOMEvents} from '../../src/events'
+import {DOMEvents} from '../../src'
 
 
 describe('Test EventFirer', () => {

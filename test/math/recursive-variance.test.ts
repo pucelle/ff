@@ -1,4 +1,4 @@
-import {RecursiveVariance} from '../../src/math/recursive-variance'
+import {RecursiveVariance} from '../../src'
 
 
 describe('Test RecursiveVariance', () => {

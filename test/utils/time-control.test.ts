@@ -1,5 +1,4 @@
-import {Debounce, Interval, Throttle, timeout, Timeout} from '../../src/utils/time-control'
-import {sleep} from '../../src/utils/function'
+import {Debounce, Interval, Throttle, timeout, Timeout, sleep} from '../../src'
 
 
 describe('Test time-control', () => {

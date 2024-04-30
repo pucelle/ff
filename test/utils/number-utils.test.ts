@@ -1,4 +1,4 @@
-import * as NumberUtils from '../../src/utils/number-utils'
+import {NumberUtils} from '../../src'
 
 
 describe('Test NumberUtils', () => {

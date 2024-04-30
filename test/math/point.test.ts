@@ -1,5 +1,4 @@
-import {Point, Vector} from '../../src/math'
-import {NumberUtils} from '../../src/utils'
+import {Point, Vector, NumberUtils} from '../../src'
 
 
 describe('Test Point', () => {

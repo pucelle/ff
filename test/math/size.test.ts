@@ -1,4 +1,4 @@
-import {Size} from '../../src/math'
+import {Size} from '../../src'
 
 
 describe('Test Size', () => {
