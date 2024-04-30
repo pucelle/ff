@@ -2,7 +2,7 @@ import {EventKeys} from '../../src'
 
 
 describe('Test EventKeys', () => {
-	test('Test EventKeys', () => {
+	test('EventKeys', () => {
 		expect(EventKeys.pressedCharacterKey({which: 48})).toEqual(true)
 		expect(EventKeys.pressedCharacterKey({which: 46})).toEqual(false)
 		expect(EventKeys.pressedCharacterKey({which: 48, ctrlKey: true})).toEqual(false)

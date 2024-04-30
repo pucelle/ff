@@ -14,7 +14,7 @@ describe('Test MouseLeaveControl', () => {
 	}
 
 
-	test('Test callback', async () => {
+	test('callback', async () => {
 		let t1 = document.createElement('div')
 		let p1 = document.createElement('div')
 		let f1 = jest.fn()
@@ -28,7 +28,7 @@ describe('Test MouseLeaveControl', () => {
 	})
 
 
-	test('Test cancel', async () => {
+	test('cancel', async () => {
 		let t1 = document.createElement('div')
 		let p1 = document.createElement('div')
 		let f1 = jest.fn()
@@ -43,7 +43,7 @@ describe('Test MouseLeaveControl', () => {
 	})
 
 
-	test('Test leave and soon enter', async () => {
+	test('leave and soon enter', async () => {
 		let t1 = document.createElement('div')
 		let p1 = document.createElement('div')
 		let f1 = jest.fn()
@@ -63,7 +63,7 @@ describe('Test MouseLeaveControl', () => {
 	})
 
 
-	test('Test leave locks', async () => {
+	test('leave locks', async () => {
 		let t1 = document.createElement('div')
 		let p1 = document.createElement('div')
 		let f1 = jest.fn()
@@ -106,7 +106,7 @@ describe('Test MouseLeaveControl', () => {
 	})
 
 
-	test('Test several leave locks', async () => {
+	test('several leave locks', async () => {
 		let t1 = document.createElement('div')
 		let p1 = document.createElement('div')
 		let f1 = jest.fn()

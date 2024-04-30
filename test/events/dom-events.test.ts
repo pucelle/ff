@@ -3,7 +3,7 @@ import {DOMEvents} from '../../src'
 
 describe('Test EventFirer', () => {
 
-	test('Test on & off for click', () => {
+	test('on & off for click', () => {
 		let div = document.createElement('div')
 		let fn = jest.fn()
 	
@@ -17,7 +17,7 @@ describe('Test EventFirer', () => {
 	})
 
 
-	test('Test once for click', () => {
+	test('once for click', () => {
 		let div = document.createElement('div')
 		let fn = jest.fn()
 
@@ -30,7 +30,7 @@ describe('Test EventFirer', () => {
 	})
 
 	
-	test('Test mouseenter & mouseleave', () => {
+	test('mouseenter & mouseleave', () => {
 		let div = document.createElement('div')
 		let fn1 = jest.fn()
 		let fn2 = jest.fn()

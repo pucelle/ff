@@ -6,7 +6,7 @@ describe('Test EventFirer', () => {
 	let fn = jest.fn()
 	let scope = {}
 
-	test('Test EventFirer', () => {
+	test('EventFirer', () => {
 		e.on('name', fn, scope)
 		expect(e.hasListenerType('name')).toEqual(true)
 		expect(e.hasListener('name', fn)).toEqual(true)
