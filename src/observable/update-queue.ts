@@ -102,7 +102,7 @@ export function onComplete(callback: () => void) {
 
 /** 
  * Returns a promise which will be resolved after all the enqueued callbacks were called.
- * Can safely read computed style after returned promise resolved.
+ * Can safely read computed style after returned promise was resolved.
  */
 export function untilComplete(): Promise<void> {
 	return new Promise(resolve => {
@@ -152,8 +152,12 @@ async function update() {
 			}
 		}
 
-		// Wait for a micro task tick.
+		// Wait for a micro task to see if more callbacks come.
 		await Promise.resolve()
+
+		// Wait for those very deep micro tasks to be completed.
+		// Bad part is it may postpone callback to next frame.
+		// await sleep(0)
 	}
 
 	// Back to start stage.

@@ -34,7 +34,7 @@ function restoredGraphEdit<T>(oldItems: T[], newItems: T[], willReuse: boolean) 
 
 
 describe('Test Graph Edit', () => {
-	it('Test delete and insert', () => {
+	test('delete and insert', () => {
 		let a: number[] = [1, 2, 3]
 		let b: number[] = []
 		
@@ -56,7 +56,8 @@ describe('Test Graph Edit', () => {
 		expect(restoredGraphEdit(b, a, false)).toEqual(a)
 	})
 
-	it('Test leave', () => {
+
+	test('leave', () => {
 		let a: number[] = [1, 2, 3]
 		let b: number[] = [1, 2, 3]
 		
@@ -72,7 +73,8 @@ describe('Test Graph Edit', () => {
 		expect(restoredGraphEdit(b, a, false)).toEqual(a)
 	})
 
-	it('Test move', () => {
+
+	test('move', () => {
 		let a: number[] = [1, 2, 3]
 		let b: number[] = [3, 1, 2]
 
@@ -98,7 +100,8 @@ describe('Test Graph Edit', () => {
 		expect(restoredGraphEdit(b, a, false)).toEqual(a)
 	})
 
-	it('Test move modify', () => {
+
+	test('move modify', () => {
 		let a: number[] = [1, 2, 3]
 		let b: number[] = [4, 1, 2]
 
@@ -134,7 +137,7 @@ describe('Test Graph Edit', () => {
 		expect(restoredGraphEdit(b, a, false)).toEqual(a)
 	})
 
-	it('Test modify', () => {
+	test('modify', () => {
 		let a: number[] = [1, 2, 3]
 		let b: number[] = [1, 2, 4]
 
@@ -150,7 +153,7 @@ describe('Test Graph Edit', () => {
 		expect(restoredGraphEdit(b, a, false)).toEqual(a)
 	})
 
-	it('Test move modify and insert delete', () => {
+	test('move modify and insert delete', () => {
 		let a: number[] = [1, 2, 3]
 		let b: number[] = [4, 5, 1, 2]
 
@@ -174,7 +177,7 @@ describe('Test Graph Edit', () => {
 		expect(restoredGraphEdit(b, a, false)).toEqual(a)
 	})
 
-	it('Test repeated items', () => {
+	test('repeated items', () => {
 		let a: number[] = [1, 2, 3]
 		let b: number[] = [1, 1, 2]
 
@@ -196,7 +199,7 @@ describe('Test Graph Edit', () => {
 		expect(restoredGraphEdit(b, a, false)).toEqual(a)
 	})
 
-	it('Test random data', () => {
+	test('random data', () => {
 		let a: number[] = []
 		let b: number[] = []
 
