@@ -103,7 +103,7 @@ const DefaultSyncTaskQueueOptions: Partial<SyncTaskQueueOptions<any, any>> = {
 type SyncTaskQueueHandler<T, V> = (task: T) => {promise: Promise<V>, abort: Function} | Promise<V> | V
 
 
-/** Class to queue tasks and transfer them to handler in specified concurrency. */
+/** Class to queue tasks and pass them to handler in specified concurrency. */
 export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents<T, V>> implements Required<SyncTaskQueueOptions<T, V>> {
 
 	/**

@@ -22,7 +22,7 @@
 		"out",
 		"*.js",
 		"*.cjs",
-		"test",
+		"tests",
 		"jest.config.cjs"
 	]
 }
