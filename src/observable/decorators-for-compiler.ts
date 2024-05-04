@@ -6,47 +6,39 @@
  * 
  * This is only an identifier, it will be removed after compiled to js codes by `@pucelle/lupos-compiler`.
  */
-export function observable(_constructor: Function) {
-	throw new Error(`Please install "@pucelle/lupos-compiler" to compile your typescript codes!`)
-}
+export declare function observable(constructor: Function): void
 
 
 /** 
- * `@input` decorates a property to make it can be assigned outside of class private scope.
+ * `@input` decorates a class property to make it can be assigned outside of class private scope.
  * 
  * If a class is decorated by `@observable`, its all public properties becomes
  * readonly outside of class private scope, except decorates properties as `@input`.
  * 
  * This is only an identifier, it will be removed after compiled to js codes by `@pucelle/lupos-compiler`.
  */
-export function input(_target: any, _property: string) {
-	throw new Error(`Please install "@pucelle/lupos-compiler" to compile your typescript codes!`)
-}
+export declare function input(target: any, property: string): void
 
 
 /** 
- * `@computed` decorates a getter to make it compute value when required.
+ * `@computed` decorates a class getter to make it compute value when required.
  * Compare with `get property() {...}`, computed property will be cached, and refresh only when required.
  */
-export function computed(_target: any, _property: string) {
-	throw new Error(`Please install "@pucelle/lupos-compiler" to compile your typescript codes!`)
-}
+export declare function computed(target: any, property: string): void
 
 
 /** 
- * `@effect` decorates a method, it execute this method,
+ * `@effect` decorates a class method, it execute this method,
  * and if any depedency it used get changed, re-execute this method.
  * 
  * The effect action will be started after instance initialized,
  * so applying properties in `constructor` will not cause this method be called.
  */
-export function effect(_target: any, _property: string) {
-	throw new Error(`Please install "@pucelle/lupos-compiler" to compile your typescript codes!`)
-}
+export declare function effect(target: any, property: string): void
 
 
 /** 
- * `@watch` decorates a method to watch a property, or returned value of a fn,
+ * `@watch` decorates a class method to watch a property, or returned value of a fn,
  * and calls current method after this value becomes changed.
  * 
  * Use it like:
@@ -56,6 +48,4 @@ export function effect(_target: any, _property: string) {
  * The watch action will be started after instance initialized,
  * so applying properties in `constructor` will not cause callback be called.
  */
-export function watch(_fnOrProperty: (() => any) | PropertyKey, _immediate?: boolean) {
-	throw new Error(`Please install "@pucelle/lupos-compiler" to compile your typescript codes!`)
-}
+export declare function watch(fnOrProperty: (() => any) | PropertyKey, immediate?: boolean): void
