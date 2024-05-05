@@ -272,7 +272,7 @@ export class Color {
 		let hsl = RGBA2HSLA(this)
 		let compareHSL = RGBA2HSLA(compareColor)
 
-		// Cacl the light diff in HSL color space.
+		// Calc the light diff in HSL color space.
 		let hslDiff = Math.abs(hsl.l - compareHSL.l)
 		let hslToFix = minimumLightContrast - hslDiff
 		

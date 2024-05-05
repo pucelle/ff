@@ -3,8 +3,8 @@ import {StringUtils} from '../utils'
 
 export class Translations {
 
-	protected language: string = 'enus'
-	protected data: Map<string, Record<string, string>> = new Map([['enus', {}]])
+	protected language: string = 'enUS'
+	protected data: Map<string, Record<string, string>> = new Map([['enUS', {}]])
 
 	/** Get current language. */
 	getCurrentLanguage(): string {
@@ -34,7 +34,7 @@ export class Translations {
 		let data = this.data.get(this.language)
 		
 		if (!data) {
-			data = this.data.get('enus')!
+			data = this.data.get('enUS')!
 		}
 
 		let value = data[key]

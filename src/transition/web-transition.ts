@@ -97,7 +97,7 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 	/** The element transition playing at. */
 	readonly el: Element
 
-	/** Options after fullfilled default values. */
+	/** Options after fulfilled default values. */
 	private readonly fullOptions: Required<WebTransitionOptions>
 
 	/** Running animation. */
@@ -108,7 +108,7 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 
 	/** 
 	 * Be resolved after transition end.
-	 * Resolve paramter is whether transition finished.
+	 * Resolve parameter is whether transition finished.
 	 */
 	private resolve: ((finished: boolean) => void) | null = null
 

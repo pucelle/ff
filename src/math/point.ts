@@ -56,7 +56,7 @@ export class Point {
 		return new Point(this.x, this.y)
 	}
 
-	/** Whether equlas to another point. */
+	/** Whether equals to another point. */
 	equals(p: Point) {
 		return this.x === p.x && this.y === p.y
 	}

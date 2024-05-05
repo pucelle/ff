@@ -21,10 +21,10 @@ export function union<T extends number | string>(...lists: T[][]): T[] {
 
 /** Creates a list from picking intersected values that are included in all the given `lists`. */
 export function intersect<T extends number | string>(...lists: T[][]): T[] {
-	let interset: T[] = []
+	let intersect: T[] = []
 
 	if (!lists.length) {
-		return interset
+		return intersect
 	}
 
 	let map: Map<T, number> = new Map()
@@ -43,11 +43,11 @@ export function intersect<T extends number | string>(...lists: T[][]): T[] {
 
 	for (let [item, count] of map.entries()) {
 		if (count === lists.length) {
-			interset.push(item)
+			intersect.push(item)
 		}
 	}
 	
-	return interset
+	return intersect
 }
 
 
@@ -65,14 +65,14 @@ export function difference<T extends number | string>(list: T[], ...excludeLists
 }
 
 
-/** Returns the sum of all the numberic values in `list`. */
+/** Returns the sum of all the numeric values in `list`. */
 export function sum(list: number[]): number {
 	return list.reduce((v1, v2) => v1 + v2, 0)
 }
 
 
 /**
- * Returns the average value of all the numberic values in `list`.
+ * Returns the average value of all the numeric values in `list`.
  * Returns `NaN` if no items in `list`.
  */
 export function average(list: number[]): number {
@@ -104,7 +104,7 @@ export function minIndex(values: ArrayLike<number>): number {
 
 
 /**
- * Returns the index of the maximun value of all the values.
+ * Returns the index of the maximum value of all the values.
  * Returns `-1` if no values or all values are `-Infinity`.
  */
 export function maxIndex(values: ArrayLike<number>): number {

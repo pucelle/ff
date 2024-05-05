@@ -11,7 +11,7 @@ import {Matrix} from './matrix'
 /** Represent a rectangle bounding box. */
 export class Box implements BoxLike {
 
-	/** Constant empty box, not writtable. */
+	/** Constant empty box, not writable. */
 	static Empty: Readonly<Box> = Object.freeze(new Box(0, 0, 0, 0))
 
 	/** Empty box. */

@@ -55,7 +55,7 @@ const CubicBezierEasingParameters = {
 	'ease-in-out-back'   : [0.680, -0.550, 0.265, 1.550],
 }
 
-/** Cusmomized easing functions. */
+/** Customized easing functions. */
 const CustomEasingFunctions = {
 
 	'linear'(x: number): number {

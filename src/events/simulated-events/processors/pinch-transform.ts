@@ -11,7 +11,7 @@ export interface PinchTransformEvents {
 	/** When fingers moved and need to update transform. */
 	'pinch-transform:transform': (e: TouchEvent, transformInScreenOrigin: Matrix) => void
 
-	/** After pinch transform compled. */
+	/** After pinch transform completed. */
 	'pinch-transform:end': (e: TouchEvent) => void
 }
 

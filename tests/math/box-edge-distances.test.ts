@@ -8,7 +8,7 @@ describe('Test BoxDistances', () => {
 		
 		expect(d.horizontal).toEqual(20)
 		expect(d.vertical).toEqual(20)
-		expect(d.getMaximumAbsuluteValue()).toEqual(10)
+		expect(d.getMaximumAbsoluteValue()).toEqual(10)
 
 		d.set(10)
 		d.collapse(new BoxDistances(20))

@@ -6,7 +6,7 @@ import {Vector} from './vector'
 /** 
  * Represents a 2x2 Matrix.
  * It's nearly equals a Matrix after ignoring translate part.
- * It more convinent when doing 2x2 calculations.
+ * It more convenient when doing 2x2 calculations.
  */
 export class Matrix2 {
 

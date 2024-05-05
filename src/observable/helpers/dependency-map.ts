@@ -22,9 +22,9 @@ class ExtendedDoubleKeysWeakSetMap<K1 extends object, K2, V> extends WeakDoubleK
 
 
 /** 
- * Caches Depedencies <=> Refresh Callbacks.
+ * Caches Dependencies <=> Refresh Callbacks.
  * Can query all dependencies from a callback,
- * or query which refresh callbacks from a depedency.
+ * or query which refresh callbacks from a dependency.
  */
 export class DependencyMap {
 

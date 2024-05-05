@@ -14,8 +14,8 @@ describe('Test ObjectUtils', () => {
 		expect(ObjectUtils.deepClone(a.e)).toEqual(a.e)
 	})
 
-	test('deepCloneClonable', () => {
-		expect(ObjectUtils.deepCloneClonable(new Vector(0, 0)).clone).toBeDefined()
+	test('deepCloneCloneable', () => {
+		expect(ObjectUtils.deepCloneCloneable(new Vector(0, 0)).clone).toBeDefined()
 	})
 
 	test('deepEqual', () => {

@@ -42,7 +42,7 @@ export function deepClone<T> (source: T, maxDepth: number = 10): T {
 
 
 /** Deeply clone an JSON object, or a cloneable object, which implements `{clone(...)}`. */
-export function deepCloneClonable<T> (source: T, maxDepth: number = 10): T {
+export function deepCloneCloneable<T> (source: T, maxDepth: number = 10): T {
 	if (typeof source !== 'object' || !source || maxDepth === 0) {
 		return source
 	}
@@ -219,7 +219,7 @@ export function assignNonExisted<T extends object, S extends object>(
 
 /** 
  * Assign object values from `source` to `target`,
- * will only overwrite values that has alreayd existed in `target`.
+ * will only overwrite values that has already existed in `target`.
  * Can specify `keys` to only overwrite within these keys.
  */
 export function assignExisted<T extends object>(
@@ -239,7 +239,7 @@ export function assignExisted<T extends object>(
 }
 
 
-/** Clear all keys which relevent values are `null` or `undefined`. */
+/** Clear all keys which relevant values are `null` or `undefined`. */
 export function cleanEmptyValues<T extends object>(o: T): T {
 	if (!o) {
 		return o

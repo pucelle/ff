@@ -349,12 +349,12 @@ export class Matrix implements MatrixData {
 
 	/** 
 	 * Get the primary scaling of current matrix.
-	 * Which equals the larger eigen value after absoluted.
+	 * Which equals the larger eigen value after make it absolute.
 	 */
 	getPrimaryScaling(): number {
 		
 		// Another approximate algorithm is max(sqrt(a^2 + b^2), sqrt(b^2 + d^2), sqrt(d^2 + c^2), sqrt(c^2 + a^2)).
-		// Which eauqls the maximun scaling in 2 axes.
+		// Which equals the maximum scaling in 2 axes.
 		
 		let values = this.getEigenValues()
 		return Math.max(...values.map(Math.abs))
@@ -362,7 +362,7 @@ export class Matrix implements MatrixData {
 
 	/** 
 	 * Get the secondary scaling of current matrix.
-	 * Which equals the smaller eigen value after absoluted.
+	 * Which equals the smaller eigen value after make it absolute.
 	 */
 	getSecondaryScaling(): number {
 		let values = this.getEigenValues()

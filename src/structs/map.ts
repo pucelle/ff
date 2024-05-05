@@ -53,12 +53,12 @@ export abstract class IterableValueMap<K, V, I extends Iterable<V>> {
 	/** Add a key value pair. */
 	abstract add(k: K, v: V): void
 
-	/** Get value list by assocated key. */
+	/** Get value list by associated key. */
 	get(k: K): I | undefined {
 		return this.map.get(k)
 	}
 
-	/** Set and replace whole value list by assocated key. */
+	/** Set and replace whole value list by associated key. */
 	set(k: K, list: I) {
 		return this.map.set(k, list)
 	}
@@ -66,7 +66,7 @@ export abstract class IterableValueMap<K, V, I extends Iterable<V>> {
 	/** Delete a key value pair. */
 	abstract delete(k: K, v: V): void
 
-	/** Delete all values by assocated key. */
+	/** Delete all values by associated key. */
 	deleteOf(k: K) {
 		this.map.delete(k)
 	}
@@ -188,7 +188,7 @@ export class DoubleKeysMap<K1, K2, V> {
 		return this.map.keys()
 	}
 
-	/** Iterate assocated secondary keys after known first key. */
+	/** Iterate associated secondary keys after known first key. */
 	*secondKeysOf(k1: K1): Iterable<K2> {
 		let sub = this.map.get(k1)
 		if (sub) {
@@ -211,7 +211,7 @@ export class DoubleKeysMap<K1, K2, V> {
 		}
 	}
 
-	/** Iterate first key and assocated secondary map. */
+	/** Iterate first key and associated secondary map. */
 	entries(): Iterable<[K1, Map<K2, V>]> {
 		return this.map.entries()
 	}
@@ -384,7 +384,7 @@ export abstract class DoubleKeysIterableValueMap<K1, K2, V, I extends Iterable<V
 		}
 	}
 
-	/** Has key pair and assocated value existed. */
+	/** Has key pair and associated value existed. */
 	has(k1: K1, k2: K2, v: V): boolean {
 		let sub = this.map.get(k1)
 		if (!sub) {
@@ -404,22 +404,22 @@ export abstract class DoubleKeysIterableValueMap<K1, K2, V, I extends Iterable<V
 		return sub.hasOf(k2)
 	}
 
-	/** Has secondary map assocated by first key. */
+	/** Has secondary map associated by first key. */
 	hasSecondOf(k1: K1): boolean {
 		return this.map.has(k1)
 	}
 
-	/** Get the assocated value count by key pair. */
+	/** Get the associated value count by key pair. */
 	countOf(k1: K1, k2: K2) {
 		return this.map.get(k1)?.countOf(k2)
 	}
 
-	/** Get the assocated secondary key count by first key. */
+	/** Get the associated secondary key count by first key. */
 	secondKeyCountOf(k1: K1) {
 		return this.map.get(k1)?.keyCount()
 	}
 
-	/** Get assocated value list by key pair. */
+	/** Get associated value list by key pair. */
 	get(k1: K1, k2: K2): I | undefined {
 		let sub = this.map.get(k1)
 		if (!sub) {
@@ -450,7 +450,7 @@ export abstract class DoubleKeysIterableValueMap<K1, K2, V, I extends Iterable<V
 		sub.add(k2, v)
 	}
 
-	/** Delete a key pair and assocated value. */
+	/** Delete a key pair and associated value. */
 	delete(k1: K1, k2: K2, v: V) {
 		let sub = this.map.get(k1)
 		if (sub) {
@@ -462,7 +462,7 @@ export abstract class DoubleKeysIterableValueMap<K1, K2, V, I extends Iterable<V
 		}
 	}
 
-	/** Delete all assocated values by key pair. */
+	/** Delete all associated values by key pair. */
 	deleteKeys(k1: K1, k2: K2) {
 		let sub = this.map.get(k1)
 		if (sub) {
@@ -673,12 +673,12 @@ export abstract class TwoWayIterableValueMap<L, R, LI extends Iterable<L>, RI ex
 		} 
 	}
 
-	/** Iterate left and it's assocated right value list. */
+	/** Iterate left and it's associated right value list. */
 	leftEntries(): Iterable<[L, RI]> {
 		return this.lm.entries()
 	}
 
-	/** Iterate right and it's assocated left value list. */
+	/** Iterate right and it's associated left value list. */
 	rightEntries(): Iterable<[R, LI]> {
 		return this.rm.entries()
 	}
@@ -759,7 +759,7 @@ export abstract class TwoWayIterableValueMap<L, R, LI extends Iterable<L>, RI ex
 		}
 	}
 
-	/** Replace left and all it's assocated right keys. */
+	/** Replace left and all it's associated right keys. */
 	replaceLeft(l: L, rs: RI) {
 		let oldRs = this.lm.get(l)
 
@@ -785,7 +785,7 @@ export abstract class TwoWayIterableValueMap<L, R, LI extends Iterable<L>, RI ex
 		this.lm.set(l, rs)
 	}
 
-	/** Replace right and all it's assocated left keys. */
+	/** Replace right and all it's associated left keys. */
 	replaceRight(r: R, ls: LI) {
 		let oldLs = this.rm.get(r)
 

@@ -7,7 +7,7 @@ let cachedSupported: boolean | null = null
 
 /** 
  * Read and write JSON type of data according to `localStorage` API.
- * Cache memory limination is about 5M.
+ * Cache memory limitation is about 5M.
  */
 export class WebStorage {
 

@@ -3,7 +3,7 @@ import * as UpdateQueue from './update-queue'
 
 
 /** 
- * Execute `fn` immediately, and if any depedency it used get changed, re-execute `fn`.
+ * Execute `fn` immediately, and if any dependency it used get changed, re-execute `fn`.
  * Note `fn` can only be called once in a event loop.
  */
 export function createEffect(fn: () => void): () => void {

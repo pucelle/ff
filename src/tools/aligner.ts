@@ -14,7 +14,7 @@ export interface AlignerOptions {
 
 	/** 
 	 * Whether stick `to-align` element to viewport edges.
-	 * Such that if `to-align` element partly cutted by viewport,
+	 * Such that if `to-align` element partly cut by viewport,
 	 * it will be adjusted to stick viewport edges and become fully visible.
 	 * Default value is `true`, set it to `false` to disable.
 	 */
@@ -27,9 +27,9 @@ export interface AlignerOptions {
 	canSwapPosition?: boolean
 
 	/** 
-	 * If `true`, when `to-align` element contains large content and should be cutted in viewport,
-	 * it will be shrinked by limiting height.
-	 * Note that a descentant element inside `to-align` element must set `overflow-y: auto`.
+	 * If `true`, when `to-align` element contains large content and should be cut in viewport,
+	 * it will be shrunk by limiting height.
+	 * Note that a descendant element inside `to-align` element must set `overflow-y: auto`.
 	 */
 	canShrinkInY?: boolean
 
@@ -263,7 +263,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 			return false
 		}
 
-		// `to-align` may be shrinked into the edge and it's width get limited.
+		// `to-align` may be shrunk into the edge and it's width get limited.
 		if (this.shouldClearToAlignPosition(rect)) {
 			this.clearToAlignPosition()
 			rect = getRectBox(this.toAlign)
@@ -356,7 +356,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 			fixedPosition = anchor2.diff(anchor1)
 		}
 
-		// Handle herizontal alignment, `rect` will be modified.
+		// Handle horizontal alignment, `rect` will be modified.
 		this.alignHorizontal(fixedPosition.x, directionMask, rect, targetRect, triangleRelativeRect)
 
 		// The fixed coordinate of `to-align` currently.
@@ -367,7 +367,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 		if (!this.useFixedAlignment && this.target !== document.body && this.target !== document.documentElement) {
 			var offsetParent = this.toAlign.offsetParent as HTMLElement
 
-			// If we use body's top postion, it will cause a bug when body has a margin top (even from margin collapse).
+			// If we use body's top position, it will cause a bug when body has a margin top (even from margin collapse).
 			if (offsetParent) {
 				var parentRect = offsetParent.getBoundingClientRect()
 				x -= parentRect.left
@@ -496,7 +496,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 		return overflowYSet
 	}
 
-	/** Do herizontal alignment. */
+	/** Do horizontal alignment. */
 	private alignHorizontal(x: number, directionMask: AlignerDirectionMask, rect: Box, targetRect: Box, triangleRelativeRect: Box | null) {
 		let dw = document.documentElement.clientWidth
 		let spaceLeft = targetRect.left - this.gaps.left
@@ -758,7 +758,7 @@ function isRectBoxIntersectWithViewport(rect: Box) {
 }
 
 
-/** Get a closest ancest element which has fixed position. */
+/** Get a closest ancestral element which has fixed position. */
 function getClosestFixedElement(el: Element): HTMLElement | null {
 	while (el && el !== document.documentElement) {
 		if (getComputedStyle(el).position === 'fixed') {

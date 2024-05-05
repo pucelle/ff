@@ -1,28 +1,28 @@
 import * as DependencyTracker from './dependency-tracker'
 
 
-type Proxied<T> = T extends object ? T & {ProxySymbol: T} : T
+type ProxyOf<T> = T extends object ? T & {ProxySymbol: T} : T
 
 
-/** To find proxied object. */
+/** To find the proxy of an object. */
 const {onGet, onSet} = DependencyTracker
-const ProxyMap: WeakMap<object | Proxied<any>, Proxied<any>> = new WeakMap()
+const ProxyMap: WeakMap<object | ProxyOf<any>, ProxyOf<any>> = new WeakMap()
 
 
 /** 
- * Proxy an object or an array, returns the proxied object.
+ * Proxy an object or an array, returns the proxy of an object.
  * Track properties, or deep descendant properties of this object or array,
  * Change them will cause the dependency callback function that depend on them to be called.
  * 
  * Multiple times of proxy a same object will always return the same output.
  * Otherwise note after tracked, properties accessing is 50x slower. So, avoid use it often.
  * 
- * Normally the compile-time depedency-tracking would be enough to track the change of observable object,
- * but if you meet these scenories, you may need `proxyOf`:
+ * Normally the compile-time dependency-tracking would be enough to track the change of observable object,
+ * but if you meet these scenarios, you may need `proxyOf`:
  *   1. You want to track all the properties of an object.
  *   2. You want to track deep descendant properties of an object.
  */
-export function proxyOf<T extends object>(v: T): Proxied<T> {
+export function proxyOf<T extends object>(v: T): ProxyOf<T> {
 	if (!v || typeof v !== 'object') {
 		return v
 	}
@@ -32,9 +32,9 @@ export function proxyOf<T extends object>(v: T): Proxied<T> {
 
 
 /** Proxy an object. */
-function proxyObject<T extends object>(o: T | Proxied<T>): Proxied<T> {
+function proxyObject<T extends object>(o: T | ProxyOf<T>): ProxyOf<T> {
 
-	// May become a proxied object already.
+	// May become a proxy of object already.
 	let proxy = ProxyMap.get(o)
 	if (proxy) {
 		return proxy
@@ -55,13 +55,13 @@ function proxyObject<T extends object>(o: T | Proxied<T>): Proxied<T> {
 
 
 /** Proxy an plain object. */
-function proxyPlainObject<T extends object>(o: T): Proxied<T> {
+function proxyPlainObject<T extends object>(o: T): ProxyOf<T> {
 	return new Proxy(o, PlainObjectProxyHandler)
 }
 
 
 /** Proxy an array. */
-function proxyArray<T extends any[]>(a: T): Proxied<T> {
+function proxyArray<T extends any[]>(a: T): ProxyOf<T> {
 	return new Proxy(a, ArrayProxyHandler)
 }
 
@@ -69,7 +69,7 @@ function proxyArray<T extends any[]>(a: T): Proxied<T> {
 /** For observing plain object. */
 const PlainObjectProxyHandler = {
 
-	get(o: any, key: PropertyKey): Proxied<any> {
+	get(o: any, key: PropertyKey): ProxyOf<any> {
 		onGet(o, key)
 		return proxyOf(o[key])
 	},
@@ -99,7 +99,7 @@ const PlainObjectProxyHandler = {
 /** For array proxy. */
 const ArrayProxyHandler = {
 
-	get(a: any, key: PropertyKey): Proxied<any> {
+	get(a: any, key: PropertyKey): ProxyOf<any> {
 		let value = a[key]
 		let type = typeof value
 

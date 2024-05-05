@@ -85,9 +85,9 @@ function readBlobAsText(blob: Blob): Promise<string> {
 
 
 /** 
- * Try writting to system clipboard data, limit string type.
+ * Try writing to system clipboard data, limit string type.
  * Note for your customized format, should use format type starts with `web `,
- * like `web text/custom`, `web text/mytype`.
+ * like `web text/custom`, `web text/customType`.
  * If `canDropWebCustomData` is specified as `true`, will drop web custom data and write again if failed.
  */
 export async function write(data: Record<string, string | Blob>, canDropWebCustomData: boolean = false): Promise<void> {

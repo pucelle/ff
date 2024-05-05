@@ -10,7 +10,7 @@ export interface PinchZoomEvents {
 	/** When fingers moved and need to update transform. */
 	'pinch-zoom:transform': (e: TouchEvent, transformInScreenOrigin: Matrix) => void
 
-	/** After pinch zoom compled. */
+	/** After pinch zoom completed. */
 	'pinch-zoom:end': (e: TouchEvent) => void
 }
 

@@ -8,7 +8,7 @@ interface EventListenerItem {
 	once: boolean
 }
 
-/** Inder function parameters. */
+/** Infer function parameters. */
 type InferParameters<T> = T extends (...args: any) => any ? T extends (...args: infer P) => any ? P : any[] : any[]
 
 
@@ -21,7 +21,7 @@ type InferParameters<T> = T extends (...args: any) => any ? T extends (...args: 
  * - `A<E = any> extents EventFirer<E> {}`
  * - `B<E = BEvents> extents A<E> {}`
  * 
- * To be able to infer event paramters for `B`, can declare it as `B<{}>`, like:
+ * To be able to infer event parameters for `B`, can declare it as `B<{}>`, like:
  * - `(this: B<{}>) {this.on(...)}`
  */
 export class EventFirer<E = any> {
@@ -85,7 +85,7 @@ export class EventFirer<E = any> {
 		let listeners = this.eventListenerMap.get(type as string)
 		if (listeners) {
 
-			// Avoid newly binded handler got fired.
+			// Avoid newly bound handler got fired.
 			listeners = [...listeners]
 
 			for (let i = 0; i < listeners.length; i++) {

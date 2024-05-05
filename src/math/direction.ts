@@ -123,19 +123,19 @@ export class Direction {
 	/** Make a straight direction from a vector, choose dominate direction when it's oblique. */
 	static straightFromVector(v: Vector): Direction {
 		let {x, y} = v
-		let absx = Math.abs(v.x)
-		let absy = Math.abs(v.y)
+		let absX = Math.abs(v.x)
+		let absY = Math.abs(v.y)
 
-		if (x < 0 && absx >= absy) {
+		if (x < 0 && absX >= absY) {
 			return Direction.Left
 		}
-		else if (x > 0 && absx >= absy) {
+		else if (x > 0 && absX >= absY) {
 			return Direction.Right
 		}
-		else if (y < 0 && absx <= absy) {
+		else if (y < 0 && absX <= absY) {
 			return Direction.Top
 		}
-		else if (y > 0 && absx <= absy) {
+		else if (y > 0 && absX <= absY) {
 			return Direction.Bottom
 		}
 		else if (x === 0 && y === 0) {

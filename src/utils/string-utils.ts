@@ -14,7 +14,7 @@ export function format(template: string, params: Record<string, string | number>
 
 
 
-/** Encode `<>` to `&...` to makesure HTML codes are safely to be appended into document. */
+/** Encode `<>` to `&...` to make sure HTML codes are safely to be appended into document. */
 export function encodeHTML(code: string): string {
 	return code.replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
@@ -37,8 +37,8 @@ export function toCapitalize(string: string): string {
 	return string.slice(0, 1).toUpperCase() + string.slice(1)
 }
 
-/** Convert `string` to camer case type: `a-bc` -> `Abc`. */
-export function toCamerCase(string: string): string {
+/** Convert `string` to camel case type: `a-bc` -> `Abc`. */
+export function toCamelCase(string: string): string {
 	return string.replace(/[-_ ][a-z]/gi, m0 => m0[1].toUpperCase())
 }
 

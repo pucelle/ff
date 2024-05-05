@@ -3,10 +3,10 @@ import {bindCallback} from './helpers/bind-callback'
 import {DependencyMap} from './helpers/dependency-map'
 
 
-/** Contains captured depedencies, and the refresh callback it need to call after any depedency get changed. */
+/** Contains captured dependencies, and the refresh callback it need to call after any dependency get changed. */
 interface CapturedDependencies {
 
-	// Refech callback, to call it after any depedency changed.
+	// Refresh callback, to call it after any dependency changed.
 	refreshCallback: Function
 
 	// Each object and accessed property.
@@ -25,11 +25,11 @@ let currentDep: CapturedDependencies | null = null
 
 
 /** 
- * Execute `fn`, and captures all dependencies duraing execution,
+ * Execute `fn`, and captures all dependencies during execution,
  * Will execute `fn` in a `try{...}` statement.
  * If any dependent object get changed, calls callback.
  * 
- * Note for tracking same content, `callback` should keep consitant,
+ * Note for tracking same content, `callback` should keep consistent,
  * or it would cant replace old tracking.
  */
 export function trackExecutionOf(fn: () => void, callback: Function, scope: object | null = null) {

@@ -6,7 +6,7 @@ import {Color} from '../tools'
  * Make a mixer to mix two values and make a getter,
  * which can get a mixed value at any rate later.
  */
-export function makeMixer<T extends TransitionableValue>(fromValue: T, toValue: T): Mixer<T> {
+export function makeMixer<T extends TransitionAbleValue>(fromValue: T, toValue: T): Mixer<T> {
 	let fromType = typeof fromValue
 
 	// Mix arrays.
@@ -28,8 +28,8 @@ export function makeMixer<T extends TransitionableValue>(fromValue: T, toValue: 
 	else if (fromType === 'object') {
 		
 		// Mix mixable object like Vector or Point.
-		if ('makeMixer' in (fromValue as object) && typeof (fromValue as MakeMixerable<any>).makeMixer === 'function') {
-			return (fromValue as MakeMixerable<any>).makeMixer(toValue)
+		if ('makeMixer' in (fromValue as object) && typeof (fromValue as MakeMixable<any>).makeMixer === 'function') {
+			return (fromValue as MakeMixable<any>).makeMixer(toValue)
 		}
 
 		// Mix mixable object like Vector or Point.

@@ -14,7 +14,7 @@ export enum TaskQueueState {
 	/** In paused state. */
 	Paused,
 
-	/** All tasks finshed, may still have failed tasks. */
+	/** All tasks finished, may still have failed tasks. */
 	Finished,
 
 	/** Been aborted because of error or manually. */
@@ -25,16 +25,16 @@ export enum TaskQueueState {
 interface SyncTaskQueueEvents<T, V> {
 
 	/** After a task processed successfully. */
-	taskfinished(item: T, value: V): void
+	'task-finished'(item: T, value: V): void
 
-	/** After error occured when processing a task or called `abort()` on task. */
-	taskaborted(item: T): void
+	/** After error occurred when processing a task or called `abort()` on task. */
+	'task-aborted'(item: T): void
 
 	/**
 	 * After error occured when processing task.
 	 * If `continueOnError` is `false` and `maxRetryTimes` equals `0`, queue will be aborted.
 	 */
-	taskerror(item: T, err: Error | string | number): void
+	'task-error'(item: T, err: Error | string | number): void
 
 	/** After called `pause()`. */
 	paused(): void
@@ -48,7 +48,7 @@ interface SyncTaskQueueEvents<T, V> {
 	 */
 	finished() : void
 
-	/** After any error occured or called `abort()`. */
+	/** After any error occurred or called `abort()`. */
 	aborted(err: Error | string | number): void
 
 	/** End after `finished` or `aborted` event. */
@@ -107,7 +107,7 @@ type SyncTaskQueueHandler<T, V> = (task: T) => {promise: Promise<V>, abort: Func
 export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents<T, V>> implements Required<SyncTaskQueueOptions<T, V>> {
 
 	/**
-	 * Run eash task by passing `data` items to `handler` in order.
+	 * Run each task by passing `data` items to `handler` in order.
 	 * Returns a promise which will be resolved after tasks become finished.
 	 */
 	static each<T>(data: T[], handler: (item: T) => Promise<void> | void, concurrency?: number): Promise<void> {
@@ -119,13 +119,13 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 			})
 
 			q.on('finished', resolve)
-			q.on('taskerror', reject)
+			q.on('task-error', reject)
 			q.start()
 		})
 	}
 
 	/**
-	 * Run eash task by passing `data` items to `handler` in order.
+	 * Run each task by passing `data` items to `handler` in order.
 	 * Returns a promise which will be resolved with returned values list.
 	 */
 	static map<T, V>(data: T[], handler: (item: T) => Promise<V> | V, concurrency?: number): Promise<V[]> {
@@ -142,13 +142,13 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 			})
 
 			q.on('finished', () => resolve(values))
-			q.on('taskerror', reject)
+			q.on('task-error', reject)
 			q.start()
 		})
 	}
 
 	/**
-	 * Run eash task by passing `data` items to `testFn` in order.
+	 * Run each task by passing `data` items to `testFn` in order.
 	 * Returns a promise which will be resolved if some tasks match `testFn`.
 	 */
 	static some<T>(data: T[], testFn: (task: T) => Promise<boolean> | boolean, concurrency?: number): Promise<boolean> {
@@ -159,7 +159,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 				handler: testFn,
 			})
 
-			q.on('taskfinished', (_task: T, value: boolean) => {
+			q.on('task-finished', (_task: T, value: boolean) => {
 				if (value) {
 					resolve(true)
 					q.clear()
@@ -167,13 +167,13 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 			})
 
 			q.on('finished', () => resolve(false))
-			q.on('taskerror', reject)
+			q.on('task-error', reject)
 			q.start()
 		})
 	}
 
 	/**
-	 * Run eash task by passing `data` items to `testFn` in order.
+	 * Run each task by passing `data` items to `testFn` in order.
 	 * Returns a promise which will be resolved if every tasks match `testFn`.
 	 */
 	static every<T>(data: T[], testFn: (task: T) => Promise<boolean> | boolean, concurrency?: number): Promise<boolean> {
@@ -413,7 +413,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 		this.processedCount++
 
 		if (this.state === TaskQueueState.Running) {
-			this.fire('taskfinished', task.item, value)
+			this.fire('task-finished', task.item, value)
 
 			if (this.delayMs > 0) {
 				await sleep(this.delayMs)
@@ -431,7 +431,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 		}
 
 		this.failedTasks.push(task)
-		this.fire('taskerror', task.item, err)
+		this.fire('task-error', task.item, err)
 
 		if (!this.continueOnError && this.maxRetryTimes === 0) {
 			this.onError(err)
@@ -509,7 +509,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 			abort()
 		}
 
-		this.fire('taskaborted', data)
+		this.fire('task-aborted', data)
 	}
 
 	/** End and finish queue, abort all running tasks and clear all tasks. */

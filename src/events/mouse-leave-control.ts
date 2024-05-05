@@ -22,7 +22,7 @@ export interface MouseLeaveControlOptions {
 
 
 /*
- * Assume you are programing a menu and submenu component,
+ * Assume you are programming a menu and submenu component,
  * When mouse over a menu and open a submenu, previous menu should be kept visible,
  * And after mouse leaves submenu, should hide both menu and submenu.
  * 
@@ -61,7 +61,7 @@ async function clearDisconnectedOnIdle() {
 function clearDisconnected() {
 	for (let [controller, element] of Locks.entries()) {
 
-		// Element may be removed accidently, which cause locks cant be removed.
+		// Element may be removed unexpectedly, which cause locks cant be removed.
 		if (element.ownerDocument) {
 			continue
 		}
@@ -79,7 +79,7 @@ function clearDisconnected() {
 }
 
 
-/** Lock controllers by a trigger element, makesure it can't be hidden. */
+/** Lock controllers by a trigger element, make sure it can't be hidden. */
 function lockBy(triggerEl: Element) {
 	let lockChanged = false
 
@@ -146,8 +146,8 @@ export function checkLocked(el: Element): boolean {
 
 /**
  * Calls `callback` after mouse leaves both elements
- * and all the poped-up contents for `ms` milliseconds.
- * It's usefull to manage mouse leave event for menu & submenus.
+ * and all the popped-up contents for `ms` milliseconds.
+ * It's useful to manage mouse leave event for menu & submenus.
  * Returns a cancel callback.
  */
 export function on(trigger: Element, popup: Element, callback: () => void, options?: MouseLeaveControlOptions): () => void {
@@ -158,8 +158,8 @@ export function on(trigger: Element, popup: Element, callback: () => void, optio
 
 /**
  * Calls `callback` for only once after mouse leaves both elements,
- * and all the poped-up contents for `ms` milliseconds.
- * It's usefull to manage mouse leave event for menu & submenus.
+ * and all the popped-up contents for `ms` milliseconds.
+ * It's useful to manage mouse leave event for menu & submenus.
  * Returns a cancel callback.
  */
 export function once(trigger: Element, popup: Element, callback: () => void, options?: MouseLeaveControlOptions): () => void {

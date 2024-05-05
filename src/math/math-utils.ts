@@ -5,7 +5,7 @@ const DEG2RAD = Math.PI / 180
 const RAD2DEG = 180 / Math.PI
 
 
-/** Convert angle from degree to radinas. */
+/** Convert angle from degree to radians. */
 export function degreeToRadians(degrees: number): number {
 	return degrees * DEG2RAD
 }
@@ -22,13 +22,13 @@ export function mix(a: number, b: number, bRate: number): number {
 	return a * (1 - bRate) + b * bRate
 }
 
-/** Returns a value which respresent the rate of number x inside range `start` and `end`. */
+/** Returns a value which represent the rate of number x inside range `start` and `end`. */
 export function linearInterpolate(x: number, start: number, end: number): number {
 	return (x - start) / (end - start)
 }
 
 /** 
- * Returns a value betweens 0~1 which respresent the rate of number x inside range `min` and `max`.
+ * Returns a value betweens 0~1 which represent the rate of number x inside range `min` and `max`.
  * Get a rate that indicates the rate of `max` value to mix.
  */
 export function linearStep(x: number, min: number, max: number): number {

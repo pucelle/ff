@@ -4,7 +4,7 @@ import {DBStorage, DBStore} from './db-storage'
 
 /** 
  * Same as WebStorage,
- * Except it uses indexedDB to privide much bigger storage space,
+ * Except it uses indexedDB to provide much bigger storage space,
  * normally 15% of disk space.
  */
 export class BiggerStorage {

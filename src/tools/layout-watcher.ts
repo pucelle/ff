@@ -3,15 +3,15 @@ import {ObjectUtils, Interval, AnimationFrame} from '../utils'
 
 
 /** Watcher types. */
-type LayoutWatcherType = 'show' | 'hide' | 'inview' | 'outview' | 'size' | 'rect'
+type LayoutWatcherType = 'show' | 'hide' | 'in-view' | 'out-view' | 'size' | 'rect'
 
 /** Watcher callback. */
 type LayoutWatcherCallback<T extends LayoutWatcherType> = (state: ReturnType<(typeof WatcherStateGetters)[T]>) => void
 
-/** Options for `LayoutWacther`. */
+/** Options for `LayoutWatcher`. */
 export interface LayoutWatcherOptions {
 
-	/** A millseconds, if specified, per interval timer to check state. */
+	/** A millisecond count, if specified, per interval timer to check state. */
 	checkIntervalTime?: number
 
 	/** If specified as `true`, check state per animation frame, and ignores `checkIntervalTime`. */
@@ -29,12 +29,12 @@ const WatcherStateGetters = {
 		return el.offsetWidth === 0 && el.offsetHeight === 0
 	},
 
-	inview(el: HTMLElement): boolean {
+	'in-view'(el: HTMLElement): boolean {
 		let htmlBox = Box.fromLike(document.documentElement.getBoundingClientRect())
 		return Box.fromLike(el.getBoundingClientRect()).isIntersectWith(htmlBox)
 	},
 
-	outview(el: HTMLElement): boolean {
+	'out-view'(el: HTMLElement): boolean {
 		let htmlBox = Box.fromLike(document.documentElement.getBoundingClientRect())
 		return !Box.fromLike(el.getBoundingClientRect()).isIntersectWith(htmlBox)
 	},
@@ -98,7 +98,7 @@ export function watchOnce<T extends LayoutWatcherType>(
  * Note that this method may slow page speed and cause additional reflow.
  * Returns a cancel function.
  */
-export function watchUntil<T extends 'show' | 'hide' | 'inview' | 'outview'>(
+export function watchUntil<T extends 'show' | 'hide' | 'in-view' | 'out-view'>(
 	el: HTMLElement,
 	type: T,
 	callback: LayoutWatcherCallback<T>,
@@ -121,7 +121,7 @@ export function watchUntil<T extends 'show' | 'hide' | 'inview' | 'outview'>(
 
 export class Watcher<T extends LayoutWatcherType> {
 
-	/** Watcher state type, can be `show | hide | inview | outview | size | rect`. */
+	/** Watcher state type, can be `show | hide | in-view | out-view | size | rect`. */
 	private readonly type: T
 
 	/** Element being watching state at. */
@@ -129,7 +129,7 @@ export class Watcher<T extends LayoutWatcherType> {
 
 	private readonly callback: LayoutWatcherCallback<T>
 	private readonly options: LayoutWatcherOptions
-	private readonly stateGtter: typeof WatcherStateGetters[T]
+	private readonly stateGetter: typeof WatcherStateGetters[T]
 
 	private observer: any = null
 	private frameId: number | null = null
@@ -143,7 +143,7 @@ export class Watcher<T extends LayoutWatcherType> {
 		this.callback = callback
 		this.options = options
 
-		this.stateGtter = WatcherStateGetters[type]
+		this.stateGetter = WatcherStateGetters[type]
 	}
 
 	/** Begin to watch. */
@@ -160,10 +160,10 @@ export class Watcher<T extends LayoutWatcherType> {
 			this.observer = new (window as any).ResizeObserver(this.onResize.bind(this))
 			this.observer.observe(this.el)
 		}
-		else if ((this.type === 'inview' || this.type === 'outview')
+		else if ((this.type === 'in-view' || this.type === 'out-view')
 			&& typeof IntersectionObserver === 'function' && !this.options.checkIntervalTime
 		) {
-			this.observer = new IntersectionObserver(this.onInviewChange.bind(this))
+			this.observer = new IntersectionObserver(this.onInViewChange.bind(this))
 			this.observer.observe(this.el)
 		}
 		else {
@@ -198,21 +198,21 @@ export class Watcher<T extends LayoutWatcherType> {
 		}
 	}
 
-	private onInviewChange(entries: IntersectionObserverEntry[]) {
+	private onInViewChange(entries: IntersectionObserverEntry[]) {
 		for (let {intersectionRatio} of entries) {
-			let newState = this.type === 'inview' ? intersectionRatio > 0 : intersectionRatio === 0
+			let newState = this.type === 'in-view' ? intersectionRatio > 0 : intersectionRatio === 0
 			this.onNewState(newState)
 		}
 	}
 
 	private checkStateInAnimationFrame() {
-		let newState = this.stateGtter(this.el)
+		let newState = this.stateGetter(this.el)
 		this.onNewState(newState)
 		this.frameId = AnimationFrame.requestCurrent(this.checkStateInAnimationFrame.bind(this))
 	}
 
 	private checkStateInInterval() {
-		let newState = this.stateGtter(this.el)
+		let newState = this.stateGetter(this.el)
 		this.onNewState(newState)
 	}
 
@@ -225,7 +225,7 @@ export class Watcher<T extends LayoutWatcherType> {
 	
 	/** Check state manually. */
 	checkState() {
-		let newState = this.stateGtter(this.el) as any
+		let newState = this.stateGetter(this.el) as any
 
 		if (!ObjectUtils.deepEqual(newState, this.oldState)) {
 			this.oldState = newState
@@ -235,7 +235,7 @@ export class Watcher<T extends LayoutWatcherType> {
 	
 	/** Reset current state. */
 	resetState() {
-		this.oldState = this.stateGtter(this.el)
+		this.oldState = this.stateGetter(this.el)
 	}
 }
 

@@ -410,7 +410,7 @@ export class Vector {
 	}
 
 	/** Decompress current vector to `μ * a + ν * b`, returns factor vector of `(μ, ν)`. */
-	decompresFactor(a: Vector, b: Vector): Vector {
+	decompressFactor(a: Vector, b: Vector): Vector {
 
 		// [a b] * [μ ν]^T = diff
 		// [μ ν]^T = [a b]^-1 * diff
@@ -420,7 +420,7 @@ export class Vector {
 
 	/** Decompress current vector to `μ * a + ν * b`, returns an vector pair `[μ * a, ν * b]`. */
 	decompress(a: Vector, b: Vector): [Vector, Vector] {
-		let {x: m, y: v} = this.decompresFactor(a, b)
+		let {x: m, y: v} = this.decompressFactor(a, b)
 		return [a.multiplyScalar(m), b.multiplyScalar(v)]
 	}
 

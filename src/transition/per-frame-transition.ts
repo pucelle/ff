@@ -32,7 +32,7 @@ export interface PerFrameTransitionEvents<T> {
 export interface PerFrameTransitionOptions {
 
 	/** 
-	 * Specifies default transition duration in millseconds.
+	 * Specifies default transition duration in milliseconds.
 	 * Default value is `200`.
 	 */
 	duration?: number
@@ -55,14 +55,14 @@ const DefaultTransitionOptions: Required<PerFrameTransitionOptions> = {
 }
 
 
-/** Transiton between start and end values per frame. */
-export class PerFrameTransition<T extends TransitionableValue = any> extends EventFirer<PerFrameTransitionEvents<T>> {
+/** Transition between start and end values per frame. */
+export class PerFrameTransition<T extends TransitionAbleValue = any> extends EventFirer<PerFrameTransitionEvents<T>> {
 
 	/** Default transition options. */
 	static DefaultOptions: Required<PerFrameTransitionOptions> = DefaultTransitionOptions
 
 	/** Play transition with configuration, and between start and end values. */
-	static playBetween<T extends TransitionableValue>(
+	static playBetween<T extends TransitionAbleValue>(
 		startValue: T,
 		endValue: T,
 		handler: (value: T, progress: number) => void,
@@ -92,7 +92,7 @@ export class PerFrameTransition<T extends TransitionableValue = any> extends Eve
 
 	/** 
 	 * Be resolved after transition end.
-	 * Resolve paramter is whether transition finished.
+	 * Resolve parameter is whether transition finished.
 	 */
 	private resolve: ((finished: boolean) => void) | null = null
 
@@ -117,7 +117,7 @@ export class PerFrameTransition<T extends TransitionableValue = any> extends Eve
 	 */
 	currentValue: T | null = null
 
-	/** A replaceable onprocess handler. */
+	/** A replaceable onprogress handler. */
 	onprogress: ((value: T, progress: number) => void) | null = null
 
 	/** 

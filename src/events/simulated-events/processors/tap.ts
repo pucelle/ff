@@ -9,7 +9,7 @@ export interface TapEvents {
 
 	/** 
 	 * After a quick tap.
-	 * Note `tap` event will be triggered frequently when doing Apple Pencil writting,
+	 * Note `tap` event will be triggered frequently when doing Apple Pencil writing,
 	 * would suggest using only `mousedown` in this case.
 	 * Otherwise you should not register both tap and mousedown / click with the same listener,
 	 * Except you remember to call `endEvent.preventDefault()` to prevent following mousedown / click event.

@@ -178,7 +178,7 @@ export class DBStore<T = any> {
 		}) as Promise<T>
 	}
 	
-	/** Whether have specifed key. */
+	/** Whether have specified key. */
 	async has(key: string): Promise<boolean> {
 		return (await this.count(key)) > 0
 	}

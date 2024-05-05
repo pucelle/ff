@@ -26,7 +26,7 @@ type Events = HoldEvents & DoubleTapEvents & PinchTransformEvents & PinchZoomEve
 type EventType = keyof Events & string
 
 
-/** Simulated event configations. */
+/** Simulated event configurations. */
 export const Configuration = SimulatedEventsConfiguration
 
 /** Shared Processors. */

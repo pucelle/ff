@@ -74,7 +74,7 @@ export class BoxDistances {
 	}
 
 	/** Get the maximum absolute value of all 4 values. */
-	getMaximumAbsuluteValue(): number {
+	getMaximumAbsoluteValue(): number {
 		return Math.max(
 			Math.abs(this.top),
 			Math.abs(this.right),

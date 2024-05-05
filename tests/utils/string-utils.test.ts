@@ -17,9 +17,9 @@ describe('Test StringUtils', () => {
 	test('other string methods', () => {
 		expect(StringUtils.toCapitalize('abc')).toEqual('Abc')
 
-		expect(StringUtils.toCamerCase('ab_c')).toEqual('abC')
-		expect(StringUtils.toCamerCase('ab-c')).toEqual('abC')
-		expect(StringUtils.toCamerCase('ab c')).toEqual('abC')
+		expect(StringUtils.toCamelCase('ab_c')).toEqual('abC')
+		expect(StringUtils.toCamelCase('ab-c')).toEqual('abC')
+		expect(StringUtils.toCamelCase('ab c')).toEqual('abC')
 
 		expect(StringUtils.toDashCase('abC')).toEqual('ab-c')
 		expect(StringUtils.toDashCase('AbC')).toEqual('ab-c')

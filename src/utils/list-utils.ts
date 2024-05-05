@@ -130,7 +130,7 @@ type NormativeOrderRules<T> = {fn: OrderFunction<T>, direction: -1 | 1}
 
 /**
  * Compare with quick helper function `orderBy`,
- * an `Order` class can normalize and sorting parameters and resue it later.
+ * an `Order` class can normalize and sorting parameters and reuse it later.
  */
 export class Order<T> {
 
@@ -292,7 +292,7 @@ export function minIndex<T>(list: ArrayLike<T>, map: (item: T, index: number) =>
 
 
 /**
- * Returns the index of the maximun value of all the items in list.
+ * Returns the index of the maximum value of all the items in list.
  * - `map`: comparing the minimum item by this map function.
  * 
  * Returns `-1` if no items or all values are `-Infinity`.

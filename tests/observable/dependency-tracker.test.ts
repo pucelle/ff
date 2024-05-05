@@ -1,4 +1,4 @@
-import {DependencyTracker, proxyOf} from '../../src'
+import {DependencyTracker} from '../../src'
 
 
 describe('Test DependencyTracker', () => {

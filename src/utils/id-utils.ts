@@ -1,10 +1,10 @@
 const PrefixedUIDMap: Map<string, number> = new Map()
-let currentIUID = 0
+let currentIntUID = 0
 
 
 /** Create an auto increasement web-document-unique int type id. */
 export function intUid(): number {
-	return ++currentIUID
+	return ++currentIntUID
 }
 
 

@@ -137,8 +137,8 @@ export function comeFromApplePencil(e: Event): boolean {
  */
 export function untilWindowLoaded() {
 	return new Promise(resolve => {
-		let entrys = window.performance.getEntriesByType('navigation')
-		if (entrys.length > 0 && (entrys[0] as any).loadEventEnd > 0) {
+		let entries = window.performance.getEntriesByType('navigation')
+		if (entries.length > 0 && (entries[0] as any).loadEventEnd > 0) {
 			resolve()
 		}
 		else {
@@ -154,8 +154,8 @@ export function untilWindowLoaded() {
  */
 export function untilDocumentComplete() {
 	return new Promise(resolve => {
-		let entrys = window.performance.getEntriesByType('navigation')
-		if (entrys.length > 0 && (entrys[0] as any).domContentLoadedEventEnd > 0) {
+		let entries = window.performance.getEntriesByType('navigation')
+		if (entries.length > 0 && (entries[0] as any).domContentLoadedEventEnd > 0) {
 			resolve()
 		}
 		else {

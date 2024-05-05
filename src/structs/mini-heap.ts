@@ -61,7 +61,7 @@ export class MiniHeap<T> {
 	
 	/** 
 	 * Swap item with it's parent if needed,
-	 * and do it recurively.
+	 * and do it recursively.
 	 */
 	private shiftUp(index: number) {
 		if (index === 0) {
@@ -79,7 +79,7 @@ export class MiniHeap<T> {
 
 	/** 
 	 * Swap item with one of it's children if needed,
-	 * and do it recurively.
+	 * and do it recursively.
 	 */
 	private shiftDown(index: number) {
 		let rightIndex = (index + 1) << 1

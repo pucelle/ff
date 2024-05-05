@@ -243,7 +243,7 @@ describe('Test queue', () => {
 		expect(q.runningTaskData).toEqual([0, 1])
 
 		await (new Promise(resolve => {
-			q.on('taskfinished', (n: number) => {
+			q.on('task-finished', (n: number) => {
 				if (n === 5) {
 					q.pause()
 					resolve()

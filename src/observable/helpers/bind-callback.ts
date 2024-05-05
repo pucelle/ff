@@ -1,25 +1,25 @@
 import {WeakerDoubleKeysMap} from '../../structs'
 
 
-/** Caches all binded callbacks, `Callback -> Scope -> Binded Callback`. */
-const BindedCallbackMap: WeakerDoubleKeysMap<Function, object, Function> = new WeakerDoubleKeysMap()
+/** Caches all bound callbacks, `Callback -> Scope -> Bound Callback`. */
+const BoundCallbackMap: WeakerDoubleKeysMap<Function, object, Function> = new WeakerDoubleKeysMap()
 
 
 /** 
  * Bind a callback and a scope to get a new callback function.
  * 
- * Will cache reuslt and always get same result for same parameters.
+ * Will cache result and always get same result for same parameters.
  */
 export function bindCallback<T extends Function>(callback: T, scope: object | null): T {
 	if (!scope) {
 		return callback
 	}
 
-	let bindedCallback = BindedCallbackMap.get(callback, scope) as T | undefined			
-	if (!bindedCallback) {
-		bindedCallback = callback.bind(scope) as T
-		BindedCallbackMap.set(callback, scope, bindedCallback)
+	let boundCallback = BoundCallbackMap.get(callback, scope) as T | undefined			
+	if (!boundCallback) {
+		boundCallback = callback.bind(scope) as T
+		BoundCallbackMap.set(callback, scope, boundCallback)
 	}
 
-	return bindedCallback
+	return boundCallback
 }

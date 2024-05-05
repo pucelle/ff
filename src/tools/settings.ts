@@ -35,7 +35,7 @@ export class Settings<O extends object> extends EventFirer<SettingsEvents<O>> {
 		return this.data
 	}
 
-	/** Get options data fullfilled by default data. */
+	/** Get options data fulfilled by default data. */
 	getFullData(): O {
 		return {...this.defaultData, ...this.data}
 	}
@@ -45,7 +45,7 @@ export class Settings<O extends object> extends EventFirer<SettingsEvents<O>> {
 		return this.data.hasOwnProperty(key)
 	}
 
-	/** Get option value by key, choose defaut value if option data doesn't specified it. */
+	/** Get option value by key, choose default value if option data doesn't specified it. */
 	get<K extends keyof O>(key: K): O[K] {
 		return this.data[key] ?? this.defaultData[key]!
 	}
@@ -72,7 +72,7 @@ export class Settings<O extends object> extends EventFirer<SettingsEvents<O>> {
 export class StorableSettings<O extends object> extends Settings<O> {
 
 	protected readonly storageKey: string
-	protected saveBoundler: EmptyBundler
+	protected saveBundler: EmptyBundler
 
 	constructor(storageKey: string, defaultData: O) {
 		if (!storageKey) {
@@ -82,12 +82,12 @@ export class StorableSettings<O extends object> extends Settings<O> {
 		super(webStorage.get(storageKey, {}), defaultData)
 
 		this.storageKey = storageKey
-		this.saveBoundler = new EmptyBundler(this.saveStorageData.bind(this))
+		this.saveBundler = new EmptyBundler(this.saveStorageData.bind(this))
 		this.initEvents()
 	}
 
 	protected initEvents() {
-		this.on('set', () => this.saveBoundler.call(), this)
+		this.on('set', () => this.saveBundler.call(), this)
 	}
 
 	/** Save data to local storage. */

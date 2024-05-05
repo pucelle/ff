@@ -119,7 +119,7 @@ describe('Test Vector', () => {
 		expect(temp).toEqual(new Vector(2.5, 1.25))
 
 		v.set(1, 1)
-		expect(v.decompresFactor(v1, v2)).toEqual(new Vector(1/3, 1/3))
+		expect(v.decompressFactor(v1, v2)).toEqual(new Vector(1/3, 1/3))
 		expect(v.decompress(v1, v2)).toEqual([new Vector(1/3, 2/3), new Vector(2/3, 1/3)])
 	})
 })

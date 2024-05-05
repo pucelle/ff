@@ -29,7 +29,7 @@ export declare function computed(target: any, property: string): void
 
 /** 
  * `@effect` decorates a class method, it execute this method,
- * and if any depedency it used get changed, re-execute this method.
+ * and if any dependency it used get changed, re-execute this method.
  * 
  * The effect action will be started after instance initialized,
  * so applying properties in `constructor` will not cause this method be called.
@@ -42,8 +42,8 @@ export declare function effect(target: any, property: string): void
  * and calls current method after this value becomes changed.
  * 
  * Use it like:
- * - `@watch('property') onProperyChange() {...}`
- * - `@watch(function(this: C) {return this.property}) onProperyChange() {...}`
+ * - `@watch('property') onPropertyChange() {...}`
+ * - `@watch(function(this: C) {return this.property}) onPropertyChange() {...}`
  * 
  * The watch action will be started after instance initialized,
  * so applying properties in `constructor` will not cause callback be called.

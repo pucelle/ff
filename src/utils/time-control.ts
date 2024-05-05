@@ -31,7 +31,7 @@ abstract class TimeControlFunction<F extends Function> {
 
 
 /** Wrapped a function, throttle or debounce it. */
-abstract class WrappedTimeControllFunction<F extends Function> extends TimeControlFunction<F> {
+abstract class WrappedTimeControlFunction<F extends Function> extends TimeControlFunction<F> {
 
 	/** 
 	 * The wrapped function that after throttled or debounced.
@@ -107,7 +107,7 @@ export class Timeout<F extends Function = Function> extends TimeControlFunction<
 }
 
 /**
- * Just like `setTimeout`, call `fn` after `ms` millisecons.
+ * Just like `setTimeout`, call `fn` after `ms` milliseconds.
  * Returns a cancel function.
  */
 export function timeout(fn: Function, ms: number = 0): () => void {
@@ -163,7 +163,7 @@ export class Interval<F extends Function = Function> extends TimeControlFunction
 }
 
 
-/** Just like `setInterval`, call `fn` every `ms` millisecons. */
+/** Just like `setInterval`, call `fn` every `ms` milliseconds. */
 export function interval(fn: Function, ms: number): () => void {
 	let i = new Interval(fn, ms)
 	i.start()
@@ -252,13 +252,13 @@ export function frameLoop(fn: FrameLoopCallback): () => void {
 
 
 /** Throttle `fn` calling frequency, call original at most once every `intervalMs`. */
-export class Throttle<F extends Function> extends WrappedTimeControllFunction<F> {
+export class Throttle<F extends Function> extends WrappedTimeControlFunction<F> {
 
 	/** At `immediateMode`, will call original function immediately. */
 	readonly immediateMode: boolean
 
-	/** Cached function, with parameters binded. */
-	private bindedFn: F | null = null
+	/** Cached function, with parameters bound. */
+	private boundFn: F | null = null
 
 	/** 
 	 * If `immediateMode` is `true`, will call original function immediately.
@@ -269,7 +269,7 @@ export class Throttle<F extends Function> extends WrappedTimeControllFunction<F>
 		this.immediateMode = immediateMode
 	}
 
-	/** Whether trottle is running. */
+	/** Whether throttle is running. */
 	get running(): boolean {
 		return !this.canceled
 	}
@@ -300,7 +300,7 @@ export class Throttle<F extends Function> extends WrappedTimeControllFunction<F>
 			this.fn.apply(scope, args)
 		}
 		else {
-			this.bindedFn = this.fn.bind(scope, ...args)
+			this.boundFn = this.fn.bind(scope, ...args)
 		}
 
 		this.id = setTimeout(this.onTimeout.bind(this), this.ms)
@@ -309,9 +309,9 @@ export class Throttle<F extends Function> extends WrappedTimeControllFunction<F>
 	private onTimeout() {
 		this.id = null
 
-		if (this.bindedFn) {
-			this.bindedFn()
-			this.bindedFn = null
+		if (this.boundFn) {
+			this.boundFn()
+			this.boundFn = null
 		}
 	}
 
@@ -326,7 +326,7 @@ export class Throttle<F extends Function> extends WrappedTimeControllFunction<F>
 			this.id = null
 		}
 
-		this.bindedFn = null
+		this.boundFn = null
 		this.canceled = false
 	}
 
@@ -337,9 +337,9 @@ export class Throttle<F extends Function> extends WrappedTimeControllFunction<F>
 			this.id = null
 		}
 
-		if (this.bindedFn) {
-			this.bindedFn()
-			this.bindedFn = null
+		if (this.boundFn) {
+			this.boundFn()
+			this.boundFn = null
 		}
 
 		this.reset()
@@ -352,7 +352,7 @@ export class Throttle<F extends Function> extends WrappedTimeControllFunction<F>
 			this.id = null
 		}
 
-		this.bindedFn = null
+		this.boundFn = null
 		this.canceled = true
 	}
 }
@@ -372,10 +372,10 @@ export function throttle<F extends Function>(fn: F, ms: number = 200, immediateM
  * Debounce `fn` calling frequency,
  * call `fn` after called before and not calling returned function for at least `intervalMs` duration.
  */
-export class Debounce<F extends Function> extends WrappedTimeControllFunction<F> {
+export class Debounce<F extends Function> extends WrappedTimeControlFunction<F> {
 
 	/** Cached function, to call it when time meet. */
-	private bindedFn: F | null = null
+	private boundFn: F | null = null
 
 	/** Whether debounce is running. */
 	get running(): boolean {
@@ -404,14 +404,14 @@ export class Debounce<F extends Function> extends WrappedTimeControllFunction<F>
 	}
 
 	private setDebounce(scope: any, args: any[]) {
-		this.bindedFn = this.fn.bind(scope, ...args)
+		this.boundFn = this.fn.bind(scope, ...args)
 		this.id = setTimeout(this.onTimeout.bind(this), this.ms)
 	}
 
 	private onTimeout() {
 		this.id = null
-		this.bindedFn!()
-		this.bindedFn = null
+		this.boundFn!()
+		this.boundFn = null
 	}
 
 	/** 
@@ -422,7 +422,7 @@ export class Debounce<F extends Function> extends WrappedTimeControllFunction<F>
 		if (this.id !== null) {
 			clearTimeout(this.id)
 			this.id = null
-			this.bindedFn = null
+			this.boundFn = null
 		}
 
 		this.canceled = false
@@ -430,8 +430,8 @@ export class Debounce<F extends Function> extends WrappedTimeControllFunction<F>
 
 	/** Call `fn` immediately if there is a deferred calling, and restart debounce timeout. */
 	flush() {
-		if (this.bindedFn) {
-			this.bindedFn()
+		if (this.boundFn) {
+			this.boundFn()
 		}
 
 		this.reset()

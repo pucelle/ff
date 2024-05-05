@@ -121,7 +121,7 @@ export function getNonScrollOffset(el: HTMLElement, wrapper: HTMLElement, direct
 		offset += parent[property]
 		parent = parent.offsetParent as HTMLElement
 
-		// Outof range of wrapper.
+		// Out of range of wrapper.
 		if (parent.contains(wrapper)) {
 			if (parent === wrapper.offsetParent) {
 				offset -= wrapper[property]
@@ -251,7 +251,7 @@ export async function scrollToView(el: HTMLElement, gap: number = 0, duration: n
 
 
 /**
- * Scroll closest scrollbar to make element in the topest or left most of the scroll viewport.
+ * Scroll closest scrollbar to make element in the top most or left most of the scroll viewport.
  * - `gap`: Reserve a little distance from the element's edge away from scroll viewport edge.
  * 
  * Returns a promise which will be resolved by whether scrolled.
@@ -267,7 +267,7 @@ export async function scrollToStart(el: HTMLElement, gap: number = 0, duration: 
 
 
 /**
- * Scroll closest scrollbar to make element in the topest of the scroll viewport.
+ * Scroll closest scrollbar to make element in the top most of the scroll viewport.
  * - `gap`: Reserve a little distance from the element's edge away from scroll viewport edge.
  * 
  * Returns a promise which will be resolved by whether scrolled.
