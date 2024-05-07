@@ -86,8 +86,8 @@ export class Color {
 
 	/** 
 	 * Improve contrast of a color string compare with another color string.
-	 * `minimumLightContrast` specifies the minimum light difference.
-	 * `inverseRate` specifies the minimum light difference rate when the color value exceed.
+	 * @param minimumLightContrast specifies the minimum light difference.
+	 * @param inverseRate specifies the minimum light difference rate when the color value exceed.
 	 */
 	static improveColorStringContrast(
 		improveColorString: string,
@@ -265,8 +265,8 @@ export class Color {
 
 	/** 
 	 * Improve contrast compare with another color.
-	 * `minimumLightContrast` specifies the minimum light difference.
-	 * `inverseRate` specifies the minimum light difference rate when the color value exceed.
+	 * @param minimumLightContrast specifies the minimum light difference.
+	 * @param inverseRate specifies the minimum light difference rate when the color value exceed.
 	 */
 	improveContrast(compareColor: Color, minimumLightContrast: number = 0.2, minimumLightContrastRateToInverse: number = 0.5) {
 		let hsl = RGBA2HSLA(this)

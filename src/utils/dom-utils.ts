@@ -4,7 +4,7 @@ export type StylePropertyName = string & keyof CSSStyleDeclaration
 
 /** 
  * Whether `node` is before of or contains `compareNode`.
- * `canEqual` specifies whether two nodes can be equivalent.
+ * @param canEqual specifies whether two nodes can be equivalent.
  */
 export function isNodeBefore(node: Node, compareNode: Node, canEqual: boolean = false): boolean {
 	let result = compareNode.compareDocumentPosition(node)
@@ -14,7 +14,7 @@ export function isNodeBefore(node: Node, compareNode: Node, canEqual: boolean = 
 
 /** 
  * Whether `node` is after of or been contained by `compareNode`.
- * `canEqual` specifies whether two nodes can be equivalent.
+ * @param canEqual specifies whether two nodes can be equivalent.
  */
 export function isNodeAfter(node: Node, compareNode: Node, canEqual: boolean = false): boolean {
 	let result = compareNode.compareDocumentPosition(node)

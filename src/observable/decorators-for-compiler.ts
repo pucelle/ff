@@ -4,7 +4,7 @@
  * If a class is decorated as observable, its all public properties becomes
  * readonly outside of class private scope, except decorates properties as `@input`.
  * 
- * This is only an identifier, it will be removed after compiled to js codes by `@pucelle/lupos-compiler`.
+ * This is only an identifier, it will be removed after compiled.
  */
 export declare function observable(constructor: Function): void
 
@@ -15,7 +15,7 @@ export declare function observable(constructor: Function): void
  * If a class is decorated by `@observable`, its all public properties becomes
  * readonly outside of class private scope, except decorates properties as `@input`.
  * 
- * This is only an identifier, it will be removed after compiled to js codes by `@pucelle/lupos-compiler`.
+ * This is only an identifier, it will be removed after compiled.
  */
 export declare function input(target: any, property: string): void
 
@@ -23,6 +23,8 @@ export declare function input(target: any, property: string): void
 /** 
  * `@computed` decorates a class getter to make it compute value when required.
  * Compare with `get property() {...}`, computed property will be cached, and refresh only when required.
+ * 
+ * This is only an identifier, it will be removed after compiled.
  */
 export declare function computed(target: any, property: string): void
 
@@ -33,6 +35,8 @@ export declare function computed(target: any, property: string): void
  * 
  * The effect action will be started after instance initialized,
  * so applying properties in `constructor` will not cause this method be called.
+ * 
+ * This is only an identifier, it will be removed after compiled.
  */
 export declare function effect(target: any, property: string): void
 
@@ -42,10 +46,14 @@ export declare function effect(target: any, property: string): void
  * and calls current method after this value becomes changed.
  * 
  * Use it like:
- * - `@watch('property') onPropertyChange() {...}`
- * - `@watch(function(this: C) {return this.property}) onPropertyChange() {...}`
+ * ```
+ * @watch('property') onPropertyChange() {...}
+ * @watch(function(this: C) {return this.property}) onPropertyChange() {...}
+ * ```
  * 
  * The watch action will be started after instance initialized,
  * so applying properties in `constructor` will not cause callback be called.
+ * 
+ * This is only an identifier, it will be removed after compiled.
  */
 export declare function watch(fnOrProperty: (() => any) | PropertyKey, immediate?: boolean): void

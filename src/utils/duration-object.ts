@@ -133,7 +133,7 @@ export class DurationObject {
 
 	/** 
 	 * Format to duration string like `1h1m`.
-	 * `units` can specify only output with these units.
+	 * @param units can specify only output in these units.
 	 */
 	toDurationString(units: string = DurationUnits): string {
 		let seconds = this.toSeconds()

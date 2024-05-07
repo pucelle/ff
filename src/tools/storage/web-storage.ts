@@ -94,7 +94,8 @@ export class WebStorage {
 
 	/** 
 	 * Set a key value pair.
-	 * `expireDuration`: specifies after which the specified data will become expired.
+	 * 
+	 * @param expireDuration specifies after which the specified data will become expired.
 	 * it can be a duration object, duration string, or a second count.
 	 */
 	set(key: string, value: any, expireDuration?: DurationObject | string | number): boolean {
@@ -153,7 +154,8 @@ export class WebStorage {
 
 	/** 
 	 * Clear all expired data.
-	 * `clearIntervalDuration` specifies an duration,
+	 * 
+	 * @param clearIntervalDuration specifies an duration,
 	 * in which can clear only once, default value is one day.
 	 */
 	ClearExpiredThrottled(clearIntervalDuration: DurationObject | string | number = '1d') {

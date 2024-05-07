@@ -4,8 +4,8 @@ import {ValueListUtils} from '../utils'
 
 /**
  * Locate the x value, at which the rate of the integral value equals `y`.
- * - `yRate`: The integral rate betweens 0~1.
- * - `integrogram`: Integrogram consist of accumulate values, first value `0` is dropped.
+ * @param yRate The integral rate betweens 0~1.
+ * @param integrogram Integrogram consist of accumulate values, first value `0` is dropped.
  * 
  * Histogram Values: [3, 2, 1]
  * Integrogram Values: [3, 5, 6]
@@ -38,12 +38,14 @@ export function locateIntegralX(yRate: number, integrogram: number[]): number {
 /**
  * Provide the x rate value, get the y value by an integrogram of y values.
  * 
- * - `xRate`: The x value betweens 0~1.
- * - `integrogram`: Integrogram consist of accumulate y values, first value `0` is dropped.
+ * @param xRate The x value betweens 0~1.
+ * @param integrogram Integrogram consist of accumulate y values, first value `0` is dropped.
  * 
+ * ```
  * Histogram Values: [3, 2, 1]
  * Integrogram Values: [3, 5, 6]
  * `xRate`=0.5: index is 0.5 * 3 = 1.5, interpolate integrogram[0] and integrogram[1], `got (3+5)/2 = 4`.
+ * ```
  */
 export function locateIntegralY(xRate: number, integrogram: number[]): number {
 	if (integrogram.length === 0) {

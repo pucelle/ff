@@ -137,7 +137,7 @@ export function getNonScrollOffset(el: HTMLElement, wrapper: HTMLElement, direct
 /**
  * Scroll scrollbar in specified direction of closest scroll wrapper,
  * for minimal distance to make element to become fully visible.
- * - `gap`: Reserve a little distance from the element's edge away from scroll viewport edge.
+ * @param gap Reserve a little distance from the element's edge away from scroll viewport edge.
  * 
  * Returns a promise which will be resolved by whether scrolled.
  */
@@ -252,7 +252,7 @@ export async function scrollToView(el: HTMLElement, gap: number = 0, duration: n
 
 /**
  * Scroll closest scrollbar to make element in the top most or left most of the scroll viewport.
- * - `gap`: Reserve a little distance from the element's edge away from scroll viewport edge.
+ * @param gap Reserve a little distance from the element's edge away from scroll viewport edge.
  * 
  * Returns a promise which will be resolved by whether scrolled.
  */
@@ -268,7 +268,7 @@ export async function scrollToStart(el: HTMLElement, gap: number = 0, duration: 
 
 /**
  * Scroll closest scrollbar to make element in the top most of the scroll viewport.
- * - `gap`: Reserve a little distance from the element's edge away from scroll viewport edge.
+ * @param gap Reserve a little distance from the element's edge away from scroll viewport edge.
  * 
  * Returns a promise which will be resolved by whether scrolled.
  */
@@ -279,7 +279,7 @@ export function scrollToTop(el: HTMLElement, gap: number = 0, duration: number =
 
 /**
  * Scroll closest scrollbar to make element in the left most of the scroll viewport.
- * - `gap`: Reserve a little distance from the element's edge away from scroll viewport edge.
+ * @param gap Reserve a little distance from the element's edge away from scroll viewport edge.
  * 
  * Returns a promise which will be resolved by whether scrolled.
  */

@@ -86,8 +86,9 @@ export class BiggerStorage {
 
 	/** 
 	 * Set a key value pair.
-	 * `expireDuration`: specifies after which the specified data will become expired.
-	 * it can be a duration object, duration string, or a second count.
+	 * 
+	 * @param expireDuration specifies after which the specified data will become expired.
+	 *     it can be a duration object, duration string, or a second count.
 	 */
 	async set(key: string, value: any, expireDuration?: DurationObject | string | number): Promise<boolean | null> {
 		let store = await this.getStore()
@@ -173,8 +174,9 @@ export class BiggerStorage {
 	}
 
 	/** 
-	 * Clear all expired data in storage, but was limitted to not clear too often.
-	 * `clearIntervalDuration` specifies a duration,
+	 * Clear all expired data in storage, but was limited to not clear too often.
+	 * 
+	 * @param clearIntervalDuration specifies a duration,
 	 * in which can clear only once, it's default value is one day.
 	 */
 	async clearExpiredThrottled(clearIntervalDuration: DurationObject | string | number = '1d') {

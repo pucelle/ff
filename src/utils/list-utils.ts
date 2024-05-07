@@ -75,7 +75,7 @@ export function removeWhere<T>(list: T[], match: (item: T, index: number) => boo
 
 /** 
  * Create an index map in `K => V` format.
- * - `pairFn`: get key and value pair by it.
+ * @param pairFn get key and value pair by it.
  */
 export function indexBy<T, K, V>(list: Iterable<T>, pairFn: (value: T) => [K, V]): Map<K, V> {
 	let map: Map<K, V> = new Map()
@@ -91,7 +91,7 @@ export function indexBy<T, K, V>(list: Iterable<T>, pairFn: (value: T) => [K, V]
 
 /** 
  * Create a group map in `K => V[]` format, just like SQL `group by` statement.
- * - `pairFn`: get key and value pair by it.
+ * @param pairFn get key and value pair by it.
  */
 export function groupBy<T, K, V>(list: Iterable<T>, pairFn: (value: T) => [K, V]): Map<K, V[]> {
 	let map: Map<K, V[]> = new Map()
@@ -177,7 +177,7 @@ export class Order<T> {
 
 	/** 
 	 * Sort `list` inside it's memory, by current order.
-	 * `direction` specifies additional order adjustment.
+	 * @param direction specifies additional order adjustment.
 	 */
 	sort(list: T[], direction: OrderDirection = 1) {
 		let normalizedDirection = direction === 'asc' ? 1 : direction === 'desc' ? -1 : direction
@@ -219,7 +219,6 @@ export class Order<T> {
 	 * Binary find an insert index from a list, which has been sorted by current `Order`.
 	 * And make the list is still in sorted state after inserting the new value.
 	 * Returned index is betweens `0 ~ list length`.
-	 * 
 	 * Note when some equal values exist, the returned index prefers upper.
 	 */
 	binaryFindInsertIndex(list: T[], item: T): number {
@@ -270,8 +269,7 @@ export function orderBy<T>(list: T[], ...orders: OrderRule<T>[]): T[] {
 
 /**
  * Returns the index of the minimal value of all the items in list.
- * - `map`: comparing the minimum item by this map function.
- * 
+ * @param map compare items by this map function.
  * Returns `-1` if no items or all values are `Infinity`.
  */
 export function minIndex<T>(list: ArrayLike<T>, map: (item: T, index: number) => number): number {
@@ -293,9 +291,8 @@ export function minIndex<T>(list: ArrayLike<T>, map: (item: T, index: number) =>
 
 /**
  * Returns the index of the maximum value of all the items in list.
- * - `map`: comparing the minimum item by this map function.
- * 
  * Returns `-1` if no items or all values are `-Infinity`.
+ * @param map compare items by this map function.
  */
 export function maxIndex<T>(list: ArrayLike<T>, map: (item: T, index: number) => number): number {
 	let maxIndex = -1
@@ -316,9 +313,8 @@ export function maxIndex<T>(list: ArrayLike<T>, map: (item: T, index: number) =>
 
 /** 
  * Find the minimum item in a list.
- * - `map`: comparing the minimum item by this map function.
- * 
  * Returns `null` if no items or all values are `Infinity`.
+ * @param map compare items by this map function.
  */
 export function minOf<T>(list: ArrayLike<T>, map: (item: T, index: number) => number): T | null {
 	let index = minIndex(list, map)
@@ -327,10 +323,9 @@ export function minOf<T>(list: ArrayLike<T>, map: (item: T, index: number) => nu
 
 
 /** 
- * Find the maximum item in a list, comparing the minimum item by a `map` function.
- * - `map`: comparing the minimum item by this map function.
- * 
+ * Find the maximum item in a list, compare items by a `map` function.
  * Returns `null` if no items or all values are `-Infinity`.
+ * @param map compare items by this map function.
  */
 export function maxOf<T>(list: ArrayLike<T>, map: (item: T, index: number) => number): T | null {
 	let index = maxIndex(list, map)
@@ -344,7 +339,7 @@ export function maxOf<T>(list: ArrayLike<T>, map: (item: T, index: number) => nu
  * And make the list is still in sorted state after inserting the new value.
  * Returned index is betweens `0 ~ list length`.
  * Note when some equal values exist, the returned index prefers upper.
- * `comparer` is used to compare two values.
+ * @param comparer is used to compare two values.
  */
 export function binaryFindInsertIndex<T>(sortedList: ArrayLike<T>, toInsert: T, comparer: (v1: T, v2: T) => number): number {
 	if (sortedList.length === 0) {
@@ -384,7 +379,7 @@ export function binaryFindInsertIndex<T>(sortedList: ArrayLike<T>, toInsert: T, 
  * And make the list is still in sorted state after inserting the new value.
  * Returned index is betweens `0 ~ list length`.
  * Note when some equal values exist, the returned index prefers lower.
- * `comparer` is used to compare two values.
+ * @param comparer is used to compare two values.
  */
 export function binaryFindLowerInsertIndex<T>(sortedList: ArrayLike<T>, toInsert: T, comparer: (value: T, compareValue: T) => number): number {
 	let index = binaryFindInsertIndex(sortedList, toInsert, comparer)
@@ -413,7 +408,7 @@ export function binaryInsert<T>(sortedList: T[], toInsert: T, comparer: (value: 
 /** 
  * Binary find an item from a list, which has been sorted by `comparer`.
  * Returns the found item, or `undefined` if nothing found.
- * `comparer` is used to compare two values.
+ * @param comparer is used to compare two values.
  */
 export function binaryFind<T>(sortedList: ArrayLike<T>, like: T, comparer: (value: T, compareValue: T) => number): T | undefined {
 	let index = binaryFindLowerInsertIndex(sortedList, like, comparer)
@@ -436,9 +431,8 @@ export function binaryFind<T>(sortedList: ArrayLike<T>, like: T, comparer: (valu
  * Returned index is betweens `0 ~ list length`.
  * Note when some equal values exist, the returned index prefers upper.
  * 
- * `fn`: used to know whether a value is larger or smaller,
- * it returns positive value to move right,
- * and returns negative value to move left.
+ * @param fn: used to know whether a value is larger or smaller,
+ * 	   it returns positive value to move right, and negative value to move left.
  */
 export function quickBinaryFindInsertIndex<T>(sortedList: ArrayLike<T>, fn: (v: T) => number): number {
 	if (sortedList.length === 0) {
@@ -479,9 +473,8 @@ export function quickBinaryFindInsertIndex<T>(sortedList: ArrayLike<T>, fn: (v: 
  * Returned index is betweens `0 ~ list length`.
  * Note when some equal values exist, the returned index prefers lower.
  * 
- * `fn`: used to know whether a value is larger or smaller,
- * it returns positive value to move right,
- * and returns negative value to move left.
+ * @param fn used to know whether a value is larger or smaller,
+ * 	   it returns positive value to move right, and negative value to move left.
  */
 export function quickBinaryFindLowerInsertIndex<T>(sortedList: ArrayLike<T>, fn: (v: T) => number): number {
 	let index = quickBinaryFindInsertIndex(sortedList, fn)
@@ -498,9 +491,8 @@ export function quickBinaryFindLowerInsertIndex<T>(sortedList: ArrayLike<T>, fn:
  * Binary find an item from a list, which has been sorted.
  * Returns the found item, or `undefined` if nothing found.
  * 
- * `fn`: used to know whether a value is larger or smaller,
- * it returns positive value to move right,
- * and returns negative value to move left.
+ * @param fn used to know whether a value is larger or smaller,
+ *     it returns positive value to move right, and negative value to move left.
  */
 export function quickBinaryFind<T>(sortedList: ArrayLike<T>, fn: (v: T) => number): T | undefined {
 	let index = quickBinaryFindLowerInsertIndex(sortedList, fn)

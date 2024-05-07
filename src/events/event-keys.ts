@@ -843,7 +843,7 @@ export function isControlKey(event: KeyEventLike): boolean {
 
 /** 
  * Get key string like `Ctrl+A`, `Ctrl+1`.
- * `shiftDistinguish` determines whether consider pressing Shift key,
+ * @param shiftDistinguish determines whether consider pressing Shift key,
  * e.g., when `shiftDistinguish=true`will get `Shift+?` but not `Shift+/`.
  */
 export function getShortcutKey(event: KeyEventLike, shiftDistinguish: boolean = false): ShortcutKey {

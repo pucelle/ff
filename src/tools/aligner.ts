@@ -142,9 +142,9 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 	/**
 	 * Align `to-align` to `target` element with specified position.
 	 * If no enough space, will adjust align position automatically.
-	 * - `toAlign`: Element that will be adjusted position to align.
-	 * - `target`: Element that previous element should align to.
-	 * - `alignPosition`: contains two parts, e.g., `tl-br` means align top-left position of `to-align` to bottom-right position of `target`.
+	 * @param toAlign Element that will be adjusted position to align.
+	 * @param target Element that previous element should align to.
+	 * @param alignPosition contains two parts, e.g., `tl-br` means align top-left position of `to-align` to bottom-right position of `target`.
 	 */
 	static align(toAlign: HTMLElement, target: Element, alignPosition: AlignerPosition, options: AlignerOptions = {}) {
 		new Aligner(toAlign, target, alignPosition, options).align()

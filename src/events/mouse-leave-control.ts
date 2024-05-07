@@ -28,8 +28,8 @@ export interface MouseLeaveControlOptions {
  * 
  * Example:
  * 	- `trigger1` cause `popup1` get popped-up, creates `controller1`.
- * 	- `trigger2` is contained by `popup1`, and cause `popup2` get poped-up, creates `controller2`.
- *  - `trigger3` is contained by `popup2`, and cause `popup3` get poped-up, creates `controller3`.
+ * 	- `trigger2` is contained by `popup1`, and cause `popup2` get popped-up, creates `controller2`.
+ *  - `trigger3` is contained by `popup2`, and cause `popup3` get popped-up, creates `controller3`.
  *
  * So:
  * 	- `trigger1` cause `popup1` popped-up, `lockBy(trigger1)`, nothing happens.

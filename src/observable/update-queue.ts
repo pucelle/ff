@@ -78,7 +78,7 @@ let phase: QueueUpdatePhase = QueueUpdatePhase.NotStarted
 /** 
  * Enqueue a callback with a scope, will call it before the next animate frame.
  * Multiple times add same callbacks during same animate frame will work for only once.
- * `order` specifies the callback order.
+ * @param order specifies the callback order.
  */
 export function enqueue(callback: () => void, scope: object | null = null, order: number = 0) {
 	if (heap.has(callback, scope)) {

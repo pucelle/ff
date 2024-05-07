@@ -9,7 +9,7 @@ export interface DoubleTapEvents {
 
 	/** 
 	 * After double tapping.
-	 * `double tap` has no conflict with `dblclick`,
+	 * double tap event has no conflict with `dblclick`,
 	 * normally they wouldn't be triggered both.
 	 */
 	'double-tap': (e: TouchEvent) => void

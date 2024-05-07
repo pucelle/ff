@@ -60,12 +60,12 @@ export function setValue(date: Date, value: number, unit: DurationUnit): number 
 
 /**
  * Check whether date values from year to second are associated with a real date.
- * `y` is the Year count.
- * `M` is the Month count.
- * `d` is the Date count, note it starts from `1`, not `0`.
- * `h` is the Hour count.
- * `m` is the Minute count.
- * `s` is the Second count.
+ * @param y is the Year count.
+ * @param M is the Month count.
+ * @param d is the Date count, note it starts from `1`, not `0`.
+ * @param h is the Hour count.
+ * @param m is the Minute count.
+ * @param s is the Second count.
  */
 export function isValid(y: number, M: number, d: number = 1, h: number = 0, m: number = 0, s: number = 0): boolean {
 	let date = new Date(y, M, d, h, m, s)
@@ -102,7 +102,7 @@ export function getDaysOfMonth(date: Date): number {
 
 /**
  * Clones a date, returns a new date.
- * - `units`: default value is `yMdhms`, can specify partial of it to do partly clone, rest values will be set to initial.
+ * @param units default value is `yMdhms`, can specify partial of it to do partly clone, rest values will be set to initial.
  */
 export function clone(date: Date = new Date(), units: string = DurationUnits): Date {
 	let dateValues = [...DurationUnits].map(unit => {
@@ -153,7 +153,7 @@ export function addSeconds(date: Date, seconds: number): Date {
 
 /**
  * Returns a formatted date string.
- * - `template`: date format template, default value is `yyyy-MM-dd hh:mm:ss`.
+ * @param template date format template, default value is `yyyy-MM-dd hh:mm:ss`.
  */
 export function format(date: Date, template = 'yyyy-MM-dd hh:mm:ss'): string {
 	return template.replace(/y+|M+|d+|h+|m+|s+/g, m0 => {
@@ -171,7 +171,7 @@ export function format(date: Date, template = 'yyyy-MM-dd hh:mm:ss'): string {
 
 /**
  * Returns a short formatted date string relative to current date.
- * `template` is an object, defines which format to choose when associated unit value is different.
+ * @param template is an object, defines which format to choose when associated unit value is different.
  */
 export function formatToShort(date: Date, template: {[key in DurationUnit]?: string} = {y: 'yyyy-MM-dd', M: 'MM-dd', h: 'hh:mm'}) {
 	let now = new Date()

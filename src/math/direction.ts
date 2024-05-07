@@ -18,7 +18,7 @@ export enum DirectionValue {
 
 
 /** 
- * A direction represents one of 8 directions, and 2 more:
+ * A direction represents one of 8 directions, and 2 additional:
  * `Direction.center` and `Direction.None`.
  */
 export class Direction {

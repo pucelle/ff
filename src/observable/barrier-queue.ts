@@ -10,7 +10,7 @@ enum BarrierQueueState {
 
 
 /** 
- * `enqueue` to request with a `step` parameter and get a promise.
+ * Can enqueue to request with a `step` parameter and get a promise.
  * Later same stepped promises will be resolved one time,
  * and all promises will be resolved in order of `step`.
  */

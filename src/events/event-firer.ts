@@ -18,11 +18,15 @@ type InferParameters<T> = T extends (...args: any) => any ? T extends (...args: 
  * How to make event interfaces can be extended?
  * 
  * Assume:
- * - `A<E = any> extents EventFirer<E> {}`
- * - `B<E = BEvents> extents A<E> {}`
+ * ```
+ * A<E = any> extents EventFirer<E> {}
+ * B<E = BEvents> extents A<E> {}
+ * ```
  * 
  * To be able to infer event parameters for `B`, can declare it as `B<{}>`, like:
- * - `(this: B<{}>) {this.on(...)}`
+ * ```
+ * (this: B<{}>) {this.on(...)}
+ * ```
  */
 export class EventFirer<E = any> {
 
