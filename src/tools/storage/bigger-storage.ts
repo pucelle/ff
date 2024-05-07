@@ -88,7 +88,7 @@ export class BiggerStorage {
 	 * Set a key value pair.
 	 * 
 	 * @param expireDuration specifies after which the specified data will become expired.
-	 *     it can be a duration object, duration string, or a second count.
+	 *   it can be a duration object, duration string, or a second count.
 	 */
 	async set(key: string, value: any, expireDuration?: DurationObject | string | number): Promise<boolean | null> {
 		let store = await this.getStore()
