@@ -16,9 +16,6 @@ function restoredGraphEditOld<T>(oldItems: T[], newItems: T[], willReuse: boolea
 			let liveIndex = r.insertIndex < oldObjItems.length ? liveObjItems.indexOf(oldObjItems[r.insertIndex]) : liveObjItems.length
 			liveObjItems.splice(liveIndex, 0, oldObjItems[r.fromIndex])
 		}
-		else if (r.type === EditType.Modify) {
-			oldObjItems[r.fromIndex].v = newItems[r.toIndex]
-		}
 		else if (r.type === EditType.MoveModify) {
 			ListUtils.remove(liveObjItems, oldObjItems[r.fromIndex])
 			
@@ -49,9 +46,6 @@ function restoredGraphEditNew<T>(oldItems: T[], newItems: T[], willReuse: boolea
 			restored.push(newItems[r.toIndex])
 		}
 		else if (r.type === EditType.Move) {
-			restored.push(newItems[r.toIndex])
-		}
-		else if (r.type === EditType.Modify) {
 			restored.push(newItems[r.toIndex])
 		}
 		else if (r.type === EditType.MoveModify) {
@@ -180,28 +174,6 @@ describe('Test Graph Edit', () => {
 			{type: EditType.Leave, insertIndex: -1, fromIndex: 2, toIndex: 1},
 			{type: EditType.Insert, insertIndex: 3, fromIndex: -1, toIndex: 2},
 			{type: EditType.Delete, insertIndex: -1, fromIndex: 0, toIndex: -1},
-		])
-
-		expect(restoredGraphEditOld(a, b, true)).toEqual(b)
-		expect(restoredGraphEditOld(b, a, true)).toEqual(a)
-		expect(restoredGraphEditOld(a, b, false)).toEqual(b)
-		expect(restoredGraphEditOld(b, a, false)).toEqual(a)
-
-		expect(restoredGraphEditNew(a, b, true)).toEqual(b)
-		expect(restoredGraphEditNew(b, a, true)).toEqual(a)
-		expect(restoredGraphEditNew(a, b, false)).toEqual(b)
-		expect(restoredGraphEditNew(b, a, false)).toEqual(a)
-	})
-
-
-	test('modify', () => {
-		let a: number[] = [1, 2, 3]
-		let b: number[] = [1, 2, 4]
-
-		expect(getEditRecord(a, b, true)).toEqual([
-			{type: EditType.Leave, insertIndex: -1, fromIndex: 0, toIndex: 0},
-			{type: EditType.Leave, insertIndex: -1, fromIndex: 1, toIndex: 1},
-			{type: EditType.Modify, insertIndex: -1, fromIndex: 2, toIndex: 2},
 		])
 
 		expect(restoredGraphEditOld(a, b, true)).toEqual(b)

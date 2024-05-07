@@ -62,14 +62,6 @@ export enum EditType {
 	Move,
 
 	/** 
-	 * Modify item and no need to move it.
-	 * - `fromIndex`: the match item index in old item list.
-	 * - `toIndex`: the match item index in new item list.
-	 * - `insertIndex`: be `-1`.
-	 */
-	Modify,
-
-	/** 
 	 * Moves same item from it's old index to current index, and do modification.
 	 * - `fromIndex`: the match item index in old item list indicates where to move from.
 	 * - `toIndex`: the match item index in new item list indicates where to move to.
@@ -154,7 +146,6 @@ function getNormalEditRecord<T>(oldItems: T[], newItems: T[], willReuse: boolean
 
 	// Index of old items to indicate where to insert new item.
 	let insertIndex = nextStableNewIndex === -1 ? oldItems.length : indexMap.getByRight(nextStableNewIndex)!
-	let insertIndexInserted = false
 
 	// Output this edit records.
 	let edit: EditRecord[] = []
@@ -175,7 +166,6 @@ function getNormalEditRecord<T>(oldItems: T[], newItems: T[], willReuse: boolean
 
 			nextStableNewIndex = stableNewIndicesStack.getNext()
 			insertIndex = nextStableNewIndex === -1 ? oldItems.length : indexMap.getByRight(nextStableNewIndex)!
-			insertIndexInserted = false
 		}
 
 		// Move matched old item to the new position, no need to modify.
@@ -188,32 +178,18 @@ function getNormalEditRecord<T>(oldItems: T[], newItems: T[], willReuse: boolean
 				toIndex,
 				insertIndex,
 			})
-
-			insertIndexInserted = true
 		}
 		
 		// Reuse old item, moves them to the new position, then modify.
 		else if (willReuse && !restOldIndicesStack.isEnded()) {
 			let fromIndex = restOldIndicesStack.getNext()
 
-			if (fromIndex === insertIndex - 1 && !insertIndexInserted) {
-				edit.push({
-					type: EditType.Modify,
-					fromIndex,
-					toIndex,
-					insertIndex: -1,
-				})
-			}
-			else {
-				edit.push({
-					type: EditType.MoveModify,
-					fromIndex,
-					toIndex,
-					insertIndex,
-				})
-
-				insertIndexInserted = true
-			}
+			edit.push({
+				type: EditType.MoveModify,
+				fromIndex,
+				toIndex,
+				insertIndex,
+			})
 		}
 
 		// No old items can be reused, creates new item.
@@ -224,8 +200,6 @@ function getNormalEditRecord<T>(oldItems: T[], newItems: T[], willReuse: boolean
 				toIndex,
 				insertIndex,
 			})
-
-			insertIndexInserted = true
 		}
 	}
 
