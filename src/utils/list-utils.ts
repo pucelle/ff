@@ -48,7 +48,7 @@ export function remove<T>(list: T[], ...items: T[]): T[] {
  * Removes the first item from `list` which matches `match`, returns the removed values.
  * Returns `undefined` if no item removed.
  */
-export function removeFirst<T>(list: T[], match: (item: T, index: number) => boolean): T | undefined {
+export function removeFirstMatch<T>(list: T[], match: (item: T, index: number) => boolean): T | undefined {
 	for (let i = list.length - 1; i >= 0; i--) {
 		if (match(list[i], i)) {
 			return list.splice(i, 1)[0]!

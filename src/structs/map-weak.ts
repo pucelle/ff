@@ -61,7 +61,8 @@ export class WeakListMap<K extends object, V> extends WeakIterableValueMap<K, V,
 
 	/** 
 	 * Add a key and a value.
-	 * Note it will not validate whether value exist, and will add value repeatly although it exists.
+	 * Note it will not validate whether value exist,
+	 * and will add value repeatedly although it exists.
 	 */
 	add(k: K, v: V) {
 		let values = this.map.get(k)
@@ -107,7 +108,7 @@ export class WeakListMap<K extends object, V> extends WeakIterableValueMap<K, V,
 
 /** 
  * `K => Set<V>` Map Struct.
- * Good for dynamiclly adding & deleting.
+ * Good for dynamically adding & deleting.
  */
 export class WeakSetMap<K extends object, V> extends WeakIterableValueMap<K, V, Set<V>> {
 

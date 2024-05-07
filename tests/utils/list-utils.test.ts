@@ -17,9 +17,9 @@ describe('Test ListUtils', () => {
 		expect(ListUtils.remove([1,2,3], 3)).toEqual([3])
 	})
 
-	test('removeFirst', () => {
-		expect(ListUtils.removeFirst([1,2,3,3], (v) => v === 3)).toEqual(3)
-		expect(ListUtils.removeFirst([1,2,3], (v) => v === 4)).toEqual(undefined)
+	test('removeFirstMatch', () => {
+		expect(ListUtils.removeFirstMatch([1,2,3,3], (v) => v === 3)).toEqual(3)
+		expect(ListUtils.removeFirstMatch([1,2,3], (v) => v === 4)).toEqual(undefined)
 	})
 
 	test('removeWhere', () => {

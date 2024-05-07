@@ -4,7 +4,7 @@ import {TwoWayMap} from './map'
 // We want to reduce times of moving elements, the best way is:
 // http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.4.6927&rep=rep1&type=pdf
 
-// But we don't want it complex, and just need a way to handle single place inserting or mutiple places removing.
+// But we don't want it complex, and just need a way to handle single place inserting or multiple places removing.
 // So just provide a very simple O(N) method here.
 
 // Another solution is here: https://github.com/Polymer/lit-html/blob/master/src/directives/repeat.ts
@@ -17,24 +17,23 @@ export interface EditRecord {
 	type: EditType
 
 	/** 
-	 * Index in the old item list that currently handling.
-	 * Be position of the next old item if decide to insert a new item before it,
-	 * or move another item before it.
-	 * Betweens `0 ~ items.length`.
-	 */
-	nextOldIndex: number
-
-	/** 
-	 * Index of the old item if decided to reuse or delete it.
-	 * Be `-1` when doing inserting.
+	 * Index of the old item if decided to use or delete it.
+	 * Be `-1` when inserting.
 	 */
 	fromIndex: number
 
 	/** 
 	 * Index of the new item in new item list.
-	 * Be `-1` if will delete the item.
+	 * Be `-1` when deleting.
 	 */
 	toIndex: number
+
+	/** 
+	 * Index in the old item list that need to insert item before.
+	 * Be `-1` when no need to do inserting.
+	 * Otherwise betweens `0 ~ items.length`.
+	 */
+	insertIndex: number
 }
 
 
@@ -44,24 +43,54 @@ export enum EditType {
 	 * Ignores, will be used later as a matched item to move or as a reuseable item to reuse.
 	 * Uses in internal, no need to handle it in your codes.
 	 */
-	Skip,
+	InternalSkip,
 
-	/** Leaves it because of old item matches new item. */
+	/** 
+	 * Leaves it because of old item matches new item.
+	 * - `fromIndex`: the match item index in old item list.
+	 * - `toIndex`: the match item index in new item list.
+	 * - `insertIndex`: be `-1`.
+	 */
 	Leave,
 
-	/** Moves same item from it's old index to current index. */
+	/** 
+	 * Moves same item from it's old index to current index.
+	 * - `fromIndex`: the match item index in old item list indicates where to move from.
+	 * - `toIndex`: the match item index in new item list indicates where to move to.
+	 * - `insertIndex`: index in old item list indicates where you should insert new item before.
+	 */
 	Move,
 
-	/** Modify item and not move it. */
+	/** 
+	 * Modify item and no need to move it.
+	 * - `fromIndex`: the match item index in old item list.
+	 * - `toIndex`: the match item index in new item list.
+	 * - `insertIndex`: be `-1`.
+	 */
 	Modify,
 
-	/** Move item and modify item. */
+	/** 
+	 * Moves same item from it's old index to current index, and do modification.
+	 * - `fromIndex`: the match item index in old item list indicates where to move from.
+	 * - `toIndex`: the match item index in new item list indicates where to move to.
+	 * - `insertIndex`: index in old item list indicates where you should insert new item before.
+	 */
 	MoveModify,
 
-	/** Insert a new item. */
+	/** 
+	 * Insert a new item.
+	 * - `fromIndex`: be `-1`.
+	 * - `toIndex`: the match item index in new item list indicates which item to insert.
+	 * - `insertIndex`: index in old item list indicates where you should insert new item before.
+	 */
 	Insert,
 
-	/** Delete old item. */
+	/** 
+	 * Delete old item.
+	 * - `fromIndex`: the match item index in old item list indicates which item to delete.
+	 * - `toIndex`: be `-1`.
+	 * - `insertIndex`: be `-1`.
+	 */
 	Delete,
 }
 
@@ -72,7 +101,7 @@ export function getEditRecord<T>(oldItems: T[], newItems: T[], willReuse: boolea
 		return oldItems.map(function(_item, index) {
 			return {
 				type: EditType.Delete,
-				nextOldIndex: index,
+				insertIndex: index,
 				fromIndex: index,
 				toIndex: -1,
 			}
@@ -82,7 +111,7 @@ export function getEditRecord<T>(oldItems: T[], newItems: T[], willReuse: boolea
 		return newItems.map(function(_item, index) {
 			return {
 				type: EditType.Insert,
-				nextOldIndex: 0,
+				insertIndex: 0,
 				fromIndex: -1,
 				toIndex: index,
 			}
@@ -111,107 +140,85 @@ function getNormalEditRecord<T>(oldItems: T[], newItems: T[], willReuse: boolean
 		newIndicesHaveOldMapped.push(indexInNew)
 	}
 
-	// Get a long enough incremental new indices sequence,
+	// Get a long enough incremental sequence from new indices,
 	// from new indices that have an old index mapped to,
 	// so no need move this part.
-	let stableNewIndexStack = new ReadonlyStack(findLongestIncreasedSequence(newIndicesHaveOldMapped))
+	let stableNewIndicesStack = new ReadonlyStack(findLongestIncrementalSequence(newIndicesHaveOldMapped))
 
 	// Old item indices that will be reused.
 	let restOldIndicesStack = new ReadonlyStack(restOldIndices)
 
-	// Another optimization:
-	// After get stable items, some reuseable items between two stable items can be reused without moving.
-	// This is good when data is absolutely random, but not help much for normal data.
+	// New index of the next fully match item pair. `0 ~ newItems.length`
+	let nextStableNewIndex = stableNewIndicesStack.getNext()
 
+	// Index of old items to indicate where to insert new item.
+	let insertIndex = nextStableNewIndex === -1 ? oldItems.length : indexMap.getByRight(nextStableNewIndex)!
+
+	// Output this edit records.
 	let edit: EditRecord[] = []
-	let oldIndex = 0
-	let newIndex = 0
-	let nextStableNewIndex = stableNewIndexStack.getNext()
-	let nextStableOldIndex = indexMap.getByRight(nextStableNewIndex) ?? -1
-	let lastStableOldIndex = -1
 
-	while (oldIndex < oldItems.length || newIndex < newItems.length) {
-		let type: EditType
-		let handingOldIndex = oldIndex
-		let fromIndex = -1
-		let toIndex = newIndex
+	// For each new item.
+	for(let toIndex = 0; toIndex < newItems.length; toIndex++) {
 
-		// New item list ended, delete rest old items.
-		if (newIndex === newItems.length) {
-			type = EditType.Skip
-			oldIndex++
+		// Old and new items match each other, leave them both.
+		if (toIndex === nextStableNewIndex) {
+			let fromIndex = indexMap.getByRight(nextStableNewIndex)!
+
+			edit.push({
+				type: EditType.Leave,
+				fromIndex,
+				toIndex,
+				insertIndex: -1,
+			})
+
+			nextStableNewIndex = stableNewIndicesStack.getNext()
+			insertIndex = nextStableNewIndex === -1 ? oldItems.length : indexMap.getByRight(nextStableNewIndex)!
+		}
+
+		// Move matched old item to the new position, no need to modify.
+		else if (indexMap.hasRight(toIndex)) {
+			let fromIndex = indexMap.getByRight(toIndex)!
+
+			edit.push({
+				type: EditType.Move,
+				fromIndex,
+				toIndex,
+				insertIndex,
+			})
 		}
 		
-		// If should reuse, and already an old item exist and before next stable position,
-		// and also after last stable position,
-		// leave old item at current position, then modify.
-		else if (willReuse && newIndex !== nextStableNewIndex && !restOldIndicesStack.isEnded()
-			&& restOldIndicesStack.peekNext() > lastStableOldIndex
-			&& (restOldIndicesStack.peekNext() < nextStableOldIndex || nextStableOldIndex === -1))
-		{
-			type = EditType.Modify
-			fromIndex = restOldIndicesStack.getNext()
-			oldIndex++
-			newIndex++
-		}
-
-		// Old item doesn't match, leaves old item for reusing or deleting it later.
-		else if (oldIndex !== nextStableOldIndex && oldIndex < oldItems.length) {
-			type = EditType.Skip
-			oldIndex++
-		}
-
-		// Old and new items matches each other, skip them all.
-		else if (newIndex === nextStableNewIndex) {
-			type = EditType.Leave
-			fromIndex = oldIndex
-			oldIndex++
-			newIndex++
-			nextStableNewIndex = stableNewIndexStack.isEnded() ? -1 : stableNewIndexStack.getNext()
-			lastStableOldIndex = nextStableOldIndex
-			nextStableOldIndex = nextStableNewIndex === -1 ? -1 : indexMap.getByRight(nextStableNewIndex)!
-		}
-
-		// Moves matched old item to the new position, no need to modify.
-		else if (indexMap.hasRight(newIndex)) {
-			type = EditType.Move
-			fromIndex = indexMap.getByRight(newIndex)!
-			newIndex++
-		}
-		
-		// Reuses old item, moves them to the new position, then modify.
+		// Reuse old item, moves them to the new position, then modify.
 		else if (willReuse && !restOldIndicesStack.isEnded()) {
-			type = EditType.MoveModify
-			fromIndex = restOldIndicesStack.getNext()
-			newIndex++
+			let fromIndex = restOldIndicesStack.getNext()
+
+			edit.push({
+				type: EditType.MoveModify,
+				fromIndex,
+				toIndex,
+				insertIndex,
+			})
 		}
 
 		// No old items can be reused, creates new item.
 		else {
-			type = EditType.Insert
-			newIndex++
-		}
-
-		// No need to record `Skip`.
-		if (type !== EditType.Skip) {
 			edit.push({
-				type,
-				nextOldIndex: handingOldIndex,
-				fromIndex,
+				type: EditType.Insert,
+				fromIndex: -1,
 				toIndex,
+				insertIndex,
 			})
 		}
 	}
 
-	// Removes not used items.
+	// Remove not used items.
 	while (!restOldIndicesStack.isEnded()) {
-		let handingOldIndex = restOldIndicesStack.getNext()
+		let oldIndex = restOldIndicesStack.getNext()
 
 		edit.push({
 			type: EditType.Delete,
-			nextOldIndex: handingOldIndex,
-			fromIndex: handingOldIndex,
+			fromIndex: oldIndex,
 			toIndex: -1,
+			insertIndex: -1,
 		})
 	}
 
@@ -247,7 +254,7 @@ function makeTwoWayIndexMap<T>(oldItems: T[], newItems: T[]) {
 
 
 /** 
- * A simple stack can get next one from start.
+ * A simple stack can get next one from start position.
  * Can avoid shift or pop operation from an array.
  */
 class ReadonlyStack<T> {
@@ -259,24 +266,32 @@ class ReadonlyStack<T> {
 		this.items = items
 	}
 
+	addItems(items: T[]) {
+		this.items.push(...items)
+	}
+
 	isEnded() {
 		return this.offset >= this.items.length
 	}
 
 	getNext() {
-		return this.items[this.offset++] ?? -1
+		return this.isEnded()
+			? -1
+			: this.items[this.offset++]
 	}
 
 	peekNext() {
-		return this.items[this.offset] ?? -1
+		return this.isEnded()
+			? -1
+			: this.items[this.offset]
 	}
 }
 
 
 /** 237456 -> 23456 */
-function findLongestIncreasedSequence(items: number[]) {
+function findLongestIncrementalSequence(items: number[]) {
 	
-	// In the first loop, we try to find each increased sequence.
+	// In the first loop, we try to find each incremental and continuous sequence.
 	// 237456 -> [23, 7, 456]
 
 	let startIndex = 0
@@ -293,13 +308,15 @@ function findLongestIncreasedSequence(items: number[]) {
 		increasedSequenceIndices.push([startIndex, items.length])
 	}
 
-	// In the second loop, we try to find the longest discreate increased sequence.
+	// In the second loop, we try to find the longest discrete incremental sequence.
+	// This is not the best, but it can at least pick the longest discrete incremental part,
+	// and simple enough.
 
 	// [23, 7, 456]
-	// 23 -> 7 excluded -> 456
+	// 23 -> 7 skip -> 456 pick
 
 	// [2, 78, 456]
-	// 2 -> 78 replaced -> 456 replaced
+	// 2 -> 78 pick -> 456 pick, not best result
 
 	let longest: number[] = []
 	let currentValue = -1
@@ -308,7 +325,7 @@ function findLongestIncreasedSequence(items: number[]) {
 		let [start, end] = increasedSequenceIndices[i]
 
 		if (items[start] > currentValue) {
-			longest = [...longest, ...items.slice(start, end)]
+			longest.push(...items.slice(start, end))
 			currentValue = longest[longest.length - 1]
 		}
 		else if (end - start > longest.length) {

@@ -94,7 +94,8 @@ export class ListMap<K, V> extends IterableValueMap<K, V, V[]> {
 
 	/** 
 	 * Add a key and a value.
-	 * Note it will not validate whether value exist, and will add value repeatly although it exists.
+	 * Note it will not validate whether value exist,
+	 * and will add value repeatedly although it exists.
 	 */
 	add(k: K, v: V) {
 		let values = this.map.get(k)
@@ -140,7 +141,7 @@ export class ListMap<K, V> extends IterableValueMap<K, V, V[]> {
 
 /** 
  * `K => Set<V>` Map Struct.
- * Good for dynamiclly adding & deleting.
+ * Good for dynamically adding & deleting.
  */
 export class SetMap<K, V> extends IterableValueMap<K, V, Set<V>> {
 
@@ -841,7 +842,7 @@ export class TwoWayListMap<L, R> extends TwoWayIterableValueMap<L, R, L[], R[]> 
 	
 	/** 
 	 * Add a left and right value as a pair.
-	 * Note it will not validate whether value exist, and will add it repeatly if it exists.
+	 * Note it will not validate whether value exist, and will add it repeatedly if it exists.
 	 */
 	add(l: L, r: R) {
 		this.lm.add(l, r)
