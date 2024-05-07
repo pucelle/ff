@@ -101,9 +101,9 @@ export function getEditRecord<T>(oldItems: T[], newItems: T[], willReuse: boolea
 		return oldItems.map(function(_item, index) {
 			return {
 				type: EditType.Delete,
-				insertIndex: index,
 				fromIndex: index,
 				toIndex: -1,
+				insertIndex: -1,
 			}
 		})
 	}
@@ -111,9 +111,9 @@ export function getEditRecord<T>(oldItems: T[], newItems: T[], willReuse: boolea
 		return newItems.map(function(_item, index) {
 			return {
 				type: EditType.Insert,
-				insertIndex: 0,
 				fromIndex: -1,
 				toIndex: index,
+				insertIndex: 0,
 			}
 		})
 	}
@@ -129,7 +129,8 @@ export function getEditRecord<T>(oldItems: T[], newItems: T[], willReuse: boolea
  */
 function getNormalEditRecord<T>(oldItems: T[], newItems: T[], willReuse: boolean): EditRecord[] {
 
-	// two way index map: old index <=> new index.
+	// `indexMap`: two way index map: sorted old index <=> new index.
+	// `restOldIndices`: sorted old indices which not appear in `indexMap`.
 	let {indexMap, restOldIndices} = makeTwoWayIndexMap(oldItems, newItems)
 
 	// All the new indices that have an old index mapped to, and order by the orders in the `oldItems`.
@@ -143,16 +144,17 @@ function getNormalEditRecord<T>(oldItems: T[], newItems: T[], willReuse: boolean
 	// Get a long enough incremental sequence from new indices,
 	// from new indices that have an old index mapped to,
 	// so no need move this part.
-	let stableNewIndicesStack = new ReadonlyStack(findLongestIncrementalSequence(newIndicesHaveOldMapped))
+	let stableNewIndicesStack = new ReadonlyIndexStack(findLongestIncrementalSequence(newIndicesHaveOldMapped))
 
 	// Old item indices that will be reused.
-	let restOldIndicesStack = new ReadonlyStack(restOldIndices)
+	let restOldIndicesStack = new ReadonlyIndexStack(restOldIndices)
 
 	// New index of the next fully match item pair. `0 ~ newItems.length`
 	let nextStableNewIndex = stableNewIndicesStack.getNext()
 
 	// Index of old items to indicate where to insert new item.
 	let insertIndex = nextStableNewIndex === -1 ? oldItems.length : indexMap.getByRight(nextStableNewIndex)!
+	let insertIndexInserted = false
 
 	// Output this edit records.
 	let edit: EditRecord[] = []
@@ -173,6 +175,7 @@ function getNormalEditRecord<T>(oldItems: T[], newItems: T[], willReuse: boolean
 
 			nextStableNewIndex = stableNewIndicesStack.getNext()
 			insertIndex = nextStableNewIndex === -1 ? oldItems.length : indexMap.getByRight(nextStableNewIndex)!
+			insertIndexInserted = false
 		}
 
 		// Move matched old item to the new position, no need to modify.
@@ -185,18 +188,32 @@ function getNormalEditRecord<T>(oldItems: T[], newItems: T[], willReuse: boolean
 				toIndex,
 				insertIndex,
 			})
+
+			insertIndexInserted = true
 		}
 		
 		// Reuse old item, moves them to the new position, then modify.
 		else if (willReuse && !restOldIndicesStack.isEnded()) {
 			let fromIndex = restOldIndicesStack.getNext()
 
-			edit.push({
-				type: EditType.MoveModify,
-				fromIndex,
-				toIndex,
-				insertIndex,
-			})
+			if (fromIndex === insertIndex - 1 && !insertIndexInserted) {
+				edit.push({
+					type: EditType.Modify,
+					fromIndex,
+					toIndex,
+					insertIndex: -1,
+				})
+			}
+			else {
+				edit.push({
+					type: EditType.MoveModify,
+					fromIndex,
+					toIndex,
+					insertIndex,
+				})
+
+				insertIndexInserted = true
+			}
 		}
 
 		// No old items can be reused, creates new item.
@@ -207,6 +224,8 @@ function getNormalEditRecord<T>(oldItems: T[], newItems: T[], willReuse: boolean
 				toIndex,
 				insertIndex,
 			})
+
+			insertIndexInserted = true
 		}
 	}
 
@@ -228,7 +247,8 @@ function getNormalEditRecord<T>(oldItems: T[], newItems: T[], willReuse: boolean
 
 /** Create a 2 way index map: old index <=> new index, just like a sql inner join. */
 function makeTwoWayIndexMap<T>(oldItems: T[], newItems: T[]) {
-	// Have a little problem, will find last match when repeated items exist.
+
+	// Will find last match when repeated items exist.
 	let newItemIndexMap: Map<T, number> = new Map(newItems.map((item, index) => [item, index]))
 
 	// old index <=> new index.
@@ -257,30 +277,30 @@ function makeTwoWayIndexMap<T>(oldItems: T[], newItems: T[]) {
  * A simple stack can get next one from start position.
  * Can avoid shift or pop operation from an array.
  */
-class ReadonlyStack<T> {
+class ReadonlyIndexStack {
 
-	private items: T[]
+	private items: number[]
 	private offset: number = 0
 
-	constructor(items: T[]) {
+	constructor(items: number[]) {
 		this.items = items
 	}
 
-	addItems(items: T[]) {
+	addItems(items: number[]) {
 		this.items.push(...items)
 	}
 
-	isEnded() {
+	isEnded(): boolean {
 		return this.offset >= this.items.length
 	}
 
-	getNext() {
+	getNext(): number {
 		return this.isEnded()
 			? -1
 			: this.items[this.offset++]
 	}
 
-	peekNext() {
+	peekNext(): number{
 		return this.isEnded()
 			? -1
 			: this.items[this.offset]
