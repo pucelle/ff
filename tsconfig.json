@@ -3,7 +3,7 @@
 		"module": "ESNext",
 		"moduleResolution": "Node",
 		"target": "ES2022",
-		"lib": ["esnext", "dom", "dom.iterable"],
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"rootDir": "src",
 		"outDir": "out",
 		"allowJs": true,

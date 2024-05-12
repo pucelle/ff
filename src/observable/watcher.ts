@@ -25,8 +25,11 @@ export function watch<T>(
 
 	function update() {
 		DependencyTracker.trackExecutionOf(assign, onChange)
-		callback(newValue, oldValue)
-		oldValue = newValue
+		
+		if (newValue !== oldValue) {
+			callback(newValue, oldValue)
+			oldValue = newValue
+		}
 	}
 
 	function onChange() {
@@ -66,8 +69,11 @@ export function watchImmediately<T>(
 
 	function update() {
 		DependencyTracker.trackExecutionOf(assign, onChange)
-		callback(newValue, oldValue)
-		oldValue = newValue
+
+		if (newValue !== oldValue) {
+			callback(newValue, oldValue)
+			oldValue = newValue
+		}
 	}
 
 	function onChange() {
@@ -106,8 +112,11 @@ export function watchOnce<T>(
 
 	function update() {
 		DependencyTracker.trackExecutionOf(assign, onChange)
-		callback(newValue, oldValue)
-		DependencyTracker.untrack(onChange)
+
+		if (newValue !== oldValue) {
+			callback(newValue, oldValue)
+			DependencyTracker.untrack(onChange)
+		}
 	}
 
 	function onChange() {

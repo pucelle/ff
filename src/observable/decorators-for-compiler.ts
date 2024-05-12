@@ -56,4 +56,4 @@ export declare function effect(target: any, property: string): void
  * 
  * This is only an identifier, it will be removed after compiled.
  */
-export declare function watch(fnOrProperty: (() => any) | PropertyKey, immediate?: boolean): void
+export declare function watch(fnOrProperty: (() => any) | PropertyKey, immediate?: boolean): (target: any, property: string) => void
