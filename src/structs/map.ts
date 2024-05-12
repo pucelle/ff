@@ -16,7 +16,7 @@ export abstract class IterableValueMap<K, V, I extends Iterable<V>> {
 	/** Iterate all values. */
 	*values(): Iterable<V> {
 		for (let list of this.map.values()) {
-			yield *list
+			yield* list
 		}
 	}
 
@@ -193,7 +193,7 @@ export class DoubleKeysMap<K1, K2, V> {
 	*secondKeysOf(k1: K1): Iterable<K2> {
 		let sub = this.map.get(k1)
 		if (sub) {
-			yield *sub.keys()
+			yield* sub.keys()
 		}
 	}
 
@@ -201,14 +201,14 @@ export class DoubleKeysMap<K1, K2, V> {
 	*secondValuesOf(k1: K1): Iterable<V> {
 		let sub = this.map.get(k1)
 		if (sub) {
-			yield *sub.values()
+			yield* sub.values()
 		}
 	}
 
 	/** Iterate all the values existed. */
 	*values(): Iterable<V> {
 		for (let secondary of this.map.values()) {
-			yield *secondary.values()
+			yield* secondary.values()
 		}
 	}
 
@@ -230,7 +230,7 @@ export class DoubleKeysMap<K1, K2, V> {
 	*secondEntriesOf(k1: K1): Iterable<[K2, V]> {
 		let sub = this.map.get(k1)
 		if (sub) {
-			yield *sub.entries()
+			yield* sub.entries()
 		}
 	}
 
@@ -325,7 +325,7 @@ export abstract class DoubleKeysIterableValueMap<K1, K2, V, I extends Iterable<V
 	*secondKeysOf(k1: K1): Iterable<K2> {
 		let sub = this.map.get(k1)
 		if (sub) {
-			yield *sub.keys()
+			yield* sub.keys()
 		}
 	}
 
@@ -333,7 +333,7 @@ export abstract class DoubleKeysIterableValueMap<K1, K2, V, I extends Iterable<V
 	*secondValuesOf(k1: K1): Iterable<V> {
 		let sub = this.map.get(k1)
 		if (sub) {
-			yield *sub.values()
+			yield* sub.values()
 		}
 	}
 
@@ -341,7 +341,7 @@ export abstract class DoubleKeysIterableValueMap<K1, K2, V, I extends Iterable<V
 	*values(k1: K1, k2: K2): Iterable<V> {
 		let values = this.get(k1, k2)
 		if (values) {
-			yield *values
+			yield* values
 		}
 	}
 
@@ -369,7 +369,7 @@ export abstract class DoubleKeysIterableValueMap<K1, K2, V, I extends Iterable<V
 	*secondEntriesOf(k1: K1): Iterable<[K2, I]> {
 		let sub = this.map.get(k1)
 		if (sub) {
-			yield *sub.entries()
+			yield* sub.entries()
 		}
 	}
 
@@ -662,7 +662,7 @@ export abstract class TwoWayIterableValueMap<L, R, LI extends Iterable<L>, RI ex
 	*rightValuesOf(l: L): Iterable<R> {
 		let rs = this.lm.get(l)
 		if (rs) {
-			yield *rs
+			yield* rs
 		} 
 	}
 
@@ -670,7 +670,7 @@ export abstract class TwoWayIterableValueMap<L, R, LI extends Iterable<L>, RI ex
 	*leftValuesOf(r: R): Iterable<L> {
 		let ls = this.rm.get(r)
 		if (ls) {
-			yield *ls
+			yield* ls
 		} 
 	}
 

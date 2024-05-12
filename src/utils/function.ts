@@ -6,7 +6,7 @@ import * as NumberUtils from './number-utils'
  * @param end The last number of the returned list is always lower than `end`.
  * @param step Default value is `1` or `-1` determined by which is bigger for start and end values.
  */
-export function *range(start: number, end: number, step: number = start <= end ? 1 : -1): Iterable<number> {
+export function* range(start: number, end: number, step: number = start <= end ? 1 : -1): Iterable<number> {
 	let flag = NumberUtils.flag(step)
 	if (flag === 0) {
 		throw new RangeError(`"Step" must not be zero!`)

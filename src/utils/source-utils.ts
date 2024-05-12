@@ -150,7 +150,7 @@ function selectFileOrFolder(mime: string, isFolder: boolean, isMultiple: boolean
  * Get all the files from a `DataTransfer` object that captured from drop event.
  * Only work on modern browsers.
  */
-export async function *walkFilesInTransfer(transfer: DataTransfer): AsyncGenerator<File> {
+export async function* walkFilesInTransfer(transfer: DataTransfer): AsyncGenerator<File> {
 	let transferFiles = [...transfer.files]
 	let files: File[] = []
 
@@ -165,7 +165,7 @@ export async function *walkFilesInTransfer(transfer: DataTransfer): AsyncGenerat
 		try{
 			for (let item of items) {
 				let entry = item.hasOwnProperty('getAsEntry') ? (item as any).getAsEntry() : item.webkitGetAsEntry()
-				yield *walkFilesInEntry(entry)
+				yield* walkFilesInEntry(entry)
 			}
 		}
 		catch (err) {
@@ -182,7 +182,7 @@ export async function *walkFilesInTransfer(transfer: DataTransfer): AsyncGenerat
 }
 
 /** Read files from a file entry. */
-export async function *walkFilesInEntry(entry: FileSystemEntry): AsyncGenerator<File> {
+export async function* walkFilesInEntry(entry: FileSystemEntry): AsyncGenerator<File> {
 	if (!entry) {
 		return
 	}
@@ -195,12 +195,12 @@ export async function *walkFilesInEntry(entry: FileSystemEntry): AsyncGenerator<
 		})
 	}
 	else if (entry.isDirectory) {
-		yield *walkFilesInDirectoryEntry(entry as FileSystemDirectoryEntry)
+		yield* walkFilesInDirectoryEntry(entry as FileSystemDirectoryEntry)
 	}
 }
 
 /** Read files from a directory reader. */
-async function *walkFilesInDirectoryEntry(entry: FileSystemDirectoryEntry): AsyncGenerator<File> {
+async function* walkFilesInDirectoryEntry(entry: FileSystemDirectoryEntry): AsyncGenerator<File> {
 	let reader = entry.createReader()
 
 	while (true) {
@@ -219,7 +219,7 @@ async function *walkFilesInDirectoryEntry(entry: FileSystemDirectoryEntry): Asyn
 		}
 
 		for (let entry of entries) {
-			yield *walkFilesInEntry(entry)
+			yield* walkFilesInEntry(entry)
 		}
 	}
 }

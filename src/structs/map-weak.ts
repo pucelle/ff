@@ -156,7 +156,7 @@ export class WeakDoubleKeysMap<K1 extends object, K2, V> {
 	*secondKeysOf(k1: K1): Iterable<K2> {
 		let sub = this.map.get(k1)
 		if (sub) {
-			yield *sub.keys()
+			yield* sub.keys()
 		}
 	}
 
@@ -164,7 +164,7 @@ export class WeakDoubleKeysMap<K1 extends object, K2, V> {
 	*secondValuesOf(k1: K1): Iterable<V> {
 		let sub = this.map.get(k1)
 		if (sub) {
-			yield *sub.values()
+			yield* sub.values()
 		}
 	}
 
@@ -172,7 +172,7 @@ export class WeakDoubleKeysMap<K1 extends object, K2, V> {
 	*secondEntriesOf(k1: K1): Iterable<[K2, V]> {
 		let sub = this.map.get(k1)
 		if (sub) {
-			yield *sub.entries()
+			yield* sub.entries()
 		}
 	}
 
@@ -322,7 +322,7 @@ export abstract class WeakDoubleKeysIterableValueMap<K1 extends object, K2, V, I
 	*secondKeysOf(k1: K1): Iterable<K2> {
 		let sub = this.map.get(k1)
 		if (sub) {
-			yield *sub.keys()
+			yield* sub.keys()
 		}
 	}
 
@@ -330,7 +330,7 @@ export abstract class WeakDoubleKeysIterableValueMap<K1 extends object, K2, V, I
 	*secondValuesOf(k1: K1): Iterable<V> {
 		let sub = this.map.get(k1)
 		if (sub) {
-			yield *sub.values()
+			yield* sub.values()
 		}
 	}
 
@@ -338,7 +338,7 @@ export abstract class WeakDoubleKeysIterableValueMap<K1 extends object, K2, V, I
 	*values(k1: K1, k2: K2): Iterable<V> {
 		let values = this.get(k1, k2)
 		if (values) {
-			yield *values
+			yield* values
 		}
 	}
 
@@ -346,7 +346,7 @@ export abstract class WeakDoubleKeysIterableValueMap<K1 extends object, K2, V, I
 	*secondEntriesOf(k1: K1): Iterable<[K2, I]> {
 		let sub = this.map.get(k1)
 		if (sub) {
-			yield *sub.entries()
+			yield* sub.entries()
 		}
 	}
 

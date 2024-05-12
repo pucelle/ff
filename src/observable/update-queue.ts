@@ -41,14 +41,14 @@ class UpdateHeap {
 	}
 
 	add(callback: Function, scope: object | null, order: number) {
-		let bindedCallback = bindCallback(callback, scope)
+		let boundCallback = bindCallback(callback, scope)
 
 		this.heap.add({
-			callback: bindedCallback,
+			callback: boundCallback,
 			order,
 		})
 
-		this.set.add(bindedCallback)
+		this.set.add(boundCallback)
 	}
 
 	shift() {

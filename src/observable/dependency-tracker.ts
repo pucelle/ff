@@ -41,8 +41,9 @@ export function trackExecutionOf(fn: () => void, callback: Function, scope: obje
 	catch (err) {
 		console.error(err)
 	}
-
-	endTrack()
+	finally {
+		endTrack()
+	}
 }
 
 
@@ -51,14 +52,14 @@ export function trackExecutionOf(fn: () => void, callback: Function, scope: obje
  * Would suggest executing the codes following in a `try{...}` statement.
  */
 export function beginTrack(callback: Function, scope: object | null = null) {
-	let bindedCallback = bindCallback(callback, scope)
+	let boundCallback = bindCallback(callback, scope)
 
 	if (currentDep) {
 		depStack.push(currentDep)
 	}
 
 	currentDep = {
-		refreshCallback: bindedCallback,
+		refreshCallback: boundCallback,
 		dependencies: new SetMap(),
 	}
 }
@@ -66,7 +67,7 @@ export function beginTrack(callback: Function, scope: object | null = null) {
 
 /** 
  * End capturing dependencies.
- * You must ensure to end each capture, or fatul error will happen.
+ * You must ensure to end each capture, or fatal error will happen.
  */
 export function endTrack() {
 	DepMap.apply(currentDep!.refreshCallback, currentDep!.dependencies)
@@ -128,10 +129,10 @@ export function onSetBunched(obj: object, props: PropertyKey[]) {
 }
 
 
-/** Remove all depedencies of a refresh callback. */
+/** Remove all dependencies of a refresh callback. */
 export function untrack(callback: Function, scope: object | null = null) {
-	let bindedCallback = bindCallback(callback, scope)
-	DepMap.deleteRefreshCallback(bindedCallback)
+	let boundCallback = bindCallback(callback, scope)
+	DepMap.deleteRefreshCallback(boundCallback)
 }
 
 
