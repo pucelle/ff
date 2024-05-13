@@ -38,7 +38,10 @@ export declare function computed(target: any, property: string): void
  * so applying properties in `constructor` will not cause this method be called.
  * 
  * If use with a component has life-cycle, like a `Component` in `@pucelle/lupos.js`,
- * current effect can be activated and deactivated automatically follow component's life-cycle.
+ * current effect action can be activated and deactivated automatically follow component's life-cycle.
+ * 
+ * Otherwise current effect action would cant be released and GC if any dependencies still existing.
+ * If you want to make sure an effect can be released, use `createEffect` and release it yourself.
  * 
  * This is only a declaration, it will be removed after compiled.
  */
@@ -62,8 +65,11 @@ export declare function effect(target: any, property: string): void
  * so applying properties in `constructor` will not cause callback be called.
  * 
  * If use with a component has life-cycle, like a `Component` in `@pucelle/lupos.js`,
- * current effect can be activated and deactivated automatically follow component's life-cycle.
- *
+ * current watch action can be activated and deactivated automatically follow component's life-cycle.
+ * 
+ * Otherwise current watch action would cant be released and GC if any dependencies still existing.
+ * If you want to make sure watching things can be released, use `Watcher` apis and release it yourself.
+ * 
  * This is only a declaration, it will be removed after compiled.
  */
 export declare function watch(fnOrProperty: (() => any) | PropertyKey, immediate?: boolean): (target: any, property: string) => void

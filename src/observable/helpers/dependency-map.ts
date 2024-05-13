@@ -28,20 +28,20 @@ class ExtendedDoubleKeysWeakSetMap<K1 extends object, K2, V> extends WeakDoubleK
  */
 export class DependencyMap {
 
-	/** Caches `Refresh Callback -> Dependency`. */
+	/** Caches `Refresh Callback -> Dependency -> Dependency Key`. */
 	private dependencyMap: ExtendedDoubleKeysWeakSetMap<Function, object, PropertyKey> = new ExtendedDoubleKeysWeakSetMap()
 
-	/** Caches `Dependency -> Refresh Callback`. */
+	/** Caches `Dependency -> Dependency Key -> Refresh Callback`. */
 	private refreshMap: ExtendedDoubleKeysWeakSetMap<object, PropertyKey, Function> = new ExtendedDoubleKeysWeakSetMap()
 
 
-	/** When doing getting property, add a dependency. */
-	apply(refreshCallback: Function, dependencies: SetMap<object, PropertyKey>) {
-		if (dependencies.keyCount() > 0) {
-			this.updateRefreshMap(refreshCallback, dependencies)
+	/** When doing getting property, add dependencies. */
+	apply(refreshCallback: Function, deps: SetMap<object, PropertyKey>) {
+		if (deps.keyCount() > 0) {
+			this.updateRefreshMap(refreshCallback, deps)
 
 			// Must after previous step.
-			this.dependencyMap.setSecond(refreshCallback, dependencies)
+			this.dependencyMap.setSecond(refreshCallback, deps)
 			
 		}
 		else {
@@ -56,8 +56,8 @@ export class DependencyMap {
 
 		// Clean not existed.
 		if (oldDep) {
-			for (let [obj, props] of deps.entries()) {
-				let oldProps = oldDep.get(obj)
+			for (let [dep, props] of deps.entries()) {
+				let oldProps = oldDep.get(dep)
 
 				if (!oldProps) {
 					continue
@@ -65,29 +65,29 @@ export class DependencyMap {
 
 				for (let prop of oldProps) {
 					if (!props.has(prop)) {
-						this.refreshMap.delete(obj, prop, c)
+						this.refreshMap.delete(dep, prop, c)
 					}
 				}
 			}
 		}
 
 		// Add or replace.
-		for (let [obj, props] of deps.entries()) {
-			this.refreshMap.addByGroupOfSecondKeys(obj, props, c)
+		for (let [dep, props] of deps.entries()) {
+			this.refreshMap.addByGroupOfSecondKeys(dep, props, c)
 		}
 	}
 
-	/** Get all refresh callbacks by associated object and property. */
-	getRefreshCallbacks(obj: object, prop: PropertyKey): Set<Function> | undefined {
-		return this.refreshMap.get(obj, prop)
+	/** Get all refresh callbacks by associated Dependency and key. */
+	getRefreshCallbacks(dep: object, prop: PropertyKey): Set<Function> | undefined {
+		return this.refreshMap.get(dep, prop)
 	}
 
-	/** Delete a refresh callbacks and all of its associated object and properties. */
+	/** Delete a refresh callbacks and all of its associated Dependency and keys. */
 	deleteRefreshCallback(c: Function) {
 		let deps = this.dependencyMap.getSecond(c)
 		if (deps) {
-			for (let [obj, prop] of deps.flatEntries()) {
-				this.refreshMap.delete(obj, prop, c)
+			for (let [dep, prop] of deps.flatEntries()) {
+				this.refreshMap.delete(dep, prop, c)
 			}
 		}
 
