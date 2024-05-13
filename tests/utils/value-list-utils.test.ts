@@ -2,24 +2,6 @@ import {ValueListUtils} from '../../src'
 
 
 describe('Test ValueListUtils', () => {
-	test('unique', () => {
-		expect(ValueListUtils.unique([1,2,3,3])).toEqual([1,2,3])
-	})
-
-	test('union', () => {
-		expect(ValueListUtils.union([1,2,3], [3,4])).toEqual([1,2,3,4])
-		expect(ValueListUtils.union([1,2,3], [3,4], [4,5])).toEqual([1,2,3,4,5])
-	})
-
-	test('intersect', () => {
-		expect(ValueListUtils.intersect([1,2,3], [3,4])).toEqual([3])
-		expect(ValueListUtils.intersect([1,2,3], [3,4], [3,4,5])).toEqual([3])
-	})
-
-	test('diff', () => {
-		expect(ValueListUtils.difference([1,2,3], [3,4])).toEqual([1,2])
-		expect(ValueListUtils.difference([1,2,3], [3,4], [2,5])).toEqual([1])
-	})
 
 	test('sum', () => {
 		expect(ValueListUtils.sum([1,2,3])).toEqual(6)

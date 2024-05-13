@@ -2,6 +2,25 @@ import {ListUtils, ObjectUtils} from '../../src'
 
 
 describe('Test ListUtils', () => {
+	test('unique', () => {
+		expect(ListUtils.unique([1,2,3,3])).toEqual([1,2,3])
+	})
+
+	test('union', () => {
+		expect(ListUtils.union([1,2,3], [3,4])).toEqual([1,2,3,4])
+		expect(ListUtils.union([1,2,3], [3,4], [4,5])).toEqual([1,2,3,4,5])
+	})
+
+	test('intersect', () => {
+		expect(ListUtils.intersect([1,2,3], [3,4])).toEqual([3])
+		expect(ListUtils.intersect([1,2,3], [3,4], [3,4,5])).toEqual([3])
+	})
+
+	test('diff', () => {
+		expect(ListUtils.difference([1,2,3], [3,4])).toEqual([1,2])
+		expect(ListUtils.difference([1,2,3], [3,4], [2,5])).toEqual([1])
+	})
+
 	test('repeatForTimes', () => {
 		expect(ListUtils.repeatForTimes(1, 3)).toEqual([1,1,1])
 		expect(ListUtils.repeatForTimes('a', 3)).toEqual(['a', 'a', 'a'])

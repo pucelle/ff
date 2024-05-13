@@ -1,3 +1,71 @@
+/** Returns a new list from picking unique items from `list` and removing duplicate items. */
+export function unique<T>(list: Iterable<T>): T[] {
+	let set: Set<T> = new Set(list)
+	return [...set]
+}
+
+
+/** Creates a list composed of all the unique values from given `lists`. */
+export function union<T>(...lists: Iterable<T>[]): T[] {
+	let set: Set<T> = new Set()
+
+	for (let list of lists) {
+		for (let item of list) {
+			set.add(item)
+		}
+	}
+
+	return [...set]
+}
+
+
+/** Creates a list from picking intersected values that are included in all the given `lists`. */
+export function intersect<T>(...lists: Iterable<T>[]): T[] {
+	let intersect: T[] = []
+
+	if (!lists.length) {
+		return intersect
+	}
+
+	let map: Map<T, number> = new Map()
+
+	for (let item of lists[0]) {
+		map.set(item, 1)
+	}
+
+	for (let i = 1; i < lists.length; i++) {
+		for (let item of lists[i]) {
+			if (map.has(item)) {
+				map.set(item, map.get(item)! + 1)
+			}
+		}
+	}
+
+	for (let [item, count] of map.entries()) {
+		if (count === lists.length) {
+			intersect.push(item)
+		}
+	}
+	
+	return intersect
+}
+
+
+/** Creates a new list from picking items from `list` and excluding items inside any one of `excludeLists`. */
+export function difference<T>(list: Iterable<T>, ...excludeLists: Iterable<T>[]): T[] {
+	let set: Set<T> = new Set(list)
+
+	for (let difArray of excludeLists) {
+		for (let item of difArray) {
+			set.delete(item)
+		}
+	}
+
+	return [...set]
+}
+
+
+
 /** Repeat an item for multiple times, returns the list filled with the repeated items. */
 export function repeatForTimes<T>(item: T, count: number): T[] {
 	let items: T[] = []
