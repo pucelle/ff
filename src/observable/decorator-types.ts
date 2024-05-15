@@ -1,9 +1,10 @@
 /** 
- * `@observable` decorates a class to make its properties become `Observed`.
- * then all the reading and writing process of it's properties will be tracked.
- * It equals specifying instance of current class as `Observed<...>`.
+ * `@observable` decorates a class to make itself and all of its properties become `Observed<...>`.
+ * then all the mutations of it's properties will be tracked.
  * 
- * `@observable` will not broadcast to derived class, you must set it independently.
+ * By default, `Component` of Lupos.js and all of it's derived classes are mutable, no need to decorate again.
+ * 
+ * `@observable` will not broadcast to derived classes, you must set it independently.
  * 
  * This is only a declaration, it will be removed after compiled.
  */
@@ -27,7 +28,7 @@ export declare function computed(originalMethod: any, context: ClassMethodDecora
  * The effect action will be started after instance initialized,
  * so applying properties in `constructor` will not cause this method be called.
  * 
- * If use with a component has life-cycle, like a `Component` in `@pucelle/lupos.js`,
+ * If use with a component has life-cycle, like a `Component` in Lupos.js,
  * current effect action can be activated and deactivated automatically follow component's life-cycle.
  * 
  * Otherwise current effect action would cant be released and GC if any dependencies still existing.

@@ -1,6 +1,6 @@
 export * from './barrier-queue'
 export * from './compute'
-export * from './decorators-for-compiler'
+export * from './decorator-types'
 export * from './effect'
 export * from './proxy-of'
 export * from './types'
