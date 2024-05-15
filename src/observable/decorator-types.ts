@@ -1,6 +1,7 @@
 /** 
- * `@observable` decorates a class to make itself and all of its properties become `Observed<...>`.
- * then all the mutations of it's properties will be tracked.
+ * `@observable` decorates a class to make itself and all of its properties
+ * and descendent properties to make them become `Observed<...>`,
+ * then all the mutations of these properties will be tracked.
  * 
  * By default, `Component` of Lupos.js and all of it's derived classes are mutable, no need to decorate again.
  * 
