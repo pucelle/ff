@@ -1,9 +1,9 @@
-import {DependencyTracker, compute} from '../../src'
+import {DependencyTracker, createComputed} from '../../src'
 
 
-describe('Test compute', () => {
+describe('Test createComputed', () => {
 
-	it('Test compute', () => {
+	it('Test createComputed', () => {
 		class A {
 			v!: number
 			get v1() {
@@ -15,8 +15,8 @@ describe('Test compute', () => {
 		}
 
 		let a = new A()
-		let v1 = compute(() => {DependencyTracker.onGet(a, 'v'); return a.v})
-		let v2 = compute(() => {DependencyTracker.onGet(a, 'v'); return a.v + 1})
+		let v1 = createComputed(() => {DependencyTracker.onGet(a, 'v'); return a.v})
+		let v2 = createComputed(() => {DependencyTracker.onGet(a, 'v'); return a.v + 1})
 
 		a.v = 1
 		DependencyTracker.onSet(a, 'v')

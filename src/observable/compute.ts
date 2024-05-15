@@ -5,7 +5,7 @@ import * as DependencyTracker from './dependency-tracker'
  * Make a similar computed getter from a getter function.
  * and automatically re-computing the value after any dependency changed.
  */
-export function compute<V = any>(getter: () => V): () => V {
+export function createComputed<V = any>(getter: () => V): () => V {
 	let value: V | undefined = undefined
 	let valueReset = true
 
@@ -16,9 +16,16 @@ export function compute<V = any>(getter: () => V): () => V {
 
 	return function() {
 		if (valueReset) {
-			DependencyTracker.trackExecutionOf(function() {
+			DependencyTracker.beginTrack(resetValue)
+			try {
 				value = getter()
-			}, resetValue)
+			}
+			catch (err) {
+				console.log(err)
+			}
+			finally {
+				DependencyTracker.endTrack()
+			}
 
 			valueReset = false
 		}

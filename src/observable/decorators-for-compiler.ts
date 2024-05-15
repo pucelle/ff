@@ -1,23 +1,13 @@
 /** 
- * `@observable` decorates a class to make its properties become observable.
+ * `@observable` decorates a class to make its properties become `Observed`.
+ * then all the reading and writing process of it's properties will be tracked.
+ * It equals specifying instance of current class as `Observed<...>`.
  * 
- * If a class is decorated as observable, its all public properties becomes
- * readonly outside of class private scope, except decorates properties as `@input`.
- * 
- * This is only a declaration, it will be removed after compiled.
- */
-export declare function observable(constructor: Function): void
-
-
-/** 
- * `@input` decorates a class property to make it can be assigned outside of class private scope.
- * 
- * If a class is decorated by `@observable`, its all public properties becomes
- * readonly outside of class private scope, except decorates properties as `@input`.
+ * `@observable` will not broadcast to derived class, you must set it independently.
  * 
  * This is only a declaration, it will be removed after compiled.
  */
-export declare function input(target: any, property: string): void
+export declare function observable(constructor: Function, context: ClassDecoratorContext): void
 
 
 /** 
@@ -27,7 +17,7 @@ export declare function input(target: any, property: string): void
  * 
  * This is only a declaration, it will be removed after compiled.
  */
-export declare function computed(target: any, property: string): void
+export declare function computed(originalMethod: any, context: ClassMethodDecoratorContext): any
 
 
 /** 
@@ -45,7 +35,7 @@ export declare function computed(target: any, property: string): void
  * 
  * This is only a declaration, it will be removed after compiled.
  */
-export declare function effect(target: any, property: string): void
+export declare function effect(originalMethod: any, context: ClassMethodDecoratorContext): any
 
 
 /** 
@@ -72,4 +62,5 @@ export declare function effect(target: any, property: string): void
  * 
  * This is only a declaration, it will be removed after compiled.
  */
-export declare function watch(fnOrProperty: (() => any) | PropertyKey, immediate?: boolean): (target: any, property: string) => void
+export declare function watch(fnOrProperty: (() => any) | PropertyKey, immediate?: boolean):
+	(originalMethod: any, context: ClassMethodDecoratorContext) => any

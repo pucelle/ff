@@ -1,8 +1,9 @@
+export * from './barrier-queue'
+export * from './compute'
 export * from './decorators-for-compiler'
 export * from './effect'
 export * from './proxy-of'
-export * from './compute'
-export * from './barrier-queue'
+export * from './types'
 
 export * as DependencyTracker from './dependency-tracker'
 export * as UpdateQueue from './update-queue'
