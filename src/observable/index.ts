@@ -4,7 +4,7 @@ export * from './decorator-types'
 export * from './effect'
 export * from './proxy-of'
 export * from './types'
+export * from './dependency-tracker'
 
-export * as DependencyTracker from './dependency-tracker'
 export * as UpdateQueue from './update-queue'
 export * as Watcher from './watcher'

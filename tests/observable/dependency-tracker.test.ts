@@ -1,4 +1,4 @@
-import {DependencyTracker} from '../../src'
+import * as DependencyTracker from '../../src/observable/dependency-tracker'
 
 
 describe('Test DependencyTracker', () => {

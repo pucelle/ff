@@ -1,18 +1,4 @@
 /** 
- * `@observable` decorates a class to make itself and all of its properties
- * and descendent properties to make them become `Observed<...>`,
- * then all the mutations of these properties will be tracked.
- * 
- * By default, `Component` of Lupos.js and all of it's derived classes are mutable, no need to decorate again.
- * 
- * `@observable` will not broadcast to derived classes, you must set it independently.
- * 
- * This is only a declaration, it will be removed after compiled.
- */
-export declare function observable(constructor: Function, context: ClassDecoratorContext): void
-
-
-/** 
  * `@computed` decorates a class getter to make it compute value when required.
  * Compare with `get property() {...}`, computed property value will be cached,
  * and refresh only when required.

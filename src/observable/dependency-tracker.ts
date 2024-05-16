@@ -3,6 +3,11 @@ import {bindCallback} from './helpers/bind-callback'
 import {DependencyMap} from './helpers/dependency-map'
 
 
+// This file was exported as `DependencyTracker` before,
+// but it's apis are used frequently by Lupos Compiler,
+// so finally it export all members directly.
+
+
 /** Contains captured dependencies, and the refresh callback it need to call after any dependency get changed. */
 interface CapturedDependencies {
 
@@ -101,7 +106,7 @@ export function onSet(obj: object, prop: PropertyKey = '') {
 
 
 /** When doing getting property, add a group of dependency. */
-export function onGetBunched(obj: object, props: PropertyKey[]) {
+export function onGetGrouped(obj: object, props: PropertyKey[]) {
 	if (currentDep) {
 		for (let prop of props) {
 			currentDep.dependencies.add(obj, prop)
@@ -111,7 +116,7 @@ export function onGetBunched(obj: object, props: PropertyKey[]) {
 
 
 /** When doing setting property, notify a group of dependencies are changed. */
-export function onSetBunched(obj: object, props: PropertyKey[]) {
+export function onSetGrouped(obj: object, props: PropertyKey[]) {
 	let callbackSet: Set<Function> = new Set()
 
 	for (let prop of props) {
