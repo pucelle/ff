@@ -3,7 +3,7 @@
  * Compare with `get property() {...}`, computed property value will be cached,
  * and refresh only when required.
  * 
- * This is only a declaration, it will be removed after compiled.
+ * This is only a declaration, it will be removed after compiled by `@pucelle/lupos.compiler`.
  */
 export declare function computed(originalMethod: any, context: ClassMethodDecoratorContext): any
 
@@ -21,7 +21,7 @@ export declare function computed(originalMethod: any, context: ClassMethodDecora
  * Otherwise current effect action would cant be released and GC if any dependencies still existing.
  * If you want to make sure an effect can be released, use `createEffect` and release it yourself.
  * 
- * This is only a declaration, it will be removed after compiled.
+ * This is only a declaration, it will be removed after compiled by `@pucelle/lupos.compiler`.
  */
 export declare function effect(originalMethod: any, context: ClassMethodDecoratorContext): any
 
@@ -48,7 +48,7 @@ export declare function effect(originalMethod: any, context: ClassMethodDecorato
  * Otherwise current watch action would cant be released and GC if any dependencies still existing.
  * If you want to make sure watching things can be released, use `Watcher` apis and release it yourself.
  * 
- * This is only a declaration, it will be removed after compiled.
+ * This is only a declaration, it will be removed after compiled by `@pucelle/lupos.compiler`.
  */
 export declare function watch(fnOrProperty: (() => any) | PropertyKey, immediate?: boolean):
 	(originalMethod: any, context: ClassMethodDecoratorContext) => any

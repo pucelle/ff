@@ -53,6 +53,9 @@ export abstract class IterableValueMap<K, V, I extends Iterable<V>> {
 	/** Add a key value pair. */
 	abstract add(k: K, v: V): void
 
+	/** Add a key and several values. */
+	abstract addSeveral(k: K, vs: Iterable<V>): void
+
 	/** Get value list by associated key. */
 	get(k: K): I | undefined {
 		return this.map.get(k)
@@ -65,6 +68,9 @@ export abstract class IterableValueMap<K, V, I extends Iterable<V>> {
 
 	/** Delete a key value pair. */
 	abstract delete(k: K, v: V): void
+
+	/** Delete a key and several values. */
+	abstract deleteSeveral(k: K, vs: Iterable<V>): void
 
 	/** Delete all values by associated key. */
 	deleteOf(k: K) {
@@ -109,6 +115,22 @@ export class ListMap<K, V> extends IterableValueMap<K, V, V[]> {
 	}
 
 	/** 
+	 * Add a key and several values.
+	 * Note it will not validate whether value exist,
+	 * and will add value repeatedly although it exists.
+	 */
+	addSeveral(k: K, vs: Iterable<V>) {
+		let values = this.map.get(k)
+		if (!values) {
+			values = [...vs]
+			this.map.set(k, values)
+		}
+		else {
+			values.push(...vs)
+		}
+	}
+
+	/** 
 	 * Add a key and a value.
 	 * Note it will validate whether value exist, and ignore if value exists.
 	 */
@@ -123,6 +145,24 @@ export class ListMap<K, V> extends IterableValueMap<K, V, V[]> {
 		}
 	}
 
+	/** 
+	 * Add a key and a value.
+	 * Note it will validate whether value exist, and ignore if value exists.
+	 */
+	addSeveralIf(k: K, vs: Iterable<V>) {
+		let values = this.map.get(k)
+		if (!values) {
+			values = []
+			this.map.set(k, values)
+		}
+
+		for (let v of vs) {
+			if (!values.includes(v)) {
+				values.push(v)
+			}
+		}
+	}
+
 	delete(k: K, v: V) {
 		let values = this.map.get(k)
 		if (values) {
@@ -133,6 +173,22 @@ export class ListMap<K, V> extends IterableValueMap<K, V, V[]> {
 				if (values.length === 0) {
 					this.map.delete(k)
 				}
+			}
+		}
+	}
+
+	deleteSeveral(k: K, vs: Iterable<V>): void {
+		let values = this.map.get(k)
+		if (values) {
+			for (let v of vs) {
+				let index = values.indexOf(v)
+				if (index > -1) {
+					values.splice(index, 1)
+				}
+			}
+								
+			if (values.length === 0) {
+				this.map.delete(k)
 			}
 		}
 	}
@@ -163,11 +219,37 @@ export class SetMap<K, V> extends IterableValueMap<K, V, Set<V>> {
 		values.add(v)
 	}
 
+	addSeveral(k: K, vs: Iterable<V>) {
+		let values = this.map.get(k)
+		if (!values) {
+			values = new Set(vs)
+			this.map.set(k, values)
+		}
+		else {
+			for (let v of vs) {
+				values.add(v)
+			}
+		}
+	}
+
 	delete(k: K, v: V) {
 		let values = this.map.get(k)
 		if (values) {
 			values.delete(v)
 
+			if (values.size === 0) {
+				this.map.delete(k)
+			}
+		}
+	}
+
+	deleteSeveral(k: K, vs: Iterable<V>): void {
+		let values = this.map.get(k)
+		if (values) {
+			for (let v of vs) {
+				values.delete(v)
+			}
+								
 			if (values.size === 0) {
 				this.map.delete(k)
 			}
@@ -280,7 +362,7 @@ export class DoubleKeysMap<K1, K2, V> {
 		sub.set(k2, v)
 	}
 
-	/** Delete all the associated values by key pair. */
+	/** Delete associated value by key pair. */
 	delete(k1: K1, k2: K2) {
 		let sub = this.map.get(k1)
 		if (sub) {

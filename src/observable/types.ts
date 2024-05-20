@@ -1,8 +1,10 @@
 /** 
  * If type of a variable / property / parameter is marked as `Observed<>`,
- * or a class declaration implements `Observed<>`,
+ * or a class declaration implements `Observed`,
  * then in current context, normally a function or method, or a class range,
- * compiler will track mutations of it's sub properties, include descendant properties.
+ * 
+ * After compiled by `@pucelle/lupos.compiler`, objects marked as observed type
+ * will be tracked mutations of it's sub properties, include descendant properties.
  */
 export type Observed<T extends object = object> = T
 

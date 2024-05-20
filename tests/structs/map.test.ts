@@ -25,6 +25,16 @@ describe('Test Map Structs', () => {
 
 		m.delete('a', 'd')
 		expect(m.hasOf('a')).toEqual(false)
+
+		m.clear()
+		m.addSeveral('a', ['b', 'c'])
+		expect([...m.entries()]).toEqual([['a', ['b', 'c']]])
+		m.deleteSeveral('a', ['b', 'c'])
+		expect(m.hasOf('a')).toEqual(false)
+
+		m.clear()
+		m.addSeveralIf('a', ['b', 'b', 'c'])
+		expect([...m.entries()]).toEqual([['a', ['b', 'c']]])
 	})
 
 	test('SetMap', () => {
@@ -47,6 +57,12 @@ describe('Test Map Structs', () => {
 		expect([...m.get('a')!]).toEqual(['d'])
 
 		m.delete('a', 'd')
+		expect(m.hasOf('a')).toEqual(false)
+
+		m.clear()
+		m.addSeveral('a', ['b', 'c'])
+		expect([...m.entries()]).toEqual([['a', new Set(['b', 'c'])]])
+		m.deleteSeveral('a', ['b', 'c'])
 		expect(m.hasOf('a')).toEqual(false)
 	})
 

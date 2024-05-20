@@ -23,6 +23,16 @@ describe('Test Weak Map Structs', () => {
 
 		m.delete(a, 'd')
 		expect(m.hasOf(a)).toEqual(false)
+
+		m.clear()
+		m.addSeveral(a, ['b', 'c'])
+		expect(m.get(a)).toEqual(['b', 'c'])
+		m.deleteSeveral(a, ['b', 'c'])
+		expect(m.hasOf(a)).toEqual(false)
+
+		m.clear()
+		m.addSeveralIf(a, ['b', 'b', 'c'])
+		expect(m.get(a)).toEqual(['b', 'c'])
 	})
 
 	test('WeakSetMap', () => {
@@ -39,6 +49,12 @@ describe('Test Weak Map Structs', () => {
 		expect([...m.get(a)!]).toEqual(['d'])
 
 		m.delete(a, 'd')
+		expect(m.hasOf(a)).toEqual(false)
+
+		m.clear()
+		m.addSeveral(a, ['b', 'c'])
+		expect(m.get(a)).toEqual(new Set(['b', 'c']))
+		m.deleteSeveral(a, ['b', 'c'])
 		expect(m.hasOf(a)).toEqual(false)
 	})
 

@@ -106,24 +106,26 @@ export function onSet(obj: object, prop: PropertyKey = '') {
 
 
 /** When doing getting property, add a group of dependency. */
-export function onGetGrouped(obj: object, props: PropertyKey[]) {
+export function onGetGrouped(group: [object, PropertyKey[]][]) {
 	if (currentDep) {
-		for (let prop of props) {
-			currentDep.dependencies.add(obj, prop)
+		for (let [obj, props] of group) {
+			currentDep.dependencies.addSeveral(obj, props)
 		}
 	}
 }
 
 
 /** When doing setting property, notify a group of dependencies are changed. */
-export function onSetGrouped(obj: object, props: PropertyKey[]) {
+export function onSetGrouped(group: [object, PropertyKey[]][]) {
 	let callbackSet: Set<Function> = new Set()
 
-	for (let prop of props) {
-		let callbacks = DepMap.getRefreshCallbacks(obj, prop)
-		if (callbacks) {
-			for (let callback of callbacks) {
-				callbackSet.add(callback)
+	for (let [obj, props] of group) {
+		for (let prop of props) {
+			let callbacks = DepMap.getRefreshCallbacks(obj, prop)
+			if (callbacks) {
+				for (let callback of callbacks) {
+					callbackSet.add(callback)
+				}
 			}
 		}
 	}
