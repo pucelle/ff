@@ -116,7 +116,7 @@ const ArrayProxyHandler = {
 
 		// Other properties, like `length`.
 		else {
-			onGet(a)
+			onGet(a, '')
 			return value
 		}
 	},
@@ -126,7 +126,7 @@ const ArrayProxyHandler = {
 		a[key] = toValue
 
 		if (fromValue !== toValue) {
-			onSet(a)
+			onSet(a, '')
 		}
 
 		return true
@@ -141,7 +141,7 @@ const ArrayProxyMethods: any = {
 		let result = Array.prototype.push.call(this, ...values)
 
 		if (values.length > 0) {
-			onSet(this)
+			onSet(this, '')
 		}
 
 		return result
@@ -151,7 +151,7 @@ const ArrayProxyMethods: any = {
 		let result = Array.prototype.unshift.call(this, ...values)
 
 		if (values.length > 0) {
-			onSet(this)
+			onSet(this, '')
 		}
 
 		return result
@@ -162,7 +162,7 @@ const ArrayProxyMethods: any = {
 		let result = Array.prototype.pop.call(this)
 
 		if (count > 0) {
-			onSet(this)
+			onSet(this, '')
 		}
 
 		return result
@@ -173,7 +173,7 @@ const ArrayProxyMethods: any = {
 		let result = Array.prototype.shift.call(this)
 
 		if (count > 0) {
-			onSet(this)
+			onSet(this, '')
 		}
 
 		return result
@@ -183,7 +183,7 @@ const ArrayProxyMethods: any = {
 		let result = Array.prototype.splice.call(this, fromIndex, removeCount, insertValues)
 
 		if (removeCount > 0 || insertValues.length > 0) {
-			onSet(this)
+			onSet(this, '')
 		}
 
 		return result
@@ -191,7 +191,7 @@ const ArrayProxyMethods: any = {
 
 	reverse(this: any[]) {
 		let result = Array.prototype.reverse.call(this)
-		onSet(this)
+		onSet(this, '')
 		
 		return result
 	},

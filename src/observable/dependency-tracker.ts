@@ -87,7 +87,7 @@ export function endTrack() {
 
 
 /** When doing getting property, add a dependency. */
-export function onGet(obj: object, prop: PropertyKey = '') {
+export function onGet(obj: object, prop: PropertyKey) {
 	if (currentDep) {
 		currentDep.dependencies.add(obj, prop)
 	}
@@ -95,7 +95,7 @@ export function onGet(obj: object, prop: PropertyKey = '') {
 
 
 /** When doing setting property, notify the dependency is changed. */
-export function onSet(obj: object, prop: PropertyKey = '') {
+export function onSet(obj: object, prop: PropertyKey) {
 	let callbacks = DepMap.getRefreshCallbacks(obj, prop)
 	if (callbacks) {
 		for (let callback of callbacks) {
@@ -106,7 +106,7 @@ export function onSet(obj: object, prop: PropertyKey = '') {
 
 
 /** When doing getting property, add a group of dependency. */
-export function onGetGrouped(group: [object, PropertyKey[]][]) {
+export function onGetGrouped(...group: [object, PropertyKey[]][]) {
 	if (currentDep) {
 		for (let [obj, props] of group) {
 			currentDep.dependencies.addSeveral(obj, props)
@@ -116,7 +116,7 @@ export function onGetGrouped(group: [object, PropertyKey[]][]) {
 
 
 /** When doing setting property, notify a group of dependencies are changed. */
-export function onSetGrouped(group: [object, PropertyKey[]][]) {
+export function onSetGrouped(...group: [object, PropertyKey[]][]) {
 	let callbackSet: Set<Function> = new Set()
 
 	for (let [obj, props] of group) {
