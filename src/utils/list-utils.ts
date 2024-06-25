@@ -202,7 +202,10 @@ type NormativeOrderRules<T> = {fn: OrderFunction<T>, direction: -1 | 1}
  */
 export class Order<T> {
 
-	/** Order rules after normalize. */
+	/** 
+	 * Order rules after normalize.
+	 * If several orders exist, try to sort by first order, if equals, sort by next...
+	 */
 	private orders: NormativeOrderRules<T>[] = []
 
 	constructor(...orders: OrderRule<T>[]) {
