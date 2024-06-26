@@ -327,7 +327,7 @@ export class Order<T> {
 
 
 /** 
- * Sort `list` inside it's memory, by specified orders.
+ * Sort `list` inside it's memory space, by specified orders.
  * Multiple order rules can be specified.
  */
 export function orderBy<T>(list: T[], ...orders: OrderRule<T>[]): T[] {
@@ -335,6 +335,20 @@ export function orderBy<T>(list: T[], ...orders: OrderRule<T>[]): T[] {
 	order.sort(list)
 
 	return list
+}
+
+
+/** 
+ * Sort `list` by specified orders and return a new list.
+ * Multiple order rules can be specified.
+ */
+export function toOrdered<T>(list: T[], ...orders: OrderRule<T>[]): T[] {
+	let order = new Order(...orders)
+	let newList = [...list]
+
+	order.sort(newList)
+
+	return newList
 }
 
 
