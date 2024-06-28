@@ -533,6 +533,17 @@ export abstract class DoubleKeysIterableValueMap<K1, K2, V, I extends Iterable<V
 		sub.add(k2, v)
 	}
 
+	/** Add a key pair and several values. */
+	addSeveral(k1: K1, k2: K2, vs: Iterable<V>) {
+		let sub = this.map.get(k1)
+		if (!sub) {
+			sub = this.createSubMap()
+			this.map.set(k1, sub)
+		}
+
+		sub.addSeveral(k2, vs)
+	}
+
 	/** Delete a key pair and associated value. */
 	delete(k1: K1, k2: K2, v: V) {
 		let sub = this.map.get(k1)
@@ -588,7 +599,7 @@ export class DoubleKeysListMap<K1, K2, V> extends DoubleKeysIterableValueMap<K1,
 		}
 
 		sub.addIf(k2, v)
-	}	
+	}
 }
 
 
