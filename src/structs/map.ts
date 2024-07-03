@@ -54,7 +54,7 @@ export abstract class IterableValueMap<K, V, I extends Iterable<V>> {
 	abstract add(k: K, v: V): void
 
 	/** Add a key and several values. */
-	abstract addSeveral(k: K, vs: Iterable<V>): void
+	abstract addSeveral(k: K, vs: V[]): void
 
 	/** Get value list by associated key. */
 	get(k: K): I | undefined {
@@ -119,7 +119,11 @@ export class ListMap<K, V> extends IterableValueMap<K, V, V[]> {
 	 * Note it will not validate whether value exist,
 	 * and will add value repeatedly although it exists.
 	 */
-	addSeveral(k: K, vs: Iterable<V>) {
+	addSeveral(k: K, vs: V[]) {
+		if (vs.length === 0) {
+			return
+		}
+
 		let values = this.map.get(k)
 		if (!values) {
 			values = [...vs]
@@ -149,7 +153,11 @@ export class ListMap<K, V> extends IterableValueMap<K, V, V[]> {
 	 * Add a key and a value.
 	 * Note it will validate whether value exist, and ignore if value exists.
 	 */
-	addSeveralIf(k: K, vs: Iterable<V>) {
+	addSeveralIf(k: K, vs: V[]) {
+		if (vs.length === 0) {
+			return
+		}
+
 		let values = this.map.get(k)
 		if (!values) {
 			values = []
@@ -219,7 +227,11 @@ export class SetMap<K, V> extends IterableValueMap<K, V, Set<V>> {
 		values.add(v)
 	}
 
-	addSeveral(k: K, vs: Iterable<V>) {
+	addSeveral(k: K, vs: V[]) {
+		if (vs.length === 0) {
+			return
+		}
+
 		let values = this.map.get(k)
 		if (!values) {
 			values = new Set(vs)
@@ -534,7 +546,11 @@ export abstract class DoubleKeysIterableValueMap<K1, K2, V, I extends Iterable<V
 	}
 
 	/** Add a key pair and several values. */
-	addSeveral(k1: K1, k2: K2, vs: Iterable<V>) {
+	addSeveral(k1: K1, k2: K2, vs: V[]) {
+		if (vs.length === 0) {
+			return
+		}
+		
 		let sub = this.map.get(k1)
 		if (!sub) {
 			sub = this.createSubMap()
@@ -599,6 +615,21 @@ export class DoubleKeysListMap<K1, K2, V> extends DoubleKeysIterableValueMap<K1,
 		}
 
 		sub.addIf(k2, v)
+	}
+
+	/** Add a key pair and several values. */
+	addSeveralIf(k1: K1, k2: K2, vs: V[]) {
+		if (vs.length === 0) {
+			return
+		}
+
+		let sub = this.map.get(k1)
+		if (!sub) {
+			sub = this.createSubMap()
+			this.map.set(k1, sub)
+		}
+
+		sub.addSeveralIf(k2, vs)
 	}
 }
 

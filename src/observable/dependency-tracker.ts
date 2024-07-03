@@ -87,39 +87,18 @@ export function endTrack() {
 
 
 /** When doing getting property, add a dependency. */
-export function onGet(obj: object, prop: PropertyKey) {
+export function onGet(obj: object, ...props: PropertyKey[]) {
 	if (currentDep) {
-		currentDep.dependencies.add(obj, prop)
+		currentDep.dependencies.addSeveral(obj, props)
 	}
 }
 
 
 /** When doing setting property, notify the dependency is changed. */
-export function onSet(obj: object, prop: PropertyKey) {
-	let callbacks = DepMap.getRefreshCallbacks(obj, prop)
-	if (callbacks) {
-		for (let callback of callbacks) {
-			callback()
-		}
-	}
-}
+export function onSet(obj: object, ...props: PropertyKey[]) {
+	if (props.length > 1) {
+		let callbackSet: Set<Function> = new Set()
 
-
-/** When doing getting property, add a group of dependency. */
-export function onGetGrouped(...group: [object, PropertyKey[]][]) {
-	if (currentDep) {
-		for (let [obj, props] of group) {
-			currentDep.dependencies.addSeveral(obj, props)
-		}
-	}
-}
-
-
-/** When doing setting property, notify a group of dependencies are changed. */
-export function onSetGrouped(...group: [object, PropertyKey[]][]) {
-	let callbackSet: Set<Function> = new Set()
-
-	for (let [obj, props] of group) {
 		for (let prop of props) {
 			let callbacks = DepMap.getRefreshCallbacks(obj, prop)
 			if (callbacks) {
@@ -128,10 +107,20 @@ export function onSetGrouped(...group: [object, PropertyKey[]][]) {
 				}
 			}
 		}
-	}
 
-	for (let callback of callbackSet) {
-		callback()
+		for (let callback of callbackSet) {
+			callback()
+		}
+	}
+	else {
+		for (let prop of props) {
+			let callbacks = DepMap.getRefreshCallbacks(obj, prop)
+			if (callbacks) {
+				for (let callback of callbacks) {
+					callback()
+				}
+			}
+		}
 	}
 }
 
