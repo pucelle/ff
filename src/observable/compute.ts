@@ -1,4 +1,4 @@
-import * as DependencyTracker from './dependency-tracker'
+import {beginTrack, endTrack} from './dependency-tracker'
 
 
 /** 
@@ -16,7 +16,7 @@ export function createComputed<V = any>(getter: () => V): () => V {
 
 	return function() {
 		if (valueReset) {
-			DependencyTracker.beginTrack(resetValue)
+			beginTrack(resetValue)
 			try {
 				value = getter()
 			}
@@ -24,7 +24,7 @@ export function createComputed<V = any>(getter: () => V): () => V {
 				console.log(err)
 			}
 			finally {
-				DependencyTracker.endTrack()
+				endTrack()
 			}
 
 			valueReset = false

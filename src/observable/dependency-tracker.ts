@@ -87,7 +87,7 @@ export function endTrack() {
 
 
 /** When doing getting property, add a dependency. */
-export function onGet(obj: object, ...props: PropertyKey[]) {
+export function trackGet(obj: object, ...props: PropertyKey[]) {
 	if (currentDep) {
 		currentDep.dependencies.addSeveral(obj, props)
 	}
@@ -95,7 +95,7 @@ export function onGet(obj: object, ...props: PropertyKey[]) {
 
 
 /** When doing setting property, notify the dependency is changed. */
-export function onSet(obj: object, ...props: PropertyKey[]) {
+export function trackSet(obj: object, ...props: PropertyKey[]) {
 	if (props.length > 1) {
 		let callbackSet: Set<Function> = new Set()
 

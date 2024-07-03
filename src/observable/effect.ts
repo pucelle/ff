@@ -1,4 +1,4 @@
-import * as DependencyTracker from './dependency-tracker'
+import {trackExecutionOf, untrack} from './dependency-tracker'
 import * as UpdateQueue from './update-queue'
 
 
@@ -8,7 +8,7 @@ import * as UpdateQueue from './update-queue'
  */
 export function createEffect(fn: () => void): () => void {
 	function update() {
-		DependencyTracker.trackExecutionOf(fn, onChange)
+		trackExecutionOf(fn, onChange)
 	}
 
 	function onChange() {
@@ -18,6 +18,6 @@ export function createEffect(fn: () => void): () => void {
 	update()
 
 	return function() {
-		DependencyTracker.untrack(onChange)
+		untrack(onChange)
 	}
 }

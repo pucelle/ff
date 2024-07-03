@@ -1,4 +1,4 @@
-import * as DependencyTracker from './dependency-tracker'
+import {trackExecutionOf, untrack} from './dependency-tracker'
 import * as UpdateQueue from './update-queue'
 
 
@@ -24,7 +24,7 @@ export function watch<T>(
 	}
 
 	function update() {
-		DependencyTracker.trackExecutionOf(assign, onChange)
+		trackExecutionOf(assign, onChange)
 		
 		if (newValue !== oldValue) {
 			callback(newValue, oldValue)
@@ -36,11 +36,11 @@ export function watch<T>(
 		UpdateQueue.enqueue(update)
 	}
 
-	DependencyTracker.trackExecutionOf(assign, onChange)
+	trackExecutionOf(assign, onChange)
 	oldValue = newValue!
 
 	return function() {
-		DependencyTracker.untrack(onChange)
+		untrack(onChange)
 	}
 }
 
@@ -68,7 +68,7 @@ export function watchImmediately<T>(
 	}
 
 	function update() {
-		DependencyTracker.trackExecutionOf(assign, onChange)
+		trackExecutionOf(assign, onChange)
 
 		if (newValue !== oldValue) {
 			callback(newValue, oldValue)
@@ -83,7 +83,7 @@ export function watchImmediately<T>(
 	update()
 
 	return function() {
-		DependencyTracker.untrack(onChange)
+		untrack(onChange)
 	}
 }
 
@@ -111,11 +111,11 @@ export function watchOnce<T>(
 	}
 
 	function update() {
-		DependencyTracker.trackExecutionOf(assign, onChange)
+		trackExecutionOf(assign, onChange)
 
 		if (newValue !== oldValue) {
 			callback(newValue, oldValue)
-			DependencyTracker.untrack(onChange)
+			untrack(onChange)
 		}
 	}
 
@@ -123,11 +123,11 @@ export function watchOnce<T>(
 		update()
 	}
 
-	DependencyTracker.trackExecutionOf(assign, onChange)
+	trackExecutionOf(assign, onChange)
 	oldValue = newValue!
 
 	return function() {
-		DependencyTracker.untrack(onChange)
+		untrack(onChange)
 	}
 }
 
@@ -152,11 +152,11 @@ export function watchUntil<T>(
 	}
 
 	function update() {
-		DependencyTracker.trackExecutionOf(assign, onChange)
+		trackExecutionOf(assign, onChange)
 
 		if (newValue) {
 			callback(newValue)
-			DependencyTracker.untrack(onChange)
+			untrack(onChange)
 		}
 	}
 
@@ -164,16 +164,16 @@ export function watchUntil<T>(
 		update()
 	}
 
-	DependencyTracker.trackExecutionOf(assign, onChange)
+	trackExecutionOf(assign, onChange)
 
 	if (newValue) {
 		callback(newValue)
-		DependencyTracker.untrack(onChange)
+		untrack(onChange)
 	}
 
 	return function() {
 		if (!newValue) {
-			DependencyTracker.untrack(onChange)
+			untrack(onChange)
 		}
 	}
 }

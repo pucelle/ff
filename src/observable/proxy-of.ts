@@ -1,11 +1,10 @@
-import * as DependencyTracker from './dependency-tracker'
+import {trackGet, trackSet} from './dependency-tracker'
 
 
 type ProxyOf<T> = T extends object ? T & {ProxySymbol: T} : T
 
 
 /** To find the proxy of an object. */
-const {onGet, onSet} = DependencyTracker
 const ProxyMap: WeakMap<object | ProxyOf<any>, ProxyOf<any>> = new WeakMap()
 
 
@@ -70,7 +69,7 @@ function proxyArray<T extends any[]>(a: T): ProxyOf<T> {
 const PlainObjectProxyHandler = {
 
 	get(o: any, key: PropertyKey): ProxyOf<any> {
-		onGet(o, key)
+		trackGet(o, key)
 		return proxyOf(o[key])
 	},
 
@@ -79,7 +78,7 @@ const PlainObjectProxyHandler = {
 		o[key] = toValue
 
 		if (fromValue !== toValue) {
-			onSet(o, key)
+			trackSet(o, key)
 		}
 
 		return true
@@ -88,7 +87,7 @@ const PlainObjectProxyHandler = {
 	deleteProperty(o: any, key: PropertyKey): boolean {
 		let result = delete o[key]
 		if (result) {
-			onSet(o, key)
+			trackSet(o, key)
 		}
 
 		return result
@@ -105,7 +104,7 @@ const ArrayProxyHandler = {
 
 		// Proxy returned element in array.
 		if (typeof key === 'number') {
-			onGet(a, key)
+			trackGet(a, key)
 			return proxyOf(value)
 		}
 
@@ -116,7 +115,7 @@ const ArrayProxyHandler = {
 
 		// Other properties, like `length`.
 		else {
-			onGet(a, '')
+			trackGet(a, '')
 			return value
 		}
 	},
@@ -126,7 +125,7 @@ const ArrayProxyHandler = {
 		a[key] = toValue
 
 		if (fromValue !== toValue) {
-			onSet(a, '')
+			trackSet(a, '')
 		}
 
 		return true
@@ -141,7 +140,7 @@ const ArrayProxyMethods: any = {
 		let result = Array.prototype.push.call(this, ...values)
 
 		if (values.length > 0) {
-			onSet(this, '')
+			trackSet(this, '')
 		}
 
 		return result
@@ -151,7 +150,7 @@ const ArrayProxyMethods: any = {
 		let result = Array.prototype.unshift.call(this, ...values)
 
 		if (values.length > 0) {
-			onSet(this, '')
+			trackSet(this, '')
 		}
 
 		return result
@@ -162,7 +161,7 @@ const ArrayProxyMethods: any = {
 		let result = Array.prototype.pop.call(this)
 
 		if (count > 0) {
-			onSet(this, '')
+			trackSet(this, '')
 		}
 
 		return result
@@ -173,7 +172,7 @@ const ArrayProxyMethods: any = {
 		let result = Array.prototype.shift.call(this)
 
 		if (count > 0) {
-			onSet(this, '')
+			trackSet(this, '')
 		}
 
 		return result
@@ -183,7 +182,7 @@ const ArrayProxyMethods: any = {
 		let result = Array.prototype.splice.call(this, fromIndex, removeCount, insertValues)
 
 		if (removeCount > 0 || insertValues.length > 0) {
-			onSet(this, '')
+			trackSet(this, '')
 		}
 
 		return result
@@ -191,7 +190,7 @@ const ArrayProxyMethods: any = {
 
 	reverse(this: any[]) {
 		let result = Array.prototype.reverse.call(this)
-		onSet(this, '')
+		trackSet(this, '')
 		
 		return result
 	},
