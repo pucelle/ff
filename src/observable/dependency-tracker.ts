@@ -37,7 +37,7 @@ let currentDep: CapturedDependencies | null = null
  * Note for tracking same content, `callback` should keep consistent,
  * or it would cant replace old tracking.
  */
-export function trackExecutionOf(fn: () => void, callback: Function, scope: object | null = null) {
+export function trackExecution(fn: () => void, callback: Function, scope: object | null = null) {
 	beginTrack(callback, scope)
 
 	try {
@@ -130,5 +130,3 @@ export function untrack(callback: Function, scope: object | null = null) {
 	let boundCallback = bindCallback(callback, scope)
 	DepMap.deleteRefreshCallback(boundCallback)
 }
-
-

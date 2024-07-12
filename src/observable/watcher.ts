@@ -1,4 +1,4 @@
-import {trackExecutionOf, untrack} from './dependency-tracker'
+import {trackExecution, untrack} from './dependency-tracker'
 import * as UpdateQueue from './update-queue'
 
 
@@ -24,7 +24,7 @@ export function watch<T>(
 	}
 
 	function update() {
-		trackExecutionOf(assign, onChange)
+		trackExecution(assign, onChange)
 		
 		if (newValue !== oldValue) {
 			callback(newValue, oldValue)
@@ -36,7 +36,7 @@ export function watch<T>(
 		UpdateQueue.enqueue(update)
 	}
 
-	trackExecutionOf(assign, onChange)
+	trackExecution(assign, onChange)
 	oldValue = newValue!
 
 	return function() {
@@ -68,7 +68,7 @@ export function watchImmediately<T>(
 	}
 
 	function update() {
-		trackExecutionOf(assign, onChange)
+		trackExecution(assign, onChange)
 
 		if (newValue !== oldValue) {
 			callback(newValue, oldValue)
@@ -111,7 +111,7 @@ export function watchOnce<T>(
 	}
 
 	function update() {
-		trackExecutionOf(assign, onChange)
+		trackExecution(assign, onChange)
 
 		if (newValue !== oldValue) {
 			callback(newValue, oldValue)
@@ -123,7 +123,7 @@ export function watchOnce<T>(
 		update()
 	}
 
-	trackExecutionOf(assign, onChange)
+	trackExecution(assign, onChange)
 	oldValue = newValue!
 
 	return function() {
@@ -152,7 +152,7 @@ export function watchUntil<T>(
 	}
 
 	function update() {
-		trackExecutionOf(assign, onChange)
+		trackExecution(assign, onChange)
 
 		if (newValue) {
 			callback(newValue)
@@ -164,7 +164,7 @@ export function watchUntil<T>(
 		update()
 	}
 
-	trackExecutionOf(assign, onChange)
+	trackExecution(assign, onChange)
 
 	if (newValue) {
 		callback(newValue)
