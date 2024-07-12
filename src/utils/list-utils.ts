@@ -205,8 +205,9 @@ export class Order<T> {
 	/** 
 	 * Order rules after normalize.
 	 * If several orders exist, try to sort by first order, if equals, sort by next...
+	 * It can be re-join with other orders to make a new `Order`.
 	 */
-	private orders: NormativeOrderRules<T>[] = []
+	readonly orders: NormativeOrderRules<T>[] = []
 
 	constructor(...orders: OrderRule<T>[]) {
 		for (let order of orders) {
