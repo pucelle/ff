@@ -31,7 +31,6 @@ type InferParameters<T> = T extends (...args: any) => any ? T extends (...args: 
 export class EventFirer<E = any> {
 
 	private eventListenerMap: ListMap<string, EventListenerItem> = new ListMap()
-	private broadcastToMap: Map<EventFirer, any[] | Record<any, any> | null> = new Map()
 
 	/** 
 	 * Bind event listener.
@@ -102,28 +101,6 @@ export class EventFirer<E = any> {
 				listener.handler.apply(listener.scope, args)
 			}
 		}
-
-		if (this.broadcastToMap) {
-			for (let [to, types] of this.broadcastToMap.entries()) {
-				let mappedType = this.getMappedBroadcastType(type as string, types)
-				if (mappedType) {
-					to.fire(mappedType, ...args)
-				}
-			}
-		}
-	}
-
-	/** Get mapped broadcast event name. */
-	private getMappedBroadcastType(type: string, types: any[] | Record<string, string> | null): string | null {
-		if (!types) {
-			return type
-		}
-		else if (Array.isArray(types)) {
-			return types.includes(type) ? type: null
-		}
-		else {
-			return types[type] ?? null
-		}
 	}
 
 	/** Whether `listener` with specified type is being listening on. */
@@ -141,7 +118,7 @@ export class EventFirer<E = any> {
 		return false
 	}
 
-	/** Whether have registered any listener. */
+	/** Whether have registered any type of listener. */
 	hasListeners(): boolean {
 		return this.eventListenerMap.keyCount() > 0
 	}
@@ -154,15 +131,5 @@ export class EventFirer<E = any> {
 	/** Removes all the event listeners. */
 	removeAllListeners() {
 		this.eventListenerMap.clear()
-	}	
-
-	/** Broadcast event to a target event firer. */
-	broadcastTo<TE = any>(target: EventFirer<TE>, types: (keyof E)[] | Partial<Record<keyof E, keyof TE>> | null = null) {
-		this.broadcastToMap.set(target, types)
-	}
-
-	/** Cancel broadcasting to target. */
-	unBroadcastTo(target: EventFirer) {
-		this.broadcastToMap.delete(target)
 	}
 }
