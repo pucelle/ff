@@ -1,3 +1,4 @@
+export * from './component'
 export * from './events'
 export * from './math'
 export * from './observable'
