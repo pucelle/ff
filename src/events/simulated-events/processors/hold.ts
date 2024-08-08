@@ -7,7 +7,7 @@ import {SimulatedEventsConfiguration} from '../simulated-events-configuration'
 
 export interface HoldEvents {
 
-	/** When hold start after hold for a few time. */
+	/** When hold start and persist holding for a few time. */
 	'hold:start': (e: TouchEvent) => void
 
 	/** After triggered hold start and touch end. */

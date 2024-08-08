@@ -127,6 +127,7 @@ export function comeFromApplePencil(e: Event): boolean {
 		return false
 	}
 
+	// `touchType` is only available on apple ios safari.
 	return singleE.touchType === 'stylus'
 }
 

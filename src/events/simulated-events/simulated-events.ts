@@ -7,6 +7,13 @@ import {SimulatedEventsConfiguration} from './simulated-events-configuration'
 
 type EventProcessor = EventFirer<any> & {remove: () => void}
 
+/** Simulated events and types. */
+type Events = HoldEvents & DoubleTapEvents & PinchTransformEvents & PinchZoomEvents & TapEvents & SlideEvents
+type EventType = keyof Events & string
+
+
+/** Simulated event configurations. */
+export const Configuration = SimulatedEventsConfiguration
 
 /** All the event processor constructors. */
 const EventConstructors: Record<string, {new(el: EventTarget): EventProcessor}> = {
@@ -17,17 +24,6 @@ const EventConstructors: Record<string, {new(el: EventTarget): EventProcessor}> 
 	'pinch-zoom': PinchZoomProcessor,
 	'slide': SlideEventProcessor,
 }
-
-
-/** Can help to process complex simulated events. */
-
-/** Simulated events and types. */
-type Events = HoldEvents & DoubleTapEvents & PinchTransformEvents & PinchZoomEvents & TapEvents & SlideEvents
-type EventType = keyof Events & string
-
-
-/** Simulated event configurations. */
-export const Configuration = SimulatedEventsConfiguration
 
 /** Shared Processors. */
 const EventProcessorCache: WeakDoubleKeysMap<EventTarget, string, EventProcessor> = new WeakDoubleKeysMap()
