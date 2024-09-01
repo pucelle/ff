@@ -36,6 +36,12 @@ describe('Test ListUtils', () => {
 		expect(ListUtils.remove([1,2,3], 3)).toEqual([3])
 	})
 
+	test('clean', () => {
+		expect(ListUtils.clean([1,2,3,null])).toEqual([1,2,3])
+		expect(ListUtils.clean([1,2,3,undefined])).toEqual([1,2,3])
+		expect(ListUtils.clean([0,''])).toEqual([0,''])
+	})
+
 	test('removeFirstMatch', () => {
 		expect(ListUtils.removeFirstMatch([1,2,3,3], (v) => v === 3)).toEqual(3)
 		expect(ListUtils.removeFirstMatch([1,2,3], (v) => v === 4)).toEqual(undefined)

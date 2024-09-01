@@ -112,6 +112,12 @@ export function remove<T>(list: T[], ...items: T[]): T[] {
 }
 
 
+/** Clean list by removing null or undefined values. */
+export function clean<T>(list: T[]): NonNullable<T>[] {
+	return list.filter(v => v !== null && v !== undefined) as NonNullable<T>[]
+}
+
+
 /**
  * Removes the first item from `list` which matches `match`, returns the removed values.
  * Returns `undefined` if no item removed.

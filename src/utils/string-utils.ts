@@ -37,7 +37,7 @@ export function toCapitalize(string: string): string {
 	return string.slice(0, 1).toUpperCase() + string.slice(1)
 }
 
-/** Convert `string` to camel case type: `a-bc` -> `Abc`. */
+/** Convert `string` to camel case type: `a-bc` -> `abc`. */
 export function toCamelCase(string: string): string {
 	return string.replace(/[-_ ][a-z]/gi, m0 => m0[1].toUpperCase())
 }
