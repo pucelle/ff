@@ -1,8 +1,6 @@
-import {Direction} from './direction'
 import * as MathUtils from './math-utils'
-import {Matrix} from './matrix'
+import type {Matrix} from './matrix'
 import {Matrix2} from './matrix2'
-import {Point} from './point'
 
 
 /** A Vector represent a vector at 2d panel. */
@@ -12,7 +10,7 @@ export class Vector {
 	static Zero: Readonly<Vector> = Object.freeze(new Vector(0, 0))
 
 	/** Make a vector from a coord. */
-	static fromCoord(coord: Coord): Vector {
+	static from(coord: Coord): Vector {
 		return new Vector(coord.x, coord.y)
 	}
 
@@ -24,11 +22,6 @@ export class Vector {
 	/** Make a vector to represent a rotating vector from an angle in radians. */
 	static fromRadians(radians: number): Vector {
 		return new Vector(Math.cos(radians), Math.sin(radians))
-	}
-
-	/** Make a vector from a direction, x and y values are betweens `-1~1`.. */
-	static fromDirection(direction: Direction): Vector {
-		return direction.toVector()
 	}
 
 	
@@ -66,11 +59,6 @@ export class Vector {
 	/** Whether vector values equals the coord parameters. */
 	equals(coord: Coord): boolean {
 		return this.x === coord.x && this.y === coord.y
-	}
-
-	/** Convert current vector to a point. */
-	asPoint(): Point {
-		return new Point(this.x, this.y)
 	}
 
 	/** Whether be zero vector */

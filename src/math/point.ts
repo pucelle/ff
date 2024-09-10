@@ -1,5 +1,5 @@
 import * as MathUtils from './math-utils'
-import {Matrix} from './matrix'
+import type {Matrix} from './matrix'
 import {Vector} from './vector'
 
 
@@ -10,7 +10,7 @@ export class Point {
 	static Zero: Readonly<Point> = Object.freeze(new Point(0, 0))
 
 	/** Make a point from a coord. */
-	static fromCoord(coord: Coord): Point {
+	static from(coord: Coord): Point {
 		return new Point(coord.x, coord.y)
 	}
 
@@ -61,11 +61,6 @@ export class Point {
 		return this.x === p.x && this.y === p.y
 	}
 
-	/** Convert to a vector. */
-	asVector(): Vector {
-		return new Vector(this.x, this.y)
-	}
-
 	/** Whether be zero point. */
 	isZero(): boolean {
 		return this.x === 0 && this.y === 0
@@ -111,12 +106,12 @@ export class Point {
 	}
 
 	/** Add a vector to current point, returns a new point. */
-	add(v: Vector): Point {
+	add(v: Coord): Point {
 		return this.clone().addSelf(v)
 	}
 
 	/** Add a vector to current point. */
-	addSelf(v: Vector): this {
+	addSelf(v: Coord): this {
 		this.x += v.x
 		this.y += v.y
 
@@ -124,12 +119,12 @@ export class Point {
 	}
 
 	/** Subtract a vector from current point, returns a new point. */
-	sub(v: Vector): Point {
+	sub(v: Coord): Point {
 		return this.clone().subSelf(v)
 	}
 
 	/** Subtract a vector from current point. */
-	subSelf(v: Vector): this {
+	subSelf(v: Coord): this {
 		this.x -= v.x
 		this.y -= v.y
 
