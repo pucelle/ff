@@ -145,6 +145,25 @@ export class Color {
 		this.a = a
 	}
 
+	/** Get `{h, s, l}` values, h betweens `0~6`, others betweens `0~1`. */
+	get hsl(): {h: number, s: number, l: number} {
+		let hsla = RGBA2HSLA(this)
+		let {h, s, l} = hsla
+
+		return {h, s, l}
+	}
+
+	/** Get `{h, s, l, a}` values, h betweens `0~6`, others betweens `0~1`. */
+	get hsla(): {h: number, s: number, l: number, a: number} {
+		let hsla = RGBA2HSLA(this)
+		return hsla
+	}
+
+	/** Get average of RGB, `0~1`. */
+	get gray(): number {
+		return (this.r + this.g + this.b) / 3
+	}
+
 	/** Clone current color, returns a new color. */
 	clone() {
 		return new Color(this.r, this.g, this.b, this.a)
@@ -223,17 +242,12 @@ export class Color {
 		return `hsla(${h}, ${s}%, ${l}%, ${a})`
 	}
 
-	/** Get average of RGB, `0~1`. */
-	getAverageGray() {
-		return (this.r + this.g + this.b) / 3
-	}
-
-	/** Darken color. */
+	/** Darken color, `rate` betweens `0~1`. */
 	darken(rate: number): Color {
 		return this.lighten(-rate)
 	}
 
-	/** Lighten color. */
+	/** Lighten color, `rate` betweens `0~1`. */
 	lighten(rate: number): Color {
 		let {r, g, b, a} = this
 
@@ -242,6 +256,26 @@ export class Color {
 		b += rate
 
 		return new Color(r, g, b, a)
+	}
+
+	/** Invert current color and get a new color. */
+	invert() {
+		let {r, g, b, a} = this
+		return new Color(1 - r, 1 - g, 1 - b, a)
+	}
+
+	/** 
+	 * To darker if is a light color,
+	 * and to lighter if is a dark color.
+	 * `rate` between `0~0.5`.
+	 */
+	toIntermediate(rate: number): Color {
+		if (this.gray < 0.5) {
+			return this.lighten(rate)
+		}
+		else {
+			return this.darken(rate)
+		}
 	}
 
 	/** Mix with another color, by `rate`. */
@@ -266,9 +300,9 @@ export class Color {
 	/** 
 	 * Improve contrast compare with another color.
 	 * @param minimumLightContrast specifies the minimum light difference.
-	 * @param inverseRate specifies the minimum light difference rate when the color value exceed.
+	 * @param inverseContrastRate specifies the rate which will multiple with `minimumLightContrast` when the color value exceed 0~1.
 	 */
-	improveContrast(compareColor: Color, minimumLightContrast: number = 0.2, minimumLightContrastRateToInverse: number = 0.5) {
+	improveContrast(compareColor: Color, minimumLightContrast: number = 0.15, inverseContrastRate: number = 0.5) {
 		let hsl = RGBA2HSLA(this)
 		let compareHSL = RGBA2HSLA(compareColor)
 
@@ -281,7 +315,7 @@ export class Color {
 			return this
 		}
 
-		// Current color lighter.
+		// Lighter current color .
 		if (hsl.l > compareHSL.l) {
 			hsl.l += hslToFix
 
@@ -289,7 +323,7 @@ export class Color {
 
 				// If set current color much darker directly, it may change much,
 				// So here shrink it with a inverseRate, which < 1.
-				if (hslToFix > minimumLightContrast * minimumLightContrastRateToInverse) {
+				if (hslToFix > minimumLightContrast * inverseContrastRate) {
 					hsl.l = compareHSL.l - minimumLightContrast
 				}
 				else {
@@ -298,12 +332,12 @@ export class Color {
 			}
 		}
 
-		// Current color darker.
+		// Darker current color .
 		else {
 			hsl.l -= hslToFix
 			
 			if (hsl.l < 0) {
-				if (hslToFix > minimumLightContrast * minimumLightContrastRateToInverse) {
+				if (hslToFix > minimumLightContrast * inverseContrastRate) {
 					hsl.l = compareHSL.l + minimumLightContrast
 				}
 				else {

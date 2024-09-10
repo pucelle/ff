@@ -1,4 +1,4 @@
-import {DependencyTracker, proxyOf} from '../../src'
+import {beginTrack, endTrack, proxyOf} from '../../src'
 
 
 describe('Test proxyOf', () => {
@@ -8,7 +8,7 @@ describe('Test proxyOf', () => {
 		let update = jest.fn()
 
 		function reCapture() {
-			DependencyTracker.beginTrack(update)
+			beginTrack(update)
 			a.b
 			a.c.length
 
@@ -16,7 +16,7 @@ describe('Test proxyOf', () => {
 			// Must change `TwoWaySetMap` to `TwoWaySetWeakMap` at `dependency-capturer.ts`.
 			// Because jest env doesn't allow symbol as weak keys.
 			// Don't forget to change it back after test finished.
-			DependencyTracker.endTrack()
+			endTrack()
 		}
 
 		reCapture()

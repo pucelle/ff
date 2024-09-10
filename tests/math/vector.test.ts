@@ -1,11 +1,11 @@
-import {Point, Vector, NumberUtils} from '../../src'
+import {Vector, NumberUtils} from '../../src'
 
 
 describe('Test Vector', () => {
 
 	test('Vector Static', () => {
 		expect(Vector.Zero).toEqual(new Vector())
-		expect(Vector.fromCoord({x: 1, y: 1})).toEqual(new Vector(1, 1))
+		expect(Vector.from({x: 1, y: 1})).toEqual(new Vector(1, 1))
 
 		let p = Vector.fromDegree(90)
 		p.x = NumberUtils.toDecimal(p.x, 8)
@@ -34,9 +34,6 @@ describe('Test Vector', () => {
 
 		v.set(1, 1)
 		expect(v.equals(new Vector(1, 1))).toEqual(true)
-
-		v.set(1, 1)
-		expect(v.asPoint()).toEqual(new Point(1, 1))
 
 		v.set(1, 1)
 		expect(v.isZero()).toEqual(false)

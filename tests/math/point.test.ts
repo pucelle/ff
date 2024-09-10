@@ -5,7 +5,7 @@ describe('Test Point', () => {
 
 	test('Point Static', () => {
 		expect(Point.Zero).toEqual(new Point())
-		expect(Point.fromCoord({x: 1, y: 1})).toEqual(new Point(1, 1))
+		expect(Point.from({x: 1, y: 1})).toEqual(new Point(1, 1))
 
 		let p = Point.fromDegree(90)
 		p.x = NumberUtils.toDecimal(p.x, 8)
@@ -34,9 +34,6 @@ describe('Test Point', () => {
 
 		p.set(1, 1)
 		expect(p.equals(new Point(1, 1))).toEqual(true)
-
-		p.set(1, 1)
-		expect(p.asVector()).toEqual(new Vector(1, 1))
 
 		p.set(1, 1)
 		expect(p.isZero()).toEqual(false)
