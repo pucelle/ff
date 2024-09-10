@@ -20,8 +20,8 @@
 	"exclude": [
 		"node_modules",
 		"out",
+		"tests",
 		"*.js",
 		"*.cjs",
-		"tests"
 	]
 }
