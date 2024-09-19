@@ -1,4 +1,4 @@
-import {DependencyTracker, createComputed} from '../../src'
+import {createComputed, trackGet, trackSet} from '../../src'
 
 
 describe('Test createComputed', () => {
@@ -15,16 +15,16 @@ describe('Test createComputed', () => {
 		}
 
 		let a = new A()
-		let v1 = createComputed(() => {DependencyTracker.onGet(a, 'v'); return a.v})
-		let v2 = createComputed(() => {DependencyTracker.onGet(a, 'v'); return a.v + 1})
+		let v1 = createComputed(() => {trackGet(a, 'v'); return a.v})
+		let v2 = createComputed(() => {trackGet(a, 'v'); return a.v + 1})
 
 		a.v = 1
-		DependencyTracker.onSet(a, 'v')
+		trackSet(a, 'v')
 		expect(v1()).toEqual(1)
 		expect(v2()).toEqual(2)
 
 		a.v = 2
-		DependencyTracker.onSet(a, 'v')
+		trackSet(a, 'v')
 		expect(v1()).toEqual(2)
 		expect(v2()).toEqual(3)
 	})

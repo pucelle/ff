@@ -1,4 +1,4 @@
-import {DependencyTracker, UpdateQueue, Watcher} from '../../src'
+import {createImmediateWatch, createOnceWatch, createWatch, createWatchUntil, trackGet, trackSet, untilComplete} from '../../src'
 
 
 describe('Test watch', () => {
@@ -7,15 +7,15 @@ describe('Test watch', () => {
 		let a = {b: 1}
 		let fn = jest.fn()
 
-		Watcher.watch(() => {
-			DependencyTracker.onGet(a, 'b')
+		createWatch(() => {
+			trackGet(a, 'b')
 			return a.b
 		}, fn)
 
 		a.b = 2
-		DependencyTracker.onSet(a, 'b')
+		trackSet(a, 'b')
 
-		await UpdateQueue.untilComplete()
+		await untilComplete()
 		expect(fn).toHaveBeenCalledTimes(1)
 	})
 
@@ -24,17 +24,17 @@ describe('Test watch', () => {
 		let a = {b: 1}
 		let fn = jest.fn()
 
-		Watcher.watchImmediately(() => {
-			DependencyTracker.onGet(a, 'b')
+		createImmediateWatch(() => {
+			trackGet(a, 'b')
 			return a.b
 		}, fn)
 		
 		expect(fn).toHaveBeenCalledTimes(1)
 
 		a.b = 2
-		DependencyTracker.onSet(a, 'b')
+		trackSet(a, 'b')
 
-		await UpdateQueue.untilComplete()
+		await untilComplete()
 		expect(fn).toHaveBeenCalledTimes(2)
 	})
 
@@ -43,21 +43,21 @@ describe('Test watch', () => {
 		let a = {b: 1}
 		let fn = jest.fn()
 
-		Watcher.watchOnce(() => {
-			DependencyTracker.onGet(a, 'b')
+		createOnceWatch(() => {
+			trackGet(a, 'b')
 			return a.b
 		}, fn)
 
 		a.b = 2
-		DependencyTracker.onSet(a, 'b')
+		trackSet(a, 'b')
 
-		await UpdateQueue.untilComplete()
+		await untilComplete()
 		expect(fn).toHaveBeenCalledTimes(1)
 
 		a.b = 3
-		DependencyTracker.onSet(a, 'b')
+		trackSet(a, 'b')
 
-		await UpdateQueue.untilComplete()
+		await untilComplete()
 		expect(fn).toHaveBeenCalledTimes(1)
 	})
 
@@ -66,21 +66,21 @@ describe('Test watch', () => {
 		let a = {b: 0}
 		let fn = jest.fn()
 
-		Watcher.watchUntil(() => {
-			DependencyTracker.onGet(a, 'b')
+		createWatchUntil(() => {
+			trackGet(a, 'b')
 			return a.b
 		}, fn)
 
 		a.b = 0
-		DependencyTracker.onSet(a, 'b')
+		trackSet(a, 'b')
 
-		await UpdateQueue.untilComplete()
+		await untilComplete()
 		expect(fn).toHaveBeenCalledTimes(0)
 
 		a.b = 1
-		DependencyTracker.onSet(a, 'b')
+		trackSet(a, 'b')
 
-		await UpdateQueue.untilComplete()
+		await untilComplete()
 		expect(fn).toHaveBeenCalledTimes(1)
 	})
 })

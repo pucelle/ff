@@ -36,7 +36,7 @@ export function getScrollbarWidth(): number {
  */
 export function getClosestScrollWrapper(el: HTMLElement): HTMLElement | null {
 	while (el) {
-		if (getOverflowDirection(el) !== null) {
+		if (getSizedOverflowDirection(el) !== null) {
 			return el
 		}
 
@@ -71,7 +71,7 @@ export function getClosestCSSScrollWrapper(el: HTMLElement): HTMLElement | null 
  * Note this method can only test overflow direction when overflow happens.
  * Note this method may cause reflow.
  */
-export function getOverflowDirection(wrapper: HTMLElement): HVDirection | null {
+export function getSizedOverflowDirection(wrapper: HTMLElement): HVDirection | null {
 	let direction: HVDirection | null = null
 
 	if (wrapper.scrollWidth > wrapper.clientWidth) {
@@ -137,18 +137,28 @@ export function getNonScrollOffset(el: HTMLElement, wrapper: HTMLElement, direct
 /**
  * Scroll scrollbar in specified direction of closest scroll wrapper,
  * for minimal distance to make element to become fully visible.
- * @param gap Reserve a little distance from the element's edge away from scroll viewport edge.
+ * @param scrollDirection `horizontal` | `vertical` | `null`, if is null, will detect scroll direction.
+ * @param gap Reserve a little distance from the element's edge away from scroll viewport edge, default value is `0`.
+ * @param duration Transition duration, default value is `0`.
+ * @param easing Transition easing, default value is `0`.
  * 
  * Returns a promise which will be resolved by whether scrolled.
  */
-export async function scrollToView(el: HTMLElement, gap: number = 0, duration: number = 0, easing: TransitionEasingName = 'ease-out'): Promise<boolean> {
-	let wrapper = getClosestScrollWrapper(el)
-	if (!wrapper) {
+export async function scrollToView(
+	el: HTMLElement,
+	scrollDirection: HVDirection | null,
+	gap: number = 0,
+	duration: number = 0,
+	easing: TransitionEasingName = 'ease-out'
+): Promise<boolean> {
+	scrollDirection = scrollDirection || getSizedOverflowDirection(el)
+
+	if (!scrollDirection) {
 		return false
 	}
 
-	let direction = getOverflowDirection(wrapper)
-	if (!direction) {
+	let wrapper = getClosestScrollWrapper(el)
+	if (!wrapper) {
 		return false
 	}
 
@@ -156,10 +166,10 @@ export async function scrollToView(el: HTMLElement, gap: number = 0, duration: n
 		ScrollTransition.get(el)!.cancel()
 	}
 
-	if (direction === 'vertical') {
+	if (scrollDirection === 'vertical') {
 		let oldScrollY = wrapper.scrollTop
 		let newScrollY: number | null = null
-		let offsetY = getNonScrollOffset(el, wrapper, direction)
+		let offsetY = getNonScrollOffset(el, wrapper, scrollDirection)
 
 		// Needs to scroll for pxs to top edges align.
 		let startOffset = offsetY - gap - oldScrollY
@@ -205,10 +215,10 @@ export async function scrollToView(el: HTMLElement, gap: number = 0, duration: n
 		return false
 	}
 
-	if (direction === 'horizontal') {
+	if (scrollDirection === 'horizontal') {
 		let oldScrollX = wrapper.scrollLeft
 		let newScrollX: number | null = null
-		let offsetX = getNonScrollOffset(el, wrapper, direction)
+		let offsetX = getNonScrollOffset(el, wrapper, scrollDirection)
 		let startOffset = offsetX - gap - oldScrollX
 		let endOffset = offsetX + el.offsetWidth + gap - wrapper.clientWidth - oldScrollX
 
@@ -252,50 +262,26 @@ export async function scrollToView(el: HTMLElement, gap: number = 0, duration: n
 
 /**
  * Scroll closest scrollbar to make element in the top most or left most of the scroll viewport.
- * @param gap Reserve a little distance from the element's edge away from scroll viewport edge.
- * 
+ * @param scrollDirection `horizontal` | `vertical` | `null`, if is null, will detect scroll direction.
+ * @param gap Reserve a little distance from the element's edge away from scroll viewport edge, default value is `0`.
+ * @param duration Transition duration, default value is `0`.
+ * @param easing Transition easing, default value is `0`.
+
  * Returns a promise which will be resolved by whether scrolled.
  */
-export async function scrollToStart(el: HTMLElement, gap: number = 0, duration: number = 0, easing: TransitionEasingName = 'ease-out'): Promise<boolean> {
-	let scrollDirection = getOverflowDirection(el)
+export async function scrollToStart(
+	el: HTMLElement,
+	scrollDirection: HVDirection | null,
+	gap: number = 0,
+	duration: number = 0,
+	easing: TransitionEasingName = 'ease-out'
+): Promise<boolean> {
+	scrollDirection = scrollDirection || getSizedOverflowDirection(el) || getCSSOverflowDirection(el)
+
 	if (!scrollDirection) {
 		return false
 	}
 
-	return scrollToStartPosition(scrollDirection, el, gap, duration, easing)
-}
-
-
-/**
- * Scroll closest scrollbar to make element in the top most of the scroll viewport.
- * @param gap Reserve a little distance from the element's edge away from scroll viewport edge.
- * 
- * Returns a promise which will be resolved by whether scrolled.
- */
-export function scrollToTop(el: HTMLElement, gap: number = 0, duration: number = 0, easing: TransitionEasingName = 'ease-out'): Promise<boolean> {
-	return scrollToStartPosition('vertical', el, gap, duration, easing)
-}
-
-
-/**
- * Scroll closest scrollbar to make element in the left most of the scroll viewport.
- * @param gap Reserve a little distance from the element's edge away from scroll viewport edge.
- * 
- * Returns a promise which will be resolved by whether scrolled.
- */
-export function scrollToLeft(el: HTMLElement, gap: number = 0, duration: number = 0, easing: TransitionEasingName = 'ease-out'): Promise<boolean> {
-	return scrollToStartPosition('vertical', el, gap, duration, easing)
-}
-
-
-async function scrollToStartPosition(
-	direction: HVDirection,
-	el: HTMLElement,
-	gap: number = 0,
-	duration: number = 0,
-	easing: TransitionEasingName = 'ease-out'
-): Promise<boolean>
-{
 	let wrapper = getClosestScrollWrapper(el)
 	if (!wrapper) {
 		return false
@@ -305,8 +291,8 @@ async function scrollToStartPosition(
 		ScrollTransition.get(el)!.cancel()
 	}
 	
-	let offset = getNonScrollOffset(el, wrapper, direction)
-	let property: 'scrollLeft' | 'scrollTop' = direction === 'horizontal' ? 'scrollLeft' : 'scrollTop'
+	let offset = getNonScrollOffset(el, wrapper, scrollDirection)
+	let property: 'scrollLeft' | 'scrollTop' = scrollDirection === 'horizontal' ? 'scrollLeft' : 'scrollTop'
 	let oldScroll = wrapper[property]
 	let newScroll = Math.max(0, offset - gap)
 
@@ -337,4 +323,30 @@ async function scrollToStartPosition(
 	}
 
 	return false
+}
+
+
+/**
+ * Scroll closest scrollbar to make element in the top most of the scroll viewport.
+ * @param gap Reserve a little distance from the element's edge away from scroll viewport edge, default value is `0`.
+ * @param duration Transition duration, default value is `0`.
+ * @param easing Transition easing, default value is `0`.
+ * 
+ * Returns a promise which will be resolved by whether scrolled.
+ */
+export function scrollToTop(el: HTMLElement, gap: number = 0, duration: number = 0, easing: TransitionEasingName = 'ease-out'): Promise<boolean> {
+	return scrollToStart(el, 'vertical', gap, duration, easing)
+}
+
+
+/**
+ * Scroll closest scrollbar to make element in the left most of the scroll viewport.
+ * @param gap Reserve a little distance from the element's edge away from scroll viewport edge, default value is `0`.
+ * @param duration Transition duration, default value is `0`.
+ * @param easing Transition easing, default value is `0`.
+ * 
+ * Returns a promise which will be resolved by whether scrolled.
+ */
+export function scrollToLeft(el: HTMLElement, gap: number = 0, duration: number = 0, easing: TransitionEasingName = 'ease-out'): Promise<boolean> {
+	return scrollToStart(el, 'vertical', gap, duration, easing)
 }

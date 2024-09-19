@@ -1,4 +1,4 @@
-import {DependencyTracker, UpdateQueue, createEffect} from '../../src'
+import {trackGet, createEffect, untilComplete, trackSet} from '../../src'
 
 
 describe('Test effect', () => {
@@ -8,16 +8,16 @@ describe('Test effect', () => {
 		let fn = jest.fn()
 
 		createEffect(() => {
-			DependencyTracker.onGet(a, 'b')
+			trackGet(a, 'b')
 			a.b
 			fn()
 		})
 		expect(fn).toHaveBeenCalledTimes(1)
 
 		a.b = 2
-		DependencyTracker.onSet(a, 'b')
+		trackSet(a, 'b')
 
-		await UpdateQueue.untilComplete()
+		await untilComplete()
 		expect(fn).toHaveBeenCalledTimes(2)
 	})
 })

@@ -1,4 +1,4 @@
-import {UpdateQueue} from '../../src'
+import {enqueue, untilComplete} from '../../src'
 
 
 describe('Test UpdateQueue', () => {
@@ -15,9 +15,9 @@ describe('Test UpdateQueue', () => {
 			v++
 		}
 
-		UpdateQueue.enqueue(f1, null, 1)
-		UpdateQueue.enqueue(f2, null, 0)
+		enqueue(f1, null, 1)
+		enqueue(f2, null, 0)
 
-		await UpdateQueue.untilComplete()
+		await untilComplete()
 	})
 })

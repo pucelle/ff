@@ -1,4 +1,4 @@
-import * as DependencyTracker from '../../src/observable/dependency-tracker'
+import {beginTrack, endTrack, trackGet, trackSet} from '../../src'
 
 
 describe('Test DependencyTracker', () => {
@@ -14,38 +14,38 @@ describe('Test DependencyTracker', () => {
 		a.update()
 
 		function reCapture() {
-			DependencyTracker.beginTrack(a.update, a)
+			beginTrack(a.update, a)
 
 			a.key.b
-			DependencyTracker.onGet(a, 'key')
-			DependencyTracker.onGet(a.key, 'b')
+			trackGet(a, 'key')
+			trackGet(a.key, 'b')
 
 			a.key.c.length
-			DependencyTracker.onGet(a, 'key')
-			DependencyTracker.onGet(a.key, 'c')
-			DependencyTracker.onGet(a.key.c)
+			trackGet(a, 'key')
+			trackGet(a.key, 'c')
+			trackGet(a.key.c, '')
 
-			DependencyTracker.endTrack()
+			endTrack()
 		}
 
 		reCapture()
 		a.key.b = 2
-		DependencyTracker.onSet(a.key, 'b')
+		trackSet(a.key, 'b')
 		expect(a.update).toHaveBeenCalledTimes(2)
 
 		reCapture()
 		a.key.c = [2]
-		DependencyTracker.onSet(a.key, 'c')
+		trackSet(a.key, 'c')
 		expect(a.update).toHaveBeenCalledTimes(3)
 
 		reCapture()
 		a.key.c[0] = 3
-		DependencyTracker.onSet(a.key.c)
+		trackSet(a.key.c, '')
 		expect(a.update).toHaveBeenCalledTimes(4)
 
 		reCapture()
 		a.key.c.push(3)
-		DependencyTracker.onSet(a.key.c)
+		trackSet(a.key.c, '')
 		expect(a.update).toHaveBeenCalledTimes(5)
 	})
 })

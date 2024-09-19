@@ -37,7 +37,7 @@ describe('Test transition', () => {
 		expect(c.lighten(0.1).toString()).toEqual('#ff1a1a')
 		expect(c.invert().toString()).toEqual('#00ffff')
 		expect(c.toIntermediate(0.1).toString()).toEqual('#ff1a1a')
-		expect(c.invert().toIntermediate(0.1).toString()).toEqual('##00e6e6')
+		expect(c.invert().toIntermediate(0.1).toString()).toEqual('#00e6e6')
 		expect(c.mix(Color.fromString('#fff')!, 0.5).toString()).toEqual('#ff8080')
 		expect(c.toString()).toEqual('#ff0000')
 		expect(Color.fromString('#ee0000')!.improveContrast(c, 0.1)).toEqual('#cc0000')

@@ -6,7 +6,7 @@ import * as UpdateQueue from './update-queue'
  * Watch returned value of `fn` and calls `callback` after the value becomes changed.
  * Note `callback` can only be called once in a event loop.
  */
-export function watch<T>(
+export function createWatch<T>(
 	fn: () => T,
 	callback: (newValue: T, oldValue: T | undefined) => void,
 	scope: object | null = null
@@ -50,7 +50,7 @@ export function watch<T>(
  * Will call `callback` immediately.
  * Note `callback` can only be called once in a event loop.
  */
-export function watchImmediately<T>(
+export function createImmediateWatch<T>(
 	fn: () => T,
 	callback: (newValue: T, oldValue: T | undefined) => void,
 	scope: object | null = null
@@ -93,7 +93,7 @@ export function watchImmediately<T>(
  * Calls `callback` for only once.
  * Note `callback` can only be called once in a event loop.
  */
-export function watchOnce<T>(
+export function createOnceWatch<T>(
 	fn: () => T,
 	callback: (newValue: T, oldValue: T | undefined) => void,
 	scope: object | null = null
@@ -136,7 +136,7 @@ export function watchOnce<T>(
  * Watch returned value of `fn` and calls `callback` after the value becomes `true` like.
  * Note `callback` can only be called once in a event loop.
  */
-export function watchUntil<T>(
+export function createWatchUntil<T>(
 	fn: () => T,
 	callback: (trueValue: T) => void,
 	scope: object | null = null
