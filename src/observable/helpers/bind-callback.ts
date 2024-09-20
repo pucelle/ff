@@ -7,7 +7,6 @@ const BoundCallbackMap: WeakerDoubleKeysMap<Function, object, Function> = new We
 
 /** 
  * Bind a callback and a scope to get a new callback function.
- * 
  * Will cache result and always get same result for same parameters.
  */
 export function bindCallback<T extends Function>(callback: T, scope: object | null): T {

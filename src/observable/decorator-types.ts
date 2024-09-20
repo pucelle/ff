@@ -3,9 +3,14 @@
  * Compare with `get property() {...}`, computed property value will be cached,
  * and refresh only when required.
  * 
+ * The computed value will be cleared each time after any visited dependencies get changed.
+ * 
  * If use with a component has life-cycle, like a `Component` in Lupos.js,
  * computed value will be cleared after component disconnected,
  * and re-compute after component re-connected.
+ * 
+ * So if your computing is expensive, and don't like re-computing each time
+ * after re-connected, consider using `@watch` or `@immediateWatch`.
  * 
  * This is only a declaration, it will be replaced after compiled by `@pucelle/lupos.compiler`.
  */
@@ -17,15 +22,14 @@ export declare function computed(originalGetter: any, context: ClassGetterDecora
  * and if any dependency it used get changed, re-execute this method.
  * 
  * The effect action will be enqueued after instance initialized,
- * and to be called in the update queue.
- * and later be enqueued again when any visited dependencies get changed.
+ * and to be enqueued each time after any visited dependencies get changed.
  * 
  * If use with a component has life-cycle, like a `Component` in Lupos.js,
  * current effect action will be deactivated after component disconnected,
  * and be activated by running effect method after component connected.
  * 
- * Otherwise current effect action would can't be released and GC if any dependencies still existing.
- * If you want to make sure an effect can be released, use `createEffect` and release it yourself.
+ * So if your effect method is expensive, and don't like re-computing each time
+ * after re-connected, consider using `@watch` or `@immediateWatch`.
  * 
  * This is only a declaration, it will be replaced after been compiled by `@pucelle/lupos.compiler`.
  */
@@ -62,8 +66,8 @@ export declare function effect(originalMethod: any, context: ClassMethodDecorato
  * 
  * This is only a declaration, it will be replaced after been compiled by `@pucelle/lupos.compiler`.
  */
-export declare function watch(...fnOrProps: ((() => any) | PropertyKey)[]):
-	(originalMethod: any, context: ClassMethodDecoratorContext) => any
+export declare function watch<T>(...fnOrProps: (((this: T) => any) | keyof T)[]):
+	(originalMethod: any, context: ClassMethodDecoratorContext<T>) => any
 
 
 /** 
@@ -96,5 +100,5 @@ export declare function watch(...fnOrProps: ((() => any) | PropertyKey)[]):
  * 
  * This is only a declaration, it will be replaced after been compiled by `@pucelle/lupos.compiler`.
  */
-export declare function immediateWatch(...fnOrProps: ((() => any) | PropertyKey)[]):
-	(originalMethod: any, context: ClassMethodDecoratorContext) => any
+export declare function immediateWatch<T>(...fnOrProps: (((this: T) => any) | keyof T)[]):
+	(originalMethod: any, context: ClassMethodDecoratorContext<T>) => any
