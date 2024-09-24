@@ -1,4 +1,5 @@
 import * as DOMEvents from './dom-events'
+import {ControlKeyCode, getControlKeyCode, getShortcutKey, ShortcutKey} from './event-keys'
 
 
 /** Event handler. */
@@ -6,9 +7,9 @@ type EventHandler = (e: Event) => void
 
 /** All event modifiers organized by event type. */
 type EventModifiers = {
-	keydown: typeof ControlKeyModifiers | typeof GlobalEventModifiers
-	keyup: typeof ControlKeyModifiers | typeof GlobalEventModifiers
-	keypress: typeof ControlKeyModifiers | typeof GlobalEventModifiers
+	keydown: (typeof GlobalEventModifiers)[number] | ShortcutKey
+	keyup: (typeof GlobalEventModifiers)[number] | ShortcutKey
+	keypress: (typeof GlobalEventModifiers)[number] | ShortcutKey
 
 	mousedown: MouseEventModifiers
 	mousemove: MouseEventModifiers
@@ -29,23 +30,20 @@ type EventModifiers = {
 	gotpointercapture: MouseEventModifiers
 	lostpointercapture: MouseEventModifiers
 
-	click: typeof ControlKeyModifiers | keyof typeof ButtonNameModifiers | typeof GlobalEventModifiers
-	dblclick: typeof ControlKeyModifiers | keyof typeof ButtonNameModifiers | typeof GlobalEventModifiers
-	change: typeof ControlKeyModifiers | typeof ChangeEventModifiers | typeof GlobalEventModifiers
-	wheel: typeof ControlKeyModifiers | typeof WheelEventModifiers | typeof GlobalEventModifiers
+	click: (typeof GlobalEventModifiers)[number] | keyof typeof ButtonNameModifiers | ControlKeyCode
+	dblclick: (typeof GlobalEventModifiers)[number] | keyof typeof ButtonNameModifiers | ControlKeyCode
+	change: (typeof ChangeEventModifiers | typeof GlobalEventModifiers)[number] | ControlKeyCode
+	wheel: (typeof WheelEventModifiers | typeof GlobalEventModifiers)[number] | ControlKeyCode
 }
 
-type MouseEventModifiers = typeof ControlKeyModifiers | keyof typeof ButtonNameModifiers | typeof GlobalEventModifiers
+type MouseEventModifiers = (typeof GlobalEventModifiers)[number] | keyof typeof ButtonNameModifiers | ControlKeyCode
 
 /** Get event modifiers by event type. */
-type EventModifiersByType<T extends string> = T extends keyof EventModifiers ? EventModifiers[T][] : typeof GlobalEventModifiers
+type EventModifierByType<T extends string> = T extends keyof EventModifiers ? EventModifiers[T] : (typeof GlobalEventModifiers)[number]
 
 
 /** Modifiers to filter events by event actions. */
 const GlobalEventModifiers = ['capture', 'self', 'once', 'prevent', 'stop', 'passive'] as const
-
-/** Modifiers to filter key events. */
-const ControlKeyModifiers = ['ctrl', 'shift', 'alt'] as const
 
 /** Modifiers to filter change events. */
 const ChangeEventModifiers = ['check', 'uncheck'] as const
@@ -66,42 +64,17 @@ const ButtonNameModifiers = {
 
 /** Filter key event by event key. */
 function keyEventFilter(e: KeyboardEvent, modifiers: string[]): boolean {
-	// Full key list: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
-	// Capture key at: https://keycode.info/
-
-	let codeModifiers: string[] = []
-
-	// Control keys must match.
-	for (let modifier of modifiers) {
-		if (ControlKeyModifiers.includes(modifier as any)) {
-			if (!isControlKeyMatchModifier(e, modifier)) {
-				return false
-			}
-			continue
-		}
-		
-		codeModifiers.push(modifier)
-	}
-
-	return codeModifiers.length === 0
-		|| codeModifiers.includes(e.code.toLowerCase())
-		|| codeModifiers.includes(e.key.toLowerCase())
+	let key = getShortcutKey(e)
+	return modifiers.includes(key)
 }
 
 /** Filter mouse event by mouse button. */
 function mouseEventFilter(e: MouseEvent, modifiers: string[]): boolean {
-	let buttonModifiers: string[] = []
+	let controlKey = modifiers.find(m => m.endsWith('+'))
+	let buttonModifiers = controlKey ? modifiers.filter(m => !m.endsWith('+')) : modifiers
 
-	// Control keys must match.
-	for (let modifier of modifiers) {
-		if (ControlKeyModifiers.includes(modifier as any)) {
-			if (!isControlKeyMatchModifier(e, modifier)) {
-				return false
-			}
-			continue
-		}
-		
-		buttonModifiers.push(modifier)
+	if (controlKey && getControlKeyCode(e) !== controlKey) {
+		return false
 	}
 
 	if (buttonModifiers.length === 0) {
@@ -113,18 +86,6 @@ function mouseEventFilter(e: MouseEvent, modifiers: string[]): boolean {
 	}
 
 	return false
-}
-
-/** Filter key event by control keys. */
-function isControlKeyMatchModifier(e: KeyboardEvent | MouseEvent, modifier: string): boolean {
-	if (modifier === 'ctrl' && (!e.ctrlKey && !e.metaKey)
-		|| modifier === 'shift' && !e.shiftKey
-		|| modifier === 'alt' && !e.altKey
-	) {
-		return false
-	}
-
-	return true
 }
 
 /** Filter change event by checkbox checked state. */
@@ -160,15 +121,15 @@ const EventFilters = {
  * Register an event listener on an element.
  * - `modifiers`: can specify some modifier to limit event handler only be called when modifiers match.
  * 
- * Returns a callback to unbind.
+ * Can use `DOMEvens.off` to unbind event.
  */
 export function on<T extends string>(
 	el: EventTarget,
 	type: T,
-	modifiers: EventModifiersByType<T> | null,
+	modifiers: EventModifierByType<T>[] | null,
 	handler: EventHandler,
 	scope?: object
-): () => void {
+) {
 	if (scope) {
 		handler = handler.bind(scope)
 	}
@@ -180,11 +141,7 @@ export function on<T extends string>(
 	// Wheel event use passive mode by default and can't be prevented.
 	let options = passive || type === 'wheel' ? {capture, passive} : {capture}
 
-	DOMEvents.on(el, type, wrappedHandler, null, options)
-	
-	return function() {
-		DOMEvents.off(el, type, wrappedHandler)
-	}
+	DOMEvents.bindEvent(el, type, handler, scope, wrappedHandler, options)
 }
 
 

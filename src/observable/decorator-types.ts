@@ -5,7 +5,7 @@
  * 
  * The computed value will be cleared each time after any visited dependencies get changed.
  * 
- * If use with a component has life-cycle, like a `Component` in Lupos.js,
+ * If use with a component which has life-cycle, like a `Component` in Lupos.js,
  * computed value will be cleared after component disconnected,
  * and re-compute after component re-connected.
  * 
@@ -21,10 +21,10 @@ export declare function computed(originalGetter: any, context: ClassGetterDecora
  * `@effect` decorates a class method, it execute this method,
  * and if any dependency it used get changed, re-execute this method.
  * 
- * The effect action will be enqueued after instance initialized,
+ * The effect action will be activated after instance initialized, in declaration order,
  * and to be enqueued each time after any visited dependencies get changed.
  * 
- * If use with a component has life-cycle, like a `Component` in Lupos.js,
+ * If use with a component which has life-cycle, like a `Component` in Lupos.js,
  * current effect action will be deactivated after component disconnected,
  * and be activated by running effect method after component connected.
  * 
@@ -43,20 +43,20 @@ export declare function effect(originalMethod: any, context: ClassMethodDecorato
  * Use it like:
  * ```
  * @watch('property')
- * onPropertyChange() {...}
+ * onPropertyChange(propertyValue) {...}
  * 
- * @watch('property1', 'property2')
- * onPropertyChange() {...}
+ * @watch('publicProperty1', 'publicProperty2')
+ * onPropertyChange(publicPropertyValue1, publicPropertyValue2) {...}
  * 
  * @watch(function(this: C) {return this.property}, ...)
- * onPropertyChange() {...}
+ * onPropertyChange(watchFnReturnedValue) {...}
  * ```
  * 
- * The watch action will be enqueued after instance initialized,
- * and to be called in the update queue.
+ * The watch action will be activated after instance initialized,
+ * in declaration order, and to be called in the update queue.
  * and later be enqueued again when any visited dependencies get changed.
  * 
- * If use with a component has life-cycle, like a `Component` in `@pucelle/lupos.js`,
+ * If use with a component which has life-cycle, like a `Component` in `@pucelle/lupos.js`,
  * current watch action will be deactivated after component disconnected,
  * and after component connected, will compare values of watching properties or getters,
  * if any changed, call watch decorated method.
@@ -66,9 +66,17 @@ export declare function effect(originalMethod: any, context: ClassMethodDecorato
  * 
  * This is only a declaration, it will be replaced after been compiled by `@pucelle/lupos.compiler`.
  */
-export declare function watch<T>(...fnOrProps: (((this: T) => any) | keyof T)[]):
-	(originalMethod: any, context: ClassMethodDecoratorContext<T>) => any
+export declare function watch<T, PS extends (((this: T) => any) | keyof T)[]>(...fnOrProps: PS):
+	(originalMethod: InferMethod<T, PS>, context: ClassMethodDecoratorContext<T>) => any
 
+type InferMethod<T, PS extends ((() => any) | keyof T)[]>
+	= (...args: InferMethodParameters<T, PS>) => void
+
+type InferMethodParameters<T, PS extends ((() => any) | keyof T)[]>
+	= {[K in keyof PS]: InferPropertyType<T, PS[K]>}
+
+type InferPropertyType<T, P extends ((() => any) | keyof T)>
+	= P extends (() => any) ? ReturnType<P> : P extends keyof T ? T[P] : any
 
 /** 
  * `@watch` decorates a class method to watch a property, or returned value of a fn,
@@ -90,7 +98,7 @@ export declare function watch<T>(...fnOrProps: (((this: T) => any) | keyof T)[])
  * Different with `@watch`, this decorator will also call decorated method
  * for the first time when initializing.
  * 
- * If use with a component has life-cycle, like a `Component` in `@pucelle/lupos.js`,
+ * If use with a component which has life-cycle, like a `Component` in `@pucelle/lupos.js`,
  * current watch action will be deactivated after component disconnected,
  * and after component connected, will compare values of watching properties or getters,
  * if any changed, call watch decorated method.
@@ -100,5 +108,5 @@ export declare function watch<T>(...fnOrProps: (((this: T) => any) | keyof T)[])
  * 
  * This is only a declaration, it will be replaced after been compiled by `@pucelle/lupos.compiler`.
  */
-export declare function immediateWatch<T>(...fnOrProps: (((this: T) => any) | keyof T)[]):
-	(originalMethod: any, context: ClassMethodDecoratorContext<T>) => any
+export declare function immediateWatch<T, PS extends (((this: T) => any) | keyof T)[]>(...fnOrProps: PS):
+	(originalMethod: InferMethod<T, PS>, context: ClassMethodDecoratorContext<T>) => any

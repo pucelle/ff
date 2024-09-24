@@ -227,7 +227,7 @@ type Code =
 	"Quote"
 
 	
-type ControlKeyCode = 'Ctrl+' | 'Alt+' | 'Shift+' | 'Ctrl+Alt+' | 'Ctrl+Shift+' | 'Alt+Shift+' | 'Ctrl+Alt+Shift+'
+export type ControlKeyCode = 'Ctrl+' | 'Alt+' | 'Shift+' | 'Ctrl+Alt+' | 'Ctrl+Shift+' | 'Alt+Shift+' | 'Ctrl+Alt+Shift+'
 
 export type ShortcutKey = `${ControlKeyCode}${Key}` | Key
 export type ShortcutCode = `${ControlKeyCode}${Code}` | Code
@@ -844,7 +844,7 @@ export function isControlKey(event: KeyEventLike): boolean {
 /** 
  * Get key string like `Ctrl+A`, `Ctrl+1`.
  * @param shiftDistinguish determines whether consider pressing Shift key,
- * e.g., when `shiftDistinguish=true`will get `Shift+?` but not `Shift+/`.
+ * e.g., when `shiftDistinguish=true` will get `Shift+?` but not `Shift+/`.
  */
 export function getShortcutKey(event: KeyEventLike, shiftDistinguish: boolean = false): ShortcutKey {
 	let useShift = event.shiftKey && shiftDistinguish
@@ -860,7 +860,7 @@ export function getShortcutKey(event: KeyEventLike, shiftDistinguish: boolean = 
 
 /** 
  * Get key string like `Ctrl+KeyA`, `Ctrl+Digit1`.
- * Compare with `getKey`, this one can get more details about keys,
+ * Compare with `getShortcutKey`, this one can get more details about keys,
  * e.g., `CtrlLeft` is different from `CtrlRight`.
  * Doesn't distinguish whether shift key is pressed.
  */
