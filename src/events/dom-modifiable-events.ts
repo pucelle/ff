@@ -71,17 +71,16 @@ function keyEventFilter(e: KeyboardEvent, modifiers: string[]): boolean {
 /** Filter mouse event by mouse button. */
 function mouseEventFilter(e: MouseEvent, modifiers: string[]): boolean {
 	let controlKey = modifiers.find(m => m.endsWith('+'))
-	let buttonModifiers = controlKey ? modifiers.filter(m => !m.endsWith('+')) : modifiers
-
 	if (controlKey && getControlKeyCode(e) !== controlKey) {
 		return false
 	}
 
+	let buttonModifiers = modifiers.filter(m => m in ButtonNameModifiers) as (keyof typeof ButtonNameModifiers)[]
 	if (buttonModifiers.length === 0) {
 		return true
 	}
 
-	if (buttonModifiers.find(f => ButtonNameModifiers[f as keyof typeof ButtonNameModifiers] === e.button)) {
+	if (buttonModifiers.find(m => ButtonNameModifiers[m] === e.button)) {
 		return true
 	}
 
@@ -128,7 +127,8 @@ export function on<T extends string>(
 	type: T,
 	modifiers: EventModifierByType<T>[] | null,
 	handler: EventHandler,
-	scope?: object
+	scope: any = null,
+	options: AddEventListenerOptions = {}
 ) {
 	if (scope) {
 		handler = handler.bind(scope)
@@ -138,8 +138,13 @@ export function on<T extends string>(
 	let capture = !!modifiers && (modifiers as string[]).includes('capture')
 	let passive = !!modifiers && (modifiers as string[]).includes('passive')
 
-	// Wheel event use passive mode by default and can't be prevented.
-	let options = passive || type === 'wheel' ? {capture, passive} : {capture}
+	if (capture) {
+		options.capture = true
+	}
+	
+	if (passive) {
+		options.passive = true
+	}
 
 	DOMEvents.bindEvent(el, type, handler, scope, wrappedHandler, options)
 }

@@ -21,7 +21,7 @@ const EventListenerMap: WeakDoubleKeysListMap<EventTarget, string, EventListener
  * Bind an event listener on an event target.
  * Can specify `scope` to identify listener when un-binding, and will pass it to listener handler.
  */
-export function on(el: EventTarget, type: string, handler: EventHandler, scope: any = null, options: AddEventListenerOptions | boolean = false) {
+export function on(el: EventTarget, type: string, handler: EventHandler, scope: any = null, options: AddEventListenerOptions = {}) {
 	let boundHandler = scope ? handler.bind(scope) : handler
 	bindEvent(el, type, handler, boundHandler, scope, options)
 }
@@ -30,11 +30,7 @@ export function on(el: EventTarget, type: string, handler: EventHandler, scope: 
  * Bind an event listener on an event target, triggers for only once.
  * Can specify `scope` to identify listener when un-binding, and will pass it to listener handler.
  */
-export function once(el: EventTarget, type: string, handler: EventHandler, scope: any = null, options: AddEventListenerOptions | boolean = false) {
-	if (typeof options === 'boolean') {
-		options = {capture: options}
-	}
-
+export function once(el: EventTarget, type: string, handler: EventHandler, scope: any = null, options: AddEventListenerOptions = {}) {
 	options.once = true
 	let boundHandler = scope ? handler.bind(scope) : handler
 
