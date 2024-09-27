@@ -79,8 +79,11 @@ function clearDisconnected() {
 }
 
 
-/** Lock controllers by a trigger element, make sure it can't be hidden. */
-function lockBy(triggerEl: Element) {
+/** 
+ * Lock by a trigger element, make sure related mouse-leave controllers
+ * not trigger leave action to make it can't be hidden.
+ */
+export function lock(triggerEl: Element) {
 	let lockChanged = false
 
 	while (true) {
@@ -91,7 +94,7 @@ function lockBy(triggerEl: Element) {
 				continue
 			}
 
-			Locks.setNonRepetitive(controller, triggerEl)
+			Locks.setUnRepeatably(controller, triggerEl)
 
 			// Lock next in sequence.
 			nextTriggerEl = controller.trigger
@@ -112,8 +115,12 @@ function lockBy(triggerEl: Element) {
 }
 
 
-/** Release the lock of controllers by a trigger element, make it can be hidden now. */
-function unlockBy(triggerEl: Element) {
+/** 
+ * Release the locks of mouse-leave controllers related with a trigger element,
+ * make these controllers can trigger leave action, and trigger immediately if should.
+ * And specified trigger element can be hidden now.
+ */
+export function unlock(triggerEl: Element) {
 	while (true) {
 		let controller = Locks.getByRight(triggerEl)
 		if (!controller) {
@@ -211,7 +218,7 @@ class MouseLeaveController {
 	private onMouseEnter() {
 
 		// Lock by current trigger element.
-		lockBy(this.trigger)
+		lock(this.trigger)
 
 		LiveControllers.add(this)
 		this.timeout.cancel()
@@ -237,7 +244,7 @@ class MouseLeaveController {
 	finish() {
 		this.callback()
 		
-		unlockBy(this.trigger)
+		unlock(this.trigger)
 		LiveControllers.delete(this)
 	}
 
@@ -249,7 +256,7 @@ class MouseLeaveController {
 			DOMEvents.off(el, 'mouseleave', this.onMouseLeave, this)
 		}
 
-		unlockBy(this.trigger)
+		unlock(this.trigger)
 		LiveControllers.delete(this)
 	}
 }

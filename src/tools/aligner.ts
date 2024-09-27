@@ -6,48 +6,48 @@ import * as DOMUtils from '../utils/dom-utils'
 export interface AlignerOptions {
 
  	/** 
-	  * The gaps betweens `to-align` element and `target` element.
-	  * It equals expanding `target` element area with this value.
+	  * The gaps betweens content element and anchor element.
+	  * It equals expanding anchor element area with this value.
 	  * can be a number or a number array composed of 1-4 numbers, in `top right? bottom? left?` order.
 	  */
 	gap?: number | number[]
 
 	/** 
-	 * Whether stick `to-align` element to viewport edges.
-	 * Such that if `to-align` element partly cut by viewport,
+	 * Whether stick content element to viewport edges.
+	 * Such that if content element partly cut by viewport,
 	 * it will be adjusted to stick viewport edges and become fully visible.
 	 * Default value is `true`, set it to `false` to disable.
 	 */
 	stickToEdges?: boolean
 
 	/** 
-	 * Whether can swap `to-align` position if spaces in specified position is not enough.
+	 * Whether can swap content position if spaces in specified position is not enough.
 	 * Default value is `true`, set it to `false` to disable.
 	 */
 	canSwapPosition?: boolean
 
 	/** 
-	 * If `true`, when `to-align` element contains large content and should be cut in viewport,
+	 * If `true`, when content element contains large content and should be cut in viewport,
 	 * it will be shrunk by limiting height.
-	 * Note that a descendant element inside `to-align` element must set `overflow-y: auto`.
+	 * Note that a descendant element inside content element must set `overflow-y: auto`.
 	 */
-	canShrinkInY?: boolean
+	canShrinkOnY?: boolean
 
 	/** 
 	 * Whether should align triangle in a fixed position.
-	 * Default value is `false`, means triangle element will be anchored to be in the center of the intersect edges between `to-align` and `target` element.
+	 * Default value is `false`, means triangle element will be anchored to be in the center of the intersect edges between content and anchor element.
 	 */
 	fixTriangle?: boolean
 	
 	/** 
-	 * The triangle element inside `to-align` element,
+	 * The triangle element inside content element,
 	 * If provided, will adjust it's left or top position,
-	 * to anchor it to be in the center of the intersect edges between `to-align` and `target` element.
+	 * to anchor it to be in the center of the intersect edges between content and anchor element.
 	 */
 	triangle?: HTMLElement
 }
 
-/** Align where of `align-to` element to where of the `target` element. */
+/** Align where of `align-to` element to where of the anchor element. */
 export type AlignerPosition = 't'
 	| 'b'
 	| 't'
@@ -133,21 +133,26 @@ type AlignerDirectionMask = Record<BoxDistanceKey, boolean>
 const DefaultAlignerOptions: Omit<Required<AlignerOptions>, 'triangle' | 'gap'> = {
 	stickToEdges: true,
 	canSwapPosition: true,
-	canShrinkInY: false,
+	canShrinkOnY: false,
 	fixTriangle: false,
 }
 
 export class Aligner implements Omit<AlignerOptions, 'gap'> {
 	
 	/**
-	 * Align `to-align` to `target` element with specified position.
+	 * Align content to anchor element with specified position.
 	 * If no enough space, will adjust align position automatically.
-	 * @param toAlign Element that will be adjusted position to align.
-	 * @param target Element that previous element should align to.
-	 * @param alignPosition contains two parts, e.g., `tl-br` means align top-left position of `to-align` to bottom-right position of `target`.
+	 * @param content Element that will be adjusted position to do alignment.
+	 * @param anchor Element as anchor that content element should align to.
+	 * 
+	 * @param alignPosition How the content would align with the anchor element.
+	 * It normally contains two parts, e.g., `tl-br` means align top-left position
+	 * of content element to bottom-right position of anchor element.
+	 * `tl-br` can omit first part to `br`.
+	 * `tc-bc` can omit `c` to `t-b`, and omit more to `b`.
 	 */
-	static align(toAlign: HTMLElement, target: Element, alignPosition: AlignerPosition, options: AlignerOptions = {}) {
-		new Aligner(toAlign, target, alignPosition, options).align()
+	static align(content: HTMLElement, anchor: Element, alignPosition: AlignerPosition, options: AlignerOptions = {}) {
+		new Aligner(content, anchor, alignPosition, options).align()
 	}
 
 
@@ -180,7 +185,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 	
 	/** 
 	 * Get main align direction by align position string,
-	 * to indicate which direction to align `to-align` element relative to `target` element.
+	 * to indicate which direction to align content element relative to anchor element.
 	 */
 	static getMainAlignDirection(position: string): Direction {
 		let [d1, d2] = parseAlignDirections(position)
@@ -190,97 +195,97 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 
 	readonly stickToEdges!: boolean
 	readonly canSwapPosition!: boolean
-	readonly canShrinkInY!: boolean
+	readonly canShrinkOnY!: boolean
 	readonly fixTriangle!: boolean
 	readonly triangle!: HTMLElement | undefined
 
 	/** The element to align. */
-	private readonly toAlign: HTMLElement
+	private readonly content: HTMLElement
 
-	/** Target target element to align beside. */
-	private readonly target: Element
+	/** Target anchor element to align beside. */
+	private readonly anchor: Element
 
-	/** Directions of `to-align` and `target` elements. */
+	/** Directions of content and anchor elements. */
 	private readonly directions: [Direction, Direction]
 
-	/** In which direction of `target` element will be aligned. */
+	/** In which direction of anchor element will be aligned. */
 	private readonly directionMask: AlignerDirectionMask
 
-	/** Margin outside of `target` element. */
+	/** Margin outside of anchor element. */
 	private readonly gaps: BoxDistances
 
-	/** Whether `to-align` element use fixed alignment position. */
+	/** Whether content element use fixed alignment position. */
 	private readonly useFixedAlignment: boolean
 
 	private cachedRectBox: Box | null = null
 	private cachedTargetRectBox: Box | null = null
 
-	constructor(el: HTMLElement, target: Element, position: string, options: AlignerOptions = {}) {
-		this.toAlign = el
-		this.target = target
+	constructor(el: HTMLElement, anchor: Element, position: string, options: AlignerOptions = {}) {
+		this.content = el
+		this.anchor = anchor
 		Object.assign(this, DefaultAlignerOptions, options)
 
 		this.directions = parseAlignDirections(position)
 		this.directionMask = parseAlignDirectionMask(this.directions)
 		this.gaps = parseGap(options.gap || 0, this.triangle, this.directionMask)
 
-		// If `target` element is not affected by document scrolling, `to-align` element should be the same.
+		// If anchor element is not affected by document scrolling, content element should be the same.
 		// A potential problem here: once becomes fixed, can't be restored for reuseable popups.
-		if (getClosestFixedElement(this.target)) {
-			this.toAlign.style.position = 'fixed'
+		if (getClosestFixedElement(this.anchor)) {
+			this.content.style.position = 'fixed'
 			this.useFixedAlignment = true
 		}
 		else {
-			this.useFixedAlignment = getComputedStyle(this.toAlign).position === 'fixed'
+			this.useFixedAlignment = getComputedStyle(this.content).position === 'fixed'
 		}
 	}
 
 	/** 
-	 * Align `to-align` to beside `target` element.
+	 * Align content to beside anchor element.
 	 * Returns whether did alignment.
 	 */
 	align(): boolean {
 		this.resetToAlignStyles()
 
 		let directionMask = {...this.directionMask}
-		let rect = getRectBox(this.toAlign)
-		let targetRect = getRectBox(this.target)
+		let rect = getRectBox(this.content)
+		let targetRect = getRectBox(this.anchor)
 
 		// Both rects are not changed.
 		if (this.cachedRectBox?.equals(rect) && this.cachedTargetRectBox?.equals(targetRect)) {
 			return true
 		}
 
-		// If `target` is not visible.
+		// If anchor is not visible.
 		if (targetRect.empty) {
 			return false
 		}
 
-		// Whether `target` in viewport.
+		// Whether anchor in viewport.
 		let targetInViewport = isRectBoxIntersectWithViewport(targetRect)
 		let willAlign = targetInViewport || !this.stickToEdges
 		if (!willAlign) {
 			return false
 		}
 
-		// `to-align` may be shrunk into the edge and it's width get limited.
+		// content may be shrunk into the edge and it's width get limited.
 		if (this.shouldClearToAlignPosition(rect)) {
 			this.clearToAlignPosition()
-			rect = getRectBox(this.toAlign)
+			rect = getRectBox(this.content)
 		}
 
-		// Get triangle rect based on `to-align` origin.
+		// Get triangle rect based on content origin.
 		let triangleRelativeRect = this.getTriangleRelativeRect(rect)
 
-		// Restore `to-align` element height to it's natural height without any limitation.
-		if (this.canShrinkInY) {
-			let willShrinkElement = findFirstScrollingDescendance(this.toAlign)
+		// Restore content element height to it's natural height without any limitation.
+		if (this.canShrinkOnY) {
+			let willShrinkElement = findFirstScrollingDescendance(this.content)
 			if (willShrinkElement) {
 				rect.height += willShrinkElement.scrollHeight - willShrinkElement.clientHeight
 			}
 		}
 
-		// Do `to-align` alignment.
+		// Do content alignment.
 		this.doAlignment(directionMask, rect, targetRect, triangleRelativeRect)
 
 		// Handle `triangle` position.
@@ -294,33 +299,33 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 		return true
 	}
 
-	/** Set some styles of `to-align` element before doing alignment. */
+	/** Set some styles of content element before doing alignment. */
 	private resetToAlignStyles() {
 		
 		// Avoid it's height cause body scrollbar appears.
-		if (this.canShrinkInY && this.toAlign.offsetHeight > document.documentElement.clientHeight) {
-			this.toAlign.style.height = '100vh'
+		if (this.canShrinkOnY && this.content.offsetHeight > document.documentElement.clientHeight) {
+			this.content.style.height = '100vh'
 		}
-		else if (this.canShrinkInY && this.toAlign.style.height) {
-			this.toAlign.style.height = ''
+		else if (this.canShrinkOnY && this.content.style.height) {
+			this.content.style.height = ''
 		}
 	}
 
 	/** Should clear last alignment properties, to avoid it's position affect it's size. */
 	private shouldClearToAlignPosition(rect: Box) {
 
-		// If rect of `to-align` close to window edge, it's width may be limited.
+		// If rect of content close to window edge, it's width may be limited.
 		return rect.left <= 0 || rect.right >= document.documentElement.clientWidth
 	}
 
 	/** Clear last alignment properties. */
 	private clearToAlignPosition() {
-		this.toAlign.style.left = '0'
-		this.toAlign.style.right = ''
-		this.toAlign.style.top = '0'
+		this.content.style.left = '0'
+		this.content.style.right = ''
+		this.content.style.top = '0'
 	}
 
-	/** Get triangle rect based on `to-align` element origin. */
+	/** Get triangle rect based on content element origin. */
 	private getTriangleRelativeRect(rect: Box): Box | null {
 
 		// `align` may be called for multiple times, so need to clear again.
@@ -337,20 +342,20 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 	}
 
 	/** 
-	 * Do alignment from `to-align` to `target` for once.
+	 * Do alignment from content to anchor for once.
 	 * Overwrite the new alignment position into `rect`.
 	 */
 	private doAlignment(directionMask: AlignerDirectionMask, rect: Box, targetRect: Box, triangleRelativeRect: Box | null) {
 		let anchor1 = this.getToAlignRelativeAnchorPoint(directionMask, rect, triangleRelativeRect)
 		let anchor2 = this.getTargetAbsoluteAnchorPoint(targetRect)
 
-		// Fixed `to-align` element position.
+		// Fixed content element position.
 		let fixedPosition = anchor2.diff(anchor1)
 
 		// Handle vertical alignment.
 		let overflowYSet = this.alignVertical(fixedPosition.y, directionMask, rect, targetRect, triangleRelativeRect)
 
-		// If `to-align` element's height changed.
+		// If content element's height changed.
 		if (overflowYSet) {
 			anchor1 = this.getToAlignRelativeAnchorPoint(directionMask, rect, triangleRelativeRect)
 			fixedPosition = anchor2.diff(anchor1)
@@ -359,13 +364,13 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 		// Handle horizontal alignment, `rect` will be modified.
 		this.alignHorizontal(fixedPosition.x, directionMask, rect, targetRect, triangleRelativeRect)
 
-		// The fixed coordinate of `to-align` currently.
+		// The fixed coordinate of content currently.
 		let x = rect.x
 		let y = rect.y
 
-		// For absolute layout `to-align`, convert x, y to absolute coordinate.
-		if (!this.useFixedAlignment && this.target !== document.body && this.target !== document.documentElement) {
-			var offsetParent = this.toAlign.offsetParent as HTMLElement
+		// For absolute layout content, convert x, y to absolute coordinate.
+		if (!this.useFixedAlignment && this.anchor !== document.body && this.anchor !== document.documentElement) {
+			var offsetParent = this.content.offsetParent as HTMLElement
 
 			// If we use body's top position, it will cause a bug when body has a margin top (even from margin collapse).
 			if (offsetParent) {
@@ -378,18 +383,18 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 		// May scrollbar appears after alignment,
 		// such that it should align to right.
 		if (directionMask.left) {
-			this.toAlign.style.left = 'auto'
-			this.toAlign.style.right = document.documentElement.clientWidth - rect.right + 'px'
+			this.content.style.left = 'auto'
+			this.content.style.right = document.documentElement.clientWidth - rect.right + 'px'
 		}
 		else {
-			this.toAlign.style.left = x + 'px'
-			this.toAlign.style.right = 'auto'
+			this.content.style.left = x + 'px'
+			this.content.style.right = 'auto'
 		}
 
-		this.toAlign.style.top = y + 'px'
+		this.content.style.top = y + 'px'
 	}
 
-	/** Get relative anchor position of the axis of `to-align` element. */
+	/** Get relative anchor position of the axis of content element. */
 	private getToAlignRelativeAnchorPoint(directionMask: AlignerDirectionMask, rect: Box, triangleRelativeRect: Box | null): Point {
 		let [d1] = this.directions
 		let point = rect.anchorPointAt(d1)
@@ -407,7 +412,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 		return point
 	}
 
-	/** Get absolute anchor position of `target` element in scrolling page. */
+	/** Get absolute anchor position of anchor element in scrolling page. */
 	private getTargetAbsoluteAnchorPoint(targetRect: Box): Point {
 		let [, d2] = this.directions
 		let point = targetRect.anchorPointAt(d2)
@@ -458,7 +463,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 			}
 		}
 
-		if (this.canShrinkInY) {
+		if (this.canShrinkOnY) {
 
 			// Limit element height if has not enough space.
 			if (directionMask.top && y < 0 && this.stickToEdges) {
@@ -489,7 +494,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 
 		// Apply limited height.
 		if (overflowYSet) {
-			this.toAlign.style.height = h + 'px'
+			this.content.style.height = h + 'px'
 			rect.height = h
 		}
 
@@ -549,7 +554,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 		rect.x = x
 	}
 
-	/** Align `triangle` relative to `to-align` element. */
+	/** Align `triangle` relative to content element. */
 	private alignTriangle(directionMask: AlignerDirectionMask, rect: Box, targetRect: Box, triangleRelativeRect: Box) {
 		let triangle = this.triangle!
 		let transforms: string[] = []
@@ -579,7 +584,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 			let halfTriangleWidth = triangleRelativeRect.width / 2
 			let x: number = 0
 
-			// Adjust triangle to be in the center of the `target` edge.
+			// Adjust triangle to be in the center of the anchor edge.
 			if ((w >= targetRect.width || this.fixTriangle)) {
 				x = targetRect.left + targetRect.width / 2 - rect.left - halfTriangleWidth
 			}
@@ -589,16 +594,16 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 				x = triangleRelativeRect.left
 			}
 
-			// Adjust triangle to be in the center of the `to-align` edge.
+			// Adjust triangle to be in the center of the content edge.
 			else {
 				x = w / 2 - halfTriangleWidth
 			}
 
-			// Limit to at the intersect edge of `to-align` and `target`.
+			// Limit to at the intersect edge of content and anchor.
 			let minX = Math.max(rect.left, targetRect.left)
 			let maxX = Math.min(rect.left + rect.width, targetRect.right)
 
-			// Turn to `to-align` rect origin.
+			// Turn to content rect origin.
 			minX -= rect.left
 			maxX -= rect.left
 
@@ -614,7 +619,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 				transforms.push(`translateX(${translateX}px)`)
 			}
 			else {
-				x -= DOMUtils.getNumericStyleValue(this.toAlign, 'borderLeftWidth')
+				x -= DOMUtils.getNumericStyleValue(this.content, 'borderLeftWidth')
 				triangle.style.left = x + 'px'
 			}
 
@@ -635,11 +640,11 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 				y = h / 2 - halfTriangleHeight
 			}
 
-			// Limit to at the intersect edge of `to-align` and `target`.
+			// Limit to at the intersect edge of content and anchor.
 			let minY = Math.max(rect.top, targetRect.top)
 			let maxY = Math.min(rect.top + rect.height, targetRect.bottom)
 
-			// Turn to `to-align` rect origin.
+			// Turn to content rect origin.
 			minY -= rect.top
 			maxY -= rect.top
 
@@ -655,7 +660,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 				transforms.push(`translateY(${translateY}px)`)
 			}
 			else if (!this.fixTriangle) {
-				y -= DOMUtils.getNumericStyleValue(this.toAlign, 'borderTopWidth')
+				y -= DOMUtils.getNumericStyleValue(this.content, 'borderTopWidth')
 				triangle.style.top = y + 'px'
 			}
 
@@ -668,11 +673,11 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 
 
 /**
- * Full type is `[tbc][lrc]-[tbc][lrc]`, means `[Y of el][X of el]-[Y of target][X of target]`.
+ * Full type is `[tbc][lrc]-[tbc][lrc]`, means `[Y of el][X of el]-[Y of anchor][X of anchor]`.
  * Shorter type should be `[Touch][Align]` or `[Touch]`.
- * E.g.: `t` is short for `tc` or `b-t` or `bc-tc`, which means align `to-align` to the top-center of `target`.
- * E.g.: `tl` is short for `bl-tl`, which means align `to-align` to the top-left of `target`.
- * E.g.: `lt` is short for `tr-tl`, which means align `to-align` to the left-top of `target`.
+ * E.g.: `t` is short for `tc` or `b-t` or `bc-tc`, which means align content to the top-center of anchor.
+ * E.g.: `tl` is short for `bl-tl`, which means align content to the top-left of anchor.
+ * E.g.: `lt` is short for `tr-tl`, which means align content to the left-top of anchor.
  */
 function parseAlignDirections(position: string): [Direction, Direction] {
 	const PositionDirectionMap: Record<string, Direction> = {
@@ -711,7 +716,7 @@ function parseAlignDirections(position: string): [Direction, Direction] {
 }
 
 
-/** Parse align direction to indicate which direction of `target` element will align to. */
+/** Parse align direction to indicate which direction of anchor element will align to. */
 function parseAlignDirectionMask([d1, d2]: [Direction, Direction]): AlignerDirectionMask {
 
 	return {

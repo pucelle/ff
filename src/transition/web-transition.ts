@@ -3,7 +3,10 @@ import {PerFrameTransitionEvents, PerFrameTransitionOptions} from './per-frame-t
 import {EventFirer} from '../events'
 
 
-/** Web Transition options. */
+/** 
+ * Web Transition options, compare to `PerFrameTransitionOptions`,
+ * some custom easing names have been excluded.
+ */
 export interface WebTransitionOptions extends PerFrameTransitionOptions {
 	easing?: WebAnimationEasingName
 }

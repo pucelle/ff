@@ -20,7 +20,7 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 		super()
 
 		this.el = el
-		DOMEvents.on(el, 'touchstart', this.onTouchStart as any, this, true)
+		DOMEvents.on(el, 'touchstart', this.onTouchStart as any, this, {capture: true})
 	}
 
 	private get inTouching(): boolean {

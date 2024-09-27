@@ -712,9 +712,9 @@ export class TwoWayMap<L, R> {
 
 	/** 
 	 * Set a left and right key pair.
-	 * Avoid repetitive maps by pre-clear left and right maps.
+	 * Avoid repetitive map items by pre-clear left and right maps.
 	 */
-	setNonRepetitive(l: L, r: R) {
+	setUnRepeatably(l: L, r: R) {
 		this.deleteLeft(l)
 		this.deleteRight(r)
 		this.set(l, r)

@@ -30,7 +30,7 @@ export class TapEventProcessor extends EventFirer<TapEvents> {
 
 		this.el = el
 		this.timeout = new Timeout(this.onTimeout.bind(this), SimulatedEventsConfiguration.becomeHoldAfterDuration)
-		DOMEvents.on(el, 'touchstart', this.onTouchStart as any, this, true)
+		DOMEvents.on(el, 'touchstart', this.onTouchStart as any, this, {capture: true})
 	}
 
 	private get inTouching(): boolean {

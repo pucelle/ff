@@ -78,7 +78,7 @@ export class PerFrameTransition<T extends TransitionAbleValue = any> extends Eve
 	/** Calculated easing function. */
 	private easingFn: EasingFunction | null = null
 
-	/** Options after fullfilled default values. */
+	/** Options after fulfilled default values. */
 	private fullOptions: Required<PerFrameTransitionOptions>
 
 	/** Timeout when transition delay exist. */

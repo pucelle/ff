@@ -23,7 +23,7 @@ const EventListenerMap: WeakDoubleKeysListMap<EventTarget, string, EventListener
  */
 export function on(el: EventTarget, type: string, handler: EventHandler, scope: any = null, options: AddEventListenerOptions = {}) {
 	let boundHandler = scope ? handler.bind(scope) : handler
-	bindEvent(el, type, handler, boundHandler, scope, options)
+	bindEvent(el, type, handler, scope, boundHandler, options)
 }
 
 /** 
@@ -108,6 +108,12 @@ export function getPagePosition(e: MouseEvent | TouchEvent): Point {
 	return eventItem
 		? new Point(eventItem.pageX, eventItem.pageY)
 		: new Point(0, 0)
+}
+
+
+/** Check whether have pointer device, like mouse. */
+export function havePointer(): boolean {
+	return matchMedia('(pointer:fine)').matches
 }
 
 

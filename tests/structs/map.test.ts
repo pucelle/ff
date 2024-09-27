@@ -100,7 +100,7 @@ describe('Test Map Structs', () => {
 
 		m.clear()
 		m.set('a', 'b')
-		m.setNonRepetitive('a', 'c')
+		m.setUnRepeatably('a', 'c')
 		expect(m.hasLeft('a')).toEqual(true)
 		expect(m.hasRight('b')).toEqual(false)
 		expect(m.hasRight('c')).toEqual(true)
