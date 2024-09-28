@@ -1,5 +1,4 @@
-import {Box} from '../math'
-import {ObjectUtils, Interval, AnimationFrame} from '../utils'
+import {ObjectUtils, Interval, AnimationFrame, DOMUtils} from '../utils'
 
 
 /** Watcher types. */
@@ -21,33 +20,38 @@ export interface LayoutWatcherOptions {
 
 const WatcherStateGetters = {
 
-	show(el: HTMLElement): boolean {
+	'show'(el: HTMLElement): boolean {
 		return el.offsetWidth > 0 || el.offsetHeight > 0
 	},
 
-	hide(el: HTMLElement): boolean {
+	'hide'(el: HTMLElement): boolean {
 		return el.offsetWidth === 0 && el.offsetHeight === 0
 	},
 
 	'in-view'(el: HTMLElement): boolean {
-		let htmlBox = Box.fromLike(document.documentElement.getBoundingClientRect())
-		return Box.fromLike(el.getBoundingClientRect()).isIntersectWith(htmlBox)
+		return DOMUtils.isRectIntersectWithViewport(el.getBoundingClientRect())
 	},
 
 	'out-view'(el: HTMLElement): boolean {
-		let htmlBox = Box.fromLike(document.documentElement.getBoundingClientRect())
-		return !Box.fromLike(el.getBoundingClientRect()).isIntersectWith(htmlBox)
+		return !DOMUtils.isRectIntersectWithViewport(el.getBoundingClientRect())
 	},
 
-	size(el: HTMLElement): {width: number, height: number} {
+	'size'(el: HTMLElement): {width: number, height: number} {
 		return {
 			width : el.clientWidth,
 			height: el.clientHeight,
 		}
 	},
 	
-	rect(el: HTMLElement): BoxLike {
-		return Box.fromLike(el.getBoundingClientRect())
+	'rect'(el: HTMLElement): BoxLike {
+		let rect = el.getBoundingClientRect()
+
+		return {
+			x: rect.x,
+			y: rect.y,
+			width: rect.width,
+			height: rect.height,
+		}
 	},
 }
 

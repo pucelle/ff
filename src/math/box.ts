@@ -5,7 +5,7 @@ import {LineSegment} from './line-segment'
 import {Point} from './point'
 import {Size} from './size'
 import {Vector} from './vector'
-import {Matrix} from './matrix'
+import type {Matrix} from './matrix'
 
 
 /** Represent a rectangle bounding box. */

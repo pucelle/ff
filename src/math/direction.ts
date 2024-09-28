@@ -150,7 +150,7 @@ export class Direction {
 	readonly value: DirectionValue
 	readonly name: string
 
-	/** Never make new Direction instance by youself after initialized! */
+	/** Never make new Direction instance by yourself after initialized! */
 	constructor(value: DirectionValue) {
 		this.value = value
 		this.name = DirectionValue[value]
@@ -548,7 +548,7 @@ export class Direction {
 
 	/** 
 	 * Whether direction and current are the opposite.
-	 * Both `None` and `Center` are the opposite of themself.
+	 * Both `None` and `Center` are the opposite of themselves.
 	 */
 	isOppositeOf(direction: Direction): boolean {
 		return direction === this.opposite

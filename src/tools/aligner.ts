@@ -1,4 +1,4 @@
-import {Box, Direction, BoxDistances, Point} from '../math'
+import {Direction} from '../math'
 import * as DOMUtils from '../utils/dom-utils'
 
 
@@ -129,6 +129,13 @@ export type AlignerPosition = 't'
 
 type AlignerDirectionMask = Record<BoxDistanceKey, boolean>
 
+interface AlignerGap {
+	top: number
+	right: number
+	bottom: number
+	left: number
+}
+
 
 const DefaultAlignerOptions: Omit<Required<AlignerOptions>, 'triangle' | 'gap'> = {
 	stickToEdges: true,
@@ -212,13 +219,13 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 	private readonly directionMask: AlignerDirectionMask
 
 	/** Margin outside of anchor element. */
-	private readonly gaps: BoxDistances
+	private readonly gaps: AlignerGap
 
 	/** Whether content element use fixed alignment position. */
 	private readonly useFixedAlignment: boolean
 
-	private cachedRectBox: Box | null = null
-	private cachedTargetRectBox: Box | null = null
+	private cachedRect: DOMRect | null = null
+	private cachedTargetRect: DOMRect | null = null
 
 	constructor(el: HTMLElement, anchor: Element, position: string, options: AlignerOptions = {}) {
 		this.content = el
@@ -248,21 +255,23 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 		this.resetToAlignStyles()
 
 		let directionMask = {...this.directionMask}
-		let rect = getRectBox(this.content)
-		let targetRect = getRectBox(this.anchor)
+		let rect = this.content.getBoundingClientRect()
+		let targetRect = this.anchor.getBoundingClientRect()
 
 		// Both rects are not changed.
-		if (this.cachedRectBox?.equals(rect) && this.cachedTargetRectBox?.equals(targetRect)) {
+		if (this.cachedRect && isRectsEqual(this.cachedRect, rect)
+			&& this.cachedTargetRect && isRectsEqual(this.cachedTargetRect, targetRect)
+		) {
 			return true
 		}
 
 		// If anchor is not visible.
-		if (targetRect.empty) {
+		if (targetRect.width === 0 && targetRect.height === 0) {
 			return false
 		}
 
 		// Whether anchor in viewport.
-		let targetInViewport = isRectBoxIntersectWithViewport(targetRect)
+		let targetInViewport = DOMUtils.isRectIntersectWithViewport(targetRect)
 		let willAlign = targetInViewport || !this.stickToEdges
 		if (!willAlign) {
 			return false
@@ -271,7 +280,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 		// content may be shrunk into the edge and it's width get limited.
 		if (this.shouldClearToAlignPosition(rect)) {
 			this.clearToAlignPosition()
-			rect = getRectBox(this.content)
+			rect = this.content.getBoundingClientRect()
 		}
 
 		// Get triangle rect based on content origin.
@@ -293,8 +302,8 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 			this.alignTriangle(directionMask, rect, targetRect, triangleRelativeRect!)
 		}
 
-		this.cachedRectBox = rect
-		this.cachedTargetRectBox = targetRect
+		this.cachedRect = rect
+		this.cachedTargetRect = targetRect
 	
 		return true
 	}
@@ -312,7 +321,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 	}
 
 	/** Should clear last alignment properties, to avoid it's position affect it's size. */
-	private shouldClearToAlignPosition(rect: Box) {
+	private shouldClearToAlignPosition(rect: DOMRect) {
 
 		// If rect of content close to window edge, it's width may be limited.
 		return rect.left <= 0 || rect.right >= document.documentElement.clientWidth
@@ -326,16 +335,23 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 	}
 
 	/** Get triangle rect based on content element origin. */
-	private getTriangleRelativeRect(rect: Box): Box | null {
+	private getTriangleRelativeRect(rect: DOMRect): DOMRect | null {
 
 		// `align` may be called for multiple times, so need to clear again.
 		if (this.fixTriangle && this.triangle) {
 			this.triangle.style.transform = ''
 		}
 
-		let relativeTriangleRect = this.triangle ? getRectBox(this.triangle) : null
+		let relativeTriangleRect = this.triangle ? this.triangle.getBoundingClientRect() : null
 		if (relativeTriangleRect) {
-			relativeTriangleRect.translateSelf(-rect.x, -rect.y)
+
+			// Translate by rect position.
+			relativeTriangleRect = new DOMRect(
+				relativeTriangleRect.x - rect.x,
+				relativeTriangleRect.y - rect.y,
+				relativeTriangleRect.width,
+				relativeTriangleRect.height
+			)
 		}
 
 		return relativeTriangleRect
@@ -345,12 +361,12 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 	 * Do alignment from content to anchor for once.
 	 * Overwrite the new alignment position into `rect`.
 	 */
-	private doAlignment(directionMask: AlignerDirectionMask, rect: Box, targetRect: Box, triangleRelativeRect: Box | null) {
+	private doAlignment(directionMask: AlignerDirectionMask, rect: DOMRect, targetRect: DOMRect, triangleRelativeRect: DOMRect | null) {
 		let anchor1 = this.getToAlignRelativeAnchorPoint(directionMask, rect, triangleRelativeRect)
 		let anchor2 = this.getTargetAbsoluteAnchorPoint(targetRect)
 
 		// Fixed content element position.
-		let fixedPosition = anchor2.diff(anchor1)
+		let fixedPosition = {x: anchor2.x - anchor1.x, y: anchor2.y - anchor1.y}
 
 		// Handle vertical alignment.
 		let overflowYSet = this.alignVertical(fixedPosition.y, directionMask, rect, targetRect, triangleRelativeRect)
@@ -358,7 +374,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 		// If content element's height changed.
 		if (overflowYSet) {
 			anchor1 = this.getToAlignRelativeAnchorPoint(directionMask, rect, triangleRelativeRect)
-			fixedPosition = anchor2.diff(anchor1)
+			fixedPosition = {x: anchor2.x - anchor1.x, y: anchor2.y - anchor1.y}
 		}
 
 		// Handle horizontal alignment, `rect` will be modified.
@@ -395,9 +411,9 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 	}
 
 	/** Get relative anchor position of the axis of content element. */
-	private getToAlignRelativeAnchorPoint(directionMask: AlignerDirectionMask, rect: Box, triangleRelativeRect: Box | null): Point {
+	private getToAlignRelativeAnchorPoint(directionMask: AlignerDirectionMask, rect: DOMRect, triangleRelativeRect: DOMRect | null): Coord {
 		let [d1] = this.directions
-		let point = rect.anchorPointAt(d1)
+		let point = getAnchorPointAt(rect, d1)
 
 		// Anchor at triangle position.
 		if (this.fixTriangle && triangleRelativeRect) {
@@ -413,15 +429,15 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 	}
 
 	/** Get absolute anchor position of anchor element in scrolling page. */
-	private getTargetAbsoluteAnchorPoint(targetRect: Box): Point {
+	private getTargetAbsoluteAnchorPoint(targetRect: DOMRect): Coord {
 		let [, d2] = this.directions
-		let point = targetRect.anchorPointAt(d2)
+		let point = getAnchorPointAt(targetRect, d2)
 
 		return point
 	}
 
 	/** Do vertical alignment. */
-	private alignVertical(y: number, directionMask: AlignerDirectionMask, rect: Box, targetRect: Box, triangleRelativeRect: Box | null): boolean {
+	private alignVertical(y: number, directionMask: AlignerDirectionMask, rect: DOMRect, targetRect: DOMRect, triangleRelativeRect: DOMRect | null): boolean {
 		let dh = document.documentElement.clientHeight
 		let spaceTop = targetRect.top - this.gaps.top
 		let spaceBottom = dh - (targetRect.bottom + this.gaps.bottom)
@@ -502,7 +518,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 	}
 
 	/** Do horizontal alignment. */
-	private alignHorizontal(x: number, directionMask: AlignerDirectionMask, rect: Box, targetRect: Box, triangleRelativeRect: Box | null) {
+	private alignHorizontal(x: number, directionMask: AlignerDirectionMask, rect: DOMRect, targetRect: DOMRect, triangleRelativeRect: DOMRect | null) {
 		let dw = document.documentElement.clientWidth
 		let spaceLeft = targetRect.left - this.gaps.left
 		let spaceRight = dw - (targetRect.right + this.gaps.right)
@@ -555,7 +571,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 	}
 
 	/** Align `triangle` relative to content element. */
-	private alignTriangle(directionMask: AlignerDirectionMask, rect: Box, targetRect: Box, triangleRelativeRect: Box) {
+	private alignTriangle(directionMask: AlignerDirectionMask, rect: DOMRect, targetRect: DOMRect, triangleRelativeRect: DOMRect) {
 		let triangle = this.triangle!
 		let transforms: string[] = []
 		let w = rect.width
@@ -716,7 +732,7 @@ function parseAlignDirections(position: string): [Direction, Direction] {
 }
 
 
-/** Parse align direction to indicate which direction of anchor element will align to. */
+/** Parse align direction to indicate which direction the anchor element will align to. */
 function parseAlignDirectionMask([d1, d2]: [Direction, Direction]): AlignerDirectionMask {
 
 	return {
@@ -729,37 +745,59 @@ function parseAlignDirectionMask([d1, d2]: [Direction, Direction]): AlignerDirec
 
 
 /** Parse margin values to get a margin object, and apply triangle size to it. */
-function parseGap(marginValue: number | number[], triangle: HTMLElement | undefined, directionMask: AlignerDirectionMask): BoxDistances {
-	let margins = new BoxDistances(...(typeof marginValue === 'number' ? [marginValue] : marginValue))
+function parseGap(gapValue: number | number[], triangle: HTMLElement | undefined, directionMask: AlignerDirectionMask): AlignerGap {
+	let gap: AlignerGap
 
+	if (typeof gapValue === 'number') {
+		gap = {
+			top: gapValue,
+			right: gapValue,
+			bottom: gapValue,
+			left: gapValue,
+		}
+	}
+	else {
+		gap = {
+			top: gapValue[0],
+			right: gapValue[1] ?? gapValue[0],
+			bottom: gapValue[2] ?? gapValue[0],
+			left: gapValue[3] ?? gapValue[1] ?? gapValue[0],
+		}
+	}
+	
 	if (triangle) {
 		if (directionMask.top || directionMask.bottom) {
-			margins.top += triangle.offsetHeight
-			margins.bottom += triangle.offsetHeight
+			gap.top += triangle.offsetHeight
+			gap.bottom += triangle.offsetHeight
 		}
 
 		if (directionMask.left || directionMask.right) {
-			margins.right += triangle.offsetWidth
-			margins.left += triangle.offsetWidth
+			gap.right += triangle.offsetWidth
+			gap.left += triangle.offsetWidth
 		}
 	}
 
-	return margins
+	return gap
 }
 
 
-/** Check if rect box intersect with viewport. */
-function getRectBox(el: Element): Box {
-	return Box.fromLike(el.getBoundingClientRect())
+/** Test whether two rects are equal. */
+function isRectsEqual(rect1: DOMRect, rect2: DOMRect): boolean {
+	return rect1.x === rect2.x
+		&& rect1.y === rect2.y
+		&& rect1.width === rect2.width
+		&& rect1.height === rect2.height
 }
 
 
-/** Check if rect box intersect with viewport. */
-function isRectBoxIntersectWithViewport(rect: Box) {
-	let w = document.documentElement.clientWidth
-	let h = document.documentElement.clientHeight
+/** Get the anchor point by a rect and direction. */
+function getAnchorPointAt(rect: DOMRect, d: Direction): Coord {
+	let v = d.toAnchorVector()
 
-	return new Box(0, 0, w, h).isIntersectWith(rect)
+	return {
+		x: rect.x + v.x * rect.width,
+		y: rect.y + v.y * rect.height,
+	}
 }
 
 
@@ -776,7 +814,7 @@ function getClosestFixedElement(el: Element): HTMLElement | null {
 }
 
 
-/** Find first scrolling child element inside. */
+/** Find first scrolling descendant element inside. */
 function findFirstScrollingDescendance(el: HTMLElement, deep: number = 2): HTMLElement | null {
 	if (deep <= 0) {
 		return null

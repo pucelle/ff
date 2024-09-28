@@ -1,4 +1,4 @@
-import {Direction} from './direction'
+import type {Direction} from './direction'
 
 
 /** All 4 box edge distance keys. */

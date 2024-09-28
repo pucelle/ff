@@ -1,4 +1,4 @@
-import {Matrix} from './matrix'
+import type {Matrix} from './matrix'
 
 
 export class Size {

@@ -171,3 +171,22 @@ export function getOuterSize(el: HTMLElement): SizeLike {
 		height: getOuterHeight(el),
 	}
 }
+
+
+/** Check if a rect box intersect with viewport. */
+export function isRectIntersectWithViewport(rect: DOMRect): boolean {
+	let w = document.documentElement.clientWidth
+	let h = document.documentElement.clientHeight
+	let viewport = new DOMRect(0, 0, w, h)
+	
+	let left = Math.max(rect.left, viewport.left)
+	let top = Math.max(rect.top, viewport.top)
+	let right = Math.min(rect.right, viewport.right)
+	let bottom = Math.min(rect.bottom, viewport.bottom)
+
+	if (left > right || top > bottom) {
+		return false
+	}
+
+	return true
+}
