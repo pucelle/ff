@@ -199,7 +199,8 @@ export class PerFrameTransition<T extends TransitionAbleValue = any> extends Eve
 	/** 
 	 * Play from current value to end value.
 	 * Returns a promise which will be resolved after transition end.
-	 * Work only when start value was set before.
+	 * Work only when start value has been set before.
+	 * After transition end, will persist end state.
 	 */
 	playTo(endValue: T, onprogress: ((value: T, progress: number) => void) | null = null): Promise<boolean> {
 		if (this.startValue === null) {
@@ -219,6 +220,7 @@ export class PerFrameTransition<T extends TransitionAbleValue = any> extends Eve
 	/** 
 	 * Play between from and to values.
 	 * Returns a promise which will be resolved after transition end.
+	 * After transition end, will persist end state.
 	 */
 	playBetween(startValue: T, endValue: T, onprogress: ((value: T, progress: number) => void) | null = null): Promise<boolean> {
 		this.cancel()
@@ -301,7 +303,7 @@ export class PerFrameTransition<T extends TransitionAbleValue = any> extends Eve
 	
 	/** 
 	 * Cancel current transition if is playing.
-	 * Note after cancelled, will keep it's current state, but not apply final state.
+	 * Note after cancelled, will persist current state, not apply final state.
 	 */
 	cancel() {
 		if (!this.running) {

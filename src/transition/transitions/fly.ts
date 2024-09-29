@@ -30,6 +30,8 @@ export interface FlyTransitionOptions extends TransitionOptions {
 /** 
  * When enter, translate and fade from specified values to none.
  * When leave, translate and fade from none to specified values.
+ * 
+ * Use Web Animations API, fallback to initial state after transition end.
  */
 export const fly = Transition.define(function(el: Element, options: FlyTransitionOptions = {}) {
 	let x = options.x || 0

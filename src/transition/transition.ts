@@ -273,7 +273,8 @@ export class Transition {
 
 	/** 
 	 * Finish current transition immediately,
-	 * and apply final state.
+	 * for per-frame transition, will apply final state,
+	 * for web transition, will fallback to initial state,
 	 */
 	finish() {
 		this.mixedTransition?.finish()
@@ -281,7 +282,10 @@ export class Transition {
 	
 	/** 
 	 * Cancel current transition if is playing.
-	 * Note after cancelled, will keep it's current state, but not apply final state.
+	 * Note after cancelled,
+	 * for per-frame transition, will persist current state,
+	 * for web transition, will fallback to initial state,
+	 * Both of them will not apply final state.
 	 */
 	cancel() {
 		this.mixedTransition?.cancel()

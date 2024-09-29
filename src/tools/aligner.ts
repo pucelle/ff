@@ -200,17 +200,17 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 	}
 
 
+	/** The element to align. */
+	readonly content: HTMLElement
+
+	/** Target anchor element to align beside. */
+	readonly anchor: Element
+
 	readonly stickToEdges!: boolean
 	readonly canSwapPosition!: boolean
 	readonly canShrinkOnY!: boolean
 	readonly fixTriangle!: boolean
 	readonly triangle!: HTMLElement | undefined
-
-	/** The element to align. */
-	private readonly content: HTMLElement
-
-	/** Target anchor element to align beside. */
-	private readonly anchor: Element
 
 	/** Directions of content and anchor elements. */
 	private readonly directions: [Direction, Direction]
@@ -227,8 +227,8 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 	private cachedRect: DOMRect | null = null
 	private cachedTargetRect: DOMRect | null = null
 
-	constructor(el: HTMLElement, anchor: Element, position: string, options: AlignerOptions = {}) {
-		this.content = el
+	constructor(content: HTMLElement, anchor: Element, position: string, options: AlignerOptions = {}) {
+		this.content = content
 		this.anchor = anchor
 		Object.assign(this, DefaultAlignerOptions, options)
 

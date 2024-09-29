@@ -33,6 +33,7 @@ const CrossFadeTransitionBarrierQueue = new BarrierQueue()
  * When enter, transform from the leave element to current state.
  * When leave, transform from current state to the leave element.
  * So you can see one element cross fade to another element.
+ * Use Web Animations API, fallback to initial state after transition end.
  */
 export const crossfade = Transition.define(async function(el: Element, options: CrossFadeTransitionOptions, phase: 'enter' | 'leave') {
 	CrossFadeElementMatchMap.set(options.key, phase, el)

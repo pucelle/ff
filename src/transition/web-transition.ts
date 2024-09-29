@@ -242,7 +242,7 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 
 	/** 
 	 * Finish current transition immediately,
-	 * and apply final state.
+	 * and fallback to initial state.
 	 */
 	finish() {
 		if (!this.animation) {
@@ -259,7 +259,7 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 	
 	/** 
 	 * Cancel current transition if is playing.
-	 * Note after cancelled, will keep it's current state, but not apply final state.
+	 * Note after cancelled, will fallback to initial state.
 	 */
 	cancel() {
 		if (!this.animation) {
