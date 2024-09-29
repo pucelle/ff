@@ -230,7 +230,7 @@ export class WeakSetMap<K extends object, V> extends WeakIterableValueMap<K, V, 
  * Index values by a pair of keys.
  * `K1` must be an object type.
  */
-export class WeakDoubleKeysMap<K1 extends object, K2, V> {
+export class WeakPairKeysMap<K1 extends object, K2, V> {
 
 	private map: WeakMap<K1, Map<K2, V>> = new WeakMap();
 
@@ -328,7 +328,7 @@ export class WeakDoubleKeysMap<K1 extends object, K2, V> {
  * Index single value by a pair of object keys.
  * Both `K1` and `K2` must be an object type.
  */
-export class WeakerDoubleKeysMap<K1 extends object, K2 extends object, V> {
+export class WeakerPairKeysMap<K1 extends object, K2 extends object, V> {
 
 	private map: WeakMap<K1, WeakMap<K2, V>> = new WeakMap();
 
@@ -393,7 +393,7 @@ export class WeakerDoubleKeysMap<K1 extends object, K2 extends object, V> {
  * Index a group of values by a pair of keys.
  * `K1` must be an object type.
  */
-export abstract class WeakDoubleKeysIterableValueMap<K1 extends object, K2, V, I extends Iterable<V>, M extends IterableValueMap<K2, V, I>> {
+export abstract class WeakPairKeysIterableValueMap<K1 extends object, K2, V, I extends Iterable<V>, M extends IterableValueMap<K2, V, I>> {
 
 	protected map: WeakMap<K1, M> = new WeakMap()
 
@@ -551,7 +551,7 @@ export abstract class WeakDoubleKeysIterableValueMap<K1 extends object, K2, V, I
  * Index value list by a pair of keys.
  * `K1` must be an object type.
  */
-export class WeakDoubleKeysListMap<K1 extends object, K2, V> extends WeakDoubleKeysIterableValueMap<K1, K2, V, V[], ListMap<K2, V>> {
+export class WeakPairKeysListMap<K1 extends object, K2, V> extends WeakPairKeysIterableValueMap<K1, K2, V, V[], ListMap<K2, V>> {
 
 	protected createSubMap(): ListMap<K2, V> {
 		return new ListMap()
@@ -575,7 +575,7 @@ export class WeakDoubleKeysListMap<K1 extends object, K2, V> extends WeakDoubleK
  * Index a set of values by a pair of keys.
  * `K1` must be an object type.
  */
-export class WeakDoubleKeysSetMap<K1 extends object, K2, V> extends WeakDoubleKeysIterableValueMap<K1, K2, V, Set<V>, SetMap<K2, V>> {
+export class WeakPairKeysSetMap<K1 extends object, K2, V> extends WeakPairKeysIterableValueMap<K1, K2, V, Set<V>, SetMap<K2, V>> {
 
 	protected createSubMap(): SetMap<K2, V> {
 		return new SetMap()

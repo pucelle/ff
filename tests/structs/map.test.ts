@@ -1,4 +1,4 @@
-import {DoubleKeysListMap, DoubleKeysMap, DoubleKeysSetMap, ListMap, SetMap, TwoWayListMap, TwoWayMap, TwoWaySetMap} from '../../src'
+import {PairKeysListMap, PairKeysMap, PairKeysSetMap, ListMap, SetMap, TwoWayListMap, TwoWayMap, TwoWaySetMap} from '../../src'
 
 
 describe('Test Map Structs', () => {
@@ -187,8 +187,8 @@ describe('Test Map Structs', () => {
 		expect(m.hasRight('b')).toEqual(false)
 	})
 
-	test('DoubleKeysMap', () => {
-		let m = new DoubleKeysMap<string, string, string>()
+	test('PairKeysMap', () => {
+		let m = new PairKeysMap<string, string, string>()
 
 		m.set('a', 'b', 'c')
 
@@ -216,8 +216,8 @@ describe('Test Map Structs', () => {
 		expect(m.hasSecondOf('a')).toEqual(false)
 	})
 
-	test('DoubleKeysListMap', () => {
-		let m = new DoubleKeysListMap<string, string, string>()
+	test('PairKeysListMap', () => {
+		let m = new PairKeysListMap<string, string, string>()
 
 		m.add('a', 'b', 'c')
 		m.addIf('a', 'b', 'c')
@@ -249,8 +249,8 @@ describe('Test Map Structs', () => {
 		expect(m.hasSecondOf('a')).toEqual(false)
 	})
 
-	test('DoubleKeysSetMap', () => {
-		let m = new DoubleKeysSetMap<string, string, string>()
+	test('PairKeysSetMap', () => {
+		let m = new PairKeysSetMap<string, string, string>()
 
 		m.add('a', 'b', 'c')
 		m.add('a', 'b', 'd')

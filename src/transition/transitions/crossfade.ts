@@ -1,5 +1,5 @@
 import {BarrierQueue} from '../../observable'
-import {DoubleKeysMap} from '../../structs'
+import {PairKeysMap} from '../../structs'
 import {ObjectUtils} from '../../utils'
 import {TransitionOptions, TransitionProperties, TransitionResult, Transition} from '../transition'
 
@@ -19,7 +19,7 @@ export interface CrossFadeTransitionOptions extends TransitionOptions {
 
 
 /** Cache "Crossfade Key" -> "enter / leave" -> Element. */
-const CrossFadeElementMatchMap: DoubleKeysMap<string | number, 'enter' | 'leave', Element> = new DoubleKeysMap()
+const CrossFadeElementMatchMap: PairKeysMap<string | number, 'enter' | 'leave', Element> = new PairKeysMap()
 
 /** 
  * Help to sync enter and leave cross fade transitions,

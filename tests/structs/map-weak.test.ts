@@ -1,4 +1,4 @@
-import {WeakDoubleKeysListMap, WeakDoubleKeysMap, WeakDoubleKeysSetMap, WeakListMap, WeakSetMap, WeakTwoWayListMap, WeakTwoWayMap, WeakTwoWaySetMap, WeakerDoubleKeysMap} from '../../src'
+import {WeakPairKeysListMap, WeakPairKeysMap, WeakPairKeysSetMap, WeakListMap, WeakSetMap, WeakTwoWayListMap, WeakTwoWayMap, WeakTwoWaySetMap, WeakerPairKeysMap} from '../../src'
 
 
 describe('Test Weak Map Structs', () => {
@@ -138,8 +138,8 @@ describe('Test Weak Map Structs', () => {
 		expect(m.hasRight(b)).toEqual(false)
 	})
 
-	test('WeakerDoubleKeysMap', () => {
-		let m = new WeakerDoubleKeysMap<object, object, string>()
+	test('WeakerPairKeysMap', () => {
+		let m = new WeakerPairKeysMap<object, object, string>()
 
 		m.set(a, b, 'c')
 
@@ -158,8 +158,8 @@ describe('Test Weak Map Structs', () => {
 		expect(m.hasSecondOf(a)).toEqual(false)
 	})
 
-	test('WeakDoubleKeysMap', () => {
-		let m = new WeakDoubleKeysMap<object, string, string>()
+	test('WeakPairKeysMap', () => {
+		let m = new WeakPairKeysMap<object, string, string>()
 
 		m.set(a, 'b', 'c')
 
@@ -182,8 +182,8 @@ describe('Test Weak Map Structs', () => {
 		expect(m.hasSecondOf(a)).toEqual(false)
 	})
 
-	test('WeakDoubleKeysListMap', () => {
-		let m = new WeakDoubleKeysListMap<object, string, string>()
+	test('WeakPairKeysListMap', () => {
+		let m = new WeakPairKeysListMap<object, string, string>()
 
 		m.add(a, 'b', 'c')
 		m.addIf(a, 'b', 'c')
@@ -212,8 +212,8 @@ describe('Test Weak Map Structs', () => {
 		expect(m.hasSecondOf(a)).toEqual(false)
 	})
 
-	test('WeakDoubleKeysSetMap', () => {
-		let m = new WeakDoubleKeysSetMap<object, string, string>()
+	test('WeakPairKeysSetMap', () => {
+		let m = new WeakPairKeysSetMap<object, string, string>()
 
 		m.add(a, 'b', 'c')
 		m.add(a, 'b', 'd')

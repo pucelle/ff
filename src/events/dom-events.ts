@@ -1,4 +1,4 @@
-import {WeakDoubleKeysListMap} from '../structs'
+import {WeakPairKeysListMap} from '../structs'
 import {Point} from '../math'
 
 
@@ -14,7 +14,7 @@ interface EventListener {
 
 
 /** Cache event listeners. */
-const EventListenerMap: WeakDoubleKeysListMap<EventTarget, string, EventListener> = new WeakDoubleKeysListMap()
+const EventListenerMap: WeakPairKeysListMap<EventTarget, string, EventListener> = new WeakPairKeysListMap()
 
 
 /** 

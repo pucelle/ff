@@ -1,7 +1,7 @@
-import {WeakDoubleKeysSetMap, SetMap} from '../../structs'
+import {WeakPairKeysSetMap, SetMap} from '../../structs'
 
 
-class ExtendedDoubleKeysWeakSetMap<K1 extends object, K2, V> extends WeakDoubleKeysSetMap<K1, K2, V> {
+class ExtendedPairKeysWeakSetMap<K1 extends object, K2, V> extends WeakPairKeysSetMap<K1, K2, V> {
 	
 	/** 
 	 * Add key1, group of key2, and value.
@@ -29,10 +29,10 @@ class ExtendedDoubleKeysWeakSetMap<K1 extends object, K2, V> extends WeakDoubleK
 export class DependencyMap {
 
 	/** Caches `Refresh Callback -> Dependency -> Dependency Key`. */
-	private dependencyMap: ExtendedDoubleKeysWeakSetMap<Function, object, PropertyKey> = new ExtendedDoubleKeysWeakSetMap()
+	private dependencyMap: ExtendedPairKeysWeakSetMap<Function, object, PropertyKey> = new ExtendedPairKeysWeakSetMap()
 
 	/** Caches `Dependency -> Dependency Key -> Refresh Callback`. */
-	private refreshMap: ExtendedDoubleKeysWeakSetMap<object, PropertyKey, Function> = new ExtendedDoubleKeysWeakSetMap()
+	private refreshMap: ExtendedPairKeysWeakSetMap<object, PropertyKey, Function> = new ExtendedPairKeysWeakSetMap()
 
 
 	/** When doing getting property, add dependencies. */

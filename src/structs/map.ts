@@ -274,7 +274,7 @@ export class SetMap<K, V> extends IterableValueMap<K, V, Set<V>> {
  * `K1 -> K2 -> V` Map Struct.
  * Index each value by a pair of keys.
  */
-export class DoubleKeysMap<K1, K2, V> {
+export class PairKeysMap<K1, K2, V> {
 
 	private map: Map<K1, Map<K2, V>> = new Map()
 
@@ -403,7 +403,7 @@ export class DoubleKeysMap<K1, K2, V> {
  * `K1 -> K2 -> Iterable<V>` Map Struct.
  * Index a group of values by a pair of keys.
  */
-export abstract class DoubleKeysIterableValueMap<K1, K2, V, I extends Iterable<V>, M extends IterableValueMap<K2, V, I>> {
+export abstract class PairKeysIterableValueMap<K1, K2, V, I extends Iterable<V>, M extends IterableValueMap<K2, V, I>> {
 
 	protected map: Map<K1, M> = new Map()
 
@@ -600,7 +600,7 @@ export abstract class DoubleKeysIterableValueMap<K1, K2, V, I extends Iterable<V
  * `K1 -> K2 -> V[]` Map Struct.
  * Index a value list by a pair of keys.
  */
-export class DoubleKeysListMap<K1, K2, V> extends DoubleKeysIterableValueMap<K1, K2, V, V[], ListMap<K2, V>> {
+export class PairKeysListMap<K1, K2, V> extends PairKeysIterableValueMap<K1, K2, V, V[], ListMap<K2, V>> {
 
 	protected createSubMap(): ListMap<K2, V> {
 		return new ListMap()
@@ -638,7 +638,7 @@ export class DoubleKeysListMap<K1, K2, V> extends DoubleKeysIterableValueMap<K1,
  * `K1 -> K2 -> Set<V>` Map Struct.
  * Index a value set by a pair of keys.
  */
-export class DoubleKeysSetMap<K1, K2, V> extends DoubleKeysIterableValueMap<K1, K2, V, Set<V>, SetMap<K2, V>> {
+export class PairKeysSetMap<K1, K2, V> extends PairKeysIterableValueMap<K1, K2, V, Set<V>, SetMap<K2, V>> {
 
 	protected createSubMap(): SetMap<K2, V> {
 		return new SetMap()
