@@ -268,6 +268,7 @@ export class Color {
 	 * To darker if is a light color,
 	 * and to lighter if is a dark color.
 	 * `rate` between `0~0.5`.
+	 * If you are more familiar with `0~255` RGB bytes, you may use like `10/255`.
 	 */
 	toIntermediate(rate: number): Color {
 		if (this.gray < 0.5) {
@@ -285,6 +286,16 @@ export class Color {
 			this.g * (1 - rate) + c.g * rate,
 			this.b * (1 - rate) + c.b * rate,
 			this.a * (1 - rate) + c.a * rate,
+		)
+	}
+
+	/** Return a new color with new alpha value set. */
+	alpha(a: number) {
+		return new Color(
+			this.r,
+			this.g,
+			this.b,
+			a,
 		)
 	}
 

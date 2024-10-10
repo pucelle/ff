@@ -41,8 +41,10 @@ export interface AlignerOptions {
 	
 	/** 
 	 * The triangle element inside content element,
-	 * If provided, will adjust it's left or top position,
+	 * If provided, will adjust it's left or top position, and transform property,
 	 * to anchor it to be in the center of the intersect edges between content and anchor element.
+	 * 
+	 * Note the triangle acute angle should point to top.
 	 */
 	triangle?: HTMLElement
 }
@@ -577,25 +579,6 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 		let w = rect.width
 		let h = rect.height
 
-		if (directionMask.top) {
-			triangle.style.top = 'auto'
-			triangle.style.bottom = -triangleRelativeRect.height + 'px'
-			transforms.push('rotateX(180deg)')
-		}
-		else if (directionMask.bottom) {
-			triangle.style.top = -triangleRelativeRect.height + 'px'
-			triangle.style.bottom = ''
-		}
-		else if (directionMask.left) {
-			triangle.style.left = 'auto'
-			triangle.style.right = -triangleRelativeRect.width + 'px'
-			transforms.push('rotateY(180deg)')
-		}
-		else if (directionMask.right) {
-			triangle.style.left = -triangleRelativeRect.width + 'px'
-			triangle.style.right = ''
-		}
-
 		if (directionMask.top || directionMask.bottom) {
 			let halfTriangleWidth = triangleRelativeRect.width / 2
 			let x: number = 0
@@ -683,6 +666,26 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 			triangle.style.bottom = ''
 		}
 	
+		if (directionMask.top) {
+			triangle.style.top = 'auto'
+			triangle.style.bottom = -triangleRelativeRect.height + 'px'
+			transforms.push('rotate(180deg)')
+		}
+		else if (directionMask.bottom) {
+			triangle.style.top = -triangleRelativeRect.height + 'px'
+			triangle.style.bottom = ''
+		}
+		else if (directionMask.left) {
+			triangle.style.left = 'auto'
+			triangle.style.right = -triangleRelativeRect.width + 'px'
+			transforms.push('rotate(90deg)')
+		}
+		else if (directionMask.right) {
+			triangle.style.left = -triangleRelativeRect.width + 'px'
+			triangle.style.right = ''
+			transforms.push('rotate(270deg)')
+		}
+
 		triangle.style.transform = transforms.join(' ')
 	}
 }
