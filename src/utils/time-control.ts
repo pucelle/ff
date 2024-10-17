@@ -50,7 +50,10 @@ abstract class WrappedTimeControlFunction<F extends Function> extends TimeContro
 
 
 
-/** Class mode of `setTimeout`. */
+/** 
+ * Class mode of `setTimeout`.
+ * Note it doesn't start automatically.
+ */
 export class Timeout<F extends Function = Function> extends TimeControlFunction<F> {
 
 	/** Whether timeout is running. */
@@ -119,7 +122,10 @@ export function timeout(fn: Function, ms: number = 0): () => void {
 
 
 
-/** Class mode of `setInterval`. */ 
+/** 
+ * Class mode of `setInterval`.
+ * Note it doesn't start automatically.
+ */ 
 export class Interval<F extends Function = Function> extends TimeControlFunction<F> {
 
 	/** Whether interval is running. */
