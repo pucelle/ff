@@ -202,7 +202,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 	}
 
 
-	/** The element to align. */
+	/** The content element to align. */
 	readonly content: HTMLElement
 
 	/** Target anchor element to align beside. */
@@ -254,7 +254,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 	 * Returns whether did alignment.
 	 */
 	align(): boolean {
-		this.resetToAlignStyles()
+		this.resetContentStyles()
 
 		let directionMask = {...this.directionMask}
 		let rect = this.content.getBoundingClientRect()
@@ -280,8 +280,8 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 		}
 
 		// content may be shrunk into the edge and it's width get limited.
-		if (this.shouldClearToAlignPosition(rect)) {
-			this.clearToAlignPosition()
+		if (this.shouldClearContentPosition(rect)) {
+			this.clearContentPosition()
 			rect = this.content.getBoundingClientRect()
 		}
 
@@ -311,9 +311,9 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 	}
 
 	/** Set some styles of content element before doing alignment. */
-	private resetToAlignStyles() {
+	private resetContentStyles() {
 		
-		// Avoid it's height cause body scrollbar appears.
+		// Avoid it's height overflow cause body scrollbar appears.
 		if (this.canShrinkOnY && this.content.offsetHeight > document.documentElement.clientHeight) {
 			this.content.style.height = '100vh'
 		}
@@ -323,14 +323,15 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 	}
 
 	/** Should clear last alignment properties, to avoid it's position affect it's size. */
-	private shouldClearToAlignPosition(rect: DOMRect) {
+	private shouldClearContentPosition(rect: DOMRect) {
 
-		// If rect of content close to window edge, it's width may be limited.
-		return rect.left <= 0 || rect.right >= document.documentElement.clientWidth
+		// If rect of content close to window edge,
+		// it's width may be limited by rendering system to stick to viewport edge.
+		return rect.right >= document.documentElement.clientWidth
 	}
 
 	/** Clear last alignment properties. */
-	private clearToAlignPosition() {
+	private clearContentPosition() {
 		this.content.style.left = '0'
 		this.content.style.right = ''
 		this.content.style.top = '0'
@@ -364,7 +365,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 	 * Overwrite the new alignment position into `rect`.
 	 */
 	private doAlignment(directionMask: AlignerDirectionMask, rect: DOMRect, targetRect: DOMRect, triangleRelativeRect: DOMRect | null) {
-		let anchor1 = this.getToAlignRelativeAnchorPoint(directionMask, rect, triangleRelativeRect)
+		let anchor1 = this.getContentRelativeAnchorPoint(directionMask, rect, triangleRelativeRect)
 		let anchor2 = this.getTargetAbsoluteAnchorPoint(targetRect)
 
 		// Fixed content element position.
@@ -375,7 +376,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 
 		// If content element's height changed.
 		if (overflowYSet) {
-			anchor1 = this.getToAlignRelativeAnchorPoint(directionMask, rect, triangleRelativeRect)
+			anchor1 = this.getContentRelativeAnchorPoint(directionMask, rect, triangleRelativeRect)
 			fixedPosition = {x: anchor2.x - anchor1.x, y: anchor2.y - anchor1.y}
 		}
 
@@ -412,10 +413,13 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 		this.content.style.top = y + 'px'
 	}
 
-	/** Get relative anchor position of the axis of content element. */
-	private getToAlignRelativeAnchorPoint(directionMask: AlignerDirectionMask, rect: DOMRect, triangleRelativeRect: DOMRect | null): Coord {
+	/** Get relative anchor position in the origin of content element. */
+	private getContentRelativeAnchorPoint(directionMask: AlignerDirectionMask, rect: DOMRect, triangleRelativeRect: DOMRect | null): Coord {
 		let [d1] = this.directions
 		let point = getAnchorPointAt(rect, d1)
+
+		point.x -= rect.x
+		point.y -= rect.y
 
 		// Anchor at triangle position.
 		if (this.fixTriangle && triangleRelativeRect) {
@@ -430,7 +434,7 @@ export class Aligner implements Omit<AlignerOptions, 'gap'> {
 		return point
 	}
 
-	/** Get absolute anchor position of anchor element in scrolling page. */
+	/** Get absolute anchor position of anchor element in the origin of scrolling page. */
 	private getTargetAbsoluteAnchorPoint(targetRect: DOMRect): Coord {
 		let [, d2] = this.directions
 		let point = getAnchorPointAt(targetRect, d2)

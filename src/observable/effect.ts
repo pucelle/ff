@@ -12,7 +12,7 @@ export function createEffect(fn: () => void): () => void {
 	}
 
 	function onChange() {
-		UpdateQueue.enqueue(update)
+		UpdateQueue.enqueueUpdate(update)
 	}
 
 	update()

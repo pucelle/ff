@@ -1,4 +1,4 @@
-import {WebAnimationEasingName} from './easing'
+import {getCSSEasingValue, WebAnimationEasingName} from './easing'
 import {PerFrameTransitionEvents, PerFrameTransitionOptions} from './per-frame-transition'
 import {EventFirer} from '../events'
 
@@ -220,9 +220,17 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 			this.fire('started')
 		}
 
+		let easing = getCSSEasingValue(this.fullOptions.easing)
+		let duration = this.fullOptions.duration
+		let delay = this.fullOptions.delay
+
 		this.animation = this.el.animate(
 			[this.startFrame as any as Keyframe, this.endFrame as any as Keyframe],
-			this.fullOptions
+			{
+				easing,
+				duration,
+				delay
+			}
 		)
 
 		this.promise = new Promise((resolve) => {

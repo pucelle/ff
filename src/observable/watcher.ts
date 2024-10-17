@@ -33,7 +33,7 @@ export function createWatch<T>(
 	}
 
 	function onChange() {
-		UpdateQueue.enqueue(update)
+		UpdateQueue.enqueueUpdate(update)
 	}
 
 	trackExecution(assign, onChange)
@@ -77,7 +77,7 @@ export function createImmediateWatch<T>(
 	}
 
 	function onChange() {
-		UpdateQueue.enqueue(update)
+		UpdateQueue.enqueueUpdate(update)
 	}
 
 	update()

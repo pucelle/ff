@@ -62,7 +62,7 @@ function clearDisconnected() {
 	for (let [controller, element] of Locks.entries()) {
 
 		// Element may be removed unexpectedly, which cause locks cant be removed.
-		if (element.ownerDocument) {
+		if (document.contains(element)) {
 			continue
 		}
 

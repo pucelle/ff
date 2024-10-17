@@ -80,7 +80,7 @@ let phase: QueueUpdatePhase = QueueUpdatePhase.NotStarted
  * Multiple times add same callbacks during same animate frame will work for only once.
  * @param order specifies the callback order.
  */
-export function enqueue(callback: () => void, scope: object | null = null, order: number = 0) {
+export function enqueueUpdate(callback: () => void, scope: object | null = null, order: number = 0) {
 	if (heap.has(callback, scope)) {
 		return
 	}
@@ -94,7 +94,7 @@ export function enqueue(callback: () => void, scope: object | null = null, order
  * Calls `callback` after all the enqueued callbacks were called.
  * Can safely read computed style in `callback`.
  */
-export function onComplete(callback: () => void) {
+export function onUpdateComplete(callback: () => void) {
 	completeCallbacks.push(callback)
 	willUpdateIfNotYet()
 }
@@ -104,9 +104,9 @@ export function onComplete(callback: () => void) {
  * Returns a promise which will be resolved after all the enqueued callbacks were called.
  * Can safely read computed style after returned promise was resolved.
  */
-export function untilComplete(): Promise<void> {
+export function untilUpdateComplete(): Promise<void> {
 	return new Promise(resolve => {
-		onComplete(resolve)
+		onUpdateComplete(resolve)
 	})
 }
 
