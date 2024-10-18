@@ -537,11 +537,34 @@ export class Direction {
 			|| direction === this.antiClockwisePerpendicular
 	}
 
-	/** Join direction and current vectors to make a new one. */
+	/** Join direction vectors to make a new direction. */
 	joinWith(direction: Direction): Direction {
 		let v1 = this.toVector()
 		let v2 = direction.toVector()
 		let joint = v1.add(v2)
+
+		return Direction.fromVector(joint)
+	}
+
+	/** 
+	 * Join direction vectors, pick primary straight direction.
+	 * Returns `Center` if no primary straight direction leading.
+	 */
+	joinToStraight(direction: Direction): Direction {
+		let v1 = this.toVector()
+		let v2 = direction.toVector()
+		let joint = v1.add(v2)
+
+		if (Math.abs(joint.x) > Math.abs(joint.y)) {
+			joint.y = 0
+		}
+		else if (Math.abs(joint.x) < Math.abs(joint.y)) {
+			joint.x = 0
+		}
+		else {
+			joint.x = 0
+			joint.y = 0
+		}
 
 		return Direction.fromVector(joint)
 	}

@@ -126,12 +126,12 @@ export class Vector {
 	}
 
 	/** Add another vector to current, returns a new vector. */
-	add(v: Vector): Vector {
+	add(v: Coord): Vector {
 		return this.clone().addSelf(v)
 	}
 
 	/** Add another vector to current. */
-	addSelf(v: Vector): this {
+	addSelf(v: Coord): this {
 		this.x += v.x
 		this.y += v.y
 
@@ -139,12 +139,12 @@ export class Vector {
 	}
 
 	/** Subtract another vector from current, returns a new vector. */
-	sub(v: Vector): Vector {
+	sub(v: Coord): Vector {
 		return this.clone().subSelf(v)
 	}
 
 	/** Subtract another vector from current. */
-	subSelf(v: Vector): this {
+	subSelf(v: Coord): this {
 		this.x -= v.x
 		this.y -= v.y
 
@@ -152,12 +152,12 @@ export class Vector {
 	}
 
 	/** Multiple with another vector per component, returns a new vector. */
-	multiply(v: Vector): Vector {
+	multiply(v: Coord): Vector {
 		return this.clone().multiplySelf(v)
 	}
 
 	/** Multiple with another vector per component. */
-	multiplySelf(v: Vector): this {
+	multiplySelf(v: Coord): this {
 		this.x *= v.x
 		this.y *= v.y
 
@@ -168,7 +168,7 @@ export class Vector {
 	 * Complex multiply with another vector, returns a new vector.
 	 * Complex multiply equals the multiply of vector rotation, and the multiply of vector model length.
 	 */
-	complexMultiply(v: Vector): Vector {
+	complexMultiply(v: Coord): Vector {
 		return this.clone().complexMultiplySelf(v)
 	}
 
@@ -176,7 +176,7 @@ export class Vector {
 	 * Complex multiply with another vector.
 	 * Complex multiply equals the multiply of vector rotation, and the multiply of vector model length.
 	 */
-	complexMultiplySelf(v: Vector): this {
+	complexMultiplySelf(v: Coord): this {
 		let x = this.x * v.x - this.y * v.y
 		let y = this.x * v.y + this.y * v.x
 
@@ -200,12 +200,12 @@ export class Vector {
 	}
 
 	/** Divide by another vector per component, returns a new vector. */
-	divide(v: Vector): Vector {
+	divide(v: Coord): Vector {
 		return this.clone().divideSelf(v)
 	}
 
 	/** Divide by another vector per component. */
-	divideSelf(v: Vector): this {
+	divideSelf(v: Coord): this {
 		this.x /= v.x
 		this.y /= v.y
 

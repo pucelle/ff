@@ -101,7 +101,7 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 	readonly el: Element
 
 	/** Options after fulfilled default values. */
-	private readonly fullOptions: Required<WebTransitionOptions>
+	private readonly options: Required<WebTransitionOptions>
 
 	/** Running animation. */
 	private animation: Animation | null = null
@@ -130,7 +130,7 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 	constructor(el: Element, options: WebTransitionOptions = {}) {
 		super()
 		this.el = el
-		this.fullOptions = {...DefaultWebTransitionOptions, ...options}
+		this.options = {...DefaultWebTransitionOptions, ...options}
 	}
 
 	/** Whether transition is playing, or within delay period. */
@@ -146,8 +146,8 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 		let changed = false
 
 		for (let [key, value] of Object.entries(options) as Iterable<[keyof PerFrameTransitionOptions, any]>) {
-			if (this.fullOptions[key] !== value) {
-				(this.fullOptions as any)[key] = value as any
+			if (this.options[key] !== value) {
+				(this.options as any)[key] = value as any
 				changed = true
 			}
 		}
@@ -220,9 +220,9 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 			this.fire('started')
 		}
 
-		let easing = getCSSEasingValue(this.fullOptions.easing)
-		let duration = this.fullOptions.duration
-		let delay = this.fullOptions.delay
+		let easing = getCSSEasingValue(this.options.easing)
+		let duration = this.options.duration
+		let delay = this.options.delay
 
 		this.animation = this.el.animate(
 			[this.startFrame as any as Keyframe, this.endFrame as any as Keyframe],

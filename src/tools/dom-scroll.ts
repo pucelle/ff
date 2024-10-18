@@ -30,11 +30,12 @@ export function getScrollbarWidth(): number {
 
 
 /**
- * Find the closest scroll wrapper, which is the closest ancestor element, and contents overflow.
+ * Find the closest scroll wrapper, which is the closest ancestral element,
+ * and it's contents get overflow.
  * Note this method can test get scroll wrapper only when overflow happens.
  * Note that this method may cause reflow.
  */
-export function getClosestScrollWrapper(el: HTMLElement): HTMLElement | null {
+export function findClosestSizedScrollWrapper(el: HTMLElement): HTMLElement | null {
 	while (el) {
 		if (getSizedOverflowDirection(el) !== null) {
 			return el
@@ -48,12 +49,12 @@ export function getClosestScrollWrapper(el: HTMLElement): HTMLElement | null {
 
 
 /**
- * Find the closest scroll wrapper, which is the closest ancestor element,
+ * Find the closest scroll wrapper, which is the closest ancestral element,
  * and has `overflow: auto / scroll` set.
  * Note this method can test get scroll wrapper only when overflow happens.
  * Note that this method may cause reflow.
  */
-export function getClosestCSSScrollWrapper(el: HTMLElement): HTMLElement | null {
+export function findClosestCSSScrollWrapper(el: HTMLElement): HTMLElement | null {
 	while (el) {
 		if (getCSSOverflowDirection(el) !== null) {
 			return el
@@ -157,7 +158,7 @@ export async function scrollToView(
 		return false
 	}
 
-	let wrapper = getClosestScrollWrapper(el)
+	let wrapper = findClosestSizedScrollWrapper(el)
 	if (!wrapper) {
 		return false
 	}
@@ -282,7 +283,7 @@ export async function scrollToStart(
 		return false
 	}
 
-	let wrapper = getClosestScrollWrapper(el)
+	let wrapper = findClosestSizedScrollWrapper(el)
 	if (!wrapper) {
 		return false
 	}

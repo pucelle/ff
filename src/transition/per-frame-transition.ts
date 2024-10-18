@@ -79,7 +79,7 @@ export class PerFrameTransition<T extends TransitionAbleValue = any> extends Eve
 	private easingFn: EasingFunction | null = null
 
 	/** Options after fulfilled default values. */
-	private fullOptions: Required<PerFrameTransitionOptions>
+	private options: Required<PerFrameTransitionOptions>
 
 	/** Timeout when transition delay exist. */
 	private delayTimeout: Timeout
@@ -129,10 +129,10 @@ export class PerFrameTransition<T extends TransitionAbleValue = any> extends Eve
 
 	constructor(options: PerFrameTransitionOptions = {}) {
 		super()
-		this.fullOptions = {...DefaultTransitionOptions, ...options}
-		this.delayTimeout = new Timeout(this.startTransition.bind(this), this.fullOptions.delay)
+		this.options = {...DefaultTransitionOptions, ...options}
+		this.delayTimeout = new Timeout(this.startTransition.bind(this), this.options.delay)
 		this.frameLoop = new FrameLoop(this.onFrameLoop.bind(this))
-		this.easingFn = getEasingFunction(this.fullOptions.easing)
+		this.easingFn = getEasingFunction(this.options.easing)
 	}
 
 	/** Whether transition is playing, or within delay period. */
@@ -156,14 +156,14 @@ export class PerFrameTransition<T extends TransitionAbleValue = any> extends Eve
 		let changed = false
 
 		for (let [key, value] of Object.entries(options) as Iterable<[keyof PerFrameTransitionOptions, any]>) {
-			if (this.fullOptions[key] !== value) {
-				(this.fullOptions as any)[key] = value as any
+			if (this.options[key] !== value) {
+				(this.options as any)[key] = value as any
 				changed = true
 			}
 		}
 
 		if (changed) {
-			this.easingFn = getEasingFunction(this.fullOptions.easing)
+			this.easingFn = getEasingFunction(this.options.easing)
 		}
 
 		return changed
@@ -259,7 +259,7 @@ export class PerFrameTransition<T extends TransitionAbleValue = any> extends Eve
 
 	/** On each animation frame. */
 	private onFrameLoop(duration: number) {
-		let x = MathUtils.linearStep(duration, 0, this.fullOptions.duration)
+		let x = MathUtils.linearStep(duration, 0, this.options.duration)
 		this.onProgress(x)
 
 		// Finished.

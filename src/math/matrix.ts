@@ -369,12 +369,12 @@ export class Matrix implements MatrixData {
 		return Math.min(...values.map(Math.abs))
 	}
 
-	/** Left multiply with `mr`, do `(this * mr)` and returns a new matrix. */
+	/** Pre / Left multiply with `mr`, do `(this * mr)` and returns a new matrix. */
 	multiply(mr: MatrixData): Matrix {
 		return this.clone().multiplySelf(mr)
 	}
 
-	/** Left multiply `mr`, do `(this * mr)` and apply result to self. */
+	/** Pre / Left multiply `mr`, do `(this * mr)` and apply result to self. */
 	multiplySelf(mr: MatrixData): this {
 		let ml = this
 
