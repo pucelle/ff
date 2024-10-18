@@ -439,40 +439,36 @@ export class Aligner {
 
 	/** 
 	 * Do alignment from content to anchor for once.
-	 * Overwrite the new alignment position into `rect`.
+	 * It outputs alignment position to `contentRect`.
 	 */
 	private doAlignment(targetFaceDirection: Direction, contentRect: DOMRect, targetRect: DOMRect, triangleRelativeRect: DOMRect | null) {
 		let anchor1 = this.getContentRelativeAnchorPoint(targetFaceDirection, contentRect, triangleRelativeRect)
 		let anchor2 = this.getTargetAbsoluteAnchorPoint(targetRect)
 
 		// Fixed content element position.
-		let fixedPosition = {x: anchor2.x - anchor1.x, y: anchor2.y - anchor1.y}
-
-		// Add gap to point.
-		let edgeKey = targetFaceDirection.toBoxEdgeKey()
-		let gap = edgeKey ? this.gaps[edgeKey] : 0
-		let faceVector = targetFaceDirection.toVector()
-
-		fixedPosition.x += faceVector.x * gap
-		fixedPosition.y += faceVector.y * gap
+		let position = {x: anchor2.x - anchor1.x, y: anchor2.y - anchor1.y}
+		this.addGapToAlignPosition(position, targetFaceDirection)
 
 		// Handle vertical alignment.
-		let shrinkOnY = this.alignVertical(fixedPosition.y, targetFaceDirection, contentRect, targetRect, triangleRelativeRect)
+		let alignResult = this.alignVertical(position.y, targetFaceDirection, contentRect, targetRect, triangleRelativeRect)
+		let overflowYSet = alignResult.overflowYSet
+		targetFaceDirection = alignResult.targetFaceDirection
 
 		// If content element's height changed.
-		if (shrinkOnY) {
+		if (overflowYSet) {
 			anchor1 = this.getContentRelativeAnchorPoint(targetFaceDirection, contentRect, triangleRelativeRect)
-			fixedPosition = {x: anchor2.x - anchor1.x, y: anchor2.y - anchor1.y}
+			position = {x: anchor2.x - anchor1.x, y: anchor2.y - anchor1.y}
+			this.addGapToAlignPosition(position, targetFaceDirection)
 		}
 
-		// Handle horizontal alignment, `rect` will be modified.
-		this.alignHorizontal(fixedPosition.x, targetFaceDirection, contentRect, targetRect, triangleRelativeRect)
+		// Handle horizontal alignment.
+		targetFaceDirection = this.alignHorizontal(position.x, targetFaceDirection, contentRect, targetRect, triangleRelativeRect)
 
-		// The fixed coordinate of content currently.
+		// The fixed position of content currently.
 		let x = contentRect.x
 		let y = contentRect.y
 
-		// For absolute layout content, convert x, y to absolute coordinate.
+		// For absolute layout content, convert x, y to absolute position.
 		if (!this.useFixedAlignment && this.target !== document.body && this.target !== document.documentElement) {
 			var offsetParent = this.content.offsetParent as HTMLElement
 
@@ -497,7 +493,10 @@ export class Aligner {
 
 		this.content.style.top = y + 'px'
 
-		return shrinkOnY
+		return {
+			overflowYSet,
+			targetFaceDirection,
+		}
 	}
 
 	/** Get relative anchor position in the origin of content element. */
@@ -533,7 +532,20 @@ export class Aligner {
 		return point
 	}
 
-	/** Do vertical alignment. */
+	/** Add gap to a rough align position. */
+	private addGapToAlignPosition(position: Coord, targetFaceDirection: Direction) {
+		let edgeKey = targetFaceDirection.toBoxEdgeKey()
+		let gap = edgeKey ? this.gaps[edgeKey] : 0
+		let faceVector = targetFaceDirection.toVector()
+
+		position.x += faceVector.x * gap
+		position.y += faceVector.y * gap
+	}
+
+	/** 
+	 * Do vertical alignment, will modify `contentRect`.
+	 * It outputs alignment position to `contentRect`.
+	 */
 	private alignVertical(y: number, targetFaceDirection: Direction, contentRect: DOMRect, targetRect: DOMRect, triangleRelativeRect: DOMRect | null) {
 		let dh = document.documentElement.clientHeight
 		let spaceTop = targetRect.top - this.gaps.top
@@ -612,7 +624,10 @@ export class Aligner {
 		return {targetFaceDirection, overflowYSet}
 	}
 
-	/** Do horizontal alignment. */
+	/** 
+	 * Do horizontal alignment.
+	 * It outputs alignment position to `contentRect`.
+	 */
 	private alignHorizontal(x: number, targetFaceDirection: Direction, contentRect: DOMRect, targetRect: DOMRect, triangleRelativeRect: DOMRect | null) {
 		let dw = document.documentElement.clientWidth
 		let spaceLeft = targetRect.left - this.gaps.left
