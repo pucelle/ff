@@ -807,6 +807,22 @@ export class Aligner {
 }
 
 
+/** Position string -> Direction. */
+const PositionDirectionMap: Record<string, Direction> = {
+	c: Direction.Center,
+	t: Direction.Top,
+	b: Direction.Bottom,
+	l: Direction.Left,
+	r: Direction.Right,
+	cc: Direction.Center,
+	tl: Direction.TopLeft,
+	tr: Direction.TopRight,
+	tc: Direction.Top,
+	bl: Direction.BottomLeft,
+	br: Direction.BottomRight,
+	bc: Direction.Bottom,
+}
+
 /**
  * Full type is `[tbc][lrc]-[tbc][lrc]`, means `[Y of el][X of el]-[Y of target][X of target]`.
  * Shorter type should be `[Touch][Align]` or `[Touch]`.
@@ -815,19 +831,6 @@ export class Aligner {
  * E.g.: `lt` is short for `tr-tl`, which means align content to the left-top of target.
  */
 function parseAlignDirections(position: string): [Direction, Direction] {
-	const PositionDirectionMap: Record<string, Direction> = {
-		c: Direction.Center,
-		t: Direction.Top,
-		b: Direction.Bottom,
-		l: Direction.Left,
-		r: Direction.Right,
-		cc: Direction.Center,
-		tl: Direction.TopLeft,
-		tr: Direction.TopRight,
-		bl: Direction.BottomLeft,
-		br: Direction.BottomRight,
-	}
-
 	if (!/^(?:[tbc][lrc]-[tbc][lrc]|[tbclr]-[tbclr]|[tbc][lrc]|[tbclr])/.test(position)) {
 		throw `"${position}" is not a valid position string!`
 	}
