@@ -19,7 +19,7 @@ export interface FlyTransitionOptions extends TransitionOptions {
 	y?: number | string
 
 	/** 
-	 * If want element is also fade out when leave, or fade in when enter
+	 * If want element is also fade out when leave, or fade in when enter,
 	 * specifies this value to `true`.
 	 * Default value is `false`.
 	 */

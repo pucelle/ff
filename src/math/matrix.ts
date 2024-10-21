@@ -369,12 +369,12 @@ export class Matrix implements MatrixData {
 		return Math.min(...values.map(Math.abs))
 	}
 
-	/** Pre / Left multiply with `mr`, do `(this * mr)` and returns a new matrix. */
+	/** Post / Left multiply with `mr`, do `(this * mr)` and returns a new matrix. */
 	multiply(mr: MatrixData): Matrix {
 		return this.clone().multiplySelf(mr)
 	}
 
-	/** Pre / Left multiply `mr`, do `(this * mr)` and apply result to self. */
+	/** Post / Left multiply `mr`, do `(this * mr)` and apply result to self. */
 	multiplySelf(mr: MatrixData): this {
 		let ml = this
 
@@ -412,13 +412,13 @@ export class Matrix implements MatrixData {
 		return this
 	}
 
-	/** Post / Right multiply with `ml`,  do `(ml * this)` and returns a new matrix. */
-	postMultiply(ml: MatrixData): Matrix {
-		return this.clone().postMultiplySelf(ml)
+	/** Pre / Right multiply with `ml`,  do `(ml * this)` and returns a new matrix. */
+	preMultiply(ml: MatrixData): Matrix {
+		return this.clone().preMultiplySelf(ml)
 	}
 
-	/** Post / Right multiply with `ml`, do `(ml * this)` and apply result to self. */
-	postMultiplySelf(ml: MatrixData): this {
+	/** Pre / Right multiply with `ml`, do `(ml * this)` and apply result to self. */
+	preMultiplySelf(ml: MatrixData): this {
 		let mr = this
 
 		let a = ml.a * mr.a + ml.c * mr.b
@@ -445,7 +445,7 @@ export class Matrix implements MatrixData {
 
 	/** Merge a Translate transform to current matrix. */
 	translateSelf(x: number, y: number): this {
-		return this.postMultiplySelf({
+		return this.preMultiplySelf({
 			a: 1,
 			c: 0,
 			e: x,
@@ -462,7 +462,7 @@ export class Matrix implements MatrixData {
 
 	/** Merge a Translate transform to current matrix. */
 	translateBySelf(v: Coord): this {
-		return this.postMultiplySelf({
+		return this.preMultiplySelf({
 			a: 1,
 			c: 0,
 			e: v.x,
@@ -479,7 +479,7 @@ export class Matrix implements MatrixData {
 
 	/** Merge a Scaling transform to current matrix. */
 	scaleSelf(sx: number, sy: number = sx): this {
-		return this.postMultiplySelf({
+		return this.preMultiplySelf({
 			a: sx,
 			c: 0,
 			e: 0,
@@ -509,7 +509,7 @@ export class Matrix implements MatrixData {
 		let sin = Math.sin(radians),
 			cos = Math.cos(radians)
 
-		return this.postMultiplySelf({
+		return this.preMultiplySelf({
 			a: cos,
 			c: -sin,
 			e: 0,
@@ -539,7 +539,7 @@ export class Matrix implements MatrixData {
 		let tx = Math.tan(radiansX)
 		let ty = Math.tan(radiansY)
 
-		return this.postMultiplySelf({
+		return this.preMultiplySelf({
 			a: 1,
 			c: tx,
 			e: 0,

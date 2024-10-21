@@ -11,18 +11,18 @@ import {WebTransition, WebTransitionKeyFrame, WebTransitionOptions} from './web-
 export interface TransitionOptions extends PerFrameTransitionOptions {
 	
 	/** 
-	 * Specifies transition direction.
+	 * Specifies transition phase.
 	 * E.g., if specifies to `enter` and need to play leave transition, nothing happens.
 	 * Default value is `both`.
 	 */
-	direction?: TransitionDirection
+	phase?: TransitionPhase
 }
 
 /** 
- * Transition direction, includes enter and leave part.
- * Only direction is allowed the transition can play.
+ * Transition phase limit, includes enter and leave part.
+ * Only phase is allowed the transition can play.
  */
-export type TransitionDirection = 'enter' | 'leave' | 'both' | 'none'
+export type TransitionPhase = 'enter' | 'leave' | 'both' | 'none'
 
 
 export interface WebTransitionProperties extends PerFrameTransitionOptions {
@@ -162,8 +162,8 @@ export class Transition {
 	 * Returns true if transition finished, false if canceled, null if prevented.
 	 */
 	async enter(result: TransitionResult): Promise<boolean | null> {
-		let {direction} = result.options as DeepReadonly<TransitionOptions>
-		if (direction === 'leave' || direction === 'none') {
+		let {phase} = result.options as DeepReadonly<TransitionOptions>
+		if (phase === 'leave' || phase === 'none') {
 			return null
 		}
 
@@ -201,8 +201,8 @@ export class Transition {
 	 * Returns true if transition finished, false if canceled, null if prevented.
 	 */
 	async leave(result: TransitionResult): Promise<boolean | null> {
-		let {direction} = result.options as DeepReadonly<TransitionOptions>
-		if (direction === 'enter' || direction === 'none') {
+		let {phase} = result.options as DeepReadonly<TransitionOptions>
+		if (phase === 'enter' || phase === 'none') {
 			return null
 		}
 
