@@ -144,12 +144,34 @@ export type AlignerPosition = 't'
 	| 'cl-cr'
 	| 'cr-cl'
 
+/** 4 directions of gap. */
 interface AlignerGap {
 	top: number
 	right: number
 	bottom: number
 	left: number
 }
+
+/** Shared content alignment state. */
+interface ContentAlignmentState {
+
+	/** Whether triangle element has get transformed. */
+	triangleTransformed: boolean
+
+	/** Whether triangle element has been swapped to opposite position. */
+	triangleSwapped: boolean
+
+	/** Whether have shrink content element on Y axis. */
+	haveShrinkOnY: boolean
+}
+
+const DefaultContentAlignmentState: ContentAlignmentState = {
+	triangleTransformed: false,
+	triangleSwapped: false,
+	haveShrinkOnY: false,
+}
+
+const SharedContentAlignmentState: WeakMap<HTMLElement, ContentAlignmentState> = new WeakMap()
 
 
 const DefaultAlignerOptions: AlignerOptions = {
@@ -238,17 +260,11 @@ export class Aligner {
 	/** Gaps betweens target and content element. */
 	private gaps!: AlignerGap
 
+	/** Represent previous alignment state. */
+	private alignmentState: ContentAlignmentState
+
 	/** Whether content element use fixed alignment position. */
 	private useFixedAlignment: boolean = false
-
-	/** Whether triangle element has get transformed. */
-	private triangleTransformed: boolean = false
-
-	/** In the which direction the triangle located. */
-	private triangleDirection: Direction | null = null
-
-	/** Whether have shrink content element on Y axis. */
-	private haveShrinkOnY: boolean = false
 
 	private cachedContentRect: DOMRect | null = null
 	private cachedTargetRect: DOMRect | null = null
@@ -256,6 +272,14 @@ export class Aligner {
 	constructor(content: HTMLElement, anchor: Element) {
 		this.content = content
 		this.target = anchor
+
+		if (SharedContentAlignmentState.has(content)) {
+			this.alignmentState = SharedContentAlignmentState.get(content)!
+		}
+		else {
+			this.alignmentState = {...DefaultContentAlignmentState}
+			SharedContentAlignmentState.set(content, this.alignmentState)
+		}
 	}
 
 	/** 
@@ -264,7 +288,6 @@ export class Aligner {
 	 */
 	align(options: Partial<AlignerOptions> = {}): boolean {
 		this.initOptions(options)
-		this.resetStyles()
 
 		let targetFaceDirection = this.targetFaceDirection
 		let contentRect = this.content.getBoundingClientRect()
@@ -276,6 +299,9 @@ export class Aligner {
 		) {
 			return true
 		}
+
+		// Reset styles before doing alignment.
+		this.resetStyles()
 
 		// If target is not visible.
 		if (targetRect.width === 0 && targetRect.height === 0) {
@@ -301,7 +327,7 @@ export class Aligner {
 		// Do content alignment.
 		let alignResult = this.doAlignment(targetFaceDirection, contentRect, targetRect, triangleRelativeRect)
 		targetFaceDirection = alignResult.targetFaceDirection
-		this.haveShrinkOnY = alignResult.overflowYSet
+		this.alignmentState.haveShrinkOnY = alignResult.overflowYSet
 
 		// Handle `triangle` position.
 		if (this.options.triangle) {
@@ -322,9 +348,6 @@ export class Aligner {
 		this.targetFaceDirection = this.directions[1].joinToStraight(this.directions[0].opposite)
 		this.gaps = parseGap(this.options.gap, this.options.triangle, this.targetFaceDirection)
 
-		// Initialize triangle direction.
-		this.initTriangleDirection()
-
 		// If target element is not affected by document scrolling, content element should be the same.
 		// A potential problem here: once becomes fixed, can't be restored for reuseable popups.
 		if (findClosestFixedElement(this.target)) {
@@ -336,40 +359,6 @@ export class Aligner {
 		}
 	}
 
-	/** Initialize triangle direction. */
-	private initTriangleDirection() {
-		if (!this.options.triangle) {
-			return
-		}
-
-		// Initialize for only once.
-		if (this.triangleDirection) {
-			return
-		}
-
-		let style = getComputedStyle(this.options.triangle)
-		let left = parseInt(style.left)
-		let right = parseInt(style.right)
-		let top = parseInt(style.top)
-		let bottom = parseInt(style.bottom)
-		let d: Direction = Direction.Top
-
-		if (left < 0) {
-			d = Direction.Left
-		}
-		else if (right < 0) {
-			d = Direction.Right
-		}
-		else if (top < 0) {
-			d = Direction.Top
-		}
-		else if (bottom < 0) {
-			d = Direction.Bottom
-		}
-
-		this.triangleDirection = d
-	}
-
 	/** Set some styles of content and triangle element before doing alignment. */
 	private resetStyles() {
 		
@@ -377,14 +366,14 @@ export class Aligner {
 		if (this.options.canShrinkOnY && this.content.offsetHeight > document.documentElement.clientHeight) {
 			this.content.style.height = '100vh'
 		}
-		else if (this.haveShrinkOnY && this.content.style.height) {
+		else if (this.alignmentState.haveShrinkOnY && this.content.style.height) {
 			this.content.style.height = ''
 		}
 
 		// Restore triangle transform.
-		if (this.options.triangle && this.triangleTransformed) {
+		if (this.options.triangle && this.alignmentState.triangleTransformed) {
 			this.options.triangle.style.transform = ''
-			this.triangleTransformed = false
+			this.alignmentState.triangleTransformed = false
 		}
 	}
 
@@ -409,32 +398,15 @@ export class Aligner {
 			return null
 		}
 
-		// When `fixTriangle`, it's relative position matters.
-		if (this.options.fixTriangle) {
-			let relativeTriangleRect = this.options.triangle ? this.options.triangle.getBoundingClientRect() : null
-			if (relativeTriangleRect) {
+		let triangleRect = this.options.triangle.getBoundingClientRect()
 
-				// Translate by rect position to become relative.
-				relativeTriangleRect = new DOMRect(
-					relativeTriangleRect.x - contentRect.x,
-					relativeTriangleRect.y - contentRect.y,
-					relativeTriangleRect.width,
-					relativeTriangleRect.height
-				)
-			}
-
-			return relativeTriangleRect
-		}
-
-		// Only size matters.
-		else {
-			return new DOMRect(
-				0,
-				0,
-				this.options.triangle.offsetWidth,
-				this.options.triangle.offsetHeight
-			)
-		}
+		// Translate by content rect position to become relative.
+		return new DOMRect(
+			triangleRect.x - contentRect.x,
+			triangleRect.y - contentRect.y,
+			triangleRect.width,
+			triangleRect.height
+		)
 	}
 
 	/** 
@@ -546,7 +518,7 @@ export class Aligner {
 	 * Do vertical alignment, will modify `contentRect`.
 	 * It outputs alignment position to `contentRect`.
 	 */
-	private alignVertical(y: number, targetFaceDirection: Direction, contentRect: DOMRect, targetRect: DOMRect, triangleRelativeRect: DOMRect | null) {
+	private alignVertical(y: number, targetFaceDirection: Direction, contentRect: DOMRect, targetRect: DOMRect, triangleSize: SizeLike | null) {
 		let dh = document.documentElement.clientHeight
 		let spaceTop = targetRect.top - this.gaps.top
 		let spaceBottom = dh - (targetRect.bottom + this.gaps.bottom)
@@ -573,7 +545,7 @@ export class Aligner {
 			if (y + h > dh && this.options.stickToEdges) {
 				
 				// Gives enough space for triangle.
-				let minY = targetRect.top + (triangleRelativeRect ? triangleRelativeRect.height : 0) - h
+				let minY = targetRect.top + (triangleSize ? triangleSize.height : 0) - h
 				y = Math.max(dh - h, minY)
 			}
 
@@ -581,7 +553,7 @@ export class Aligner {
 			if (y < 0 && this.options.stickToEdges) {
 
 				// Gives enough space for triangle.
-				let maxY = targetRect.bottom - (triangleRelativeRect ? triangleRelativeRect.height : 0)
+				let maxY = targetRect.bottom - (triangleSize ? triangleSize.height : 0)
 				y = Math.min(0, maxY)
 			}
 		}
@@ -628,7 +600,7 @@ export class Aligner {
 	 * Do horizontal alignment.
 	 * It outputs alignment position to `contentRect`.
 	 */
-	private alignHorizontal(x: number, targetFaceDirection: Direction, contentRect: DOMRect, targetRect: DOMRect, triangleRelativeRect: DOMRect | null) {
+	private alignHorizontal(x: number, targetFaceDirection: Direction, contentRect: DOMRect, targetRect: DOMRect, triangleSize: SizeLike | null) {
 		let dw = document.documentElement.clientWidth
 		let spaceLeft = targetRect.left - this.gaps.left
 		let spaceRight = dw - (targetRect.right + this.gaps.right)
@@ -654,7 +626,7 @@ export class Aligner {
 			if (x + w > dw && this.options.stickToEdges) {
 
 				// Gives enough space for triangle.
-				let minX = targetRect.left + (triangleRelativeRect ? triangleRelativeRect.width : 0) - w
+				let minX = targetRect.left + (triangleSize ? triangleSize.width : 0) - w
 				x = Math.max(dw - w, minX)
 			}
 
@@ -662,7 +634,7 @@ export class Aligner {
 			if (x < 0 && this.options.stickToEdges) {
 
 				// Gives enough space for triangle.
-				let minX = targetRect.right - (triangleRelativeRect ? triangleRelativeRect.width : 0)
+				let minX = targetRect.right - (triangleSize ? triangleSize.width : 0)
 				x = Math.min(0, minX)
 			}
 		}
@@ -684,125 +656,105 @@ export class Aligner {
 	private alignTriangle(targetFaceDirection: Direction, contentRect: DOMRect, targetRect: DOMRect, triangleRelativeRect: DOMRect) {
 		let triangle = this.options.triangle!
 		let transforms: string[] = []
-		let w = contentRect.width
-		let h = contentRect.height
 
 		if (targetFaceDirection.beVertical) {
-			let halfTriangleWidth = triangleRelativeRect.width / 2
-			let x: number = 0
+			let x = this.calcTriangleX(
+				contentRect.width,
+				targetRect.width, targetRect.x - contentRect.x,
+				triangleRelativeRect.width, triangleRelativeRect.x
+			)
 
-			// Adjust triangle to be in the center of the target edge.
-			if ((w >= targetRect.width || this.options.fixTriangle)) {
-				x = targetRect.left + targetRect.width / 2 - contentRect.left - halfTriangleWidth
-			}
+			let translateX = x - triangleRelativeRect.x
+			transforms.push(`translateX(${translateX}px)`)
+		}
+		else if (targetFaceDirection.beHorizontal) {
+			let y = this.calcTriangleX(
+				contentRect.height,
+				targetRect.height, targetRect.y - contentRect.y,
+				triangleRelativeRect.height, triangleRelativeRect.y
+			)
 
-			// In fixed position.
-			else if (this.options.fixTriangle) {
-				x = triangleRelativeRect.x
-			}
-
-			// Adjust triangle to be in the center of the content edge.
-			else {
-				x = w / 2 - halfTriangleWidth
-			}
-
-			// Limit to at the intersect edge of content and target.
-			let minX = Math.max(contentRect.left, targetRect.left)
-			let maxX = Math.min(contentRect.left + contentRect.width, targetRect.right)
-
-			// Turn to content rect origin.
-			minX -= contentRect.left
-			maxX -= contentRect.left
-
-			// Turn to triangle left origin.
-			minX -= halfTriangleWidth
-			maxX -= halfTriangleWidth
-
-			x = Math.max(x, minX)
-			x = Math.min(x, maxX)
-
-			if (this.options.fixTriangle) {
-				let translateX = x - triangleRelativeRect.left
-				transforms.push(`translateX(${translateX}px)`)
-			}
-			else {
-				x -= DOMUtils.getNumericStyleValue(this.content, 'borderLeftWidth')
-				triangle.style.left = x + 'px'
-			}
-
-			triangle.style.right = ''
+			let translateY = y - triangleRelativeRect.y
+			transforms.push(`translateY(${translateY}px)`)
 		}
 
-		if (targetFaceDirection.beHorizontal) {
-			let halfTriangleHeight = triangleRelativeRect.height / 2
-			let y: number
-
-			if ((h >= targetRect.height || this.options.fixTriangle)) {
-				y = targetRect.top + targetRect.height / 2 - contentRect.top - halfTriangleHeight
-			}
-			else if (this.options.fixTriangle) {
-				y = triangleRelativeRect.top
-			}
-			else {
-				y = h / 2 - halfTriangleHeight
-			}
-
-			// Limit to at the intersect edge of content and target.
-			let minY = Math.max(contentRect.top, targetRect.top)
-			let maxY = Math.min(contentRect.top + contentRect.height, targetRect.bottom)
-
-			// Turn to content rect origin.
-			minY -= contentRect.top
-			maxY -= contentRect.top
-
-			// Turn to triangle left origin.
-			minY -= halfTriangleHeight
-			maxY -= halfTriangleHeight
-
-			y = Math.max(y, minY)
-			y = Math.min(y, maxY)			
-
-			if (this.options.fixTriangle) {
-				let translateY = y - triangleRelativeRect.top
-				transforms.push(`translateY(${translateY}px)`)
-			}
-			else {
-				y -= DOMUtils.getNumericStyleValue(this.content, 'borderTopWidth')
-				triangle.style.top = y + 'px'
-			}
-
-			triangle.style.bottom = ''
-		}
-
-		if (targetFaceDirection === Direction.Top) {
-			triangle.style.top = 'auto'
-			triangle.style.bottom = -triangleRelativeRect.height + 'px'
-		}
-		else if (targetFaceDirection === Direction.Bottom) {
-			triangle.style.top = -triangleRelativeRect.height + 'px'
-			triangle.style.bottom = ''
-		}
-		else if (targetFaceDirection === Direction.Left) {
-			triangle.style.left = 'auto'
-			triangle.style.right = -triangleRelativeRect.width + 'px'
-		}
-		else if (targetFaceDirection === Direction.Right) {
-			triangle.style.left = -triangleRelativeRect.width + 'px'
-			triangle.style.right = ''
-		}
+		let triangleSwapped = targetFaceDirection !== this.targetFaceDirection
 	
-		if (targetFaceDirection !== this.targetFaceDirection) {
+		if (triangleSwapped) {
 			if (targetFaceDirection.beHorizontal) {
 				transforms.push('scaleX(-1)')
 			}
 			else {
 				transforms.push('scaleY(-1)')
 			}
-			
-			this.triangleTransformed = true
 		}
 
+		if (triangleSwapped !== this.alignmentState.triangleSwapped) {
+			if (targetFaceDirection === Direction.Top) {
+				triangle.style.top = 'auto'
+				triangle.style.bottom = -triangleRelativeRect.height + 'px'
+			}
+			else if (targetFaceDirection === Direction.Bottom) {
+				triangle.style.top = -triangleRelativeRect.height + 'px'
+				triangle.style.bottom = ''
+			}
+			else if (targetFaceDirection === Direction.Left) {
+				triangle.style.left = 'auto'
+				triangle.style.right = -triangleRelativeRect.width + 'px'
+			}
+			else if (targetFaceDirection === Direction.Right) {
+				triangle.style.left = -triangleRelativeRect.width + 'px'
+				triangle.style.right = ''
+			}
+
+			this.alignmentState.triangleSwapped = targetFaceDirection !== this.targetFaceDirection
+		}
+
+		this.alignmentState.triangleTransformed = transforms.length > 0
 		triangle.style.transform = transforms.join(' ')
+	}
+
+	/** All x coordinates based on content origin. */
+	private calcTriangleX(
+		contentW: number,
+		targetW: number, targetX: number,
+		triangleW: number, triangleX: number
+	) {
+		let x: number = 0
+
+		// In fixed position.
+		if (this.options.fixTriangle) {
+			x = triangleX
+		}
+
+		// Align with center of content, normally.
+		else if (this.directions[0].beStraight) {
+			x = contentW / 2 - triangleW / 2
+		}
+
+		// Align with center of target.
+		else if (this.directions[1].beStraight && !this.directions[0].beStraight) {
+			x = (targetX + targetW) / 2 - triangleW / 2
+		}
+
+		// Align non-center to non-center, also choose narrower one.
+		else {
+			if (contentW <= targetW) {
+				x = contentW / 2 - triangleW / 2
+			}
+			else {
+				x = (targetX + targetW) / 2 - triangleW / 2
+			}
+		}
+
+		// Limit to the intersect edge of content and target.
+		let minX = Math.max(0, targetX)
+		let maxX = Math.min(contentW - triangleW / 2, targetX + targetW - triangleW / 2)
+
+		x = Math.max(x, minX)
+		x = Math.min(x, maxX)
+
+		return x
 	}
 }
 
