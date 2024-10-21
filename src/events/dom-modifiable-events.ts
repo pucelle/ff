@@ -117,10 +117,8 @@ const EventFilters = {
 
 
 /**
- * Register an event listener on an element.
- * - `modifiers`: can specify some modifier to limit event handler only be called when modifiers match.
- * 
- * Can use `DOMEvens.off` to unbind event.
+ * Register an event listener on an element with modifiers.
+ * @param modifiers: can specify some modifier to limit event handler only be called when modifiers match.
  */
 export function on<T extends string>(
 	el: EventTarget,
@@ -180,4 +178,13 @@ function wrapHandler(el: EventTarget, type: string, modifiers: string[] | null, 
 
 		handler(e)
 	}
+}
+
+
+/** 
+ * Unbind all event listeners that match specified parameters.
+ * Note it equals to `DOMEvents.off`.
+ */
+export function off(el: EventTarget, type: string, handler: EventHandler, scope: any = null) {
+	DOMEvents.off(el, type, handler, scope)
 }
