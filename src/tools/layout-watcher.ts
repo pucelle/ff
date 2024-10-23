@@ -291,7 +291,7 @@ function unwatchDocumentChange(callback: () => void) {
 
 function emitDocumentChangeLater() {
 	if (!willEmitDocumentChange) {
-		AnimationFrame.requestCurrent(emitDocumentChange)
+		AnimationFrame.requestNext(emitDocumentChange)
 		willEmitDocumentChange = true
 	}
 }
