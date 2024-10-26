@@ -189,8 +189,10 @@ export class Transition {
 			finish = await (this.mixedTransition as WebTransition).playBetween(startFrame, endFrame)
 		}
 
-		let enterEndedEvent = new CustomEvent('transition-enter-ended')
-		this.el.dispatchEvent(enterEndedEvent)
+		if (finish) {
+			let enterEndedEvent = new CustomEvent('transition-enter-ended')
+			this.el.dispatchEvent(enterEndedEvent)
+		}
 
 		return finish
 	}
@@ -228,8 +230,10 @@ export class Transition {
 			finish = await (this.mixedTransition as WebTransition).playBetween(endFrame, startFrame)
 		}
 
-		let leaveEndedEvent = new CustomEvent('transition-leave-ended')
-		this.el.dispatchEvent(leaveEndedEvent)
+		if (finish) {
+			let leaveEndedEvent = new CustomEvent('transition-leave-ended')
+			this.el.dispatchEvent(leaveEndedEvent)
+		}
 
 		return finish
 	}

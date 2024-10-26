@@ -35,16 +35,25 @@ export const fold = Transition.define(function(el: HTMLElement, options: FoldTra
 	let paddingProp1: keyof CSSStyleDeclaration = direction === 'vertical' ? 'paddingTop' : 'paddingLeft'
 	let paddingProp2: keyof CSSStyleDeclaration = direction === 'vertical' ? 'paddingBottom' : 'paddingRight'
 
+	let marginValue1 = direction === 'vertical' ? computed.marginTop : computed.marginLeft
+	let marginValue2 = direction === 'vertical' ? computed.marginBottom : computed.marginRight
+	let marginProp1: keyof CSSStyleDeclaration = direction === 'vertical' ? 'marginTop' : 'marginLeft'
+	let marginProp2: keyof CSSStyleDeclaration = direction === 'vertical' ? 'marginBottom' : 'marginRight'
+
 	let o: TransitionProperties = {
 		startFrame: {
 			[prop]: '0',
 			[paddingProp1]: '0',
 			[paddingProp2]: '0',
+			[marginProp1]: '0',
+			[marginProp2]: '0',
 		},
 		endFrame: {
 			[prop]: size + 'px',
 			[paddingProp1]: paddingValue1,
 			[paddingProp2]: paddingValue2,
+			[marginProp1]: marginValue1,
+			[marginProp2]: marginValue2,
 		},
 	}
 
