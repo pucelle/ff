@@ -293,6 +293,12 @@ export class Aligner {
 		let contentRect = this.content.getBoundingClientRect()
 		let targetRect = this.target.getBoundingClientRect()
 
+		// Pick viewport for document element.
+		if (this.target === document.documentElement) {
+			targetRect.x = 0
+			targetRect.y = 0
+		}
+
 		// Both rects have not changed.
 		if (this.cachedContentRect && isRectsEqual(this.cachedContentRect, contentRect)
 			&& this.cachedTargetRect && isRectsEqual(this.cachedTargetRect, targetRect)
