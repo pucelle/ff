@@ -65,7 +65,7 @@ export interface AlignerOptions {
 }
 
 /** Align where of content element to where of target element. */
-export type AlignerPosition = 't'
+export type AlignerSinglePosition = 't'
 	| 'b'
 	| 't'
 	| 'l'
@@ -85,6 +85,8 @@ export type AlignerPosition = 't'
 	| 'rb'
 	| 'rt'
 
+/** Align where of content element to where of target element. */
+export type AlignerPosition = AlignerSinglePosition
 	| 'b-b'
 	| 'b-t'
 
@@ -186,49 +188,11 @@ const DefaultAlignerOptions: AlignerOptions = {
 
 export class Aligner {
 	
-	/**
-	 * Align content to target element with specified position.
-	 * If no enough space, will adjust align position automatically.
-	 * @param content Element that will be adjusted position to do alignment.
-	 * @param target Element as anchor that content element should align to.
-	 * @param options Aligner options.
-	 */
-	static align(content: HTMLElement, target: Element, options: Partial<AlignerOptions> = {}) {
-		new Aligner(content, target).align(options)
-	}
-
-	/** Align element to the position of a mouse event. */
-	static alignEvent(el: HTMLElement, event: MouseEvent, offset: [number, number] = [0, 0]) {
-		if (DOMUtils.getStyleValue(el, 'position') !== 'fixed') {
-			throw new Error(`Element to use "alignEvent" must have fixed layout!`)
-		}
-
-		let dw = document.documentElement.clientWidth
-		let dh = document.documentElement.clientHeight
-		let w  = el.offsetWidth
-		let h  = el.offsetHeight
-		let ex = event.clientX
-		let ey = event.clientY
-		let x = ex + offset[0]
-		let y = ey + offset[1]
-
-		if (x + w > dw) {
-			x = dw - w
-		}
-
-		if (y + h > dh) {
-			y = dh - h
-		}
-
-		el.style.left = Math.round(x) + 'px'
-		el.style.top = Math.round(y) + 'px'
-	}
-
 	/** 
 	 * Get the direction that target element face to content element.
 	 * Always get a straight direction.
 	 */
-	static getTargetFaceDirection(position: string): Direction {
+	static getTargetFaceDirection(position: AlignerPosition): Direction {
 		let [d1, d2] = parseAlignDirections(position)
 		return d2.joinToStraight(d1.opposite)
 	}
@@ -269,9 +233,9 @@ export class Aligner {
 	private cachedContentRect: DOMRect | null = null
 	private cachedTargetRect: DOMRect | null = null
 
-	constructor(content: HTMLElement, anchor: Element) {
+	constructor(content: HTMLElement, target: Element) {
 		this.content = content
-		this.target = anchor
+		this.target = target
 
 		if (SharedContentAlignmentState.has(content)) {
 			this.alignmentState = SharedContentAlignmentState.get(content)!
@@ -287,9 +251,7 @@ export class Aligner {
 	 * Returns whether did alignment.
 	 */
 	align(options: Partial<AlignerOptions> = {}): boolean {
-		this.initOptions(options)
-
-		let targetFaceDirection = this.targetFaceDirection
+		let optionsChanged = this.initOptions(options)
 		let contentRect = this.content.getBoundingClientRect()
 		let targetRect = this.target.getBoundingClientRect()
 
@@ -300,19 +262,79 @@ export class Aligner {
 		}
 
 		// Both rects have not changed.
-		if (this.cachedContentRect && isRectsEqual(this.cachedContentRect, contentRect)
+		if (!optionsChanged
+			&& this.cachedContentRect && isRectsEqual(this.cachedContentRect, contentRect)
 			&& this.cachedTargetRect && isRectsEqual(this.cachedTargetRect, targetRect)
 		) {
 			return true
 		}
 
-		// Reset styles before doing alignment.
-		this.resetStyles()
-
 		// If target is not visible.
 		if (targetRect.width === 0 && targetRect.height === 0) {
 			return false
+		}		
+
+		return this.alignByRects(contentRect, targetRect)
+	}
+
+	/** Align content element to the position of a mouse event. */
+	alignToEvent(event: MouseEvent, options: Partial<AlignerOptions> = {}) {
+		let optionsChanged = this.initOptions(options)
+		let contentRect = this.content.getBoundingClientRect()
+
+		let targetRect = new DOMRect(
+			event.clientX,
+			event.clientY,
+			0,
+			0
+		)
+
+		// Both rects have not changed.
+		if (!optionsChanged
+			&& this.cachedContentRect && isRectsEqual(this.cachedContentRect, contentRect)
+			&& this.cachedTargetRect && isRectsEqual(this.cachedTargetRect, targetRect)
+		) {
+			return true
 		}
+
+		return this.alignByRects(contentRect, targetRect)
+	}
+
+	/** 
+	 * Get initialize by partial options.
+	 * Returns whether options get changed.
+	 */
+	private initOptions(options: Partial<AlignerOptions> = {}): boolean {
+		let newOptions = ObjectUtils.assignNonExisted(options, DefaultAlignerOptions)
+
+		let changed = !ObjectUtils.deepEqual(this.options, newOptions)
+		if (changed) {
+			this.options = newOptions
+		}
+
+		this.directions = parseAlignDirections(newOptions.position)
+		this.targetFaceDirection = this.directions[1].joinToStraight(this.directions[0].opposite)
+		this.gaps = parseGap(newOptions.gap, newOptions.triangle, this.targetFaceDirection)
+
+		// If target element is not affected by document scrolling, content element should be the same.
+		// A potential problem here: once becomes fixed, can't be restored for reuseable popups.
+		if (findClosestFixedElement(this.target)) {
+			this.content.style.position = 'fixed'
+			this.useFixedAlignment = true
+		}
+		else {
+			this.useFixedAlignment = getComputedStyle(this.content).position === 'fixed'
+		}
+
+		return changed
+	}
+
+	/** Align content after known both rects. */
+	private alignByRects(contentRect: DOMRect, targetRect: DOMRect): boolean {
+		let targetFaceDirection = this.targetFaceDirection
+
+		// Reset styles before doing alignment.
+		this.resetStyles()
 
 		// Whether target in viewport.
 		let targetInViewport = DOMUtils.isRectIntersectWithViewport(targetRect)
@@ -342,27 +364,8 @@ export class Aligner {
 
 		this.cachedContentRect = contentRect
 		this.cachedTargetRect = targetRect
-	
+
 		return true
-	}
-
-	/** Get initialize by partial options. */
-	private initOptions(options: Partial<AlignerOptions> = {}) {
-		this.options = ObjectUtils.assignNonExisted(options, DefaultAlignerOptions)
-
-		this.directions = parseAlignDirections(this.options.position)
-		this.targetFaceDirection = this.directions[1].joinToStraight(this.directions[0].opposite)
-		this.gaps = parseGap(this.options.gap, this.options.triangle, this.targetFaceDirection)
-
-		// If target element is not affected by document scrolling, content element should be the same.
-		// A potential problem here: once becomes fixed, can't be restored for reuseable popups.
-		if (findClosestFixedElement(this.target)) {
-			this.content.style.position = 'fixed'
-			this.useFixedAlignment = true
-		}
-		else {
-			this.useFixedAlignment = getComputedStyle(this.content).position === 'fixed'
-		}
 	}
 
 	/** Set some styles of content and triangle element before doing alignment. */
@@ -788,7 +791,7 @@ const PositionDirectionMap: Record<string, Direction> = {
  * E.g.: `tl` is short for `bl-tl`, which means align content to the top-left of target.
  * E.g.: `lt` is short for `tr-tl`, which means align content to the left-top of target.
  */
-function parseAlignDirections(position: string): [Direction, Direction] {
+function parseAlignDirections(position: AlignerPosition): [Direction, Direction] {
 	if (!/^(?:[tbc][lrc]-[tbc][lrc]|[tbclr]-[tbclr]|[tbc][lrc]|[tbclr])/.test(position)) {
 		throw `"${position}" is not a valid position string!`
 	}
