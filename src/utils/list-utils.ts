@@ -187,7 +187,7 @@ export function groupBy<T, K, V>(list: Iterable<T>, pairFn: (value: T) => [K, V]
 
 
 /** Ordering direction, `-1` to sort items from larger to smaller, while `1` to sort items from smaller to larger. */
-export type OrderDirection = -1 | 1 | 'asc' | 'desc'
+export type OrderDirection = 'asc' | 'desc'
 
 /** Ordering function that map each item to a sortable string or number. */
 export type OrderFunction<T> = (item: T) => string | number | null | undefined
@@ -257,8 +257,8 @@ export class Order<T> {
 	 * Sort `list` inside it's memory, by current order.
 	 * @param direction specifies additional order adjustment.
 	 */
-	sort(list: T[], direction: OrderDirection = 1) {
-		let normalizedDirection = direction === 'asc' ? 1 : direction === 'desc' ? -1 : direction
+	sort(list: T[], direction: OrderDirection = 'asc') {
+		let normalizedDirection = direction === 'asc' ? 1 : direction === 'desc' ? -1 : 1
 
 		if (normalizedDirection === 1) {
 			list.sort((a, b) => {
