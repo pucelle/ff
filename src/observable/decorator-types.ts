@@ -5,7 +5,7 @@
  * 
  * The computed value will be cleared each time after any visited dependencies get changed.
  * 
- * Decorated method can be overwritten, but should not decorate again.
+ * Decorated method can be overwritten, but should be decorated again.
  * 
  * If use with a component which has life-cycle, like a `Component` in Lupos.js,
  * computed value will be cleared after component disconnected,
@@ -25,8 +25,6 @@ export declare function computed(originalGetter: any, context: ClassGetterDecora
  * 
  * The effect action will be activated after instance initialized, in declaration order,
  * and to be enqueued each time after any visited dependencies get changed.
- * 
- * Decorated method can be overwritten, but should not decorate again.
  * 
  * If use with a component which has life-cycle, like a `Component` in Lupos.js,
  * current effect action will be deactivated after component disconnected,
@@ -59,8 +57,6 @@ export declare function effect(originalMethod: any, context: ClassMethodDecorato
  * The watch action will be activated after instance initialized,
  * in declaration order, and to be called in the update queue.
  * and later be enqueued again when any visited dependencies get changed.
- * 
- * Decorated method can be overwritten, but should not decorate again.
  * 
  * If use with a component which has life-cycle, like a `Component` in `@pucelle/lupos.js`,
  * current watch action will be deactivated after component disconnected,
@@ -103,8 +99,6 @@ type InferPropertyType<T, P extends ((() => any) | keyof T)>
  * 
  * Different with `@watch`, this decorator will also call decorated method
  * for the first time when initializing.
- * 
- * Decorated method can be overwritten, but should not decorate again.
  * 
  * If use with a component which has life-cycle, like a `Component` in `@pucelle/lupos.js`,
  * current watch action will be deactivated after component disconnected,
