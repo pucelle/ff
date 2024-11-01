@@ -5,11 +5,7 @@
  * 
  * The computed value will be cleared each time after any visited dependencies get changed.
  * 
- * Decorated method can be overwritten, but should be decorated again.
- * 
- * If use with a component which has life-cycle, like a `Component` in Lupos.js,
- * computed value will be cleared after component disconnected,
- * and re-compute after component re-connected.
+ * Decorated method can be overwritten, but should also be decorated.
  * 
  * So if your computing is expensive, and don't like re-computing each time
  * after re-connected, consider using `@watch` or `@immediateWatch`.
@@ -25,10 +21,6 @@ export declare function computed(originalGetter: any, context: ClassGetterDecora
  * 
  * The effect action will be activated after instance initialized, in declaration order,
  * and to be enqueued each time after any visited dependencies get changed.
- * 
- * If use with a component which has life-cycle, like a `Component` in Lupos.js,
- * current effect action will be deactivated after component disconnected,
- * and be activated by running effect method after component connected.
  * 
  * So if your effect method is expensive, and don't like re-computing each time
  * after re-connected, consider using `@watch` or `@immediateWatch`.
@@ -57,11 +49,6 @@ export declare function effect(originalMethod: any, context: ClassMethodDecorato
  * The watch action will be activated after instance initialized,
  * in declaration order, and to be called in the update queue.
  * and later be enqueued again when any visited dependencies get changed.
- * 
- * If use with a component which has life-cycle, like a `Component` in `@pucelle/lupos.js`,
- * current watch action will be deactivated after component disconnected,
- * and after component connected, will compare values of watching properties or getters,
- * if any changed, call watch decorated method.
  * 
  * Otherwise current watch action would can't be released and GC if any dependencies still existing.
  * If you want to make sure watching things can be released, use `Watcher` apis and release it yourself.

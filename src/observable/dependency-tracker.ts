@@ -130,3 +130,21 @@ export function untrack(callback: Function, scope: object | null = null) {
 	let boundCallback = bindCallback(callback, scope)
 	DepMap.deleteRefreshCallback(boundCallback)
 }
+
+
+/** 
+ * Compute current dependency values for comparing.
+ * Remember don't use this too frequently,
+ * it will get values by a dynamic property and affect performance.
+ */
+export function computeTrackingValues(callback: Function, scope: object | null = null) {
+	let boundCallback = bindCallback(callback, scope)
+	DepMap.computeValues(boundCallback)
+}
+
+
+/** Compare whether dependency values has changed from a previously computed values. */
+export function compareTrackingValues(callback: Function, scope: object | null = null, oldValues: any[]): boolean {
+	let boundCallback = bindCallback(callback, scope)
+	return DepMap.compareValues(boundCallback, oldValues)
+}

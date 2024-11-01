@@ -93,5 +93,100 @@ export class DependencyMap {
 
 		this.dependencyMap.deleteSecondOf(c)
 	}
+
+	/** 
+	 * Compute current dependency values for comparing.
+	 * Remember don't use this too frequently,
+	 * it will get values by a dynamic property and affect performance.
+	 */
+	computeValues(c: Function): any[] {
+		let deps = this.dependencyMap.getSecond(c)
+		let values: any[] = []
+
+		if (deps) {
+			for (let [dep, prop] of deps.flatEntries()) {
+				if (prop === '') {
+					values.push([...dep as Map<any, any> | Set<any> | any[]])
+				}
+				else {
+					values.push((dep as any)[prop])
+				}
+			}
+		}
+
+		return values
+	}
+
+	/** Compare whether dependency values has changed from a previously computed values. */
+	compareValues(c: Function, oldValues: any[]): boolean {
+		let deps = this.dependencyMap.getSecond(c)
+		let index = 0
+
+		// Important notes:
+		// We assume each value in old values are always
+		// have the same position with new values.
+		// This is because haven't doing new tracking.
+
+		if (deps) {
+			for (let [dep, prop] of deps.flatEntries()) {
+				let oldValue = oldValues[index]
+				if (prop === '') {
+					if (dep instanceof Map) {
+						if (dep.size !== (oldValue as any[]).length) {
+							return true
+						}
+
+						let i = 0
+
+						for (let newItem of dep) {
+							let oldItem = (oldValue as [any, any][])[i]
+							if (oldItem[0] !== newItem[0] || oldItem[1] !== newItem[1]) {
+								return true
+							}
+							i++
+						}
+					}
+					else if (dep instanceof Set) {
+						if (dep.size !== (oldValue as any[]).length) {
+							return true
+						}
+
+						let i = 0
+						
+						for (let newItem of dep) {
+							let oldItem = (oldValue as any[])[i]
+							if (oldItem !== newItem) {
+								return true
+							}
+							i++
+						}
+					}
+					else {
+						if ((dep as any[]).length !== (oldValue as any[]).length) {
+							return true
+						}
+
+						for (let i = 0; i < (dep as any[]).length; i++) {
+							let oldItem = (oldValue as any[])[i]
+							let newItem = (dep as any[])[i]
+							if (oldItem !== newItem) {
+								return true
+							}
+						}
+					}
+				}
+				else {
+					let newValue = (dep as any)[prop]
+					if (newValue !== oldValue) {
+						return true
+					}
+				}
+			}
+
+			index++
+		}
+
+		return false
+	}
 }
 
