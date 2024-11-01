@@ -141,7 +141,7 @@ export class Watcher<T extends LayoutWatcherType> {
 	}
 	
 	/** Reset current state. */
-	initState() {
+	private initState() {
 		this.oldState = this.stateGetter(this.el)
 	}
 
@@ -190,11 +190,19 @@ export class Watcher<T extends LayoutWatcherType> {
 	
 	private onResized(entry: ResizeObserverEntry) {
 		(this as Watcher<'size'>).callback(entry.contentRect)
+
+		if (this.options.once) {
+			this.unwatch()
+		}
 	}
 
 	private onIntersectionChange(entry: IntersectionObserverEntry) {
 		let newState = this.type === 'in-view' ? entry.intersectionRatio > 0 : entry.intersectionRatio === 0;
 		(this as Watcher<'in-view' | 'out-view'>).callback(newState)
+
+		if (this.options.once) {
+			this.unwatch()
+		}
 	}
 
 	private checkStateInAnimationFrame() {
@@ -212,16 +220,10 @@ export class Watcher<T extends LayoutWatcherType> {
 		if (!ObjectUtils.deepEqual(newState, this.oldState)) {
 			this.oldState = newState
 			this.callback(newState)
-		}
-	}
-	
-	/** Check state manually. */
-	checkState() {
-		let newState = this.stateGetter(this.el) as any
-
-		if (!ObjectUtils.deepEqual(newState, this.oldState)) {
-			this.oldState = newState
-			this.callback(newState)
+			
+			if (this.options.once) {
+				this.unwatch()
+			}
 		}
 	}
 }
