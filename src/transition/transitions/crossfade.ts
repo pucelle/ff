@@ -71,7 +71,7 @@ export const crossfade = Transition.define(async function(el: Element, options: 
 		},
 	}
 
-	return ObjectUtils.assignExclude(o, options, ['key', 'fallback'])
+	return ObjectUtils.assignWithoutKeys(o, options, ['key', 'fallback'])
 })
 
 

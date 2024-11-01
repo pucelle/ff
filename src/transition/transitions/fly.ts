@@ -63,5 +63,5 @@ export const fly = Transition.define(function(el: Element, options: FlyTransitio
 		o.endFrame.opacity = getComputedStyle(el).opacity
 	}
 
-	return ObjectUtils.assignExclude(o, options, ['x', 'y', 'fade'])
+	return ObjectUtils.assignWithoutKeys(o, options, ['x', 'y', 'fade'])
 })

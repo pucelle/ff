@@ -1,4 +1,4 @@
-import {WeakerPairKeysMap} from '../../structs'
+import {WeakerPairKeysMap} from '../structs'
 
 
 /** Caches all bound callbacks, `Callback -> Scope -> Bound Callback`. */

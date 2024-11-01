@@ -1,5 +1,5 @@
 import {SetMap} from '../structs'
-import {bindCallback} from './helpers/bind-callback'
+import {bindCallback} from '../utils'
 import {DependencyMap} from './helpers/dependency-map'
 
 
@@ -137,9 +137,9 @@ export function untrack(callback: Function, scope: object | null = null) {
  * Remember don't use this too frequently,
  * it will get values by a dynamic property and affect performance.
  */
-export function computeTrackingValues(callback: Function, scope: object | null = null) {
+export function computeTrackingValues(callback: Function, scope: object | null = null): any[] {
 	let boundCallback = bindCallback(callback, scope)
-	DepMap.computeValues(boundCallback)
+	return DepMap.computeValues(boundCallback)
 }
 
 

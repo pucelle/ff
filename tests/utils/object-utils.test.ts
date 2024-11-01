@@ -45,7 +45,14 @@ describe('Test ObjectUtils', () => {
 	test('assign', () => {
 		expect(ObjectUtils.assign({}, {a:1})).toEqual({a:1})
 		expect(ObjectUtils.assign({}, {a:undefined})).toEqual({})
-		expect(ObjectUtils.assign({}, {a:1,b:2}, ['a'])).toEqual({a:1})
+	})
+
+	test('assignWithKeys', () => {
+		expect(ObjectUtils.assignWithKeys({}, {a:1,b:2}, ['a'])).toEqual({a:1})
+	})
+
+	test('assignWithoutKeys', () => {
+		expect(ObjectUtils.assignWithKeys({}, {a:1,b:2}, ['a'])).toEqual({b:2})
 	})
 
 	test('deepAssign', () => {
@@ -54,17 +61,17 @@ describe('Test ObjectUtils', () => {
 	})
 
 	test('assignNonExisted', () => {
-		expect(ObjectUtils.assignNonExisted({}, {a:1})).toEqual({a:1})
-		expect(ObjectUtils.assignNonExisted({a:1}, {a:2})).toEqual({a:1})
-		expect(ObjectUtils.assignNonExisted({a:undefined}, {a:2})).toEqual({a:2})
-		expect(ObjectUtils.assignNonExisted({a:1}, {b:2, c:3}, ['b'])).toEqual({a:1, b:2})
+		expect(ObjectUtils.assignNonExistent({}, {a:1})).toEqual({a:1})
+		expect(ObjectUtils.assignNonExistent({a:1}, {a:2})).toEqual({a:1})
+		expect(ObjectUtils.assignNonExistent({a:undefined}, {a:2})).toEqual({a:2})
+		expect(ObjectUtils.assignNonExistent({a:1}, {b:2, c:3}, ['b'])).toEqual({a:1, b:2})
 	})
 
-	test('assignExisted', () => {
-		expect(ObjectUtils.assignExisted({}, {a:1})).toEqual({})
-		expect(ObjectUtils.assignExisted({a:1}, {a:2})).toEqual({a:2})
-		expect(ObjectUtils.assignExisted({a:undefined} as any, {a:2})).toEqual({a:undefined})
-		expect(ObjectUtils.assignExisted({a:1, b:2}, {a:2, b:3}, ['a'])).toEqual({a:2, b:2})
+	test('assignExisting', () => {
+		expect(ObjectUtils.assignExisting({}, {a:1})).toEqual({})
+		expect(ObjectUtils.assignExisting({a:1}, {a:2})).toEqual({a:2})
+		expect(ObjectUtils.assignExisting({a:undefined} as any, {a:2})).toEqual({a:undefined})
+		expect(ObjectUtils.assignExisting({a:1, b:2}, {a:2, b:3}, ['a'])).toEqual({a:2, b:2})
 	})
 
 	test('cleanEmptyValues', () => {

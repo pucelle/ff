@@ -1,4 +1,4 @@
-import {createImmediateWatch, createOnceWatch, createWatch, createWatchUntil, trackGet, trackSet, untilComplete} from '../../src'
+import {createImmediateWatch, createOnceWatch, createWatch, createWatchUntil, trackGet, trackSet, untilUpdateComplete} from '../../src'
 
 
 describe('Test watch', () => {
@@ -15,7 +15,7 @@ describe('Test watch', () => {
 		a.b = 2
 		trackSet(a, 'b')
 
-		await untilComplete()
+		await untilUpdateComplete()
 		expect(fn).toHaveBeenCalledTimes(1)
 	})
 
@@ -34,7 +34,7 @@ describe('Test watch', () => {
 		a.b = 2
 		trackSet(a, 'b')
 
-		await untilComplete()
+		await untilUpdateComplete()
 		expect(fn).toHaveBeenCalledTimes(2)
 	})
 
@@ -51,13 +51,13 @@ describe('Test watch', () => {
 		a.b = 2
 		trackSet(a, 'b')
 
-		await untilComplete()
+		await untilUpdateComplete()
 		expect(fn).toHaveBeenCalledTimes(1)
 
 		a.b = 3
 		trackSet(a, 'b')
 
-		await untilComplete()
+		await untilUpdateComplete()
 		expect(fn).toHaveBeenCalledTimes(1)
 	})
 
@@ -74,13 +74,13 @@ describe('Test watch', () => {
 		a.b = 0
 		trackSet(a, 'b')
 
-		await untilComplete()
+		await untilUpdateComplete()
 		expect(fn).toHaveBeenCalledTimes(0)
 
 		a.b = 1
 		trackSet(a, 'b')
 
-		await untilComplete()
+		await untilUpdateComplete()
 		expect(fn).toHaveBeenCalledTimes(1)
 	})
 })

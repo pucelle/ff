@@ -1,3 +1,4 @@
+import {IntersectionEvents, ResizeEvents} from '../events'
 import {ObjectUtils, Interval, AnimationFrame, DOMUtils} from '../utils'
 
 
@@ -10,11 +11,25 @@ type LayoutWatcherCallback<T extends LayoutWatcherType> = (state: ReturnType<(ty
 /** Options for `LayoutWatcher`. */
 export interface LayoutWatcherOptions {
 
-	/** A millisecond count, if specified, per interval timer to check state. */
-	checkIntervalTime?: number
+	/** If will unwatch after . */
+	once: boolean
 
-	/** If specified as `true`, check state per animation frame, and ignores `checkIntervalTime`. */
-	checkPerAnimationFrame?: boolean
+	/** Whether calls callback immediately. */
+	immediate: boolean
+
+	/** If specified as `true`, force check state per animation frame, and ignores `checkIntervalTime`. */
+	checkPerAnimationFrame: boolean
+
+	/** A millisecond count, if specified, force use per interval timer to check state. */
+	checkIntervalTime?: number
+}
+
+
+const DefaultLayoutWatcherOptions: LayoutWatcherOptions = {
+	once: false,
+	immediate: false,
+	checkPerAnimationFrame: false,
+	checkIntervalTime: undefined
 }
 
 
@@ -36,7 +51,7 @@ const WatcherStateGetters = {
 		return !DOMUtils.isRectIntersectWithViewport(el.getBoundingClientRect())
 	},
 
-	'size'(el: HTMLElement): {width: number, height: number} {
+	'size'(el: HTMLElement): SizeLike {
 		return {
 			width : el.clientWidth,
 			height: el.clientHeight,
@@ -65,32 +80,9 @@ export function watch<T extends LayoutWatcherType>(
 	el: HTMLElement,
 	type: T,
 	callback: LayoutWatcherCallback<T>,
-	options?: LayoutWatcherOptions
+	options?: Partial<LayoutWatcherOptions>
 ): () => void {
 	let watcher = new Watcher(el, type, callback, options)
-	watcher.watch()
-
-	return () => watcher.unwatch()
-}
-
-
-/**
- * Watch specified layout state, trigger `callback` if this state get changed, and cancel watching.
- * Note that this method may slow page speed and cause additional reflow.
- * Returns a cancel function.
- */
-export function watchOnce<T extends LayoutWatcherType>(
-	el: HTMLElement,
-	type: T,
-	callback: LayoutWatcherCallback<T>,
-	options?: LayoutWatcherOptions
-): () => void {
-	function wrappedCallback(state: ReturnType<(typeof WatcherStateGetters)[T]>) {
-		watcher.unwatch()
-		callback(state)
-	}
-
-	let watcher = new Watcher(el, type, wrappedCallback, options)
 	watcher.watch()
 
 	return () => watcher.unwatch()
@@ -108,7 +100,7 @@ export function watchUntil<T extends 'show' | 'hide' | 'in-view' | 'out-view'>(
 	callback: LayoutWatcherCallback<T>,
 	options?: LayoutWatcherOptions
 ): () => void {
-	function wrappedCallback(state: ReturnType<(typeof WatcherStateGetters)[T]>) {
+	function wrappedCallback(state: ReturnType<(typeof WatcherStateGetters)[T] & boolean>) {
 		if (state) {
 			watcher.unwatch()
 		}
@@ -116,7 +108,7 @@ export function watchUntil<T extends 'show' | 'hide' | 'in-view' | 'out-view'>(
 		callback(state)
 	}
 
-	let watcher = new Watcher(el, type, wrappedCallback, options)
+	let watcher = new Watcher(el, type, wrappedCallback as LayoutWatcherCallback<T>, options)
 	watcher.watch()
 
 	return () => watcher.unwatch()
@@ -135,92 +127,88 @@ export class Watcher<T extends LayoutWatcherType> {
 	private readonly options: LayoutWatcherOptions
 	private readonly stateGetter: typeof WatcherStateGetters[T]
 
-	private observer: any = null
 	private frameId: number | null = null
 	private interval: Interval | null = null
 	private oldState: any = null
 	private unwatchChange: (() => void)| null = null
 
-	constructor(el: HTMLElement, type: T, callback: LayoutWatcherCallback<T>, options: LayoutWatcherOptions = {}) {
+	constructor(el: HTMLElement, type: T, callback: LayoutWatcherCallback<T>, options?: Partial<LayoutWatcherOptions>) {
 		this.el = el
 		this.type = type
 		this.callback = callback
-		this.options = options
-
+		this.options = options ? {...options, ...DefaultLayoutWatcherOptions} : DefaultLayoutWatcherOptions
 		this.stateGetter = WatcherStateGetters[type]
+	}
+	
+	/** Reset current state. */
+	initState() {
+		this.oldState = this.stateGetter(this.el)
 	}
 
 	/** Begin to watch. */
 	watch() {
-		this.resetState()
-
 		if (this.options.checkPerAnimationFrame) {
 			this.frameId = AnimationFrame.requestCurrent(this.checkStateInAnimationFrame.bind(this))
+			this.initState()
 		}
 		else if (this.options.checkIntervalTime) {
 			this.interval = new Interval(this.checkStateInInterval.bind(this), this.options.checkIntervalTime)
+			this.initState()
 		}
-		else if (this.type === 'size' && typeof (window as any).ResizeObserver === 'function' && !this.options.checkIntervalTime) {
-			this.observer = new (window as any).ResizeObserver(this.onResize.bind(this))
-			this.observer.observe(this.el)
+		else if (this.type === 'size') {
+			ResizeEvents.on(this.el, this.onResized, this)
 		}
-		else if ((this.type === 'in-view' || this.type === 'out-view')
-			&& typeof IntersectionObserver === 'function' && !this.options.checkIntervalTime
-		) {
-			this.observer = new IntersectionObserver(this.onInViewChange.bind(this))
-			this.observer.observe(this.el)
+		else if (this.type === 'in-view' || this.type === 'out-view') {
+			IntersectionEvents.on(this.el, this.onIntersectionChange, this)
 		}
 		else {
 			this.unwatchChange = watchDocumentChange(this.checkStateInInterval.bind(this))
+			this.initState()
 		}
 	}
 
 	/** End watch. */
 	unwatch() {
-		if (this.observer) {
-			this.observer.disconnect()
+		if (this.type === 'size') {
+			ResizeEvents.off(this.el, this.onResized, this)
 		}
-		else if (this.options.checkIntervalTime) {
-			this.interval?.cancel()
+		else if (this.type === 'in-view' || this.type === 'out-view') {
+			IntersectionEvents.off(this.el, this.onIntersectionChange, this)
 		}
 		else if (this.options.checkPerAnimationFrame) {
 			if (this.frameId) {
-				cancelAnimationFrame(this.frameId)
+				AnimationFrame.cancel(this.frameId)
 			}
+		}
+		else if (this.options.checkIntervalTime) {
+			this.interval?.cancel()
 		}
 		else {
 			this.unwatchChange?.()
 		}
 	}
 	
-	private onResize(entries: any) {
-		for (let {contentRect} of entries) {
-			this.onNewState({
-				width: contentRect.width,
-				height: contentRect.height
-			})
-		}
+	private onResized(entry: ResizeObserverEntry) {
+		(this as Watcher<'size'>).callback(entry.contentRect)
 	}
 
-	private onInViewChange(entries: IntersectionObserverEntry[]) {
-		for (let {intersectionRatio} of entries) {
-			let newState = this.type === 'in-view' ? intersectionRatio > 0 : intersectionRatio === 0
-			this.onNewState(newState)
-		}
+	private onIntersectionChange(entry: IntersectionObserverEntry) {
+		let newState = this.type === 'in-view' ? entry.intersectionRatio > 0 : entry.intersectionRatio === 0;
+		(this as Watcher<'in-view' | 'out-view'>).callback(newState)
 	}
 
 	private checkStateInAnimationFrame() {
 		let newState = this.stateGetter(this.el)
-		this.onNewState(newState)
+		this.compareState(newState)
 		this.frameId = AnimationFrame.requestCurrent(this.checkStateInAnimationFrame.bind(this))
 	}
 
 	private checkStateInInterval() {
 		let newState = this.stateGetter(this.el)
-		this.onNewState(newState)
+		this.compareState(newState)
 	}
 
-	private onNewState(newState: any) {
+	private compareState(newState: any) {
 		if (!ObjectUtils.deepEqual(newState, this.oldState)) {
 			this.oldState = newState
 			this.callback(newState)
@@ -235,11 +223,6 @@ export class Watcher<T extends LayoutWatcherType> {
 			this.oldState = newState
 			this.callback(newState)
 		}
-	}
-	
-	/** Reset current state. */
-	resetState() {
-		this.oldState = this.stateGetter(this.el)
 	}
 }
 
@@ -291,7 +274,7 @@ function unwatchDocumentChange(callback: () => void) {
 
 function emitDocumentChangeLater() {
 	if (!willEmitDocumentChange) {
-		AnimationFrame.requestNext(emitDocumentChange)
+		AnimationFrame.requestCurrent(emitDocumentChange)
 		willEmitDocumentChange = true
 	}
 }

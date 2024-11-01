@@ -41,5 +41,5 @@ export const blur = Transition.define(function(el: Element, options: BlurTransit
 		o.endFrame.opacity = getComputedStyle(el).opacity
 	}
 
-	return ObjectUtils.assignExclude(o, options, ['radius', 'fade'])
+	return ObjectUtils.assignWithoutKeys(o, options, ['radius', 'fade'])
 })

@@ -31,7 +31,7 @@ interface SyncTaskQueueEvents<T, V> {
 	'task-aborted'(item: T): void
 
 	/**
-	 * After error occured when processing task.
+	 * After error occurred when processing task.
 	 * If `continueOnError` is `false` and `maxRetryTimes` equals `0`, queue will be aborted.
 	 */
 	'task-error'(item: T, err: Error | string | number): void
@@ -76,7 +76,7 @@ export interface SyncTaskQueueOptions<T, V> {
 
 	/**
 	 * Specifies how many times can retry before a task success.
-	 * If a task's retry times execeed, it will not be retried automatically,
+	 * If a task's retry times exceed, it will not be retried automatically,
 	 * but you can still retry all failed tasks by calling `retry()` manually.
 	 * Setting this option to values `> 0` implies `continueOnError` is `true`.
 	 */
@@ -220,7 +220,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 
 		// Skip `data`.
 		let fullOptions = {...DefaultSyncTaskQueueOptions}
-		ObjectUtils.assignExisted(fullOptions, options)
+		ObjectUtils.assignExisting(fullOptions, options)
 		ObjectUtils.assign(this, fullOptions)
 
 		this.handler = options.handler

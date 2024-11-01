@@ -62,5 +62,5 @@ export const fold = Transition.define(function(el: HTMLElement, options: FoldTra
 		o.endFrame.opacity = computed.opacity
 	}
 
-	return ObjectUtils.assignExclude(o, options, ['direction', 'fade'])
+	return ObjectUtils.assignWithoutKeys(o, options, ['direction', 'fade'])
 })

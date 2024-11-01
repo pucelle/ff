@@ -1,6 +1,5 @@
 import {MiniHeap} from '../structs'
-import {AnimationFrame} from '../utils'
-import {bindCallback} from './helpers/bind-callback'
+import {AnimationFrame, bindCallback} from '../utils'
 
 
 /** Indicates queue update phase. */

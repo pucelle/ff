@@ -1,3 +1,4 @@
+export * from './bind-callback'
 export * from './duration-object'
 export * from './function'
 export * from './mixin'

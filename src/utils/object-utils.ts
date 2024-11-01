@@ -134,10 +134,33 @@ export function deepEqualComparable(a: unknown, b: unknown, maxDepth: number = 1
 
 
 /**
- * Assign keys and values from `source` to `target`, overwrite same-keyed values of the `target`.
- * Can specifies `keys` to limit assigned properties.
+ * Assign keys and values from `sources` to `target`,
+ * overwrite same-keyed values of the `target`.
+ * 
+ * The difference with `Object.assign` is here `undefined` values are treated as non-existent.
  */
-export function assign<T extends object, S extends object>(target: T, source: S, keys: (keyof S)[] = Object.keys(source) as (keyof S)[]): T & S {
+export function assign<T extends object, S extends object>(target: T, ...sources: S[]): T & S {
+	for (let source of sources) {
+		for (let key of Object.keys(source) as (keyof S)[]) {
+			let value = source[key]
+			if (value !== undefined) {
+				target[key as unknown as keyof T] = value as any
+			}
+		}
+	}
+
+	return target as T & S
+}
+
+
+/**
+ * Assign keys and values from `source` to `target`,
+ * overwrite same-keyed values of the `target`.
+ * Use `keys` to limit assigned properties.
+ * 
+ * Note here `undefined` values are treated as non-existent.
+ */
+export function assignWithKeys<T extends object, S extends object>(target: T, source: S, keys: (keyof S)[]): T & S {
 	for (let key of keys) {
 		let value = source[key]
 		if (value !== undefined) {
@@ -152,8 +175,10 @@ export function assign<T extends object, S extends object>(target: T, source: S,
 /**
  * Assign keys and values from `source` to `target`, overwrite same-keyed values of the `target`.
  * Will skip specified `keys` of source object.
+ * 
+ * Note here `undefined` values are treated as non-existent.
  */
-export function assignExclude<T extends object, S extends object>(target: T, source: S, keys: (keyof S)[]): T & S {
+export function assignWithoutKeys<T extends object, S extends object>(target: T, source: S, keys: (keyof S)[]): T & S {
 	for (let key of Object.keys(source) as (keyof S)[]) {
 		if (keys.includes(key)) {
 			continue
@@ -199,8 +224,10 @@ export function deepAssign<T extends object>(target: T, source: T, maxDepth: num
  * Assign keys and values from `from` to `target`,
  * will not overwrite values in `target` if `target` has associated keys.
  * Can specify `keys` to only overwrite within these keys.
+ * 
+ * Note here `undefined` values are treated as non-existent.
  */
-export function assignNonExisted<T extends object, S extends object>(
+export function assignNonExistent<T extends object, S extends object>(
 	target: T,
 	source: S,
 	keys: (keyof S)[] = Object.keys(source) as (keyof S)[]
@@ -221,8 +248,10 @@ export function assignNonExisted<T extends object, S extends object>(
  * Assign object values from `source` to `target`,
  * will only overwrite values that has already existed in `target`.
  * Can specify `keys` to only overwrite within these keys.
+ * 
+ * Note here `undefined` values are treated as non-existent.
  */
-export function assignExisted<T extends object>(
+export function assignExisting<T extends object>(
 	target: T,
 	source: Partial<T>,
 	keys: (keyof T)[] = Object.keys(target) as (keyof T)[]

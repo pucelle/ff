@@ -41,5 +41,5 @@ export const draw = Transition.define(function(el: SVGGeometryElement, options: 
 		o.duration = duration
 	}
 
-	return ObjectUtils.assignExclude(o, options, ['speed', 'duration'])
+	return ObjectUtils.assignWithoutKeys(o, options, ['speed', 'duration'])
 })

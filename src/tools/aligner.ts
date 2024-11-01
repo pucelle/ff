@@ -305,7 +305,7 @@ export class Aligner {
 	 * Returns whether options get changed.
 	 */
 	private initOptions(options: Partial<AlignerOptions> = {}): boolean {
-		let newOptions = ObjectUtils.assignNonExisted(options, DefaultAlignerOptions)
+		let newOptions = ObjectUtils.assignNonExistent(options, DefaultAlignerOptions)
 
 		let changed = !ObjectUtils.deepEqual(this.options, newOptions)
 		if (changed) {

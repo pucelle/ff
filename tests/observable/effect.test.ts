@@ -1,4 +1,4 @@
-import {trackGet, createEffect, untilComplete, trackSet} from '../../src'
+import {trackGet, createEffect, untilUpdateComplete, trackSet} from '../../src'
 
 
 describe('Test effect', () => {
@@ -17,7 +17,7 @@ describe('Test effect', () => {
 		a.b = 2
 		trackSet(a, 'b')
 
-		await untilComplete()
+		await untilUpdateComplete()
 		expect(fn).toHaveBeenCalledTimes(2)
 	})
 })

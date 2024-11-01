@@ -131,6 +131,12 @@ export class DependencyMap {
 			for (let [dep, prop] of deps.flatEntries()) {
 				let oldValue = oldValues[index]
 				if (prop === '') {
+					
+					// May has became `null` or `undefined`.
+					if (!dep) {
+						return false
+					}
+
 					if (dep instanceof Map) {
 						if (dep.size !== (oldValue as any[]).length) {
 							return true

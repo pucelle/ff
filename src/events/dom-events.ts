@@ -29,6 +29,7 @@ export function on(el: EventTarget, type: string, handler: EventHandler, scope: 
 /** 
  * Bind an event listener on an event target, triggers for only once.
  * Can specify `scope` to identify listener when un-binding, and will pass it to listener handler.
+ * Equals `on(..., {once: true}) `
  */
 export function once(el: EventTarget, type: string, handler: EventHandler, scope: any = null, options: AddEventListenerOptions = {}) {
 	options.once = true
