@@ -1,4 +1,4 @@
-import {DeepReadonly} from '../observable'
+import {DeepReadonly} from '../observe'
 import {ObjectUtils} from '../utils'
 import {PerFrameTransition, PerFrameTransitionOptions} from './per-frame-transition'
 import {WebTransition, WebTransitionKeyFrame, WebTransitionOptions} from './web-transition'

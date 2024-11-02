@@ -29,20 +29,23 @@ export function on(el: EventTarget, type: string, handler: EventHandler, scope: 
 /** 
  * Bind an event listener on an event target, triggers for only once.
  * Can specify `scope` to identify listener when un-binding, and will pass it to listener handler.
- * Equals `on(..., {once: true}) `
+ * 
+ * Equals bind with `once: true` in options.
  */
 export function once(el: EventTarget, type: string, handler: EventHandler, scope: any = null, options: AddEventListenerOptions = {}) {
 	options.once = true
-	let boundHandler = scope ? handler.bind(scope) : handler
-
-	bindEvent(el, type, handler, scope, boundHandler, options)
+	on(el, type, handler, scope, options)
 }
 
 
 /** Bind event internally. */
-export function bindEvent(el: EventTarget, type: string, handler: EventHandler, scope: any, boundHandler: EventHandler, options: AddEventListenerOptions | boolean) {
+export function bindEvent(el: EventTarget, type: string, handler: EventHandler, scope: any, boundHandler: EventHandler, options: AddEventListenerOptions) {
+	if (options.once) {
+		boundHandler = bindOnce(el, type, handler, scope, boundHandler)
+	}
+
 	let eventListener = {
-		type: type,
+		type,
 		handler,
 		boundHandler,
 		scope,
@@ -50,6 +53,14 @@ export function bindEvent(el: EventTarget, type: string, handler: EventHandler, 
 
 	EventListenerMap.add(el, type, eventListener)
 	el.addEventListener(type, boundHandler, options)
+}
+
+
+function bindOnce(el: EventTarget, type: string, handler: EventHandler, scope: any, boundHandler: EventHandler) {
+	return function(e: Event) {
+		boundHandler(e)
+		off(el, type, handler, scope)
+	}
 }
 
 

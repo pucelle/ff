@@ -36,7 +36,7 @@ export declare function effect(originalMethod: any, context: ClassMethodDecorato
  * 
  * Use it like:
  * ```
- * @watch('property')
+ * @watch('publicProperty')
  * onPropertyChange(propertyValue) {...}
  * 
  * @watch('publicProperty1', 'publicProperty2')
@@ -67,17 +67,21 @@ type InferMethodParameters<T, PS extends ((() => any) | keyof T)[]>
 type InferPropertyType<T, P extends ((() => any) | keyof T)>
 	= P extends (() => any) ? ReturnType<P> : P extends keyof T ? T[P] : any
 
+
 /** 
- * `@watch` decorates a class method to watch a property, or returned value of a fn,
+ * `@immediateWatch` decorates a class method to watch a property, or returned value of a fn,
  * and calls current method after this value becomes changed.
  * 
  * Use it like:
  * ```
- * @watch('property')
- * onPropertyChange() {...}
+ * @immediateWatch('publicProperty')
+ * onPropertyChange(propertyValue) {...}
  * 
- * @watch(function(this: C) {return this.property})
- * onPropertyChange() {...}
+ * @immediateWatch('publicProperty1', 'publicProperty2')
+ * onPropertyChange(publicPropertyValue1, publicPropertyValue2) {...}
+ * 
+ * @immediateWatch(function(this: C) {return this.property}, ...)
+ * onPropertyChange(watchFnReturnedValue) {...}
  * ```
  * 
  * The watch action will be enqueued after instance initialized,

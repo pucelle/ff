@@ -1,5 +1,8 @@
-import {IntersectionEvents, ResizeEvents} from '../events'
+import * as ResizeEvents from './resize-events'
+import * as IntersectionEvents from './intersection-events'
 import {ObjectUtils, Interval, AnimationFrame, DOMUtils} from '../utils'
+import {untilUpdateComplete} from '../observe'
+import * as DocumentWatcher from './document-watcher'
 
 
 /** Watcher types. */
@@ -11,7 +14,7 @@ type LayoutWatcherCallback<T extends LayoutWatcherType> = (state: ReturnType<(ty
 /** Options for `LayoutWatcher`. */
 export interface LayoutWatcherOptions {
 
-	/** If will unwatch after . */
+	/** If need to unwatch after first time calls callback. */
 	once: boolean
 
 	/** Whether calls callback immediately. */
@@ -130,7 +133,6 @@ export class Watcher<T extends LayoutWatcherType> {
 	private frameId: number | null = null
 	private interval: Interval | null = null
 	private oldState: any = null
-	private unwatchChange: (() => void)| null = null
 
 	constructor(el: HTMLElement, type: T, callback: LayoutWatcherCallback<T>, options?: Partial<LayoutWatcherOptions>) {
 		this.el = el
@@ -141,18 +143,19 @@ export class Watcher<T extends LayoutWatcherType> {
 	}
 	
 	/** Reset current state. */
-	private initState() {
+	private async initState() {
+		await untilUpdateComplete()
 		this.oldState = this.stateGetter(this.el)
 	}
 
 	/** Begin to watch. */
 	watch() {
 		if (this.options.checkPerAnimationFrame) {
-			this.frameId = AnimationFrame.requestCurrent(this.checkStateInAnimationFrame.bind(this))
+			this.frameId = AnimationFrame.requestNext(this.checkStateOnAnimationFrame.bind(this))
 			this.initState()
 		}
 		else if (this.options.checkIntervalTime) {
-			this.interval = new Interval(this.checkStateInInterval.bind(this), this.options.checkIntervalTime)
+			this.interval = new Interval(this.checkState.bind(this), this.options.checkIntervalTime)
 			this.initState()
 		}
 		else if (this.type === 'size') {
@@ -162,20 +165,14 @@ export class Watcher<T extends LayoutWatcherType> {
 			IntersectionEvents.on(this.el, this.onIntersectionChange, this)
 		}
 		else {
-			this.unwatchChange = watchDocumentChange(this.checkStateInInterval.bind(this))
+			DocumentWatcher.bind(this.checkState, this)
 			this.initState()
 		}
 	}
 
 	/** End watch. */
 	unwatch() {
-		if (this.type === 'size') {
-			ResizeEvents.off(this.el, this.onResized, this)
-		}
-		else if (this.type === 'in-view' || this.type === 'out-view') {
-			IntersectionEvents.off(this.el, this.onIntersectionChange, this)
-		}
-		else if (this.options.checkPerAnimationFrame) {
+		if (this.options.checkPerAnimationFrame) {
 			if (this.frameId) {
 				AnimationFrame.cancel(this.frameId)
 			}
@@ -183,13 +180,19 @@ export class Watcher<T extends LayoutWatcherType> {
 		else if (this.options.checkIntervalTime) {
 			this.interval?.cancel()
 		}
+		else if (this.type === 'size') {
+			ResizeEvents.off(this.el, this.onResized, this)
+		}
+		else if (this.type === 'in-view' || this.type === 'out-view') {
+			IntersectionEvents.off(this.el, this.onIntersectionChange, this)
+		}
 		else {
-			this.unwatchChange?.()
+			DocumentWatcher.unbind(this.checkState, this)
 		}
 	}
 	
 	private onResized(entry: ResizeObserverEntry) {
-		(this as Watcher<'size'>).callback(entry.contentRect)
+		this.callback(entry.contentRect as any)
 
 		if (this.options.once) {
 			this.unwatch()
@@ -197,29 +200,26 @@ export class Watcher<T extends LayoutWatcherType> {
 	}
 
 	private onIntersectionChange(entry: IntersectionObserverEntry) {
-		let newState = this.type === 'in-view' ? entry.intersectionRatio > 0 : entry.intersectionRatio === 0;
-		(this as Watcher<'in-view' | 'out-view'>).callback(newState)
+		let newState = this.type === 'in-view' ? entry.intersectionRatio > 0 : entry.intersectionRatio === 0
+		this.callback(newState as any)
 
 		if (this.options.once) {
 			this.unwatch()
 		}
 	}
 
-	private checkStateInAnimationFrame() {
-		let newState = this.stateGetter(this.el)
-		this.compareState(newState)
-		this.frameId = AnimationFrame.requestCurrent(this.checkStateInAnimationFrame.bind(this))
+	private async checkStateOnAnimationFrame() {
+		await untilUpdateComplete()
+		this.checkState()
+		this.frameId = AnimationFrame.requestNext(this.checkStateOnAnimationFrame.bind(this))
 	}
 
-	private checkStateInInterval() {
+	private checkState() {
 		let newState = this.stateGetter(this.el)
-		this.compareState(newState)
-	}
 
-	private compareState(newState: any) {
 		if (!ObjectUtils.deepEqual(newState, this.oldState)) {
 			this.oldState = newState
-			this.callback(newState)
+			this.callback(newState as any)
 			
 			if (this.options.once) {
 				this.unwatch()
@@ -228,62 +228,3 @@ export class Watcher<T extends LayoutWatcherType> {
 	}
 }
 
-
-let mutationObserver: MutationObserver | null = null
-let mutationObserverCallbacks: Array<() => void> = []
-let willEmitDocumentChange: boolean = false
-
-
-function watchDocumentChange(callback: () => void) {
-	if (!mutationObserver) {
-		mutationObserver = new MutationObserver(emitDocumentChangeLater)
-		mutationObserver.observe(document.documentElement, {subtree: true, childList: true, attributes: true})
-	}
-
-	if (mutationObserverCallbacks.length === 0) {
-		window.addEventListener('resize', emitDocumentChangeLater)
-		window.addEventListener('wheel', emitDocumentChangeLater)
-
-		if ('ontouchmove' in window) {
-			window.addEventListener('touchmove', emitDocumentChangeLater)
-		}
-	}
-
-	mutationObserverCallbacks.push(callback)
-
-	return function() {
-		unwatchDocumentChange(callback)
-	}
-}
-
-function unwatchDocumentChange(callback: () => void) {
-	mutationObserverCallbacks = mutationObserverCallbacks.filter(v => v !== callback)
-
-	if (mutationObserverCallbacks.length === 0 && mutationObserver) {
-		mutationObserver.disconnect()
-		mutationObserver = null
-	}
-
-	if (mutationObserverCallbacks.length === 0) {
-		window.removeEventListener('resize', emitDocumentChangeLater)
-		window.removeEventListener('wheel', emitDocumentChangeLater)
-
-		if ('ontouchmove' in window) {
-			window.removeEventListener('touchmove', emitDocumentChangeLater)
-		}
-	}
-}
-
-function emitDocumentChangeLater() {
-	if (!willEmitDocumentChange) {
-		AnimationFrame.requestCurrent(emitDocumentChange)
-		willEmitDocumentChange = true
-	}
-}
-
-function emitDocumentChange() {
-	for (let callback of mutationObserverCallbacks) {
-		callback()
-	}
-	willEmitDocumentChange = false
-}

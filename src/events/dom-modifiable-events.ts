@@ -135,6 +135,7 @@ export function on<T extends string>(
 	let wrappedHandler = wrapHandler(el, type, modifiers as string[] | null, handler)
 	let capture = !!modifiers && (modifiers as string[]).includes('capture')
 	let passive = !!modifiers && (modifiers as string[]).includes('passive')
+	let once = !!modifiers && (modifiers as string[]).includes('once')
 
 	if (capture) {
 		options.capture = true
@@ -142,6 +143,10 @@ export function on<T extends string>(
 	
 	if (passive) {
 		options.passive = true
+	}
+
+	if (once) {
+		options.once = true
 	}
 
 	DOMEvents.bindEvent(el, type, handler, scope, wrappedHandler, options)

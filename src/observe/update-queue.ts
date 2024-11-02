@@ -101,7 +101,7 @@ export function onUpdateComplete(callback: () => void) {
 
 /** 
  * Returns a promise which will be resolved after all the enqueued callbacks were called.
- * Can safely read computed style after returned promise was resolved.
+ * Can safely read computed style and rendered properties after returned promise was resolved.
  */
 export function untilUpdateComplete(): Promise<void> {
 	return new Promise(resolve => {
