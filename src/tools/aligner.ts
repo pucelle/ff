@@ -1,6 +1,5 @@
 import {Direction} from '../math'
-import {ObjectUtils} from '../utils'
-import * as DOMUtils from '../utils/dom-utils'
+import {ObjectUtils, DOMUtils} from '../utils'
 
 
 /** Options for aligning two elements. */
@@ -305,7 +304,7 @@ export class Aligner {
 	 * Returns whether options get changed.
 	 */
 	private initOptions(options: Partial<AlignerOptions> = {}): boolean {
-		let newOptions = ObjectUtils.assignNonExistent(options, DefaultAlignerOptions)
+		let newOptions = Object.assign({}, DefaultAlignerOptions, options)
 
 		let changed = !ObjectUtils.deepEqual(this.options, newOptions)
 		if (changed) {

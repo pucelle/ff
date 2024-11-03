@@ -61,10 +61,10 @@ describe('Test ObjectUtils', () => {
 	})
 
 	test('assignNonExisted', () => {
-		expect(ObjectUtils.assignNonExistent({}, {a:1})).toEqual({a:1})
-		expect(ObjectUtils.assignNonExistent({a:1}, {a:2})).toEqual({a:1})
-		expect(ObjectUtils.assignNonExistent({a:undefined}, {a:2})).toEqual({a:2})
-		expect(ObjectUtils.assignNonExistent({a:1}, {b:2, c:3}, ['b'])).toEqual({a:1, b:2})
+		expect(ObjectUtils.assignNonExisted({}, {a:1})).toEqual({a:1})
+		expect(ObjectUtils.assignNonExisted({a:1}, {a:2})).toEqual({a:1})
+		expect(ObjectUtils.assignNonExisted({a:undefined}, {a:2})).toEqual({a:2})
+		expect(ObjectUtils.assignNonExisted({a:1}, {b:2, c:3}, ['b'])).toEqual({a:1, b:2})
 	})
 
 	test('assignExisting', () => {

@@ -227,7 +227,7 @@ export function deepAssign<T extends object>(target: T, source: T, maxDepth: num
  * 
  * Note here `undefined` values are treated as non-existent.
  */
-export function assignNonExistent<T extends object, S extends object>(
+export function assignNonExisted<T extends object, S extends object>(
 	target: T,
 	source: S,
 	keys: (keyof S)[] = Object.keys(source) as (keyof S)[]
