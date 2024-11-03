@@ -17,7 +17,6 @@ describe('Test watch', () => {
 
 		a.b = 2
 		trackSet(a, 'b')
-
 		await untilUpdateComplete()
 		expect(fn).toHaveBeenCalledTimes(2)
 		expect(callback).toHaveBeenCalledTimes(1)
@@ -59,7 +58,6 @@ describe('Test watch', () => {
 
 		a.b = 2
 		trackSet(a, 'b')
-
 		await untilUpdateComplete()
 		expect(fn).toHaveBeenCalledTimes(2)
 	})
@@ -77,13 +75,11 @@ describe('Test watch', () => {
 
 		a.b = 2
 		trackSet(a, 'b')
-
 		await untilUpdateComplete()
 		expect(fn).toHaveBeenCalledTimes(1)
 
 		a.b = 3
 		trackSet(a, 'b')
-
 		await untilUpdateComplete()
 		expect(fn).toHaveBeenCalledTimes(1)
 	})
@@ -101,13 +97,11 @@ describe('Test watch', () => {
 
 		a.b = 0
 		trackSet(a, 'b')
-
 		await untilUpdateComplete()
 		expect(fn).toHaveBeenCalledTimes(0)
 
 		a.b = 1
 		trackSet(a, 'b')
-
 		await untilUpdateComplete()
 		expect(fn).toHaveBeenCalledTimes(1)
 	})
@@ -131,14 +125,23 @@ describe('Test watch', () => {
 		a.b = 0
 		a.c = 0
 		trackSet(a, 'b', 'c')
-
 		await untilUpdateComplete()
 		expect(fn).toHaveBeenCalledTimes(0)
 
 		a.b = 1
 		trackSet(a, 'b')
-
 		await untilUpdateComplete()
 		expect(fn).toHaveBeenCalledTimes(1)
+
+		a.c = 1
+		trackSet(a, 'c')
+		await untilUpdateComplete()
+		expect(fn).toHaveBeenCalledTimes(2)
+
+		a.b = 2
+		a.c = 2
+		trackSet(a, 'b', 'c')
+		await untilUpdateComplete()
+		expect(fn).toHaveBeenCalledTimes(3)
 	})
 })
