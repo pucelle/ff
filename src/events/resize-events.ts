@@ -9,7 +9,7 @@ type ObserverCallback = (entry: ResizeObserverEntry) => void
  * Help to dispatch resize observer callback for several elements,
  * according to a single observer.
  */
-const Observer = new ResizeObserver(onResizeCallback.bind(this))
+let observer: ResizeObserver | null
 
 /** Cache element -> bound callbacks. */
 const CallbackMap: ListMap<Element, ObserverCallback> = new ListMap()
@@ -38,13 +38,17 @@ function onResizeCallback(entries: ResizeObserverEntry[]) {
 
 /** Observe an element. */
 export function on(el: Element, callback: ObserverCallback, scope: any = null, options: ResizeObserverOptions = {}) {
+	if (!observer) {
+		observer = new ResizeObserver(onResizeCallback)
+	}
+
 	let boundCallback = bindCallback(callback, scope)
 
 	if (CallbackMap.has(el, boundCallback)) {
 		return
 	}
 
-	Observer.observe(el, options)
+	observer.observe(el, options)
 	CallbackMap.add(el, boundCallback)
 }
 
@@ -64,6 +68,6 @@ export function off(el: Element, callback: ObserverCallback, scope: any = null) 
 	CallbackMap.delete(el, boundCallback)
 
 	if (!CallbackMap.hasOf(el)) {
-		Observer.unobserve(el)
+		observer?.unobserve(el)
 	}
 }

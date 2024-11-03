@@ -52,7 +52,7 @@ describe('Test ObjectUtils', () => {
 	})
 
 	test('assignWithoutKeys', () => {
-		expect(ObjectUtils.assignWithKeys({}, {a:1,b:2}, ['a'])).toEqual({b:2})
+		expect(ObjectUtils.assignWithoutKeys({}, {a:1,b:2}, ['a'])).toEqual({b:2})
 	})
 
 	test('deepAssign', () => {

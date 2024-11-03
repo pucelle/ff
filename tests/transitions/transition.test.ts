@@ -11,7 +11,7 @@ describe('Test transition', () => {
 		}
 	})
 
-	test('getEasingFunction of custom easings', () => {
+	test('getEasingFunction of custom easing names', () => {
 		for (let name of ['ease-in-elastic', 'ease-out-elastic', 'ease-in-out-elastic', 'ease-in-bounce', 'ease-out-bounce', 'ease-in-out-bounce'] as TransitionEasingName[]) {
 			let fn = getEasingFunction(name)
 			expect(fn(0)).toEqual(0)

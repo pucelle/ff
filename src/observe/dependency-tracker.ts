@@ -100,7 +100,7 @@ export function trackSet(obj: object, ...props: PropertyKey[]) {
 		let callbackSet: Set<Function> = new Set()
 
 		for (let prop of props) {
-			let callbacks = DepMap.getRefreshCallbacks(obj, prop)
+			let callbacks = DepMap.getCallbacks(obj, prop)
 			if (callbacks) {
 				for (let callback of callbacks) {
 					callbackSet.add(callback)
@@ -114,7 +114,7 @@ export function trackSet(obj: object, ...props: PropertyKey[]) {
 	}
 	else {
 		for (let prop of props) {
-			let callbacks = DepMap.getRefreshCallbacks(obj, prop)
+			let callbacks = DepMap.getCallbacks(obj, prop)
 			if (callbacks) {
 				for (let callback of callbacks) {
 					callback()
@@ -128,7 +128,27 @@ export function trackSet(obj: object, ...props: PropertyKey[]) {
 /** Remove all dependencies of a refresh callback. */
 export function untrack(callback: Function, scope: object | null = null) {
 	let boundCallback = bindCallback(callback, scope)
-	DepMap.deleteRefreshCallback(boundCallback)
+	DepMap.deleteCallback(boundCallback)
+}
+
+
+/** 
+ * Get tracked dependencies and remove them of a refresh callback.
+ * After exported, no need to call `untrack`.
+ */
+export function exportTracked(callback: Function, scope: object | null = null): SetMap<object, PropertyKey> | undefined {
+	let boundCallback = bindCallback(callback, scope)
+	let tracked = DepMap.getDependencies(boundCallback)
+	DepMap.deleteCallback(boundCallback)
+
+	return tracked
+}
+
+
+/** Import and restore tracked dependencies. */
+export function importTracked(callback: Function, scope: object | null = null, deps: SetMap<object, PropertyKey>) {
+	let boundCallback = bindCallback(callback, scope)
+	DepMap.apply(boundCallback, deps)
 }
 
 
@@ -137,14 +157,95 @@ export function untrack(callback: Function, scope: object | null = null) {
  * Remember don't use this too frequently,
  * it will get values by a dynamic property and affect performance.
  */
-export function computeTrackingValues(callback: Function, scope: object | null = null): any[] {
-	let boundCallback = bindCallback(callback, scope)
-	return DepMap.computeValues(boundCallback)
+export function computeTrackingValues(deps: SetMap<object, PropertyKey>): any[] {
+	let values: any[] = []
+
+	if (deps) {
+		for (let [dep, prop] of deps.flatEntries()) {
+			if (prop === '') {
+				values.push([...dep as Map<any, any> | Set<any> | any[]])
+			}
+			else {
+				values.push((dep as any)[prop])
+			}
+		}
+	}
+
+	return values
 }
 
 
-/** Compare whether dependency values has changed from a previously computed values. */
-export function compareTrackingValues(callback: Function, scope: object | null = null, oldValues: any[]): boolean {
-	let boundCallback = bindCallback(callback, scope)
-	return DepMap.compareValues(boundCallback, oldValues)
+/** Compare whether dependency values haven't changed from a previously computed values. */
+export function compareTrackingValues(deps: SetMap<object, PropertyKey>, oldValues: any[]): boolean {
+	let index = 0
+
+	// Important notes:
+	// We assume each value in old values are always
+	// have the same position with new values.
+	// This is because haven't doing new tracking.
+
+	for (let [dep, prop] of deps.flatEntries()) {
+		let oldValue = oldValues[index]
+		if (prop === '') {
+			
+			// May has became `null` or `undefined`.
+			if (!dep) {
+				return false
+			}
+
+			if (dep instanceof Map) {
+				if (dep.size !== (oldValue as any[]).length) {
+					return false
+				}
+
+				let i = 0
+
+				for (let newItem of dep) {
+					let oldItem = (oldValue as [any, any][])[i]
+					if (oldItem[0] !== newItem[0] || oldItem[1] !== newItem[1]) {
+						return false
+					}
+					i++
+				}
+			}
+			else if (dep instanceof Set) {
+				if (dep.size !== (oldValue as any[]).length) {
+					return false
+				}
+
+				let i = 0
+				
+				for (let newItem of dep) {
+					let oldItem = (oldValue as any[])[i]
+					if (oldItem !== newItem) {
+						return false
+					}
+					i++
+				}
+			}
+			else {
+				if ((dep as any[]).length !== (oldValue as any[]).length) {
+					return false
+				}
+
+				for (let i = 0; i < (dep as any[]).length; i++) {
+					let oldItem = (oldValue as any[])[i]
+					let newItem = (dep as any[])[i]
+					if (oldItem !== newItem) {
+						return false
+					}
+				}
+			}
+		}
+		else {
+			let newValue = (dep as any)[prop]
+			if (newValue !== oldValue) {
+				return false
+			}
+		}
+
+		index++
+	}
+
+	return true
 }

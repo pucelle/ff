@@ -108,7 +108,7 @@ describe('Test Matrix', () => {
 
 		expect(m1.multiply(m2)).toEqual(new Matrix(2, 0, 0, 2, 4, 4))
 		expect(m1.multiplyScalar(2)).toEqual(new Matrix(4, 0, 0, 4, 0, 0))
-		expect(m1.postMultiply(m2)).toEqual(new Matrix(2, 0, 0, 2, 2, 2))
+		expect(m1.preMultiply(m2)).toEqual(new Matrix(2, 0, 0, 2, 2, 2))
 
 		m.reset()
 		expect(m.translate(1, 1)).toEqual(new Matrix(1, 0, 0, 1, 1, 1))

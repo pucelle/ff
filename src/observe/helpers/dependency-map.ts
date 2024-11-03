@@ -32,26 +32,26 @@ export class DependencyMap {
 	private dependencyMap: ExtendedPairKeysWeakSetMap<Function, object, PropertyKey> = new ExtendedPairKeysWeakSetMap()
 
 	/** Caches `Dependency -> Dependency Key -> Refresh Callback`. */
-	private refreshMap: ExtendedPairKeysWeakSetMap<object, PropertyKey, Function> = new ExtendedPairKeysWeakSetMap()
+	private callbackMap: ExtendedPairKeysWeakSetMap<object, PropertyKey, Function> = new ExtendedPairKeysWeakSetMap()
 
 
 	/** When doing getting property, add dependencies. */
-	apply(refreshCallback: Function, deps: SetMap<object, PropertyKey>) {
+	apply(callback: Function, deps: SetMap<object, PropertyKey>) {
 		if (deps.keyCount() > 0) {
-			this.updateRefreshMap(refreshCallback, deps)
+			this.updateCallbackMap(callback, deps)
 
 			// Must after previous step.
-			this.dependencyMap.setSecond(refreshCallback, deps)
+			this.dependencyMap.setSecond(callback, deps)
 			
 		}
 		else {
-			this.dependencyMap.deleteSecondOf(refreshCallback)
+			this.dependencyMap.deleteSecondOf(callback)
 		}
 
 	}
 	
 	/** Update Refresh Callback Map by a Dependency Map item. */
-	private updateRefreshMap(c: Function, deps: SetMap<object, PropertyKey>) {
+	private updateCallbackMap(c: Function, deps: SetMap<object, PropertyKey>) {
 		let oldDep = this.dependencyMap.getSecond(c)
 
 		// Clean not existed.
@@ -65,7 +65,7 @@ export class DependencyMap {
 
 				for (let prop of oldProps) {
 					if (!props.has(prop)) {
-						this.refreshMap.delete(dep, prop, c)
+						this.callbackMap.delete(dep, prop, c)
 					}
 				}
 			}
@@ -73,126 +73,30 @@ export class DependencyMap {
 
 		// Add or replace.
 		for (let [dep, props] of deps.entries()) {
-			this.refreshMap.addByGroupOfSecondKeys(dep, props, c)
+			this.callbackMap.addByGroupOfSecondKeys(dep, props, c)
 		}
 	}
 
-	/** Get all refresh callbacks by associated Dependency and key. */
-	getRefreshCallbacks(dep: object, prop: PropertyKey): Set<Function> | undefined {
-		return this.refreshMap.get(dep, prop)
+	/** Get all refresh callbacks by associated dependency and key. */
+	getCallbacks(dep: object, prop: PropertyKey): Set<Function> | undefined {
+		return this.callbackMap.get(dep, prop)
 	}
 
-	/** Delete a refresh callbacks and all of its associated Dependency and keys. */
-	deleteRefreshCallback(c: Function) {
-		let deps = this.dependencyMap.getSecond(c)
+	/** Get all dependencies by associated refresh callback. */
+	getDependencies(callback: Function): SetMap<object, PropertyKey> | undefined {
+		return this.dependencyMap.getSecond(callback)
+	}
+
+	/** Delete a refresh callbacks and all of its associated dependency and keys. */
+	deleteCallback(callback: Function) {
+		let deps = this.dependencyMap.getSecond(callback)
 		if (deps) {
 			for (let [dep, prop] of deps.flatEntries()) {
-				this.refreshMap.delete(dep, prop, c)
+				this.callbackMap.delete(dep, prop, callback)
 			}
 		}
 
-		this.dependencyMap.deleteSecondOf(c)
-	}
-
-	/** 
-	 * Compute current dependency values for comparing.
-	 * Remember don't use this too frequently,
-	 * it will get values by a dynamic property and affect performance.
-	 */
-	computeValues(c: Function): any[] {
-		let deps = this.dependencyMap.getSecond(c)
-		let values: any[] = []
-
-		if (deps) {
-			for (let [dep, prop] of deps.flatEntries()) {
-				if (prop === '') {
-					values.push([...dep as Map<any, any> | Set<any> | any[]])
-				}
-				else {
-					values.push((dep as any)[prop])
-				}
-			}
-		}
-
-		return values
-	}
-
-	/** Compare whether dependency values has changed from a previously computed values. */
-	compareValues(c: Function, oldValues: any[]): boolean {
-		let deps = this.dependencyMap.getSecond(c)
-		let index = 0
-
-		// Important notes:
-		// We assume each value in old values are always
-		// have the same position with new values.
-		// This is because haven't doing new tracking.
-
-		if (deps) {
-			for (let [dep, prop] of deps.flatEntries()) {
-				let oldValue = oldValues[index]
-				if (prop === '') {
-					
-					// May has became `null` or `undefined`.
-					if (!dep) {
-						return false
-					}
-
-					if (dep instanceof Map) {
-						if (dep.size !== (oldValue as any[]).length) {
-							return true
-						}
-
-						let i = 0
-
-						for (let newItem of dep) {
-							let oldItem = (oldValue as [any, any][])[i]
-							if (oldItem[0] !== newItem[0] || oldItem[1] !== newItem[1]) {
-								return true
-							}
-							i++
-						}
-					}
-					else if (dep instanceof Set) {
-						if (dep.size !== (oldValue as any[]).length) {
-							return true
-						}
-
-						let i = 0
-						
-						for (let newItem of dep) {
-							let oldItem = (oldValue as any[])[i]
-							if (oldItem !== newItem) {
-								return true
-							}
-							i++
-						}
-					}
-					else {
-						if ((dep as any[]).length !== (oldValue as any[]).length) {
-							return true
-						}
-
-						for (let i = 0; i < (dep as any[]).length; i++) {
-							let oldItem = (oldValue as any[])[i]
-							let newItem = (dep as any[])[i]
-							if (oldItem !== newItem) {
-								return true
-							}
-						}
-					}
-				}
-				else {
-					let newValue = (dep as any)[prop]
-					if (newValue !== oldValue) {
-						return true
-					}
-				}
-			}
-
-			index++
-		}
-
-		return false
+		this.dependencyMap.deleteSecondOf(callback)
 	}
 }
 

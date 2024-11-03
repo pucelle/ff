@@ -1,4 +1,4 @@
-import {beginTrack, endTrack, trackGet, trackSet, computeTrackingValues, compareTrackingValues} from '../../src'
+import {beginTrack, endTrack, trackGet, trackSet} from '../../src'
 
 
 describe('Test DependencyTracker', () => {
@@ -47,38 +47,5 @@ describe('Test DependencyTracker', () => {
 		a.key.c.push(3)
 		trackSet(a.key.c, '')
 		expect(a.update).toHaveBeenCalledTimes(5)
-	})
-
-
-	it('Test Tracking values', () => {
-		class A {
-			key!: {b: number, c: number[]}
-			update = jest.fn()
-		}
-	
-		let a = new A()
-		a.key = {b: 1, c: [1]}
-		a.update()
-
-		function reCapture() {
-			beginTrack(a.update, a)
-
-			a.key.b
-			trackGet(a, 'key')
-			trackGet(a.key, 'b')
-
-			a.key.c.length
-			trackGet(a, 'key')
-			trackGet(a.key, 'c')
-			trackGet(a.key.c, '')
-
-			endTrack()
-		}
-
-		reCapture()
-		let values = computeTrackingValues(a.update, a)
-		expect(values).toEqual([a.key, a.key.b, a.key.c, a.key.c])
-		a.key.b = 2
-		expect(compareTrackingValues(a.update, a, values)).toBeTruthy()
 	})
 })

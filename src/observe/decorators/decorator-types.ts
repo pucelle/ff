@@ -58,11 +58,14 @@ export declare function effect(originalMethod: any, context: ClassMethodDecorato
 export declare function watch<T, PS extends (((this: T) => any) | keyof T)[]>(...fnOrProps: PS):
 	(originalMethod: InferMethod<T, PS>, context: ClassMethodDecoratorContext<T>) => any
 
+/** Infer method declaration by class T, and properties PS. */
 type InferMethod<T, PS extends ((() => any) | keyof T)[]>
 	= (...args: InferMethodParameters<T, PS>) => void
 
+/** Infer method parameters by class T, and properties PS. */
 type InferMethodParameters<T, PS extends ((() => any) | keyof T)[]>
 	= {[K in keyof PS]: InferPropertyType<T, PS[K]>}
 
+/** Infer property types by class T, and properties PS. */
 type InferPropertyType<T, P extends ((() => any) | keyof T)>
 	= P extends (() => any) ? ReturnType<P> : P extends keyof T ? T[P] : any

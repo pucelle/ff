@@ -9,7 +9,7 @@ type ObserverCallback = (entry: IntersectionObserverEntry) => void
  * Help to dispatch intersection observer callback for several elements,
  * according to a single observer.
  */
-const Observer = new IntersectionObserver(onIntersectionCallback.bind(this))
+let observer: IntersectionObserver | null = null
 
 /** Cache element -> bound callbacks. */
 const CallbackMap: ListMap<Element, ObserverCallback> = new ListMap()
@@ -38,13 +38,17 @@ function onIntersectionCallback(entries: IntersectionObserverEntry[]) {
 
 /** Observe an element. */
 export function on(el: Element, callback: ObserverCallback, scope: any = null) {
+	if (!observer) {
+		observer = new IntersectionObserver(onIntersectionCallback)
+	}
+
 	let boundCallback = bindCallback(callback, scope)
 
 	if (CallbackMap.has(el, boundCallback)) {
 		return
 	}
 
-	Observer.observe(el)
+	observer.observe(el)
 	CallbackMap.add(el, boundCallback)
 }
 
@@ -64,6 +68,6 @@ export function off(el: Element, callback: ObserverCallback, scope: any = null) 
 	CallbackMap.delete(el, boundCallback)
 
 	if (!CallbackMap.hasOf(el)) {
-		Observer.unobserve(el)
+		observer?.unobserve(el)
 	}
 }

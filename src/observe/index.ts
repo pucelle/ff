@@ -1,9 +1,7 @@
 export * from './barrier-queue'
-export * from './computed'
-export * from './decorator-types'
-export * from './effect'
+export * from './decorators'
 export * from './proxy-of'
 export * from './types'
 export * from './dependency-tracker'
 export * from './update-queue'
-export * from './watch'
+

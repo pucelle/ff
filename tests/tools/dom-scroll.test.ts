@@ -2,15 +2,15 @@ import {DOMScroll} from '../../src'
 
 
 describe('DOMScroll', () => {
-	test('getClosestCSSScrollWrapper', async () => {
+	test('findClosestCSSScrollWrapper', async () => {
 		let p = document.createElement('div')
 		p.style.cssText = 'overflow-y: auto'
 
 		let c = document.createElement('div')
 		p.append(c)
 
-		expect(DOMScroll.getClosestCSSScrollWrapper(p)).toEqual(p)
-		expect(DOMScroll.getClosestCSSScrollWrapper(c)).toEqual(p)
+		expect(DOMScroll.findClosestCSSScrollWrapper(p)).toEqual(p)
+		expect(DOMScroll.findClosestCSSScrollWrapper(c)).toEqual(p)
 	})
 
 
