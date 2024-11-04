@@ -19,8 +19,10 @@ export class ComputedMaker<V = any> {
 	}
 
 	private onDepChange() {
-		this.value = undefined
-		this.valueFresh = false
+		if (this.valueFresh) {
+			this.value = undefined
+			this.valueFresh = false
+		}
 	}
 
 	get(): V {

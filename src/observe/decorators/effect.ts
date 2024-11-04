@@ -12,13 +12,19 @@ export class EffectMaker {
 	private fn: () => void
 	private deps: SetMap<object, PropertyKey> | undefined = undefined
 	private depValues: any[] | null = null
+	private needsUpdate: boolean = false
 
 	constructor(fn: () => void, scope?: any) {
 		this.fn = scope ? fn.bind(scope) : fn
 	}
 
 	private onDepChange() {
+		if (this.needsUpdate) {
+			return
+		}
+
 		enqueueUpdate(this.update, this)
+		this.needsUpdate = true
 	}
 
 	update() {
@@ -32,6 +38,8 @@ export class EffectMaker {
 		finally {
 			endTrack()
 		}
+
+		this.needsUpdate = false
 	}
 
 	connect() {

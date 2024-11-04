@@ -76,25 +76,11 @@ let phase: QueueUpdatePhase = QueueUpdatePhase.NotStarted
 
 /** 
  * Enqueue a callback with a scope, will call it before the next animate frame.
- * Multiple times add same callbacks during same animate frame will work for only once.
- * @param order specifies the callback order.
+ * Note you must prevent adding same callback multiple times before updating.
+ * @param order specifies the callback order, default value is `0`.
  */
 export function enqueueUpdate(callback: () => void, scope: object | null = null, order: number = 0) {
-	if (heap.has(callback, scope)) {
-		return
-	}
-
 	heap.add(callback, scope, order)
-	willUpdateIfNotYet()
-}
-
-
-/** 
- * Calls `callback` after all the enqueued callbacks were called.
- * Can safely read computed style in `callback`.
- */
-export function onUpdateComplete(callback: () => void) {
-	completeCallbacks.push(callback)
 	willUpdateIfNotYet()
 }
 
@@ -102,10 +88,12 @@ export function onUpdateComplete(callback: () => void) {
 /** 
  * Returns a promise which will be resolved after all the enqueued callbacks were called.
  * Can safely read computed style and rendered properties after returned promise was resolved.
+ * Normally you should wait for updating complete before any dom properties reading.
  */
 export function untilUpdateComplete(): Promise<void> {
 	return new Promise(resolve => {
-		onUpdateComplete(resolve)
+		completeCallbacks.push(resolve)
+		willUpdateIfNotYet()
 	})
 }
 

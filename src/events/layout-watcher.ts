@@ -132,7 +132,7 @@ export class LayoutWatcher<T extends LayoutWatcherType> {
 	}
 
 	/** 
-	 * Begin to watch.
+	 * Begin to watch if not watching.
 	 * It will wait for render complete then read dom properties.
 	 */
 	async watch() {
@@ -170,7 +170,7 @@ export class LayoutWatcher<T extends LayoutWatcherType> {
 		}
 	}
 
-	/** End watch. */
+	/** End watch if watching. */
 	unwatch() {
 		if (!this.watching) {
 			return

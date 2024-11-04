@@ -35,6 +35,7 @@ export class WatchMaker<V = any> {
 	private value: V | undefined = undefined
 	private valueAssigned: boolean = false
 	private options: WatchOptions
+	private needsUpdate: boolean = false
 
 	constructor(getter: () => V, callback: (value: V) => void, scope?: any, options?: Partial<WatchOptions>) {
 		this.getter = scope ? getter.bind(scope) : getter
@@ -43,7 +44,12 @@ export class WatchMaker<V = any> {
 	}
 
 	private onDepChange() {
+		if (this.needsUpdate) {
+			return
+		}
+
 		enqueueUpdate(this.update, this)
+		this.needsUpdate = true
 	}
 
 	update() {
@@ -67,6 +73,7 @@ export class WatchMaker<V = any> {
 			this.callback(value!)
 		}
 		
+		this.needsUpdate = false
 		this.value = value!
 		this.valueAssigned = true
 
@@ -101,7 +108,7 @@ type InferValueGetters<V extends any[]> = {[K in keyof V]: () => V[K]}
  * 
  * Normally use it to process the decoration of `@watch.`
  */
-export class MultipleWatchMaker<V extends any[] = any> {
+export class WatchMultipleMaker<V extends any[] = any> {
 
 	private getters: InferValueGetters<V>
 	private callback: (...value: V) => void

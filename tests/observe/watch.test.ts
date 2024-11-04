@@ -1,4 +1,4 @@
-import {trackGet, trackSet, untilUpdateComplete, WatchMaker, MultipleWatchMaker} from '../../src'
+import {trackGet, trackSet, untilUpdateComplete, WatchMaker, WatchMultipleMaker} from '../../src'
 
 
 describe('Test watch', () => {
@@ -110,7 +110,7 @@ describe('Test watch', () => {
 		let a = {b: 0, c: 0}
 		let fn = jest.fn()
 
-		let watch = new MultipleWatchMaker([
+		let watch = new WatchMultipleMaker([
 			() => {
 				trackGet(a, 'b')
 				return a.b
