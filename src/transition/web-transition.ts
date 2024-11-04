@@ -1,6 +1,7 @@
 import {getCSSEasingValue, WebAnimationEasingName} from './easing'
 import {PerFrameTransitionEvents, PerFrameTransitionOptions} from './per-frame-transition'
 import {EventFirer} from '../events'
+import {promiseWithResolves} from '../utils'
 
 
 /** 
@@ -233,19 +234,20 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 			}
 		)
 
-		this.promise = new Promise((resolve) => {
-			this.resolve = resolve
+		let {promise, resolve} = promiseWithResolves<boolean>()
+		
+		this.promise = promise
+		this.resolve = resolve
 
-			this.animation!.addEventListener('finish', () => {
-				this.onFinished()
-			}, false)
+		this.animation!.addEventListener('finish', () => {
+			this.onFinished()
+		}, false)
 
-			this.animation!.addEventListener('cancel', () => {
-				this.onCanceled()
-			}, false)
-		}) as Promise<boolean>
+		this.animation!.addEventListener('cancel', () => {
+			this.onCanceled()
+		}, false)
 
-		return this.promise
+		return promise
 	}
 
 	/** 

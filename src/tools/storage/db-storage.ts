@@ -1,3 +1,5 @@
+import {promiseWithResolves} from "../../utils"
+
 /** To config a DBStorage. */
 export interface DBStoreOptions {
 	name: string
@@ -86,7 +88,10 @@ export class DBStorage {
 		}
 
 		let request = indexedDB.open(this.name, this.version)
-		let timeoutPromise = new Promise(resolve => setTimeout(() => resolve(null), 500)) as Promise<null>
+
+		let {promise: timeoutPromise, resolve: timeoutResolve} = promiseWithResolves<null>()
+		setTimeout(() => timeoutResolve(null), 500)
+
 		this.openPromise = this.handleOpenDBRequest(request)
 
 		this.db = await Promise.any([this.openPromise, timeoutPromise])
@@ -97,17 +102,19 @@ export class DBStorage {
 
 	/** Package Request object to Promise. */
 	private handleOpenDBRequest(request: IDBOpenDBRequest): Promise<IDBDatabase> {
-		return new Promise((resolve, reject) => {
-			request.onupgradeneeded = () => {
-				this.updateStores(request.result)
-			}
+		let {promise, resolve, reject} = promiseWithResolves<IDBDatabase>()
 
-			request.onsuccess = function() {
-				resolve(request.result)
-			}
+		request.onupgradeneeded = () => {
+			this.updateStores(request.result)
+		}
 
-			request.onerror = reject
-		}) as Promise<IDBDatabase>
+		request.onsuccess = function() {
+			resolve(request.result)
+		}
+
+		request.onerror = reject
+		
+		return promise
 	}
 
 	/** Update store data structure. */
@@ -172,10 +179,12 @@ export class DBStore<T = any> {
 
 	/** Package Request object to Promise. */
 	private requestToPromise<T = any>(request: IDBRequest<T>) {
-		return new Promise((resolve, reject) => {
-			request.onsuccess = function(){resolve(request.result)}
-			request.onerror = reject
-		}) as Promise<T>
+		let {promise, resolve, reject} = promiseWithResolves<T>()
+		
+		request.onsuccess = function(){resolve(request.result)}
+		request.onerror = reject
+
+		return promise
 	}
 	
 	/** Whether have specified key. */

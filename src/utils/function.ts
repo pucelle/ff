@@ -1,4 +1,5 @@
 import * as NumberUtils from './number-utils'
+import {promiseWithResolves} from './promise'
 
 
 /** 
@@ -20,7 +21,10 @@ export function* range(start: number, end: number, step: number = start <= end ?
 
 /** Returns a promise which will be resolved after counting timeout for `ms` milliseconds. */
 export function sleep(ms: number = 0) {
-	return new Promise(resolve => setTimeout(resolve, ms))
+	let {promise, resolve} = promiseWithResolves()
+	setTimeout(resolve, ms)
+	
+	return promise
 }
 
 

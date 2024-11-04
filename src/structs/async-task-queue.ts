@@ -1,3 +1,5 @@
+import {promiseWithResolves} from "../utils"
+
 /** Manage a task sequence, and process tasks one by one. */
 export class AsyncTaskQueue {
 
@@ -9,20 +11,21 @@ export class AsyncTaskQueue {
 	 * and current task can be started immediately.
 	 */
 	request(): Promise<() => void> {
-		return new Promise((resolve) => {
+		let {promise, resolve} = promiseWithResolves<() => void>()
 
-			// Resolve next promise, and shift out a task.
-			let startCurrentTask = () => {
-				resolve(this.startNextTask.bind(this))
-			}
+		// Resolve next promise, and shift out a task.
+		let startCurrentTask = () => {
+			resolve(this.startNextTask.bind(this))
+		}
 
-			this.startNextTaskCallback.push(startCurrentTask)
+		this.startNextTaskCallback.push(startCurrentTask)
 
-			// Resolve promise immediately if no previous task.
-			if (this.startNextTaskCallback.length === 1) {
-				startCurrentTask()
-			}
-		})
+		// Resolve promise immediately if no previous task.
+		if (this.startNextTaskCallback.length === 1) {
+			startCurrentTask()
+		}
+		
+		return promise
 	}
 
 	/** Enqueue a task function, run it after previous task end. */

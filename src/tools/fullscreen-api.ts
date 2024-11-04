@@ -1,3 +1,5 @@
+import {promiseWithResolves} from "../utils"
+
 /** Whether supports fullscreen. */
 export function isSupported(): boolean {
 	return document.fullscreenEnabled ?? false
@@ -56,20 +58,22 @@ export async function untilExit() {
 
 /** Returns a promise which will be resolved by whether in fullscreen state after fullscreen state changed. */
 function untilFullscreenChange(): Promise<boolean> {
-	return new Promise((resolve, reject) => {
-		function onChange() {
-			resolve(isInFullscreen())
-			document.removeEventListener('fullscreenchange', onChange, false)
-			document.removeEventListener('fullscreenerror', onError, false)
-		}
+	let {promise, resolve, reject} = promiseWithResolves<boolean>()
+	
+	function onChange() {
+		resolve(isInFullscreen())
+		document.removeEventListener('fullscreenchange', onChange, false)
+		document.removeEventListener('fullscreenerror', onError, false)
+	}
 
-		function onError(e: Event) {
-			reject(e)
-			document.removeEventListener('fullscreenchange', onChange, false)
-			document.removeEventListener('fullscreenerror', onError, false)
-		}
+	function onError(e: Event) {
+		reject(e)
+		document.removeEventListener('fullscreenchange', onChange, false)
+		document.removeEventListener('fullscreenerror', onError, false)
+	}
 
-		document.addEventListener('fullscreenchange', onChange, false)
-		document.addEventListener('fullscreenerror', onError, false)
-	})
+	document.addEventListener('fullscreenchange', onChange, false)
+	document.addEventListener('fullscreenerror', onError, false)
+	
+	return promise
 }

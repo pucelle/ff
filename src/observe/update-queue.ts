@@ -1,5 +1,5 @@
 import {MiniHeap} from '../structs'
-import {AnimationFrame, bindCallback} from '../utils'
+import {AnimationFrame, bindCallback, promiseWithResolves} from '../utils'
 
 
 /** Indicates queue update phase. */
@@ -91,10 +91,11 @@ export function enqueueUpdate(callback: () => void, scope: object | null = null,
  * Normally you should wait for updating complete before any dom properties reading.
  */
 export function untilUpdateComplete(): Promise<void> {
-	return new Promise(resolve => {
-		completeCallbacks.push(resolve)
-		willUpdateIfNotYet()
-	})
+	let {promise, resolve} = promiseWithResolves()
+	completeCallbacks.push(resolve)
+	willUpdateIfNotYet()
+	
+	return promise
 }
 
 

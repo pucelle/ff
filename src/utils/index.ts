@@ -3,6 +3,7 @@ export * from './duration-object'
 export * from './function'
 export * from './mixin'
 export * from './time-control'
+export * from './promise'
 
 export * as AnimationFrame from './animation-frame'
 export * as DateUtils from './date-utils'

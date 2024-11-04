@@ -1,4 +1,4 @@
-import {ListUtils, ObjectUtils, sleep} from '../utils'
+import {ListUtils, ObjectUtils, promiseWithResolves, sleep} from '../utils'
 import {EventFirer} from '../events'
 
 
@@ -111,17 +111,19 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 	 * Returns a promise which will be resolved after tasks become finished.
 	 */
 	static each<T>(data: T[], handler: (item: T) => Promise<void> | void, concurrency?: number): Promise<void> {
-		return new Promise((resolve, reject) => {
-			let q = new TaskQueue({
-				concurrency,
-				data,
-				handler
-			})
+		let {promise, resolve, reject} = promiseWithResolves()
 
-			q.on('finished', resolve)
-			q.on('task-error', reject)
-			q.start()
+		let q = new TaskQueue({
+			concurrency,
+			data,
+			handler
 		})
+
+		q.on('finished', resolve)
+		q.on('task-error', reject)
+		q.start()
+
+		return promise
 	}
 
 	/**
@@ -129,22 +131,23 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 	 * Returns a promise which will be resolved with returned values list.
 	 */
 	static map<T, V>(data: T[], handler: (item: T) => Promise<V> | V, concurrency?: number): Promise<V[]> {
-		return new Promise((resolve, reject) => {
-			let values: V[] = []
-			let indexedTasks = data.map((task, index) => ({task, index}))
+		let {promise, resolve, reject} = promiseWithResolves<V[]>()
+		let values: V[] = []
+		let indexedTasks = data.map((task, index) => ({task, index}))
 
-			let q = new TaskQueue({
-				concurrency,
-				data: indexedTasks,
-				handler: async ({task, index}) => {
-					values[index] = await handler(task)
-				}
-			})
-
-			q.on('finished', () => resolve(values))
-			q.on('task-error', reject)
-			q.start()
+		let q = new TaskQueue({
+			concurrency,
+			data: indexedTasks,
+			handler: async ({task, index}) => {
+				values[index] = await handler(task)
+			}
 		})
+
+		q.on('finished', () => resolve(values))
+		q.on('task-error', reject)
+		q.start()
+
+		return promise
 	}
 
 	/**
@@ -152,24 +155,26 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 	 * Returns a promise which will be resolved if some tasks match `testFn`.
 	 */
 	static some<T>(data: T[], testFn: (task: T) => Promise<boolean> | boolean, concurrency?: number): Promise<boolean> {
-		return new Promise((resolve, reject) => {
-			let q = new TaskQueue({
-				concurrency,
-				data,
-				handler: testFn,
-			})
+		let {promise, resolve, reject} = promiseWithResolves<boolean>()
 
-			q.on('task-finished', (_task: T, value: boolean) => {
-				if (value) {
-					resolve(true)
-					q.clear()
-				}
-			})
-
-			q.on('finished', () => resolve(false))
-			q.on('task-error', reject)
-			q.start()
+		let q = new TaskQueue({
+			concurrency,
+			data,
+			handler: testFn,
 		})
+
+		q.on('task-finished', (_task: T, value: boolean) => {
+			if (value) {
+				resolve(true)
+				q.clear()
+			}
+		})
+
+		q.on('finished', () => resolve(false))
+		q.on('task-error', reject)
+		q.start()
+		
+		return promise
 	}
 
 	/**
@@ -286,26 +291,30 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 
 	/** Returns a promise which will be resolved after finished. */
 	untilFinish(): Promise<void> {
+		let {promise, resolve} = promiseWithResolves()
+
 		if (this.unprocessedCount > 0) {
-			return new Promise(resolve => {
-				this.once('finished', () => resolve())
-			})
+			this.once('finished', resolve)
 		}
 		else {
-			return Promise.resolve()
+			resolve()
 		}
+
+		return promise
 	}
 
 	/** Returns a promise which will be resolved after ended. */
 	untilEnd(): Promise<void> {
+		let {promise, resolve, reject} = promiseWithResolves()
+
 		if (this.unprocessedCount > 0) {
-			return new Promise((resolve, reject) => {
-				this.once('ended', err => err ? reject(err) : resolve())
-			})
+			this.once('ended', err => err ? reject(err) : resolve())
 		}
 		else {
-			return Promise.resolve()
+			resolve()
 		}
+
+		return promise
 	}
 
 	/** 

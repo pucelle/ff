@@ -1,22 +1,24 @@
 import {sleep} from './function'
+import {promiseWithResolves} from './promise'
 
 
 /** Load image source and output an `<image>` element. */
 export async function loadImage(url: string) {
-	return new Promise(function(resolve, reject) {
-		let image = new Image()
+	let {promise, resolve, reject} = promiseWithResolves<HTMLImageElement>()
+	let image = new Image()
 
-		image.onload = function() {
-			resolve(image)
-		}
+	image.onload = function() {
+		resolve(image)
+	}
 
-		image.onerror = function(err) {
-			reject(err)
-		}
+	image.onerror = function(err) {
+		reject(err)
+	}
 
-		image.src = url
-		image.crossOrigin = 'anonymous'
-	}) as Promise<HTMLImageElement>
+	image.src = url
+	image.crossOrigin = 'anonymous'
+
+	return promise
 }
 
 /** Load resource by an URL and output a Blob object. */
@@ -28,16 +30,15 @@ export async function loadAsBlob(url: string): Promise<Blob> {
 export async function loadAsDataURI(url: string): Promise<string> {
 	let blob = await loadAsBlob(url)
 	let reader = new FileReader()
+	let {promise, resolve, reject} = promiseWithResolves<string>()
 
-	let promise =  new Promise(function(resolve, reject) {
-		reader.onload = function() {
-			resolve(reader.result as string)
-		}
+	reader.onload = function() {
+		resolve(reader.result as string)
+	}
 
-		reader.onerror = function() {
-			reject()
-		}
-	}) as Promise<string>
+	reader.onerror = function(err) {
+		reject(err)
+	}
 
 	reader.readAsDataURL(blob)
 
@@ -115,34 +116,35 @@ export function selectMultipleFolders(): Promise<FileList | null> {
 
 /** Select file or folder, multiple or not. */
 function selectFileOrFolder(mime: string, isFolder: boolean, isMultiple: boolean): Promise<FileList | null> {
-	return new Promise(function(resolve) {
-		let input = document.createElement('input')
-		input.type = 'file'
-		input.accept = mime
-		input.multiple = isMultiple
-		input.hidden = true
+	let {promise, resolve} = promiseWithResolves<FileList | null>()
+	let input = document.createElement('input')
+	input.type = 'file'
+	input.accept = mime
+	input.multiple = isMultiple
+	input.hidden = true
 
-		if (isFolder) {
-			input.setAttribute('directory', '')
-			input.setAttribute('webkitdirectory', '')
-		}
-		
-		input.onchange = function() {
-			resolve(input.files || null)
-		}
+	if (isFolder) {
+		input.setAttribute('directory', '')
+		input.setAttribute('webkitdirectory', '')
+	}
+	
+	input.onchange = function() {
+		resolve(input.files || null)
+	}
 
-		async function onDocumentFocus() {
-			await sleep(1000)
-			document.removeEventListener('focus', onDocumentFocus, false)
-			input.onchange = null
-			input.remove()
-		}
+	async function onDocumentFocus() {
+		await sleep(1000)
+		document.removeEventListener('focus', onDocumentFocus, false)
+		input.onchange = null
+		input.remove()
+	}
 
-		document.addEventListener('focus', onDocumentFocus, false)
-		document.body.appendChild(input)
+	document.addEventListener('focus', onDocumentFocus, false)
+	document.body.appendChild(input)
 
-		input.click()
-	})
+	input.click()
+	
+	return promise
 }
 
 
@@ -188,11 +190,13 @@ export async function* walkFilesInEntry(entry: FileSystemEntry): AsyncGenerator<
 	}
 
 	if (entry.isFile) {
-		yield await new Promise(function(resolve, reject) {
-			(entry as FileSystemFileEntry).file(function(file: File) {
-				resolve(file)
-			}, reject)
-		})
+		let {promise, resolve, reject} = promiseWithResolves<File>();
+
+		(entry as FileSystemFileEntry).file(function(file: File) {
+			resolve(file)
+		}, reject)
+
+		yield await promise
 	}
 	else if (entry.isDirectory) {
 		yield* walkFilesInDirectoryEntry(entry as FileSystemDirectoryEntry)
@@ -204,14 +208,16 @@ async function* walkFilesInDirectoryEntry(entry: FileSystemDirectoryEntry): Asyn
 	let reader = entry.createReader()
 
 	while (true) {
-		let entries = await new Promise(function(resolve, reject) {
-			reader.readEntries(
-				function(entries: FileSystemEntry[]) {
-					resolve(entries)
-				},
-				reject
-			)
-		}) as FileSystemEntry[]
+		let {promise, resolve, reject} = promiseWithResolves<FileSystemEntry[]>()
+
+		reader.readEntries(
+			function(entries: FileSystemEntry[]) {
+				resolve(entries)
+			},
+			reject
+		)
+	
+		let entries = await promise
 
 		// readEntries API can only read at most 100 files each time, so if reader isn't completed, still read it.
 		if (entries.length === 0) {

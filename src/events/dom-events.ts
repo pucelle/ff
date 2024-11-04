@@ -1,5 +1,6 @@
 import {WeakPairKeysListMap} from '../structs'
 import {Point} from '../math'
+import {promiseWithResolves} from '../utils'
 
 
 type EventHandler = (e: Event) => void
@@ -167,19 +168,20 @@ export async function untilWindowLoaded() {
 		return
 	}
 	
-	return new Promise(resolve => {
-		windowLoadedCallbacks!.push(resolve)
+	let {promise, resolve} = promiseWithResolves()
+	windowLoadedCallbacks!.push(resolve)
 
-		if (windowLoadedCallbacks!.length === 1) {
-			let entries = window.performance.getEntriesByType('navigation')
-			if (entries.length > 0 && (entries[0] as any).loadEventEnd > 0) {
-				callWindowLoadedCallbacks()
-			}
-			else {
-				window.addEventListener('load', callWindowLoadedCallbacks, {once: true})
-			}
+	if (windowLoadedCallbacks!.length === 1) {
+		let entries = window.performance.getEntriesByType('navigation')
+		if (entries.length > 0 && (entries[0] as any).loadEventEnd > 0) {
+			callWindowLoadedCallbacks()
 		}
-	}) as Promise<void>
+		else {
+			window.addEventListener('load', callWindowLoadedCallbacks, {once: true})
+		}
+	}
+
+	return promise
 }
 
 
@@ -205,17 +207,18 @@ export async function untilDocumentComplete() {
 		return
 	}
 
-	return new Promise(resolve => {
-		documentCompleteCallbacks!.push(resolve)
+	let {promise, resolve} = promiseWithResolves()
+	documentCompleteCallbacks!.push(resolve)
 
-		if (documentCompleteCallbacks!.length === 1) {
-			let entries = window.performance.getEntriesByType('navigation')
-			if (entries.length > 0 && (entries[0] as any).domContentLoadedEventEnd > 0) {
-				callDocumentCompleteCallbacks()
-			}
-			else {
-				document.addEventListener('DOMContentLoaded', callDocumentCompleteCallbacks, {once: true})
-			}
+	if (documentCompleteCallbacks!.length === 1) {
+		let entries = window.performance.getEntriesByType('navigation')
+		if (entries.length > 0 && (entries[0] as any).domContentLoadedEventEnd > 0) {
+			callDocumentCompleteCallbacks()
 		}
-	}) as Promise<void>
+		else {
+			document.addEventListener('DOMContentLoaded', callDocumentCompleteCallbacks, {once: true})
+		}
+	}
+	
+	return promise
 }

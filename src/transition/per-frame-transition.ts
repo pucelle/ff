@@ -2,7 +2,7 @@ import {EasingFunction, TransitionEasingName, getEasingFunction} from './easing'
 import {MathUtils} from '../math'
 import {makeMixer} from './mixer'
 import {EventFirer} from '../events'
-import {FrameLoop, Timeout} from '../utils'
+import {FrameLoop, promiseWithResolves, Timeout} from '../utils'
 
 
 /** Transition events. */
@@ -243,13 +243,13 @@ export class PerFrameTransition<T extends TransitionAbleValue = any> extends Eve
 			this.fire('started')
 		}
 
+		let {promise, resolve} = promiseWithResolves<boolean>()
+
+		this.promise = promise
+		this.resolve = resolve
 		this.delayTimeout.start()
 
-		this.promise = new Promise(resolve => {
-			this.resolve = resolve
-		}) as Promise<boolean>
-
-		return this.promise
+		return promise
 	}
 
 	/** Start new transition immediately. */

@@ -1,3 +1,4 @@
+import {promiseWithResolves} from '../utils'
 import {logger} from './logger'
 import {biggerStorage} from './storage'
 
@@ -68,19 +69,20 @@ export async function read(limitType: 'text' | 'file' | 'all' = 'text'): Promise
 
 /** Read blob as string. */
 function readBlobAsText(blob: Blob): Promise<string> {
-	return new Promise((resolve, reject) => {
-		let reader = new FileReader()
+	let {promise, resolve, reject} = promiseWithResolves<string>()
+	let reader = new FileReader()
 
-		reader.onload = function() {
-			resolve(reader.result as string)
-		}
+	reader.onload = function() {
+		resolve(reader.result as string)
+	}
 
-		reader.onerror = function(err) {
-			reject(err)
-		}
+	reader.onerror = function(err) {
+		reject(err)
+	}
 
-		reader.readAsText(blob)
-	})
+	reader.readAsText(blob)
+
+	return promise
 }
 
 

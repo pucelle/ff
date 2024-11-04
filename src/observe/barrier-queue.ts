@@ -1,4 +1,5 @@
 import {MiniHeap} from '../structs'
+import {promiseWithResolves} from '../utils'
 
 
 /** State of BarrierQueue. */
@@ -42,11 +43,7 @@ export class BarrierQueue {
 			return this.map.get(step)!.promise
 		}
 
-		let resolve: Function
-
-		let promise = new Promise(function(r) {
-			resolve = r
-		}) as Promise<void>
+		let {promise, resolve} = promiseWithResolves()
 
 		this.map.set(step, {
 			promise,
