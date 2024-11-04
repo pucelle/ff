@@ -39,7 +39,7 @@ export class WatchMaker<V = any> {
 	constructor(getter: () => V, callback: (value: V) => void, scope?: any, options?: Partial<WatchOptions>) {
 		this.getter = scope ? getter.bind(scope) : getter
 		this.callback = scope ? callback.bind(scope) : callback
-		this.options = options ? Object.assign({}, DefaultWatchOptions, options) : DefaultWatchOptions
+		this.options = options ? {...DefaultWatchOptions, ...options} : DefaultWatchOptions
 	}
 
 	private onDepChange() {

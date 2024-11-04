@@ -304,7 +304,7 @@ export class Aligner {
 	 * Returns whether options get changed.
 	 */
 	private initOptions(options: Partial<AlignerOptions> = {}): boolean {
-		let newOptions = Object.assign({}, DefaultAlignerOptions, options)
+		let newOptions = {...DefaultAlignerOptions, ...options}
 
 		let changed = !ObjectUtils.deepEqual(this.options, newOptions)
 		if (changed) {
