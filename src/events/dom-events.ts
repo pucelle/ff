@@ -145,35 +145,77 @@ export function comeFromApplePencil(e: Event): boolean {
 }
 
 
+let windowLoadedCallbacks: (() => void)[] | null = []
+
+function callWindowLoadedCallbacks() {
+
+	// May add more when call a previous callback.
+	for (let i = 0; i < windowLoadedCallbacks!.length; i++) {
+		let callback = windowLoadedCallbacks![i]
+		callback()
+	}
+	
+	windowLoadedCallbacks = null
+}
+
 /** 
  * Returns a promise which will be resolved after window loaded,
  * or be resolved immediately if window is already loaded.
  */
-export function untilWindowLoaded() {
+export async function untilWindowLoaded() {
+	if (windowLoadedCallbacks === null) {
+		return
+	}
+	
 	return new Promise(resolve => {
-		let entries = window.performance.getEntriesByType('navigation')
-		if (entries.length > 0 && (entries[0] as any).loadEventEnd > 0) {
-			resolve()
-		}
-		else {
-			window.addEventListener('load', () => resolve(), {once: true})
+		windowLoadedCallbacks!.push(resolve)
+
+		if (windowLoadedCallbacks!.length === 1) {
+			let entries = window.performance.getEntriesByType('navigation')
+			if (entries.length > 0 && (entries[0] as any).loadEventEnd > 0) {
+				callWindowLoadedCallbacks()
+			}
+			else {
+				window.addEventListener('load', callWindowLoadedCallbacks, {once: true})
+			}
 		}
 	}) as Promise<void>
 }
 
 
+let documentCompleteCallbacks: (() => void)[] | null = []
+
+function callDocumentCompleteCallbacks() {
+
+	// May add more when call a previous callback.
+	for (let i = 0; i < documentCompleteCallbacks!.length; i++) {
+		let callback = documentCompleteCallbacks![i]
+		callback()
+	}
+	
+	documentCompleteCallbacks = null
+}
+
 /** 
  * Returns a promise which will be resolved after document completed,
  * or be resolved immediately if document is already completed.
  */
-export function untilDocumentComplete() {
+export async function untilDocumentComplete() {
+	if (documentCompleteCallbacks === null) {
+		return
+	}
+
 	return new Promise(resolve => {
-		let entries = window.performance.getEntriesByType('navigation')
-		if (entries.length > 0 && (entries[0] as any).domContentLoadedEventEnd > 0) {
-			resolve()
-		}
-		else {
-			document.addEventListener('DOMContentLoaded', function(){resolve()}, {once: true})
+		documentCompleteCallbacks!.push(resolve)
+
+		if (documentCompleteCallbacks!.length === 1) {
+			let entries = window.performance.getEntriesByType('navigation')
+			if (entries.length > 0 && (entries[0] as any).domContentLoadedEventEnd > 0) {
+				callDocumentCompleteCallbacks()
+			}
+			else {
+				document.addEventListener('DOMContentLoaded', callDocumentCompleteCallbacks, {once: true})
+			}
 		}
 	}) as Promise<void>
 }
