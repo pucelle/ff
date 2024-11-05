@@ -1,4 +1,4 @@
-import {TransitionEasingName, PerFrameTransition} from '../transition'
+import {PerFrameTransitionEasingName, PerFrameTransition} from '../transition'
 
 
 /** Cached scroll bar width. */
@@ -150,7 +150,7 @@ export async function scrollToView(
 	scrollDirection: HVDirection | null,
 	gap: number = 0,
 	duration: number = 0,
-	easing: TransitionEasingName = 'ease-out'
+	easing: PerFrameTransitionEasingName = 'ease-out'
 ): Promise<boolean> {
 	scrollDirection = scrollDirection || getSizedOverflowDirection(el)
 
@@ -275,7 +275,7 @@ export async function scrollToStart(
 	scrollDirection: HVDirection | null,
 	gap: number = 0,
 	duration: number = 0,
-	easing: TransitionEasingName = 'ease-out'
+	easing: PerFrameTransitionEasingName = 'ease-out'
 ): Promise<boolean> {
 	scrollDirection = scrollDirection || getSizedOverflowDirection(el) || getCSSOverflowDirection(el)
 
@@ -335,7 +335,7 @@ export async function scrollToStart(
  * 
  * Returns a promise which will be resolved by whether scrolled.
  */
-export function scrollToTop(el: HTMLElement, gap: number = 0, duration: number = 0, easing: TransitionEasingName = 'ease-out'): Promise<boolean> {
+export function scrollToTop(el: HTMLElement, gap: number = 0, duration: number = 0, easing: PerFrameTransitionEasingName = 'ease-out'): Promise<boolean> {
 	return scrollToStart(el, 'vertical', gap, duration, easing)
 }
 
@@ -348,6 +348,6 @@ export function scrollToTop(el: HTMLElement, gap: number = 0, duration: number =
  * 
  * Returns a promise which will be resolved by whether scrolled.
  */
-export function scrollToLeft(el: HTMLElement, gap: number = 0, duration: number = 0, easing: TransitionEasingName = 'ease-out'): Promise<boolean> {
+export function scrollToLeft(el: HTMLElement, gap: number = 0, duration: number = 0, easing: PerFrameTransitionEasingName = 'ease-out'): Promise<boolean> {
 	return scrollToStart(el, 'vertical', gap, duration, easing)
 }

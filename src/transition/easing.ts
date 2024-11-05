@@ -5,10 +5,10 @@ import {NumberUtils} from '../utils'
 export type EasingFunction = (x: number) => number
 
 /** Web Animation easing names, for web animation and transition. */
-export type WebAnimationEasingName = keyof typeof CubicBezierEasingParameters | 'linear'
+export type WebTransitionEasingName = keyof typeof CubicBezierEasingParameters | 'linear'
 
 /** Per frame easing names, for per-frame animation and transition. */
-export type TransitionEasingName = keyof typeof CubicBezierEasingParameters | keyof typeof CustomEasingFunctions
+export type PerFrameTransitionEasingName = keyof typeof CubicBezierEasingParameters | keyof typeof CustomEasingFunctions
 
 
 /** 
@@ -103,7 +103,7 @@ const CustomEasingFunctions = {
 
 
 /** Cache compiled easing functions. */
-const EasingFunctionCache: Partial<Record<TransitionEasingName, EasingFunction>> = {...CustomEasingFunctions}
+const EasingFunctionCache: Partial<Record<PerFrameTransitionEasingName, EasingFunction>> = {...CustomEasingFunctions}
 
 
 /** From `https://easings.net/`. */
@@ -129,7 +129,7 @@ function bounceOut(x: number) {
  * Get a `(x) => y` easing function by easing name,
  * Used to mapped time percentage to it's value percentage.
  */
-export function getEasingFunction(name: TransitionEasingName): EasingFunction {
+export function getEasingFunction(name: PerFrameTransitionEasingName): EasingFunction {
 	if (EasingFunctionCache[name]) {
 		return EasingFunctionCache[name]!
 	}
@@ -186,7 +186,7 @@ function makeCubicBezierEasingFunction(x1: number, y1: number, x2: number, y2: n
 
 
 /** Get `cubic-bezier(...)` or `linear` as CSS easing name. */
-export function getCSSEasingValue(easing: WebAnimationEasingName): string {
+export function getCSSEasingValue(easing: WebTransitionEasingName): string {
 	return CubicBezierEasingParameters.hasOwnProperty(easing)
 		? 'cubic-bezier(' + CubicBezierEasingParameters[easing as keyof typeof CubicBezierEasingParameters].join(', ') + ')'
 		: easing

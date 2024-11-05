@@ -1,4 +1,4 @@
-import {getCSSEasingValue, WebAnimationEasingName} from './easing'
+import {getCSSEasingValue, WebTransitionEasingName} from './easing'
 import {PerFrameTransitionEvents, PerFrameTransitionOptions} from './per-frame-transition'
 import {EventFirer} from '../events'
 import {promiseWithResolves} from '../utils'
@@ -9,7 +9,7 @@ import {promiseWithResolves} from '../utils'
  * some custom easing names have been excluded.
  */
 export interface WebTransitionOptions extends PerFrameTransitionOptions {
-	easing?: WebAnimationEasingName
+	easing?: WebTransitionEasingName
 }
 
 /** Web Transition events. */
@@ -43,7 +43,7 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 		startFrame: WebTransitionKeyFrame,
 		endFrame: WebTransitionKeyFrame,
 		duration: number = DefaultWebTransitionOptions.duration,
-		easing: WebAnimationEasingName = DefaultWebTransitionOptions.easing as WebAnimationEasingName,
+		easing: WebTransitionEasingName = DefaultWebTransitionOptions.easing as WebTransitionEasingName,
 		delay: number = 0
 	): Promise<boolean>
 	{
@@ -59,7 +59,7 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 		el: Element,
 		startFrame: WebTransitionKeyFrame,
 		duration: number,
-		easing: WebAnimationEasingName,
+		easing: WebTransitionEasingName,
 		delay: number = 0
 	): Promise<boolean>
 	{
@@ -82,7 +82,7 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 		el: Element,
 		endFrame: WebTransitionKeyFrame,
 		duration: number,
-		easing: WebAnimationEasingName,
+		easing: WebTransitionEasingName,
 		delay: number = 0
 	): Promise<boolean>
 	{

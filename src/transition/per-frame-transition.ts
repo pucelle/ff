@@ -1,4 +1,4 @@
-import {EasingFunction, TransitionEasingName, getEasingFunction} from './easing'
+import {EasingFunction, PerFrameTransitionEasingName, getEasingFunction} from './easing'
 import {MathUtils} from '../math'
 import {makeMixer} from './mixer'
 import {EventFirer} from '../events'
@@ -41,7 +41,7 @@ export interface PerFrameTransitionOptions {
 	 * Specifies default transition easing type.
 	 * Default value is `ease-out-quad`.
 	 */
-	easing?: TransitionEasingName
+	easing?: PerFrameTransitionEasingName
 
 	/** Transition delay in milliseconds. */
 	delay?: number
@@ -67,7 +67,7 @@ export class PerFrameTransition<T extends TransitionAbleValue = any> extends Eve
 		endValue: T,
 		handler: (value: T, progress: number) => void,
 		duration: number = DefaultTransitionOptions.duration,
-		easing: TransitionEasingName = DefaultTransitionOptions.easing,
+		easing: PerFrameTransitionEasingName = DefaultTransitionOptions.easing,
 	): Promise<boolean>
 	{
 		let transition = new PerFrameTransition({duration, easing})
