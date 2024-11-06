@@ -1,5 +1,5 @@
-import {DeepReadonly} from '../observe'
-import {ObjectUtils, sleep} from '../utils'
+import {DeepReadonly, untilUpdateComplete} from '../observe'
+import {ObjectUtils} from '../utils'
 import {PerFrameTransition, PerFrameTransitionOptions} from './per-frame-transition'
 import {WebTransition, WebTransitionKeyFrame, WebTransitionOptions} from './web-transition'
 
@@ -172,7 +172,7 @@ export class Transition {
 
 		// Most transition getters will read dom properties.
 		// Ensure it first render, then play.
-		await sleep(0)
+		await untilUpdateComplete()
 
 		if (this.version !== version) {
 			return false
@@ -227,7 +227,7 @@ export class Transition {
 
 		// Most transition getters will read dom properties.
 		// Ensure it first render, then play.
-		await sleep(0)
+		await untilUpdateComplete()
 
 		if (this.version !== version) {
 			return false

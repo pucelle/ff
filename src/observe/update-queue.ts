@@ -68,7 +68,10 @@ class UpdateHeap {
 const heap: UpdateHeap = new UpdateHeap()
 
 /** Callbacks wait to be called after all the things update. */
-let completeCallbacks: (() => void)[] = []
+let updateCompleteCallbacks: (() => void)[] = []
+
+/** Callbacks wait to be called after ended reading the dom properties. */
+let readCompleteCallbacks: (() => void)[] = []
 
 /** What's updating right now. */
 let phase: QueueUpdatePhase = QueueUpdatePhase.NotStarted
@@ -88,11 +91,27 @@ export function enqueueUpdate(callback: () => void, scope: object | null = null,
 /** 
  * Returns a promise which will be resolved after all the enqueued callbacks were called.
  * Can safely read computed style and rendered properties after returned promise was resolved.
- * Normally you should wait for updating complete before any dom properties reading.
+ * Normally you should wait for updating complete before reading any dom property.
  */
 export function untilUpdateComplete(): Promise<void> {
 	let {promise, resolve} = promiseWithResolves()
-	completeCallbacks.push(resolve)
+	updateCompleteCallbacks.push(resolve)
+	willUpdateIfNotYet()
+	
+	return promise
+}
+
+
+/** 
+ * If you want to read a dom property, and update later depend on the read value, you should:
+ * 1. `untilUpdateComplete()`
+ * 2. read dom property
+ * 3. `untilReadComplete()`
+ * 4. write dom property.
+ */
+export function untilReadComplete(): Promise<void> {
+	let {promise, resolve} = promiseWithResolves()
+	readCompleteCallbacks.push(resolve)
 	willUpdateIfNotYet()
 	
 	return promise
@@ -112,40 +131,40 @@ function willUpdateIfNotYet() {
 async function update() {
 	phase = QueueUpdatePhase.Updating
 
-	while (!heap.isEmpty() || completeCallbacks.length > 0) {
-		while (!heap.isEmpty()) {
-			do {
-				let callback = heap.shift()!
-
-				try {
+	try {
+		while (!heap.isEmpty() || updateCompleteCallbacks.length > 0) {
+			while (!heap.isEmpty()) {
+				do {
+					let callback = heap.shift()!
 					callback()
 				}
-				catch (err) {
-					console.error(err)
-				}
+				while (!heap.isEmpty())
 			}
-			while (!heap.isEmpty())
-		}
 
-		let oldCallbacks = completeCallbacks
-		completeCallbacks = []
+			let callbacks = updateCompleteCallbacks
+			updateCompleteCallbacks = []
 
-		// Calls callbacks, all components and watchers become stable now.
-		for (let callback of oldCallbacks) {
-			try {
+			// Calls callbacks, all components and watchers become stable now.
+			for (let callback of callbacks) {
 				callback()
 			}
-			catch (err) {
-				console.error(err)
-			}
+
+			// Wait for a micro task to see if more callbacks come.
+			await Promise.resolve()
+
+			// Wait for those very deep micro tasks to be completed.
+			// Bad part is it may postpone callback to next frame.
+			// await sleep(0)
 		}
 
-		// Wait for a micro task to see if more callbacks come.
-		await Promise.resolve()
-
-		// Wait for those very deep micro tasks to be completed.
-		// Bad part is it may postpone callback to next frame.
-		// await sleep(0)
+		// Calls read complete callback.
+		let callbacks = readCompleteCallbacks
+		for (let callback of callbacks) {
+			callback()
+		}
+	}
+	catch (err) {
+		console.error(err)
 	}
 
 	// Back to start stage.
