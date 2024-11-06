@@ -48,7 +48,7 @@ export interface PerFrameTransitionOptions {
 }
 
 
-const DefaultTransitionOptions: Required<PerFrameTransitionOptions> = {
+const DefaultPerFrameTransitionOptions: Required<PerFrameTransitionOptions> = {
 	duration: 200,
 	easing: 'ease-out-quad',
 	delay: 0,
@@ -59,20 +59,7 @@ const DefaultTransitionOptions: Required<PerFrameTransitionOptions> = {
 export class PerFrameTransition<T extends TransitionAbleValue = any> extends EventFirer<PerFrameTransitionEvents<T>> {
 
 	/** Default transition options. */
-	static DefaultOptions: Required<PerFrameTransitionOptions> = DefaultTransitionOptions
-
-	/** Play transition with configuration, and between start and end values. */
-	static playBetween<T extends TransitionAbleValue>(
-		startValue: T,
-		endValue: T,
-		handler: (value: T, progress: number) => void,
-		duration: number = DefaultTransitionOptions.duration,
-		easing: PerFrameTransitionEasingName = DefaultTransitionOptions.easing,
-	): Promise<boolean>
-	{
-		let transition = new PerFrameTransition({duration, easing})
-		return transition.playBetween(startValue, endValue, handler)
-	}
+	static DefaultOptions: Required<PerFrameTransitionOptions> = DefaultPerFrameTransitionOptions
 
 
 	/** Calculated easing function. */
@@ -129,7 +116,7 @@ export class PerFrameTransition<T extends TransitionAbleValue = any> extends Eve
 
 	constructor(options: PerFrameTransitionOptions = {}) {
 		super()
-		this.options = {...DefaultTransitionOptions, ...options}
+		this.options = {...DefaultPerFrameTransitionOptions, ...options}
 		this.delayTimeout = new Timeout(this.startTransition.bind(this), this.options.delay)
 		this.frameLoop = new FrameLoop(this.onFrameLoop.bind(this))
 		this.easingFn = getEasingFunction(this.options.easing)
@@ -188,7 +175,7 @@ export class PerFrameTransition<T extends TransitionAbleValue = any> extends Eve
 	 * Only cancel current transition and update start values.
 	 * Returns `this`.
 	 */
-	playFrom(startValue: T): this {
+	setFrom(startValue: T): this {
 		this.cancel()
 		this.startValue = startValue
 		this.currentValue = startValue
@@ -197,13 +184,34 @@ export class PerFrameTransition<T extends TransitionAbleValue = any> extends Eve
 	}
 
 	/** 
+	 * Play from start value to current value.
+	 * Returns a promise which will be resolved after transition end.
+	 * Work only when current value has been set before.
+	 * After transition ended, will persist current state.
+	 */
+	playFrom(startValue: T, onprogress: ((value: T, progress: number) => void) | null = null): Promise<boolean> {
+		if (this.currentValue === null) {
+			throw new Error(`Must call "setFrom" or "playBetween" firstly!`)
+		}
+
+		this.cancel()
+		
+		this.startValue = startValue
+		this.endValue = this.currentValue
+		this.mixer = makeMixer(this.startValue, this.endValue)
+		this.onprogress = onprogress
+
+		return this.startDeferred()
+	}
+
+	/** 
 	 * Play from current value to end value.
 	 * Returns a promise which will be resolved after transition end.
 	 * Work only when start value has been set before.
-	 * After transition end, will persist end state.
+	 * After transition ended, will persist current state.
 	 */
 	playTo(endValue: T, onprogress: ((value: T, progress: number) => void) | null = null): Promise<boolean> {
-		if (this.startValue === null) {
+		if (this.currentValue === null) {
 			throw new Error(`Must call "playFrom" or "playBetween" firstly!`)
 		}
 
@@ -211,7 +219,7 @@ export class PerFrameTransition<T extends TransitionAbleValue = any> extends Eve
 		
 		this.startValue = this.currentValue
 		this.endValue = endValue
-		this.mixer = makeMixer(this.currentValue!, endValue)
+		this.mixer = makeMixer(this.startValue, this.endValue)
 		this.onprogress = onprogress
 
 		return this.startDeferred()

@@ -37,66 +37,6 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 	/** Default web transition options. */
 	static DefaultOptions: Required<WebTransitionOptions> = DefaultWebTransitionOptions
 
-	/** Play transition with configuration, and between start and end frame. */
-	static playBetween(
-		el: Element,
-		startFrame: WebTransitionKeyFrame,
-		endFrame: WebTransitionKeyFrame,
-		duration: number = DefaultWebTransitionOptions.duration,
-		easing: WebTransitionEasingName = DefaultWebTransitionOptions.easing as WebTransitionEasingName,
-		delay: number = 0
-	): Promise<boolean>
-	{
-		let transition = new WebTransition(el, {duration, easing, delay})
-		return transition.playBetween(startFrame, endFrame)
-	}
-
-	/**
-	 * Play web transition from specified start frame to current state.
-	 * After transition ended, go back to initial state.
-	 */
-	static playFrom(
-		el: Element,
-		startFrame: WebTransitionKeyFrame,
-		duration: number,
-		easing: WebTransitionEasingName,
-		delay: number = 0
-	): Promise<boolean>
-	{
-		let endFrame: WebTransitionKeyFrame = {}
-		let style = getComputedStyle(el)
-
-		for (let property of Object.keys(startFrame)) {
-			(endFrame as any)[property] = (style as any)[property] || DefaultNotNumericStyleProperties[property] || '0'
-		}
-
-		let transition = new WebTransition(el, {duration, easing, delay})
-		return transition.playBetween(startFrame, endFrame)
-	}
-
-	/**
-	 * Play web transition from current state to specified end frame.
-	 * After transition ended, go back to initial state.
-	 */
-	static playTo(
-		el: Element,
-		endFrame: WebTransitionKeyFrame,
-		duration: number,
-		easing: WebTransitionEasingName,
-		delay: number = 0
-	): Promise<boolean>
-	{
-		let startFrame: WebTransitionKeyFrame = {}
-		let style = getComputedStyle(el)
-
-		for (let property of Object.keys(endFrame)) {
-			(startFrame as any)[property] = (style as any)[property] || DefaultNotNumericStyleProperties[property] || '0'
-		}
-
-		let transition = new WebTransition(el, {duration, easing, delay})
-		return transition.playBetween(startFrame, endFrame)
-	}
-
 
 	/** The element transition playing at. */
 	readonly el: Element
@@ -175,45 +115,84 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 	 * Only cancel current transition and update start frames.
 	 * Returns `this`.
 	 */
-	playFrom(startFrame: WebTransitionKeyFrame): this {
+	setFrom(startFrame: WebTransitionKeyFrame): this {
 		this.cancel()
 		this.startFrame = startFrame
 
 		return this
 	}
 
-	/** 
-	 * Play from current frame to target end frame.
+	/**
+	 * Play from specified start frame to current state.
 	 * Returns a promise which will be resolved after transition end.
 	 * After transition ended, go back to initial state.
-	 * Work only when transition was started before.
 	 */
-	playTo(endFrame: WebTransitionKeyFrame): Promise<boolean> {
-		if (this.startFrame === null) {
-			throw new Error(`Must call "playFrom" or "playBetween" firstly!`)
+	playFrom(startFrame: WebTransitionKeyFrame): Promise<boolean> {
+		let endFrame: WebTransitionKeyFrame = {}
+		let style = getComputedStyle(this.el)
+
+		for (let property of Object.keys(startFrame)) {
+			(endFrame as any)[property] = (style as any)[property] || DefaultNotNumericStyleProperties[property] || '0'
 		}
 
-		this.endFrame = endFrame
-
-		return this.startPlaying()
-	}
-
-	/** 
-	 * Play between start and end frames.
-	 * Returns a promise which will be resolved after transition end.
-	 * After transition ended, go back to initial state.
-	 */
-	playBetween(startFrame: WebTransitionKeyFrame, endFrame: WebTransitionKeyFrame): Promise<boolean> {
-		this.cancel()
-		
 		this.startFrame = startFrame
 		this.endFrame = endFrame
 
 		return this.startPlaying()
 	}
 
+	/** 
+	 * Play from current frame to target end frame.
+	 * Returns a promise which will be resolved after transition end.
+	 * 
+	 * By default when `applyFinalState` is `false`, after transition ended, go back to initial state.
+	 * If `applyFinalState` specified as `true`, will apply final state after transition end.
+	 * 
+	 * If haven't set start frame, use current state as start frame.
+	 */
+	async playTo(endFrame: WebTransitionKeyFrame, applyFinalState: boolean = false): Promise<boolean> {
+		let startFrame = this.startFrame
+
+		if (!startFrame) {
+			startFrame = {}
+
+			let style = getComputedStyle(this.el)
+
+			for (let property of Object.keys(endFrame)) {
+				(startFrame as any)[property] = (style as any)[property] || DefaultNotNumericStyleProperties[property] || '0'
+			}
+		}
+
+		return this.playBetween(startFrame, endFrame, applyFinalState)
+	}
+
+	/** 
+	 * Play between start and end frames.
+	 * Returns a promise which will be resolved after transition end.
+	 * 
+	 * By default when `applyFinalState` is `false`, after transition ended, go back to initial state.
+	 * If `applyFinalState` specified as `true`, will apply final state after transition end.
+	 */
+	async playBetween(startFrame: WebTransitionKeyFrame, endFrame: WebTransitionKeyFrame, applyFinalState: boolean = false): Promise<boolean> {
+		this.cancel()
+		
+		this.startFrame = startFrame
+		this.endFrame = endFrame
+
+		let finish = await this.startPlaying()
+
+		// Apply final state.
+		if (applyFinalState) {
+			for (let [property, value] of Object.entries(endFrame)) {
+				(this.el as HTMLElement).style.setProperty(property, value as any)
+			}
+		}
+
+		return finish
+	}
+
 	/** Start playing transition. */
-	private startPlaying(): Promise<boolean> {
+	private async startPlaying(): Promise<boolean> {
 		if (this.running) {
 			this.fire('continued')
 		}
@@ -247,7 +226,13 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 			this.onCanceled()
 		}, false)
 
-		return promise
+		let finish = await promise
+		if (finish) {
+			this.startFrame = this.endFrame
+			this.endFrame = null
+		}
+
+		return finish
 	}
 
 	/** 
