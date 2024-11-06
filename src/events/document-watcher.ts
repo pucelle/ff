@@ -19,10 +19,6 @@ export function bind(callback: Function, scope: any = null) {
 
 		window.addEventListener('resize', fireDocumentChangeLater)
 		window.addEventListener('wheel', fireDocumentChangeLater)
-
-		// if ('ontouchmove' in window) {
-		// 	window.addEventListener('touchmove', emitDocumentChangeLater)
-		// }
 	}
 
 	MutationCallbacks.push(boundCallback)
@@ -42,10 +38,6 @@ export function unbind(callback: Function, scope: any = null) {
 		Observer.disconnect()
 		window.removeEventListener('resize', fireDocumentChangeLater)
 		window.removeEventListener('wheel', fireDocumentChangeLater)
-
-		// if ('ontouchmove' in window) {
-		// 	window.removeEventListener('touchmove', emitDocumentChangeLater)
-		// }
 	}
 }
 

@@ -1,4 +1,5 @@
 import {Direction} from '../math'
+import {untilUpdateComplete} from '../observe'
 import {ObjectUtils, DOMUtils} from '../utils'
 
 
@@ -249,7 +250,11 @@ export class Aligner {
 	 * Align content to beside target element.
 	 * Returns whether did alignment.
 	 */
-	align(options: Partial<AlignerOptions> = {}): boolean {
+	async align(options: Partial<AlignerOptions> = {}): Promise<boolean> {
+
+		// Wait for update complete, now can read dom properties.
+		await untilUpdateComplete()
+
 		let optionsChanged = this.initOptions(options)
 		let contentRect = this.content.getBoundingClientRect()
 		let targetRect = this.target.getBoundingClientRect()
@@ -277,7 +282,11 @@ export class Aligner {
 	}
 
 	/** Align content element to the position of a mouse event. */
-	alignToEvent(event: MouseEvent, options: Partial<AlignerOptions> = {}) {
+	async alignToEvent(event: MouseEvent, options: Partial<AlignerOptions> = {}): Promise<boolean> {
+
+		// Wait for update complete, now can read dom properties.
+		await untilUpdateComplete()
+
 		let optionsChanged = this.initOptions(options)
 		let contentRect = this.content.getBoundingClientRect()
 
@@ -329,8 +338,15 @@ export class Aligner {
 	}
 
 	/** Align content after known both rects. */
-	private alignByRects(contentRect: DOMRect, targetRect: DOMRect): boolean {
+	private async alignByRects(contentRect: DOMRect, targetRect: DOMRect): Promise<boolean> {
+
+		// Now can only read dom properties.
 		let targetFaceDirection = this.targetFaceDirection
+		let shouldResetContentHeight = this.alignmentState.haveShrinkOnY
+		let shouldClearContentPosition = this.shouldClearContentPosition(contentRect)
+
+
+		// Now can only write dom properties.
 
 		// Reset styles before doing alignment.
 		this.resetStyles()
@@ -342,19 +358,23 @@ export class Aligner {
 			return false
 		}
 
+
+		// Now can only read dom properties.
+
 		// content may be shrunk into the edge and it's width get limited.
-		if (this.shouldClearContentPosition(contentRect)) {
+		// An additional write and read of dom properties.
+		if (shouldResetContentHeight || shouldClearContentPosition) {
 			this.clearContentPosition()
 			contentRect = this.content.getBoundingClientRect()
 		}
 
-		// Get triangle rect based on content origin.
+		// Read triangle rect based on content origin, must after resetting style.
 		let triangleRelativeRect = this.getTriangleRelativeRect(contentRect)
 
 		// Do content alignment.
 		let alignResult = this.doAlignment(targetFaceDirection, contentRect, targetRect, triangleRelativeRect)
 		targetFaceDirection = alignResult.targetFaceDirection
-		this.alignmentState.haveShrinkOnY = alignResult.overflowYSet
+		this.alignmentState.haveShrinkOnY = alignResult.overflowOnY
 
 		// Handle `triangle` position.
 		if (this.options.triangle) {
@@ -369,13 +389,11 @@ export class Aligner {
 
 	/** Set some styles of content and triangle element before doing alignment. */
 	private resetStyles() {
-		
-		// Avoid it's height overflow cause body scrollbar appears.
-		if (this.options.canShrinkOnY && this.content.offsetHeight > document.documentElement.clientHeight) {
-			this.content.style.height = '100vh'
-		}
-		else if (this.alignmentState.haveShrinkOnY && this.content.style.height) {
+
+		// Restore content original height.
+		if (this.alignmentState.haveShrinkOnY) {
 			this.content.style.height = ''
+			this.alignmentState.haveShrinkOnY = false
 		}
 
 		// Restore triangle transform.
@@ -431,11 +449,11 @@ export class Aligner {
 
 		// Handle vertical alignment.
 		let alignResult = this.alignVertical(position.y, targetFaceDirection, contentRect, targetRect, triangleRelativeRect)
-		let overflowYSet = alignResult.overflowYSet
+		let overflowOnY = alignResult.overflowOnY
 		targetFaceDirection = alignResult.targetFaceDirection
 
 		// If content element's height changed.
-		if (overflowYSet) {
+		if (overflowOnY) {
 			anchor1 = this.getContentRelativeAnchorPoint(targetFaceDirection, contentRect, triangleRelativeRect)
 			position = {x: anchor2.x - anchor1.x, y: anchor2.y - anchor1.y}
 			this.addGapToAlignPosition(position, targetFaceDirection)
@@ -474,7 +492,7 @@ export class Aligner {
 		this.content.style.top = y + 'px'
 
 		return {
-			overflowYSet,
+			overflowOnY,
 			targetFaceDirection,
 		}
 	}
@@ -530,7 +548,7 @@ export class Aligner {
 		let dh = document.documentElement.clientHeight
 		let spaceTop = targetRect.top - this.gaps.top
 		let spaceBottom = dh - (targetRect.bottom + this.gaps.bottom)
-		let overflowYSet = false
+		let overflowOnY = false
 		let h = contentRect.height
 
 		if (targetFaceDirection.beVertical) {
@@ -572,16 +590,16 @@ export class Aligner {
 			if (targetFaceDirection === Direction.Top && y < 0 && this.options.stickToEdges) {
 				y = 0
 				h = spaceTop
-				overflowYSet = true
+				overflowOnY = true
 			}
 			else if (targetFaceDirection === Direction.Bottom && y + h > dh && this.options.stickToEdges) {
 				h = spaceBottom
-				overflowYSet = true
+				overflowOnY = true
 			}
 			else if (!targetFaceDirection.beVertical && contentRect.height > dh) {
 				y = 0
 				h = dh
-				overflowYSet = true
+				overflowOnY = true
 			}
 		}
 
@@ -596,12 +614,12 @@ export class Aligner {
 		contentRect.y = y
 
 		// Apply limited height.
-		if (overflowYSet) {
+		if (overflowOnY) {
 			this.content.style.height = h + 'px'
 			contentRect.height = h
 		}
 
-		return {targetFaceDirection, overflowYSet}
+		return {targetFaceDirection, overflowOnY}
 	}
 
 	/** 
