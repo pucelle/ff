@@ -1,5 +1,5 @@
 import {DeepReadonly} from '../observe'
-import {ObjectUtils} from '../utils'
+import {ObjectUtils, sleep} from '../utils'
 import {PerFrameTransition, PerFrameTransitionOptions} from './per-frame-transition'
 import {WebTransition, WebTransitionKeyFrame, WebTransitionOptions} from './web-transition'
 
@@ -130,6 +130,7 @@ export class Transition {
 
 
 	private readonly el: Element
+	private version = 0
 	private result: TransitionResult | null = null
 	private mixedTransitionType: MixedTransitionType | null = null
 	private mixedTransition: PerFrameTransition | WebTransition | null = null
@@ -167,9 +168,23 @@ export class Transition {
 			return null
 		}
 
+		let version = ++this.version
+
+		// Most transition getters will read dom properties.
+		// Ensure it first render, then play.
+		await sleep(0)
+
+		if (this.version !== version) {
+			return false
+		}
+
 		let props = await result.getter(this.el, result.options, 'enter')
 		if (!props) {
 			return null
+		}
+
+		if (this.version !== version) {
+			return false
 		}
 		
 		this.updateTransition(props)
@@ -208,9 +223,23 @@ export class Transition {
 			return null
 		}
 
+		let version = ++this.version
+
+		// Most transition getters will read dom properties.
+		// Ensure it first render, then play.
+		await sleep(0)
+
+		if (this.version !== version) {
+			return false
+		}
+
 		let props = await result.getter(this.el, result.options, 'leave')
 		if (!props) {
 			return null
+		}
+
+		if (this.version !== version) {
+			return false
 		}
 
 		this.updateTransition(props)
