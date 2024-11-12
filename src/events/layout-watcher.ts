@@ -1,7 +1,7 @@
 import * as ResizeEvents from './resize-events'
 import * as IntersectionEvents from './intersection-events'
 import {ObjectUtils, Interval, AnimationFrame, DOMUtils} from '../utils'
-import {untilUpdateComplete} from '../observe'
+import {untilUpdateComplete} from '../observing'
 import * as DocumentWatcher from './document-watcher'
 
 

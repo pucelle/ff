@@ -1,5 +1,5 @@
 import {Direction} from '../math'
-import {untilUpdateComplete} from '../observe'
+import {untilUpdateComplete} from '../observing'
 import {ObjectUtils, DOMUtils} from '../utils'
 
 

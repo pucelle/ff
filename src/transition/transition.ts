@@ -1,4 +1,4 @@
-import {DeepReadonly, untilUpdateComplete} from '../observe'
+import {DeepReadonly, untilUpdateComplete} from '../observing'
 import {ObjectUtils} from '../utils'
 import {PerFrameTransition, PerFrameTransitionOptions} from './per-frame-transition'
 import {WebTransition, WebTransitionKeyFrame, WebTransitionOptions} from './web-transition'

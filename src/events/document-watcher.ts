@@ -1,4 +1,4 @@
-import {untilUpdateComplete} from "../observe"
+import {untilUpdateComplete} from "../observing"
 import {bindCallback} from "../utils"
 
 const Observer = new MutationObserver(fireDocumentChangeLater)
