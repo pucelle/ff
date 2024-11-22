@@ -137,7 +137,7 @@ type Key =
 	'{' |
 	'|' |
 	'}' |
-	"\""
+	'"'
 
 type Code = 
 	'Backspace' |
@@ -224,7 +224,7 @@ type Code =
 	'BracketLeft' |
 	'Backslash' |
 	'BracketRight' |
-	"Quote"
+	'Quote'
 
 	
 export type ControlKeyCode = 'Ctrl+' | 'Alt+' | 'Shift+' | 'Ctrl+Alt+' | 'Ctrl+Shift+' | 'Alt+Shift+' | 'Ctrl+Alt+Shift+'

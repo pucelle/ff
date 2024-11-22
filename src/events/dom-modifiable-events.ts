@@ -1,5 +1,5 @@
 import * as DOMEvents from './dom-events'
-import {ControlKeyCode, getControlKeyCode, getShortcutKey, ShortcutKey} from './event-keys'
+import {ControlKeyCode, getControlKeyCode, getShortcutKey, getShortcutCode, ShortcutKey} from './event-keys'
 
 
 /** Event handler. */
@@ -65,7 +65,9 @@ const ButtonNameModifiers = {
 /** Filter key event by event key. */
 function keyEventFilter(e: KeyboardEvent, modifiers: string[]): boolean {
 	let key = getShortcutKey(e)
-	return modifiers.includes(key)
+	let code = getShortcutCode(e)
+	
+	return modifiers.includes(key) || modifiers.includes(code)
 }
 
 /** Filter mouse event by mouse button. */
