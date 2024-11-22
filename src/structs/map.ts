@@ -45,6 +45,9 @@ export abstract class IterableValueMap<K, V, I extends Iterable<V>> {
 	/** Get the count of values by associated key. */
 	abstract countOf(k: K): number
 
+	/** Get the count of all the values. */
+	abstract valueCount(): number
+
 	/** Get the count of all the keys. */
 	keyCount(): number {
 		return this.map.size
@@ -96,6 +99,16 @@ export class ListMap<K, V> extends IterableValueMap<K, V, V[]> {
 
 	countOf(k: K) {
 		return this.map.get(k)?.length || 0
+	}
+
+	valueCount(): number {
+		let count = 0
+
+		for (let values of this.map.values()) {
+			count += values.length
+		}
+
+		return count
 	}
 
 	/** 
@@ -215,6 +228,16 @@ export class SetMap<K, V> extends IterableValueMap<K, V, Set<V>> {
 
 	countOf(k: K) {
 		return this.map.get(k)?.size || 0
+	}
+
+	valueCount(): number {
+		let count = 0
+
+		for (let values of this.map.values()) {
+			count += values.size
+		}
+
+		return count
 	}
 
 	add(k: K, v: V) {
