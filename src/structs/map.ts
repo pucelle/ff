@@ -307,7 +307,7 @@ export class PairKeysMap<K1, K2, V> {
 	}
 
 	/** Iterate associated secondary keys after known first key. */
-	*secondKeysOfFirst(k1: K1): Iterable<K2> {
+	*secondKeysOf(k1: K1): Iterable<K2> {
 		let sub = this.map.get(k1)
 		if (sub) {
 			yield* sub.keys()
@@ -315,7 +315,7 @@ export class PairKeysMap<K1, K2, V> {
 	}
 
 	/** Iterate all associated values after known first key. */
-	*valuesOfFirstKey(k1: K1): Iterable<V> {
+	*secondValuesOf(k1: K1): Iterable<V> {
 		let sub = this.map.get(k1)
 		if (sub) {
 			yield* sub.values()
@@ -344,7 +344,7 @@ export class PairKeysMap<K1, K2, V> {
 	}
 
 	/** Iterate secondary key and associated value after known first key. */
-	*secondEntriesOfFirstKey(k1: K1): Iterable<[K2, V]> {
+	*secondEntriesOf(k1: K1): Iterable<[K2, V]> {
 		let sub = this.map.get(k1)
 		if (sub) {
 			yield* sub.entries()
@@ -372,7 +372,7 @@ export class PairKeysMap<K1, K2, V> {
 	}
 
 	/** Get the secondary key count by first key. */
-	secondKeyCountOfFirst(k1: K1) {
+	secondKeyCountOf(k1: K1) {
 		return this.map.get(k1)?.size || 0
 	}
 
@@ -439,7 +439,7 @@ export abstract class PairKeysIterableValueMap<K1, K2, V, I extends Iterable<V>,
 	}
 
 	/** Iterate associated secondary keys by first key. */
-	*secondKeysOfFirst(k1: K1): Iterable<K2> {
+	*secondKeysOf(k1: K1): Iterable<K2> {
 		let sub = this.map.get(k1)
 		if (sub) {
 			yield* sub.keys()
@@ -447,7 +447,7 @@ export abstract class PairKeysIterableValueMap<K1, K2, V, I extends Iterable<V>,
 	}
 
 	/** Iterate all associated values by first key. */
-	*valuesOfFirstKey(k1: K1): Iterable<V> {
+	*secondValuesOf(k1: K1): Iterable<V> {
 		let sub = this.map.get(k1)
 		if (sub) {
 			yield* sub.values()
@@ -483,7 +483,7 @@ export abstract class PairKeysIterableValueMap<K1, K2, V, I extends Iterable<V>,
 	}
 
 	/** Iterate secondary key and value list by first key. */
-	*secondEntriesOfFirstKey(k1: K1): Iterable<[K2, I]> {
+	*secondEntriesOf(k1: K1): Iterable<[K2, I]> {
 		let sub = this.map.get(k1)
 		if (sub) {
 			yield* sub.entries()
@@ -533,7 +533,7 @@ export abstract class PairKeysIterableValueMap<K1, K2, V, I extends Iterable<V>,
 	}
 
 	/** Get the associated secondary key count by first key. */
-	secondKeyCountOfFirst(k1: K1) {
+	secondKeyCountOf(k1: K1) {
 		return this.map.get(k1)?.keyCount()
 	}
 
