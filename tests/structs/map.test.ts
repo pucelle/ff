@@ -14,7 +14,7 @@ describe('Test Map Structs', () => {
 		expect([...m.flatEntries()]).toEqual([['a', 'b'], ['a', 'c']])
 		expect(m.get('a')).toEqual(['b', 'c'])
 		expect(m.has('a', 'b')).toEqual(true)
-		expect(m.hasOf('a')).toEqual(true)
+		expect(m.hasKey('a')).toEqual(true)
 		expect(m.keyCount()).toEqual(1)
 		expect([...m.keys()]).toEqual(['a'])
 		expect([...m.values()]).toEqual(['b', 'c'])
@@ -24,13 +24,13 @@ describe('Test Map Structs', () => {
 		expect(m.get('a')).toEqual(['d'])
 
 		m.delete('a', 'd')
-		expect(m.hasOf('a')).toEqual(false)
+		expect(m.hasKey('a')).toEqual(false)
 
 		m.clear()
 		m.addSeveral('a', ['b', 'c'])
 		expect([...m.entries()]).toEqual([['a', ['b', 'c']]])
 		m.deleteSeveral('a', ['b', 'c'])
-		expect(m.hasOf('a')).toEqual(false)
+		expect(m.hasKey('a')).toEqual(false)
 
 		m.clear()
 		m.addSeveralIf('a', ['b', 'b', 'c'])
@@ -47,7 +47,7 @@ describe('Test Map Structs', () => {
 		expect([...m.flatEntries()]).toEqual([['a', 'b'], ['a', 'c']])
 		expect(m.get('a')).toEqual(new Set(['b', 'c']))
 		expect(m.has('a', 'b')).toEqual(true)
-		expect(m.hasOf('a')).toEqual(true)
+		expect(m.hasKey('a')).toEqual(true)
 		expect(m.keyCount()).toEqual(1)
 		expect([...m.keys()]).toEqual(['a'])
 		expect([...m.values()]).toEqual(['b', 'c'])
@@ -57,13 +57,13 @@ describe('Test Map Structs', () => {
 		expect([...m.get('a')!]).toEqual(['d'])
 
 		m.delete('a', 'd')
-		expect(m.hasOf('a')).toEqual(false)
+		expect(m.hasKey('a')).toEqual(false)
 
 		m.clear()
 		m.addSeveral('a', ['b', 'c'])
 		expect([...m.entries()]).toEqual([['a', new Set(['b', 'c'])]])
 		m.deleteSeveral('a', ['b', 'c'])
-		expect(m.hasOf('a')).toEqual(false)
+		expect(m.hasKey('a')).toEqual(false)
 	})
 
 	test('TwoWayMap', () => {
@@ -193,17 +193,17 @@ describe('Test Map Structs', () => {
 		m.set('a', 'b', 'c')
 
 		expect(m.firstKeyCount()).toEqual(1)
-		expect(m.secondKeyCountOf('a')).toEqual(1)
+		expect(m.secondKeyCountOfFirst('a')).toEqual(1)
 		expect([...m.entries()]).toEqual([['a', new Map([['b', 'c']])]])
 		expect([...m.flatEntries()]).toEqual([['a', 'b', 'c']])
-		expect([...m.secondEntriesOf('a')]).toEqual([['b', 'c']])
+		expect([...m.secondEntriesOfFirstKey('a')]).toEqual([['b', 'c']])
 		expect(m.get('a', 'b')).toEqual('c')
 		expect(m.has('a', 'b')).toEqual(true)
-		expect(m.hasSecondOf('a')).toEqual(true)
+		expect(m.hasFirstKey('a')).toEqual(true)
 		expect([...m.firstKeys()]).toEqual(['a'])
-		expect([...m.secondKeysOf('a')]).toEqual(['b'])
+		expect([...m.secondKeysOfFirst('a')]).toEqual(['b'])
 		expect([...m.values()]).toEqual(['c'])
-		expect([...m.secondValuesOf('a')]).toEqual(['c'])
+		expect([...m.valuesOfFirstKey('a')]).toEqual(['c'])
 
 		m.set('a', 'b', 'd')
 		expect(m.get('a', 'b')).toEqual('d')
@@ -213,7 +213,7 @@ describe('Test Map Structs', () => {
 
 		m.set('a', 'b', 'c')
 		m.deleteOf('a')
-		expect(m.hasSecondOf('a')).toEqual(false)
+		expect(m.hasFirstKey('a')).toEqual(false)
 	})
 
 	test('PairKeysListMap', () => {
@@ -224,19 +224,19 @@ describe('Test Map Structs', () => {
 		m.add('a', 'b', 'd')
 
 		expect(m.countOf('a', 'b')).toEqual(2)
-		expect(m.secondKeyCountOf('a')).toEqual(1)
+		expect(m.secondKeyCountOfFirst('a')).toEqual(1)
 		expect([...m.entries()]).toEqual([['a', 'b', ['c', 'd']]])
 		expect([...m.flatEntries()]).toEqual([['a', 'b', 'c'], ['a', 'b', 'd']])
-		expect([...m.secondEntriesOf('a')]).toEqual([['b', ['c', 'd']]])
+		expect([...m.secondEntriesOfFirstKey('a')]).toEqual([['b', ['c', 'd']]])
 		expect([...m.secondFlatEntriesOf('a')]).toEqual([['b', 'c'], ['b', 'd']])
 		expect(m.get('a', 'b')).toEqual(['c', 'd'])
 		expect(m.has('a', 'b', 'c')).toEqual(true)
 		expect(m.hasKeys('a', 'b')).toEqual(true)
-		expect(m.hasSecondOf('a')).toEqual(true)
+		expect(m.hasFirstKey('a')).toEqual(true)
 		expect([...m.firstKeys()]).toEqual(['a'])
-		expect([...m.secondKeysOf('a')]).toEqual(['b'])
+		expect([...m.secondKeysOfFirst('a')]).toEqual(['b'])
 		expect([...m.values('a', 'b')]).toEqual(['c', 'd'])
-		expect([...m.secondValuesOf('a')]).toEqual(['c', 'd'])
+		expect([...m.valuesOfFirstKey('a')]).toEqual(['c', 'd'])
 
 		m.delete('a', 'b', 'c')
 		expect(m.has('a', 'b', 'c')).toEqual(false)
@@ -246,7 +246,7 @@ describe('Test Map Structs', () => {
 
 		m.add('a', 'b', 'c')
 		m.deleteSecondOf('a')
-		expect(m.hasSecondOf('a')).toEqual(false)
+		expect(m.hasFirstKey('a')).toEqual(false)
 	})
 
 	test('PairKeysSetMap', () => {
@@ -256,19 +256,19 @@ describe('Test Map Structs', () => {
 		m.add('a', 'b', 'd')
 
 		expect(m.countOf('a', 'b')).toEqual(2)
-		expect(m.secondKeyCountOf('a')).toEqual(1)
+		expect(m.secondKeyCountOfFirst('a')).toEqual(1)
 		expect([...m.entries()]).toEqual([['a', 'b', new Set(['c', 'd'])]])
 		expect([...m.flatEntries()]).toEqual([['a', 'b', 'c'], ['a', 'b', 'd']])
-		expect([...m.secondEntriesOf('a')]).toEqual([['b', new Set(['c', 'd'])]])
+		expect([...m.secondEntriesOfFirstKey('a')]).toEqual([['b', new Set(['c', 'd'])]])
 		expect([...m.secondFlatEntriesOf('a')]).toEqual([['b', 'c'], ['b', 'd']])
 		expect(m.get('a', 'b')).toEqual(new Set(['c', 'd']))
 		expect(m.has('a', 'b', 'c')).toEqual(true)
 		expect(m.hasKeys('a', 'b')).toEqual(true)
-		expect(m.hasSecondOf('a')).toEqual(true)
+		expect(m.hasFirstKey('a')).toEqual(true)
 		expect([...m.firstKeys()]).toEqual(['a'])
-		expect([...m.secondKeysOf('a')]).toEqual(['b'])
+		expect([...m.secondKeysOfFirst('a')]).toEqual(['b'])
 		expect([...m.values('a', 'b')]).toEqual(['c', 'd'])
-		expect([...m.secondValuesOf('a')]).toEqual(['c', 'd'])
+		expect([...m.valuesOfFirstKey('a')]).toEqual(['c', 'd'])
 
 		m.delete('a', 'b', 'c')
 		expect(m.has('a', 'b', 'c')).toEqual(false)
@@ -278,6 +278,6 @@ describe('Test Map Structs', () => {
 
 		m.add('a', 'b', 'c')
 		m.deleteSecondOf('a')
-		expect(m.hasSecondOf('a')).toEqual(false)
+		expect(m.hasFirstKey('a')).toEqual(false)
 	})
 })

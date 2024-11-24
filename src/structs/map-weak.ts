@@ -10,7 +10,7 @@ export abstract class WeakIterableValueMap<K extends object, V, I extends Iterab
 	abstract has(k: K, v: V): boolean
 
 	/** Whether has specified key existed. */
-	hasOf(k: K): boolean {
+	hasKey(k: K): boolean {
 		return this.map.has(k)
 	}
 
@@ -461,7 +461,7 @@ export abstract class WeakPairKeysIterableValueMap<K1 extends object, K2, V, I e
 			return false
 		}
 
-		return sub.hasOf(k2)
+		return sub.hasKey(k2)
 	}
 
 	/** Has secondary map associated by first key. */
@@ -673,12 +673,12 @@ export abstract class WeakTwoWayIterableValueMap<L extends object, R extends obj
 
 	/** Whether have a left key. */
 	hasLeft(l: L): boolean {
-		return this.lm.hasOf(l)
+		return this.lm.hasKey(l)
 	}
 
 	/** Whether have a right key. */
 	hasRight(r: R): boolean {
-		return this.rm.hasOf(r)
+		return this.rm.hasKey(r)
 	}
 
 	/** Get associated right keys by a left key. */

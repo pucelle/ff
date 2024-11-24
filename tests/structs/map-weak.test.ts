@@ -16,19 +16,19 @@ describe('Test Weak Map Structs', () => {
 		expect(m.countOf(a)).toEqual(2)
 		expect(m.get(a)).toEqual(['b', 'c'])
 		expect(m.has(a, 'b')).toEqual(true)
-		expect(m.hasOf(a)).toEqual(true)
+		expect(m.hasKey(a)).toEqual(true)
 
 		m.set(a, ['d'])
 		expect(m.get(a)).toEqual(['d'])
 
 		m.delete(a, 'd')
-		expect(m.hasOf(a)).toEqual(false)
+		expect(m.hasKey(a)).toEqual(false)
 
 		m.clear()
 		m.addSeveral(a, ['b', 'c'])
 		expect(m.get(a)).toEqual(['b', 'c'])
 		m.deleteSeveral(a, ['b', 'c'])
-		expect(m.hasOf(a)).toEqual(false)
+		expect(m.hasKey(a)).toEqual(false)
 
 		m.clear()
 		m.addSeveralIf(a, ['b', 'b', 'c'])
@@ -43,19 +43,19 @@ describe('Test Weak Map Structs', () => {
 		expect(m.countOf(a)).toEqual(2)
 		expect(m.get(a)).toEqual(new Set(['b', 'c']))
 		expect(m.has(a, 'b')).toEqual(true)
-		expect(m.hasOf(a)).toEqual(true)
+		expect(m.hasKey(a)).toEqual(true)
 
 		m.set(a, new Set('d'))
 		expect([...m.get(a)!]).toEqual(['d'])
 
 		m.delete(a, 'd')
-		expect(m.hasOf(a)).toEqual(false)
+		expect(m.hasKey(a)).toEqual(false)
 
 		m.clear()
 		m.addSeveral(a, ['b', 'c'])
 		expect(m.get(a)).toEqual(new Set(['b', 'c']))
 		m.deleteSeveral(a, ['b', 'c'])
-		expect(m.hasOf(a)).toEqual(false)
+		expect(m.hasKey(a)).toEqual(false)
 	})
 
 	test('WeakTwoWayMap', () => {

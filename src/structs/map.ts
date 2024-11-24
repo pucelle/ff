@@ -38,7 +38,7 @@ export abstract class IterableValueMap<K, V, I extends Iterable<V>> {
 	abstract has(k: K, v: V): boolean
 
 	/** Has specified key existed. */
-	hasOf(k: K): boolean {
+	hasKey(k: K): boolean {
 		return this.map.has(k)
 	}
 
@@ -307,7 +307,7 @@ export class PairKeysMap<K1, K2, V> {
 	}
 
 	/** Iterate associated secondary keys after known first key. */
-	*secondKeysOf(k1: K1): Iterable<K2> {
+	*secondKeysOfFirst(k1: K1): Iterable<K2> {
 		let sub = this.map.get(k1)
 		if (sub) {
 			yield* sub.keys()
@@ -315,7 +315,7 @@ export class PairKeysMap<K1, K2, V> {
 	}
 
 	/** Iterate all associated values after known first key. */
-	*secondValuesOf(k1: K1): Iterable<V> {
+	*valuesOfFirstKey(k1: K1): Iterable<V> {
 		let sub = this.map.get(k1)
 		if (sub) {
 			yield* sub.values()
@@ -344,7 +344,7 @@ export class PairKeysMap<K1, K2, V> {
 	}
 
 	/** Iterate secondary key and associated value after known first key. */
-	*secondEntriesOf(k1: K1): Iterable<[K2, V]> {
+	*secondEntriesOfFirstKey(k1: K1): Iterable<[K2, V]> {
 		let sub = this.map.get(k1)
 		if (sub) {
 			yield* sub.entries()
@@ -362,7 +362,7 @@ export class PairKeysMap<K1, K2, V> {
 	}
 
 	/** Has secondary map existed for first key. */
-	hasSecondOf(k1: K1): boolean {
+	hasFirstKey(k1: K1): boolean {
 		return this.map.has(k1)
 	}
 	
@@ -372,7 +372,7 @@ export class PairKeysMap<K1, K2, V> {
 	}
 
 	/** Get the secondary key count by first key. */
-	secondKeyCountOf(k1: K1) {
+	secondKeyCountOfFirst(k1: K1) {
 		return this.map.get(k1)?.size || 0
 	}
 
@@ -439,7 +439,7 @@ export abstract class PairKeysIterableValueMap<K1, K2, V, I extends Iterable<V>,
 	}
 
 	/** Iterate associated secondary keys by first key. */
-	*secondKeysOf(k1: K1): Iterable<K2> {
+	*secondKeysOfFirst(k1: K1): Iterable<K2> {
 		let sub = this.map.get(k1)
 		if (sub) {
 			yield* sub.keys()
@@ -447,7 +447,7 @@ export abstract class PairKeysIterableValueMap<K1, K2, V, I extends Iterable<V>,
 	}
 
 	/** Iterate all associated values by first key. */
-	*secondValuesOf(k1: K1): Iterable<V> {
+	*valuesOfFirstKey(k1: K1): Iterable<V> {
 		let sub = this.map.get(k1)
 		if (sub) {
 			yield* sub.values()
@@ -483,7 +483,7 @@ export abstract class PairKeysIterableValueMap<K1, K2, V, I extends Iterable<V>,
 	}
 
 	/** Iterate secondary key and value list by first key. */
-	*secondEntriesOf(k1: K1): Iterable<[K2, I]> {
+	*secondEntriesOfFirstKey(k1: K1): Iterable<[K2, I]> {
 		let sub = this.map.get(k1)
 		if (sub) {
 			yield* sub.entries()
@@ -519,11 +519,11 @@ export abstract class PairKeysIterableValueMap<K1, K2, V, I extends Iterable<V>,
 			return false
 		}
 
-		return sub.hasOf(k2)
+		return sub.hasKey(k2)
 	}
 
 	/** Has secondary map associated by first key. */
-	hasSecondOf(k1: K1): boolean {
+	hasFirstKey(k1: K1): boolean {
 		return this.map.has(k1)
 	}
 
@@ -533,7 +533,7 @@ export abstract class PairKeysIterableValueMap<K1, K2, V, I extends Iterable<V>,
 	}
 
 	/** Get the associated secondary key count by first key. */
-	secondKeyCountOf(k1: K1) {
+	secondKeyCountOfFirst(k1: K1) {
 		return this.map.get(k1)?.keyCount()
 	}
 
@@ -843,12 +843,12 @@ export abstract class TwoWayIterableValueMap<L, R, LI extends Iterable<L>, RI ex
 
 	/** Has a left key. */
 	hasLeft(l: L): boolean {
-		return this.lm.hasOf(l)
+		return this.lm.hasKey(l)
 	}
 
 	/** Has a right key. */
 	hasRight(r: R): boolean {
-		return this.rm.hasOf(r)
+		return this.rm.hasKey(r)
 	}
 
 	/** Get count of associated right keys by a left key. */
