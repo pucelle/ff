@@ -1026,7 +1026,7 @@ export class TwoWayListMap<L, R> {
 		let ls = this.rm.get(r)
 		if (ls) {
 			yield* ls
-		} 
+		}
 	}
 
 	/** Iterate left and it's associated right value list. */

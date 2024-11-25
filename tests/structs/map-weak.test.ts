@@ -145,7 +145,7 @@ describe('Test Weak Map Structs', () => {
 
 		expect(m.get(a, b)).toEqual('c')
 		expect(m.has(a, b)).toEqual(true)
-		expect(m.hasSecondOf(a)).toEqual(true)
+		expect(m.hasKey(a)).toEqual(true)
 
 		m.set(a, b, 'd')
 		expect(m.get(a, b)).toEqual('d')
@@ -155,7 +155,7 @@ describe('Test Weak Map Structs', () => {
 
 		m.set(a, b, 'c')
 		m.deleteOf(a)
-		expect(m.hasSecondOf(a)).toEqual(false)
+		expect(m.hasKey(a)).toEqual(false)
 	})
 
 	test('WeakPairKeysMap', () => {
@@ -167,7 +167,7 @@ describe('Test Weak Map Structs', () => {
 		expect([...m.secondEntriesOf(a)]).toEqual([['b', 'c']])
 		expect(m.get(a, 'b')).toEqual('c')
 		expect(m.has(a, 'b')).toEqual(true)
-		expect(m.hasSecondOf(a)).toEqual(true)
+		expect(m.hasKey(a)).toEqual(true)
 		expect([...m.secondKeysOf(a)]).toEqual(['b'])
 		expect([...m.secondValuesOf(a)]).toEqual(['c'])
 
@@ -179,7 +179,7 @@ describe('Test Weak Map Structs', () => {
 
 		m.set(a, 'b', 'c')
 		m.deleteOf(a)
-		expect(m.hasSecondOf(a)).toEqual(false)
+		expect(m.hasKey(a)).toEqual(false)
 	})
 
 	test('WeakPairKeysListMap', () => {
@@ -196,7 +196,7 @@ describe('Test Weak Map Structs', () => {
 		expect(m.get(a, 'b')).toEqual(['c', 'd'])
 		expect(m.has(a, 'b', 'c')).toEqual(true)
 		expect(m.hasKeys(a, 'b')).toEqual(true)
-		expect(m.hasSecondOf(a)).toEqual(true)
+		expect(m.hasKey(a)).toEqual(true)
 		expect([...m.secondKeysOf(a)]).toEqual(['b'])
 		expect([...m.values(a, 'b')]).toEqual(['c', 'd'])
 		expect([...m.secondValuesOf(a)]).toEqual(['c', 'd'])
@@ -209,7 +209,7 @@ describe('Test Weak Map Structs', () => {
 
 		m.add(a, 'b', 'c')
 		m.deleteSecondOf(a)
-		expect(m.hasSecondOf(a)).toEqual(false)
+		expect(m.hasKey(a)).toEqual(false)
 	})
 
 	test('WeakPairKeysSetMap', () => {
@@ -225,7 +225,7 @@ describe('Test Weak Map Structs', () => {
 		expect(m.get(a, 'b')).toEqual(new Set(['c', 'd']))
 		expect(m.has(a, 'b', 'c')).toEqual(true)
 		expect(m.hasKeys(a, 'b')).toEqual(true)
-		expect(m.hasSecondOf(a)).toEqual(true)
+		expect(m.hasKey(a)).toEqual(true)
 		expect([...m.secondKeysOf(a)]).toEqual(['b'])
 		expect([...m.values(a, 'b')]).toEqual(['c', 'd'])
 		expect([...m.secondValuesOf(a)]).toEqual(['c', 'd'])
@@ -238,6 +238,6 @@ describe('Test Weak Map Structs', () => {
 
 		m.add(a, 'b', 'c')
 		m.deleteSecondOf(a)
-		expect(m.hasSecondOf(a)).toEqual(false)
+		expect(m.hasKey(a)).toEqual(false)
 	})
 })

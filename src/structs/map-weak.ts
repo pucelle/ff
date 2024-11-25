@@ -283,7 +283,7 @@ export class WeakPairKeysMap<K1 extends object, K2, V> {
 	}
 
 	/** Has secondary map existed for first key. */
-	hasSecondOf(k1: K1): boolean {
+	hasKey(k1: K1): boolean {
 		return this.map.has(k1)
 	}
 
@@ -357,7 +357,7 @@ export class WeakerPairKeysMap<K1 extends object, K2 extends object, V> {
 	}
 
 	/** Has secondary map existed for first key. */
-	hasSecondOf(k1: K1): boolean {
+	hasKey(k1: K1): boolean {
 		return this.map.has(k1)
 	}
 
@@ -476,7 +476,7 @@ export class WeakPairKeysListMap<K1 extends object, K2, V> {
 	}
 
 	/** Has secondary map associated by first key. */
-	hasSecondOf(k1: K1): boolean {
+	hasKey(k1: K1): boolean {
 		return this.map.has(k1)
 	}
 
@@ -642,7 +642,7 @@ export class WeakPairKeysSetMap<K1 extends object, K2, V> {
 	}
 
 	/** Has secondary map associated by first key. */
-	hasSecondOf(k1: K1): boolean {
+	hasKey(k1: K1): boolean {
 		return this.map.has(k1)
 	}
 
@@ -761,7 +761,7 @@ export class WeakerPairKeysListMap<K1 extends object, K2 extends object, V> {
 	}
 
 	/** Has secondary map associated by first key. */
-	hasSecondOf(k1: K1): boolean {
+	hasKey(k1: K1): boolean {
 		return this.map.has(k1)
 	}
 
@@ -878,7 +878,7 @@ export class WeakerPairKeysSetMap<K1 extends object, K2 extends object, V> {
 	}
 
 	/** Has secondary map associated by first key. */
-	hasSecondOf(k1: K1): boolean {
+	hasKey(k1: K1): boolean {
 		return this.map.has(k1)
 	}
 
