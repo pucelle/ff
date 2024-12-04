@@ -88,6 +88,7 @@ type Key =
 	'+' |
 	'-' |
 	'.' |
+	'`' |
 	'/' |
 	'F1' |
 	'F2' |
@@ -118,16 +119,6 @@ type Key =
 	'^' |
 	'&' |
 	'(' |
-	'E' |
-	'I' |
-	'O' |
-	'P' |
-	'Q' |
-	'R' |
-	'T' |
-	'U' |
-	'W' |
-	'Y' |
 	':' |
 	'<' |
 	'_' |
@@ -599,7 +590,7 @@ const NumToKeyCodeMap: Record<number, {key: Key, code: Code}> = {
 		"code": "Slash",
 	},
 	192: {
-		"key": "·",
+		"key": "`",
 		"code": "Backquote",
 	},
 	219: {
