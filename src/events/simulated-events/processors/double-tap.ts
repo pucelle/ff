@@ -8,7 +8,7 @@ import {SimulatedEventsConfiguration} from '../simulated-events-configuration'
 export interface DoubleTapEvents {
 
 	/** 
-	 * After double tapping.
+	 * After double tapping on touch screen.
 	 * double tap event has no conflict with `dblclick`,
 	 * normally they wouldn't be triggered both.
 	 */

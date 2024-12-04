@@ -6,7 +6,7 @@ import {SimulatedEventsConfiguration} from '../simulated-events-configuration'
 
 export interface SlideEvents {
 
-	/** After sliding enough pixels at a direction. */
+	/** After sliding enough pixels at a direction on a touch screen. */
 	'slide': (e: TouchEvent, direction: Direction) => void
 }
 

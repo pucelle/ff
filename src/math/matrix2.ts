@@ -265,11 +265,11 @@ export class Matrix2 {
 
 	/** Get a new inverse matrix from current. */
 	inverse(): Matrix2 {
-		return this.clone().inverseSelf()
+		return this.clone().invertSelf()
 	}
 
 	/** Apply inverse matrix to self. */
-	inverseSelf(): this {
+	invertSelf(): this {
 		let [
 			n11, n21,
 			n12, n22,

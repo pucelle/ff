@@ -154,7 +154,7 @@ export class Matrix implements MatrixData {
 		)
 		
 		let v = c3.diff(c4)
-		let {x: a, y: b} = m.inverseSelf().transformVector(v)
+		let {x: a, y: b} = m.invertSelf().transformVector(v)
 		let c = -b
 		let d = a
 		let e = c3.x - a * c1.x + b * c1.y
@@ -551,11 +551,11 @@ export class Matrix implements MatrixData {
 
 	/** Convert to inverse matrix, returns a new matrix. */
 	inverse(): Matrix {
-		return this.clone().inverseSelf()
+		return this.clone().invertSelf()
 	}
 
 	/** Convert to inverse matrix. */
-	inverseSelf(): this {
+	invertSelf(): this {
 		let {a, b, c, d, e, f} = this
 		let m11 = d
 		let m12 = -c

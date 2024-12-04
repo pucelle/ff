@@ -8,7 +8,7 @@ import {SimulatedEventsConfiguration} from '../simulated-events-configuration'
 export interface TapEvents {
 
 	/** 
-	 * After a quick tap.
+	 * After a quick tap on touch screen.
 	 * Note `tap` event will be triggered frequently when doing Apple Pencil writing,
 	 * would suggest uses only `mousedown` in this case.
 	 * 
