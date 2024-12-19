@@ -3,19 +3,19 @@ import {untilUpdateComplete} from '../observing'
 import {ObjectUtils, DOMUtils} from '../utils'
 
 
-/** Options for aligning two elements. */
+/** Options for anchor-aligning two elements. */
 export interface AlignerOptions {
 
 	/** 
-	 * Align where of content element to where of target element.
-	 * e.g., `tl-bl` means align top-left of content, to bottom-left of target
+	 * Align where of content element to where of anchor element.
+	 * e.g., `tl-bl` means align top-left of content, to bottom-left of anchor element
 	 * First part, can be omitted, will pick opposite: `t-b` equals `b`, `tl-br` equals `br`.
 	 */
-	position: AlignerPosition
+	position: AnchorPosition
 
  	/** 
-	  * The gaps betweens content element and target element.
-	  * It nearly equals expanding target element area with this value.
+	  * The gaps betweens content element and anchor element.
+	  * It nearly equals expanding anchor element area with this value.
 	  * can be a number or a number array composed of 1-4 numbers, in `top right? bottom? left?` order.
 	  */
 	gap: number | number[]
@@ -29,10 +29,10 @@ export interface AlignerOptions {
 	stickToEdges: boolean
 
 	/** 
-	 * Whether can swap content position if spaces in specified position is not enough.
+	 * Whether can flip content position if available spaces in specified position is not enough.
 	 * Default value is `true`, set it to `false` to disable.
 	 */
-	canSwapPosition: boolean
+	canFlip: boolean
 
 	/** 
 	 * If `true`, when content element contains large content and should be cut in viewport,
@@ -48,7 +48,7 @@ export interface AlignerOptions {
 	 * Whether should align triangle in a fixed position.
 	 * 
 	 * Default value is `false`, means triangle element will be anchored to be
-	 * in the center of the intersect edges between content and target element.
+	 * in the center of the intersect edges between content and anchor element.
 	 * 
 	 * If specified as `true`, e.g., triangle always locates at top-left corner.
 	 * will use the position of the triangle acute angle to align,
@@ -59,13 +59,13 @@ export interface AlignerOptions {
 	/** 
 	 * The triangle element inside content element,
 	 * If provided, will adjust it's left or top position, and transform property,
-	 * to anchor it to be in the center of the intersect edges between content and target element.
+	 * to anchor it to be in the center of the intersect edges between content and anchor element.
 	 */
 	triangle?: HTMLElement
 }
 
-/** Align where of content element to where of target element. */
-export type AlignerSinglePosition = 't'
+/** Align where of content element to where of anchor element. */
+export type AnchorPositionSingle = 't'
 	| 'b'
 	| 't'
 	| 'l'
@@ -85,8 +85,8 @@ export type AlignerSinglePosition = 't'
 	| 'rb'
 	| 'rt'
 
-/** Align where of content element to where of target element. */
-export type AlignerPosition = AlignerSinglePosition
+/** Align where of content element to where of anchor element. */
+export type AnchorPosition = AnchorPositionSingle
 	| 'b-b'
 	| 'b-t'
 
@@ -147,7 +147,7 @@ export type AlignerPosition = AlignerSinglePosition
 	| 'cr-cl'
 
 /** 4 directions of gap. */
-interface AlignerGap {
+interface AnchorGap {
 	top: number
 	right: number
 	bottom: number
@@ -176,23 +176,23 @@ const DefaultContentAlignmentState: ContentAlignmentState = {
 const SharedContentAlignmentState: WeakMap<HTMLElement, ContentAlignmentState> = new WeakMap()
 
 
-const DefaultAlignerOptions: AlignerOptions = {
+const DefaultAnchorAlignerOptions: AlignerOptions = {
 	position: 'b',
 	gap: 0,
 	stickToEdges: true,
-	canSwapPosition: true,
+	canFlip: true,
 	canShrinkOnY: false,
 	fixTriangle: false,
 	triangle: undefined,
 }
 
-export class Aligner {
+export class AnchorAligner {
 	
 	/** 
-	 * Get the direction that target element face to content element.
+	 * Get the direction that anchor element face to content element.
 	 * Always get a straight direction.
 	 */
-	static getTargetFaceDirection(position: AlignerPosition): Direction {
+	static getAnchorFaceDirection(position: AnchorPosition): Direction {
 		let [d1, d2] = parseAlignDirections(position)
 		return d2.joinToStraight(d1.opposite)
 	}
@@ -201,28 +201,28 @@ export class Aligner {
 	/** The content element to align. */
 	readonly content: HTMLElement
 
-	/** Target target element to align besides. */
-	readonly target: Element
+	/** Anchor element to align besides. */
+	readonly anchor: Element
 
 	/** Full options. */
 	private options!: AlignerOptions
 
-	/** Directions of content and target elements. */
+	/** Directions of content and anchor elements. */
 	private directions!: [Direction, Direction]
 
 	/**
 	 * In which direction, and also the only direction
-	 * the target element face with content element.
+	 * the anchor element face with content element.
 	 * This is always a straight direction.
 	 * 
 	 * E.g.:
 	 *  - `tl-bl` -> `Bottom`.
 	 *  - `c-c` -> `Center`.
 	 */
-	private targetFaceDirection!: Direction
+	private anchorFaceDirection!: Direction
 
-	/** Gaps betweens target and content element. */
-	private gaps!: AlignerGap
+	/** Gaps betweens anchor and content element. */
+	private gaps!: AnchorGap
 
 	/** Represent previous alignment state. */
 	private alignmentState: ContentAlignmentState
@@ -231,11 +231,11 @@ export class Aligner {
 	private useFixedAlignment: boolean = false
 
 	private cachedContentRect: DOMRect | null = null
-	private cachedTargetRect: DOMRect | null = null
+	private cachedAnchorRect: DOMRect | null = null
 
-	constructor(content: HTMLElement, target: Element) {
+	constructor(content: HTMLElement, anchor: Element) {
 		this.content = content
-		this.target = target
+		this.anchor = anchor
 
 		if (SharedContentAlignmentState.has(content)) {
 			this.alignmentState = SharedContentAlignmentState.get(content)!
@@ -247,7 +247,7 @@ export class Aligner {
 	}
 
 	/** 
-	 * Align content to beside target element.
+	 * Align content to beside anchor element.
 	 * Returns whether did alignment.
 	 */
 	async align(options: Partial<AlignerOptions> = {}): Promise<boolean> {
@@ -257,28 +257,28 @@ export class Aligner {
 
 		let optionsChanged = this.initOptions(options)
 		let contentRect = this.content.getBoundingClientRect()
-		let targetRect = this.target.getBoundingClientRect()
+		let anchorRect = this.anchor.getBoundingClientRect()
 
 		// Pick viewport for document element.
-		if (this.target === document.documentElement) {
-			targetRect.x = 0
-			targetRect.y = 0
+		if (this.anchor === document.documentElement) {
+			anchorRect.x = 0
+			anchorRect.y = 0
 		}
 
 		// Both rects have not changed.
 		if (!optionsChanged
 			&& this.cachedContentRect && isRectsEqual(this.cachedContentRect, contentRect)
-			&& this.cachedTargetRect && isRectsEqual(this.cachedTargetRect, targetRect)
+			&& this.cachedAnchorRect && isRectsEqual(this.cachedAnchorRect, anchorRect)
 		) {
 			return true
 		}
 
-		// If target is not visible.
-		if (targetRect.width === 0 && targetRect.height === 0) {
+		// If anchor element is not visible.
+		if (anchorRect.width === 0 && anchorRect.height === 0) {
 			return false
 		}		
 
-		return this.alignByRects(contentRect, targetRect)
+		return this.alignByRects(contentRect, anchorRect)
 	}
 
 	/** Align content element to the position of a mouse event. */
@@ -290,7 +290,7 @@ export class Aligner {
 		let optionsChanged = this.initOptions(options)
 		let contentRect = this.content.getBoundingClientRect()
 
-		let targetRect = new DOMRect(
+		let anchorRect = new DOMRect(
 			event.clientX,
 			event.clientY,
 			0,
@@ -300,12 +300,12 @@ export class Aligner {
 		// Both rects have not changed.
 		if (!optionsChanged
 			&& this.cachedContentRect && isRectsEqual(this.cachedContentRect, contentRect)
-			&& this.cachedTargetRect && isRectsEqual(this.cachedTargetRect, targetRect)
+			&& this.cachedAnchorRect && isRectsEqual(this.cachedAnchorRect, anchorRect)
 		) {
 			return true
 		}
 
-		return this.alignByRects(contentRect, targetRect)
+		return this.alignByRects(contentRect, anchorRect)
 	}
 
 	/** 
@@ -313,7 +313,7 @@ export class Aligner {
 	 * Returns whether options get changed.
 	 */
 	private initOptions(options: Partial<AlignerOptions> = {}): boolean {
-		let newOptions = {...DefaultAlignerOptions, ...options}
+		let newOptions = {...DefaultAnchorAlignerOptions, ...options}
 
 		let changed = !ObjectUtils.deepEqual(this.options, newOptions)
 		if (changed) {
@@ -321,12 +321,12 @@ export class Aligner {
 		}
 
 		this.directions = parseAlignDirections(newOptions.position)
-		this.targetFaceDirection = this.directions[1].joinToStraight(this.directions[0].opposite)
-		this.gaps = parseGap(newOptions.gap, newOptions.triangle, this.targetFaceDirection)
+		this.anchorFaceDirection = this.directions[1].joinToStraight(this.directions[0].opposite)
+		this.gaps = parseGap(newOptions.gap, newOptions.triangle, this.anchorFaceDirection)
 
-		// If target element is not affected by document scrolling, content element should be the same.
+		// If anchor element is not affected by document scrolling, content element should be the same.
 		// A potential problem here: once becomes fixed, can't be restored for reuseable popups.
-		if (findClosestFixedElement(this.target)) {
+		if (findClosestFixedElement(this.anchor)) {
 			this.content.style.position = 'fixed'
 			this.useFixedAlignment = true
 		}
@@ -338,10 +338,10 @@ export class Aligner {
 	}
 
 	/** Align content after known both rects. */
-	private async alignByRects(contentRect: DOMRect, targetRect: DOMRect): Promise<boolean> {
+	private async alignByRects(contentRect: DOMRect, anchorRect: DOMRect): Promise<boolean> {
 
 		// Now can only read dom properties.
-		let targetFaceDirection = this.targetFaceDirection
+		let anchorFaceDirection = this.anchorFaceDirection
 		let shouldResetContentHeight = this.alignmentState.haveShrinkOnY
 		let shouldClearContentPosition = this.shouldClearContentPosition(contentRect)
 
@@ -351,9 +351,9 @@ export class Aligner {
 		// Reset styles before doing alignment.
 		this.resetStyles()
 
-		// Whether target in viewport.
-		let targetInViewport = DOMUtils.isRectIntersectWithViewport(targetRect)
-		let willAlign = targetInViewport || !this.options.stickToEdges
+		// Whether anchor element in viewport.
+		let anchorInViewport = DOMUtils.isRectIntersectWithViewport(anchorRect)
+		let willAlign = anchorInViewport || !this.options.stickToEdges
 		if (!willAlign) {
 			return false
 		}
@@ -372,17 +372,17 @@ export class Aligner {
 		let triangleRelativeRect = this.getTriangleRelativeRect(contentRect)
 
 		// Do content alignment.
-		let alignResult = this.doAlignment(targetFaceDirection, contentRect, targetRect, triangleRelativeRect)
-		targetFaceDirection = alignResult.targetFaceDirection
+		let alignResult = this.doAlignment(anchorFaceDirection, contentRect, anchorRect, triangleRelativeRect)
+		anchorFaceDirection = alignResult.anchorFaceDirection
 		this.alignmentState.haveShrinkOnY = alignResult.overflowOnY
 
 		// Handle `triangle` position.
 		if (this.options.triangle) {
-			this.alignTriangle(targetFaceDirection, contentRect, targetRect, triangleRelativeRect!)
+			this.alignTriangle(anchorFaceDirection, contentRect, anchorRect, triangleRelativeRect!)
 		}
 
 		this.cachedContentRect = contentRect
-		this.cachedTargetRect = targetRect
+		this.cachedAnchorRect = anchorRect
 
 		return true
 	}
@@ -439,35 +439,35 @@ export class Aligner {
 	 * Do alignment from content to anchor for once.
 	 * It outputs alignment position to `contentRect`.
 	 */
-	private doAlignment(targetFaceDirection: Direction, contentRect: DOMRect, targetRect: DOMRect, triangleRelativeRect: DOMRect | null) {
-		let anchor1 = this.getContentRelativeAnchorPoint(targetFaceDirection, contentRect, triangleRelativeRect)
-		let anchor2 = this.getTargetAbsoluteAnchorPoint(targetRect)
+	private doAlignment(anchorFaceDirection: Direction, contentRect: DOMRect, anchorRect: DOMRect, triangleRelativeRect: DOMRect | null) {
+		let anchor1 = this.getContentRelativeAnchorPoint(anchorFaceDirection, contentRect, triangleRelativeRect)
+		let anchor2 = this.getAnchorAbsoluteAnchorPoint(anchorRect)
 
 		// Fixed content element position.
 		let position = {x: anchor2.x - anchor1.x, y: anchor2.y - anchor1.y}
-		this.addGapToAlignPosition(position, targetFaceDirection)
+		this.addGapToAlignPosition(position, anchorFaceDirection)
 
 		// Handle vertical alignment.
-		let alignResult = this.alignVertical(position.y, targetFaceDirection, contentRect, targetRect, triangleRelativeRect)
+		let alignResult = this.alignVertical(position.y, anchorFaceDirection, contentRect, anchorRect, triangleRelativeRect)
 		let overflowOnY = alignResult.overflowOnY
-		targetFaceDirection = alignResult.targetFaceDirection
+		anchorFaceDirection = alignResult.anchorFaceDirection
 
 		// If content element's height changed.
 		if (overflowOnY) {
-			anchor1 = this.getContentRelativeAnchorPoint(targetFaceDirection, contentRect, triangleRelativeRect)
+			anchor1 = this.getContentRelativeAnchorPoint(anchorFaceDirection, contentRect, triangleRelativeRect)
 			position = {x: anchor2.x - anchor1.x, y: anchor2.y - anchor1.y}
-			this.addGapToAlignPosition(position, targetFaceDirection)
+			this.addGapToAlignPosition(position, anchorFaceDirection)
 		}
 
 		// Handle horizontal alignment.
-		targetFaceDirection = this.alignHorizontal(position.x, targetFaceDirection, contentRect, targetRect, triangleRelativeRect)
+		anchorFaceDirection = this.alignHorizontal(position.x, anchorFaceDirection, contentRect, anchorRect, triangleRelativeRect)
 
 		// The fixed position of content currently.
 		let x = contentRect.x
 		let y = contentRect.y
 
 		// For absolute layout content, convert x, y to absolute position.
-		if (!this.useFixedAlignment && this.target !== document.body && this.target !== document.documentElement) {
+		if (!this.useFixedAlignment && this.anchor !== document.body && this.anchor !== document.documentElement) {
 			var offsetParent = this.content.offsetParent as HTMLElement
 
 			// If we use body's top position, it will cause a bug when body has a margin top (even from margin collapse).
@@ -480,7 +480,7 @@ export class Aligner {
 
 		// May scrollbar appears after alignment,
 		// such that it should align to right.
-		if (targetFaceDirection === Direction.Left) {
+		if (anchorFaceDirection === Direction.Left) {
 			this.content.style.left = 'auto'
 			this.content.style.right = document.documentElement.clientWidth - contentRect.right + 'px'
 		}
@@ -493,20 +493,20 @@ export class Aligner {
 
 		return {
 			overflowOnY,
-			targetFaceDirection,
+			anchorFaceDirection,
 		}
 	}
 
 	/** Get relative anchor position in the origin of content element. */
-	private getContentRelativeAnchorPoint(targetFaceDirection: Direction, contentRect: DOMRect, triangleRelativeRect: DOMRect | null): Coord {
+	private getContentRelativeAnchorPoint(anchorFaceDirection: Direction, contentRect: DOMRect, triangleRelativeRect: DOMRect | null): Coord {
 		let point = {x: 0, y: 0}
 
 		// Anchor at triangle position.
 		if (this.options.fixTriangle && triangleRelativeRect) {
-			if (targetFaceDirection.beVertical) {
+			if (anchorFaceDirection.beVertical) {
 				point.x = triangleRelativeRect.left + triangleRelativeRect.width / 2
 			}
-			else if (targetFaceDirection.beHorizontal) {
+			else if (anchorFaceDirection.beHorizontal) {
 				point.y = triangleRelativeRect.top + triangleRelativeRect.height / 2
 			}
 		}
@@ -522,19 +522,19 @@ export class Aligner {
 		return point
 	}
 
-	/** Get absolute anchor position of target element in the origin of scrolling page. */
-	private getTargetAbsoluteAnchorPoint(targetRect: DOMRect): Coord {
+	/** Get absolute position of anchor element in the origin of scrolling page. */
+	private getAnchorAbsoluteAnchorPoint(anchorRect: DOMRect): Coord {
 		let [, d2] = this.directions
-		let point = getAnchorPointAt(targetRect, d2)
+		let point = getAnchorPointAt(anchorRect, d2)
 
 		return point
 	}
 
 	/** Add gap to a rough align position. */
-	private addGapToAlignPosition(position: Coord, targetFaceDirection: Direction) {
-		let edgeKey = targetFaceDirection.toBoxEdgeKey()
+	private addGapToAlignPosition(position: Coord, anchorFaceDirection: Direction) {
+		let edgeKey = anchorFaceDirection.toBoxEdgeKey()
 		let gap = edgeKey ? this.gaps[edgeKey] : 0
-		let faceVector = targetFaceDirection.toVector()
+		let faceVector = anchorFaceDirection.toVector()
 
 		position.x += faceVector.x * gap
 		position.y += faceVector.y * gap
@@ -544,25 +544,25 @@ export class Aligner {
 	 * Do vertical alignment, will modify `contentRect`.
 	 * It outputs alignment position to `contentRect`.
 	 */
-	private alignVertical(y: number, targetFaceDirection: Direction, contentRect: DOMRect, targetRect: DOMRect, triangleSize: SizeLike | null) {
+	private alignVertical(y: number, anchorFaceDirection: Direction, contentRect: DOMRect, anchorRect: DOMRect, triangleSize: SizeLike | null) {
 		let dh = document.documentElement.clientHeight
-		let spaceTop = targetRect.top - this.gaps.top
-		let spaceBottom = dh - (targetRect.bottom + this.gaps.bottom)
+		let spaceTop = anchorRect.top - this.gaps.top
+		let spaceBottom = dh - (anchorRect.bottom + this.gaps.bottom)
 		let overflowOnY = false
 		let h = contentRect.height
 
-		if (targetFaceDirection.beVertical) {
+		if (anchorFaceDirection.beVertical) {
 
 			// Not enough space at top side, switch to bottom.
-			if (targetFaceDirection === Direction.Top && y < 0 && spaceTop < spaceBottom && this.options.canSwapPosition) {
-				y = targetRect.bottom + this.gaps.bottom
-				targetFaceDirection = Direction.Bottom
+			if (anchorFaceDirection === Direction.Top && y < 0 && spaceTop < spaceBottom && this.options.canFlip) {
+				y = anchorRect.bottom + this.gaps.bottom
+				anchorFaceDirection = Direction.Bottom
 			}
 
 			// Not enough space at bottom side, switch to top.
-			else if (targetFaceDirection === Direction.Bottom && y + h > dh && spaceTop > spaceBottom && this.options.canSwapPosition) {
-				y = targetRect.top - this.gaps.top - h
-				targetFaceDirection = Direction.Top
+			else if (anchorFaceDirection === Direction.Bottom && y + h > dh && spaceTop > spaceBottom && this.options.canFlip) {
+				y = anchorRect.top - this.gaps.top - h
+				anchorFaceDirection = Direction.Top
 			}
 		}
 		else {
@@ -571,7 +571,7 @@ export class Aligner {
 			if (y + h > dh && this.options.stickToEdges) {
 				
 				// Gives enough space for triangle.
-				let minY = targetRect.top + (triangleSize ? triangleSize.height : 0) - h
+				let minY = anchorRect.top + (triangleSize ? triangleSize.height : 0) - h
 				y = Math.max(dh - h, minY)
 			}
 
@@ -579,7 +579,7 @@ export class Aligner {
 			if (y < 0 && this.options.stickToEdges) {
 
 				// Gives enough space for triangle.
-				let maxY = targetRect.bottom - (triangleSize ? triangleSize.height : 0)
+				let maxY = anchorRect.bottom - (triangleSize ? triangleSize.height : 0)
 				y = Math.min(0, maxY)
 			}
 		}
@@ -587,16 +587,16 @@ export class Aligner {
 		if (this.options.canShrinkOnY) {
 
 			// Limit element height if has not enough space.
-			if (targetFaceDirection === Direction.Top && y < 0 && this.options.stickToEdges) {
+			if (anchorFaceDirection === Direction.Top && y < 0 && this.options.stickToEdges) {
 				y = 0
 				h = spaceTop
 				overflowOnY = true
 			}
-			else if (targetFaceDirection === Direction.Bottom && y + h > dh && this.options.stickToEdges) {
+			else if (anchorFaceDirection === Direction.Bottom && y + h > dh && this.options.stickToEdges) {
 				h = spaceBottom
 				overflowOnY = true
 			}
-			else if (!targetFaceDirection.beVertical && contentRect.height > dh) {
+			else if (!anchorFaceDirection.beVertical && contentRect.height > dh) {
 				y = 0
 				h = dh
 				overflowOnY = true
@@ -605,7 +605,7 @@ export class Aligner {
 
 		// Handle sticking to edges.
 		else if (this.options.stickToEdges) {
-			if (targetFaceDirection.beVertical) {
+			if (anchorFaceDirection.beVertical) {
 				y = Math.min(y, dh - contentRect.height)
 				y = Math.max(0, y)
 			}
@@ -619,31 +619,31 @@ export class Aligner {
 			contentRect.height = h
 		}
 
-		return {targetFaceDirection, overflowOnY}
+		return {anchorFaceDirection, overflowOnY}
 	}
 
 	/** 
 	 * Do horizontal alignment.
 	 * It outputs alignment position to `contentRect`.
 	 */
-	private alignHorizontal(x: number, targetFaceDirection: Direction, contentRect: DOMRect, targetRect: DOMRect, triangleSize: SizeLike | null) {
+	private alignHorizontal(x: number, anchorFaceDirection: Direction, contentRect: DOMRect, anchorRect: DOMRect, triangleSize: SizeLike | null) {
 		let dw = document.documentElement.clientWidth
-		let spaceLeft = targetRect.left - this.gaps.left
-		let spaceRight = dw - (targetRect.right + this.gaps.right)
+		let spaceLeft = anchorRect.left - this.gaps.left
+		let spaceRight = dw - (anchorRect.right + this.gaps.right)
 		let w = contentRect.width
 
-		if (targetFaceDirection.beHorizontal) {
+		if (anchorFaceDirection.beHorizontal) {
 
 			// Not enough space at left side.
-			if (targetFaceDirection === Direction.Left && x < 0 && spaceLeft < spaceRight && this.options.canSwapPosition) {
-				x = targetRect.right + this.gaps.right
-				targetFaceDirection = Direction.Right
+			if (anchorFaceDirection === Direction.Left && x < 0 && spaceLeft < spaceRight && this.options.canFlip) {
+				x = anchorRect.right + this.gaps.right
+				anchorFaceDirection = Direction.Right
 			}
 
 			// Not enough space at right side.
-			else if (targetFaceDirection === Direction.Right && x > dw - w && spaceLeft > spaceRight && this.options.canSwapPosition) {
-				x = targetRect.left - this.gaps.left - w
-				targetFaceDirection = Direction.Left
+			else if (anchorFaceDirection === Direction.Right && x > dw - w && spaceLeft > spaceRight && this.options.canFlip) {
+				x = anchorRect.left - this.gaps.left - w
+				anchorFaceDirection = Direction.Left
 			}
 		}
 		else {
@@ -652,7 +652,7 @@ export class Aligner {
 			if (x + w > dw && this.options.stickToEdges) {
 
 				// Gives enough space for triangle.
-				let minX = targetRect.left + (triangleSize ? triangleSize.width : 0) - w
+				let minX = anchorRect.left + (triangleSize ? triangleSize.width : 0) - w
 				x = Math.max(dw - w, minX)
 			}
 
@@ -660,14 +660,14 @@ export class Aligner {
 			if (x < 0 && this.options.stickToEdges) {
 
 				// Gives enough space for triangle.
-				let minX = targetRect.right - (triangleSize ? triangleSize.width : 0)
+				let minX = anchorRect.right - (triangleSize ? triangleSize.width : 0)
 				x = Math.min(0, minX)
 			}
 		}
 
 		// Process sticking to edges.
 		if (this.options.stickToEdges) {
-			if (targetFaceDirection.beHorizontal) {
+			if (anchorFaceDirection.beHorizontal) {
 				x = Math.min(x, dw - contentRect.width)
 				x = Math.max(0, x)
 			}
@@ -675,28 +675,28 @@ export class Aligner {
 
 		contentRect.x = x
 
-		return targetFaceDirection
+		return anchorFaceDirection
 	}
 
 	/** Align `triangle` relative to content element. */
-	private alignTriangle(targetFaceDirection: Direction, contentRect: DOMRect, targetRect: DOMRect, triangleRelativeRect: DOMRect) {
+	private alignTriangle(anchorFaceDirection: Direction, contentRect: DOMRect, anchorRect: DOMRect, triangleRelativeRect: DOMRect) {
 		let triangle = this.options.triangle!
 		let transforms: string[] = []
 
-		if (targetFaceDirection.beVertical) {
+		if (anchorFaceDirection.beVertical) {
 			let x = this.calcTriangleX(
 				contentRect.width,
-				targetRect.width, targetRect.x - contentRect.x,
+				anchorRect.width, anchorRect.x - contentRect.x,
 				triangleRelativeRect.width, triangleRelativeRect.x
 			)
 
 			let translateX = x - triangleRelativeRect.x
 			transforms.push(`translateX(${translateX}px)`)
 		}
-		else if (targetFaceDirection.beHorizontal) {
+		else if (anchorFaceDirection.beHorizontal) {
 			let y = this.calcTriangleX(
 				contentRect.height,
-				targetRect.height, targetRect.y - contentRect.y,
+				anchorRect.height, anchorRect.y - contentRect.y,
 				triangleRelativeRect.height, triangleRelativeRect.y
 			)
 
@@ -704,10 +704,10 @@ export class Aligner {
 			transforms.push(`translateY(${translateY}px)`)
 		}
 
-		let triangleSwapped = targetFaceDirection !== this.targetFaceDirection
+		let triangleSwapped = anchorFaceDirection !== this.anchorFaceDirection
 	
 		if (triangleSwapped) {
-			if (targetFaceDirection.beHorizontal) {
+			if (anchorFaceDirection.beHorizontal) {
 				transforms.push('scaleX(-1)')
 			}
 			else {
@@ -716,24 +716,24 @@ export class Aligner {
 		}
 
 		if (triangleSwapped !== this.alignmentState.triangleSwapped) {
-			if (targetFaceDirection === Direction.Top) {
+			if (anchorFaceDirection === Direction.Top) {
 				triangle.style.top = 'auto'
 				triangle.style.bottom = -triangleRelativeRect.height + 'px'
 			}
-			else if (targetFaceDirection === Direction.Bottom) {
+			else if (anchorFaceDirection === Direction.Bottom) {
 				triangle.style.top = -triangleRelativeRect.height + 'px'
 				triangle.style.bottom = ''
 			}
-			else if (targetFaceDirection === Direction.Left) {
+			else if (anchorFaceDirection === Direction.Left) {
 				triangle.style.left = 'auto'
 				triangle.style.right = -triangleRelativeRect.width + 'px'
 			}
-			else if (targetFaceDirection === Direction.Right) {
+			else if (anchorFaceDirection === Direction.Right) {
 				triangle.style.left = -triangleRelativeRect.width + 'px'
 				triangle.style.right = ''
 			}
 
-			this.alignmentState.triangleSwapped = targetFaceDirection !== this.targetFaceDirection
+			this.alignmentState.triangleSwapped = anchorFaceDirection !== this.anchorFaceDirection
 		}
 
 		this.alignmentState.triangleTransformed = transforms.length > 0
@@ -743,7 +743,7 @@ export class Aligner {
 	/** All x coordinates based on content origin. */
 	private calcTriangleX(
 		contentW: number,
-		targetW: number, targetX: number,
+		anchorW: number, anchorX: number,
 		triangleW: number, triangleX: number
 	) {
 		let x: number = 0
@@ -753,29 +753,29 @@ export class Aligner {
 			x = triangleX
 		}
 
-		// Align with center of content, normally.
+		// Align with center of content element, normally.
 		else if (this.directions[0].beStraight) {
 			x = contentW / 2 - triangleW / 2
 		}
 
-		// Align with center of target.
+		// Align with center of anchor element.
 		else if (this.directions[1].beStraight && !this.directions[0].beStraight) {
-			x = (targetX + targetW) / 2 - triangleW / 2
+			x = (anchorX + anchorW) / 2 - triangleW / 2
 		}
 
 		// Align non-center to non-center, also choose narrower one.
 		else {
-			if (contentW <= targetW) {
+			if (contentW <= anchorW) {
 				x = contentW / 2 - triangleW / 2
 			}
 			else {
-				x = (targetX + targetW) / 2 - triangleW / 2
+				x = (anchorX + anchorW) / 2 - triangleW / 2
 			}
 		}
 
-		// Limit to the intersect edge of content and target.
-		let minX = Math.max(0, targetX)
-		let maxX = Math.min(contentW - triangleW / 2, targetX + targetW - triangleW / 2)
+		// Limit to the intersect edge of content and anchor elements.
+		let minX = Math.max(0, anchorX)
+		let maxX = Math.min(contentW - triangleW / 2, anchorX + anchorW - triangleW / 2)
 
 		x = Math.max(x, minX)
 		x = Math.min(x, maxX)
@@ -802,13 +802,13 @@ const PositionDirectionMap: Record<string, Direction> = {
 }
 
 /**
- * Full type is `[tbc][lrc]-[tbc][lrc]`, means `[Y of el][X of el]-[Y of target][X of target]`.
+ * Full type is `[tbc][lrc]-[tbc][lrc]`, means `[Y of el][X of el]-[Y of anchor element][X of anchor element]`.
  * Shorter type should be `[Touch][Align]` or `[Touch]`.
- * E.g.: `t` is short for `tc` or `b-t` or `bc-tc`, which means align content to the top-center of target.
- * E.g.: `tl` is short for `bl-tl`, which means align content to the top-left of target.
- * E.g.: `lt` is short for `tr-tl`, which means align content to the left-top of target.
+ * E.g.: `t` is short for `tc` or `b-t` or `bc-tc`, which means align content to the top-center of anchor element.
+ * E.g.: `tl` is short for `bl-tl`, which means align content to the top-left of anchor element.
+ * E.g.: `lt` is short for `tr-tl`, which means align content to the left-top of anchor element.
  */
-function parseAlignDirections(position: AlignerPosition): [Direction, Direction] {
+function parseAlignDirections(position: AnchorPosition): [Direction, Direction] {
 	if (!/^(?:[tbc][lrc]-[tbc][lrc]|[tbclr]-[tbclr]|[tbc][lrc]|[tbclr])/.test(position)) {
 		throw `"${position}" is not a valid position string!`
 	}
@@ -833,8 +833,8 @@ function parseAlignDirections(position: AlignerPosition): [Direction, Direction]
 
 
 /** Parse margin values to get a margin object, and apply triangle size to it. */
-function parseGap(gapValue: number | number[], triangle: HTMLElement | undefined, targetFaceDirection: Direction): AlignerGap {
-	let gap: AlignerGap
+function parseGap(gapValue: number | number[], triangle: HTMLElement | undefined, anchorFaceDirection: Direction): AnchorGap {
+	let gap: AnchorGap
 
 	if (typeof gapValue === 'number') {
 		gap = {
@@ -854,12 +854,12 @@ function parseGap(gapValue: number | number[], triangle: HTMLElement | undefined
 	}
 	
 	if (triangle) {
-		if (targetFaceDirection.beVertical) {
+		if (anchorFaceDirection.beVertical) {
 			gap.top += triangle.offsetHeight
 			gap.bottom += triangle.offsetHeight
 		}
 
-		if (targetFaceDirection.beHorizontal) {
+		if (anchorFaceDirection.beHorizontal) {
 			gap.right += triangle.offsetWidth
 			gap.left += triangle.offsetWidth
 		}

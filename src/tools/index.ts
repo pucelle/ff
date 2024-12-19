@@ -1,4 +1,4 @@
-export * from './aligner'
+export * from './anchor-aligner'
 export * from './browser-info'
 export * from './bundler'
 export * from './color'

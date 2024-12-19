@@ -125,7 +125,7 @@ export class EventFirer<E = any> {
 
 	/** Whether have registered listener with type. */
 	hasListenerType<T extends keyof E>(type: T): boolean {
-		return this.eventListenerMap.hasOf(type as string) || false
+		return this.eventListenerMap.hasKey(type as string) || false
 	}
 
 	/** Removes all the event listeners. */

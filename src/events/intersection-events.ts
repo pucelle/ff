@@ -67,7 +67,7 @@ export function off(el: Element, callback: ObserverCallback, scope: any = null) 
 	let boundCallback = bindCallback(callback, scope)
 	CallbackMap.delete(el, boundCallback)
 
-	if (!CallbackMap.hasOf(el)) {
+	if (!CallbackMap.hasKey(el)) {
 		observer?.unobserve(el)
 	}
 }

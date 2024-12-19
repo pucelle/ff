@@ -10,7 +10,7 @@ class ExtendedPairKeysWeakSetMap<K1 extends object, K2, V> extends WeakPairKeysS
 	addByGroupOfSecondKeys(k1: K1, k2s: Set<K2>, v: V) {
 		let sub = this.map.get(k1)
 		if (!sub) {
-			sub = this.createSubMap()
+			sub = new SetMap()
 			this.map.set(k1, sub)
 		}
 

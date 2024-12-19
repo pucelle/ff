@@ -9,19 +9,22 @@ import {beginTrack, compareTrackingValues, computeTrackingValues, endTrack, expo
 export class ComputedMaker<V = any> {
 
 	private getter: () => V
+	private onReset: (() => void) | undefined
 	private value: V | undefined = undefined
 	private valueFresh: boolean = false
 	private deps: SetMap<object, PropertyKey> | undefined = undefined
 	private depValues: any[] | null = null
 
-	constructor(getter: () => V, scope?: any) {
+	constructor(getter: () => V, onReset?: () => void, scope?: any) {
 		this.getter = scope ? getter.bind(scope) : getter
+		this.onReset = onReset && scope ? onReset.bind(scope) : onReset
 	}
 
 	private onDepChange() {
 		if (this.valueFresh) {
 			this.value = undefined
 			this.valueFresh = false
+			this.onReset?.()
 		}
 	}
 
