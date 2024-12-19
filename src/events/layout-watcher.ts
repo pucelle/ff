@@ -6,7 +6,7 @@ import * as DocumentWatcher from './document-watcher'
 
 
 /** Watcher types. */
-type LayoutWatcherType = 'show' | 'hide' | 'in-view' | 'out-view' | 'size' | 'rect'
+type LayoutWatcherType = 'visible' | 'invisible' | 'in-view' | 'out-view' | 'size' | 'rect'
 
 /** Watcher callback. */
 type LayoutWatcherCallback<T extends LayoutWatcherType> = (state: ReturnType<(typeof WatcherStateGetters)[T]>) => void
@@ -22,7 +22,7 @@ export interface LayoutWatcherOptions {
 
 	/** 
 	 * If specified, stop watching when state becomes true like.
-	 * Works only for types `show | hide | in-view | out-view`.
+	 * Works only for types `visible | invisible | in-view | out-view`.
 	 */
 	untilTrue: boolean
 
@@ -45,20 +45,20 @@ const DefaultLayoutWatcherOptions: LayoutWatcherOptions = {
 
 const WatcherStateGetters = {
 
-	'show'(el: HTMLElement): boolean {
-		return el.offsetWidth > 0 || el.offsetHeight > 0
+	'visible'(el: HTMLElement): boolean {
+		return el.checkVisibility()
 	},
 
-	'hide'(el: HTMLElement): boolean {
-		return el.offsetWidth === 0 && el.offsetHeight === 0
+	'invisible'(el: HTMLElement): boolean {
+		return !el.checkVisibility()
 	},
 
 	'in-view'(el: HTMLElement): boolean {
-		return DOMUtils.isRectIntersectWithViewport(el.getBoundingClientRect())
+		return el.checkVisibility() && DOMUtils.isRectIntersectWithViewport(el.getBoundingClientRect())
 	},
 
 	'out-view'(el: HTMLElement): boolean {
-		return !DOMUtils.isRectIntersectWithViewport(el.getBoundingClientRect())
+		return !el.checkVisibility() || !DOMUtils.isRectIntersectWithViewport(el.getBoundingClientRect())
 	},
 
 	'size'(el: HTMLElement): SizeLike {
@@ -103,7 +103,7 @@ export class LayoutWatcher<T extends LayoutWatcherType> {
 	}
 
 
-	/** Watcher state type, can be `show | hide | in-view | out-view | size | rect`. */
+	/** Watcher state type, can be `visible | invisible | in-view | out-view | size | rect`. */
 	private readonly type: T
 
 	/** Element being watching state at. */
