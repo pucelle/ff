@@ -41,6 +41,18 @@ export function unbind(callback: Function, scope: any = null) {
 	}
 }
 
+
+/** 
+ * Fire mutation events manually.
+ * Normally after playing a web transition events.
+ */
+export function trigger() {
+	if (MutationCallbacks.length > 0) {
+		fireDocumentChangeLater()
+	}
+}
+
+
 async function fireDocumentChangeLater() {
 	if (!willEmitDocumentChange) {
 		willEmitDocumentChange = true

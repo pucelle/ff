@@ -1,6 +1,6 @@
 import {getCSSEasingValue, WebTransitionEasingName} from './easing'
 import {PerFrameTransitionEvents, PerFrameTransitionOptions} from './per-frame-transition'
-import {EventFirer} from '../events'
+import {DocumentWatcher, EventFirer} from '../events'
 import {promiseWithResolves} from '../utils'
 
 
@@ -230,6 +230,9 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 		if (finish) {
 			this.startFrame = this.endFrame
 			this.endFrame = null
+
+			// No document mutation event fired, but need to check state.
+			DocumentWatcher.trigger()
 		}
 
 		return finish
