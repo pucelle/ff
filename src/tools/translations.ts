@@ -1,19 +1,22 @@
+import {trackGet, trackSet} from '../observing'
 import {StringUtils} from '../utils'
 
 
 export class Translations {
 
-	protected language: string = 'enUS'
-	protected data: Map<string, Record<string, string>> = new Map([['enUS', {}]])
+	protected lang: string = 'en'
+	protected data: Map<string, Record<string, string>> = new Map([['en', {}]])
 
 	/** Get current language. */
-	getCurrentLanguage(): string {
-		return this.language
+	getLang(): string {
+		trackGet(this, 'lang')
+		return this.lang
 	}
 
 	/** Set current language. */
-	setCurrentLanguage(language: string) {
-		this.language = language
+	setLang(lang: string) {
+		this.lang = lang
+		trackSet(this, 'lang')
 	}
 
 	/** Add a translation data pieces to translation data. */
@@ -31,10 +34,10 @@ export class Translations {
 	 * If passes `args` parameter, will format with it as arguments.
 	 */
 	get(key: string, ...args: (string | number)[]): string {
-		let data = this.data.get(this.language)
+		let data = this.data.get(this.lang)
 		
 		if (!data) {
-			data = this.data.get('enUS')!
+			data = this.data.get('en')!
 		}
 
 		let value = data[key]
@@ -42,6 +45,8 @@ export class Translations {
 		if (args.length) {
 			value = StringUtils.format(value, args)
 		}
+
+		trackGet(this, 'lang')
 
 		return value
 	}
@@ -56,3 +61,6 @@ export class Translations {
 
 /** Global transition API. */
 export const GlobalTranslations = new Translations()
+
+/** Global translate function `t(key, ...)`. */
+export const t = GlobalTranslations.get.bind(GlobalTranslations)
