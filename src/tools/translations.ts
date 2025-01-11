@@ -62,5 +62,5 @@ export class Translations {
 /** Global transition API. */
 export const GlobalTranslations = new Translations()
 
-/** Global translate function `t(key, ...)`. */
+/** Short for `GlobalTranslations.get(key, ...)`. */
 export const t = GlobalTranslations.get.bind(GlobalTranslations)
