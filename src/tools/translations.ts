@@ -8,13 +8,13 @@ export class Translations {
 	protected data: Map<string, Record<string, string>> = new Map([['en', {}]])
 
 	/** Get current language. */
-	getLang(): string {
+	getLanguage(): string {
 		trackGet(this, 'lang')
 		return this.lang
 	}
 
 	/** Set current language. */
-	setLang(lang: string) {
+	setLanguage(lang: string) {
 		this.lang = lang
 		trackSet(this, 'lang')
 	}
@@ -60,7 +60,7 @@ export class Translations {
 
 
 /** Global transition API. */
-export const GlobalTranslations = new Translations()
+export const translations = new Translations()
 
-/** Short for `GlobalTranslations.get(key, ...)`. */
-export const t = GlobalTranslations.get.bind(GlobalTranslations)
+/** Short for `translations.get(key, ...)`. */
+export const t = translations.get.bind(translations)
