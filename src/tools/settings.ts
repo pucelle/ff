@@ -1,29 +1,23 @@
-import {EventFirer} from '../events'
 import {Observed, trackGet, trackSet} from '../observing'
 import {EmptyBundler} from './bundler'
 import {webStorage} from './storage'
-
-
-interface SettingsEvents<O extends object> {
-
-	/** After setting an item. */
-	'set': <K extends keyof O>(key: K, value: O[K] | undefined) => void
-}
 
 
 /** 
  * Manage settings data.
  * Otherwise you should specify a default options for it.
  */
-export class Settings<O extends object> extends EventFirer<SettingsEvents<O>> implements Observed {
+export abstract class Settings<O extends object> implements Observed {
 
 	protected data: Partial<O>
 	protected readonly defaultData: O
+	saveBundler: EmptyBundler
 
 	constructor(data: Partial<O>, defaultData: O) {
-		super()
 		this.data = data
 		this.defaultData = defaultData
+
+		this.saveBundler = new EmptyBundler(this.saveStorageData.bind(this))
 	}
 
 	/** Set new data. */
@@ -62,7 +56,7 @@ export class Settings<O extends object> extends EventFirer<SettingsEvents<O>> im
 	set<K extends keyof O>(key: K, value: O[K]) {
 		if (this.data[key] !== value) {
 			this.data[key] = value
-			this.fire('set', key, value)
+			this.saveBundler.call()
 			trackSet(this.data, key)
 		}
 	}
@@ -71,10 +65,13 @@ export class Settings<O extends object> extends EventFirer<SettingsEvents<O>> im
 	delete<K extends keyof O>(key: K) {
 		if (this.data[key] !== undefined) {
 			delete this.data[key]
-			this.fire('set', key, undefined)
+			this.saveBundler.call()
 			trackSet(this.data, key)
 		}
 	}
+
+	/** Save data to storage place. */
+	protected abstract saveStorageData(): void
 }
 
 
@@ -82,7 +79,6 @@ export class Settings<O extends object> extends EventFirer<SettingsEvents<O>> im
 export class StorableSettings<O extends object> extends Settings<O> {
 
 	protected readonly storageKey: string
-	protected saveBundler: EmptyBundler
 
 	constructor(storageKey: string, defaultData: O) {
 		if (!storageKey) {
@@ -90,14 +86,7 @@ export class StorableSettings<O extends object> extends Settings<O> {
 		}
 		
 		super(webStorage.get(storageKey, {}), defaultData)
-
 		this.storageKey = storageKey
-		this.saveBundler = new EmptyBundler(this.saveStorageData.bind(this))
-		this.initEvents()
-	}
-
-	protected initEvents() {
-		this.on('set', () => this.saveBundler.call(), this)
 	}
 
 	/** Save data to storage. */
