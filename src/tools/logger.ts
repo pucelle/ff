@@ -100,7 +100,10 @@ export class Logger {
 				let costTime = NumberUtils.toDecimal(endTime - startTime, 2)
 				let message = `${name} cost ${costTime} ms`
 
-				if (costTime > 10) {
+				if (costTime > 300) {
+					console.log('%c' + message, 'color: #c00')
+				}
+				else if (costTime > 15) {
 					console.log('%c' + message, 'color: #c80')
 				}
 				else {
