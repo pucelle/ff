@@ -1,4 +1,4 @@
-import {Observed, trackGet, trackSet} from '../observing'
+import {MethodsObservable} from '../observing'
 import {EmptyBundler} from './bundler'
 import {webStorage} from './storage'
 
@@ -7,7 +7,10 @@ import {webStorage} from './storage'
  * Manage settings data.
  * Otherwise you should specify a default options for it.
  */
-export abstract class Settings<O extends object> implements Observed {
+export abstract class Settings<O extends object> implements MethodsObservable<
+	'getData' | 'getFullData' | 'has' | 'get',
+	'set' | 'setData' | 'delete'
+> {
 
 	protected data: Partial<O>
 	protected readonly defaultData: O
@@ -20,35 +23,23 @@ export abstract class Settings<O extends object> implements Observed {
 		this.saveBundler = new EmptyBundler(this.saveStorageData.bind(this))
 	}
 
-	/** Set new data. */
-	setData(data: Partial<O>) {
-		trackSet(this, 'data')
-		this.data = data
-	}
-
 	/** Get initial data. */
 	getData(): Partial<O> {
-		trackGet(this, 'data')
 		return this.data
 	}
 
 	/** Get full data fulfilled by default data. */
 	getFullData(): O {
-		trackGet(this, 'data')
 		return {...this.defaultData, ...this.data}
 	}
 
 	/** Has specified option by key. */
 	has<K extends keyof O>(key: K): boolean {
-		trackGet(this, 'data')
-		trackGet(this.data, key)
 		return this.data.hasOwnProperty(key)
 	}
 
 	/** Get option value by key, choose default value if option data doesn't specified it. */
 	get<K extends keyof O>(key: K): O[K] {
-		trackGet(this, 'data')
-		trackGet(this.data, key)
 		return this.data[key] ?? this.defaultData[key]!
 	}
 
@@ -57,8 +48,12 @@ export abstract class Settings<O extends object> implements Observed {
 		if (this.data[key] !== value) {
 			this.data[key] = value
 			this.saveBundler.call()
-			trackSet(this.data, key)
 		}
+	}
+
+	/** Set new data. */
+	setData(data: Partial<O>) {
+		this.data = data
 	}
 
 	/** Modify option key and value pair. */
@@ -66,7 +61,6 @@ export abstract class Settings<O extends object> implements Observed {
 		if (this.data[key] !== undefined) {
 			delete this.data[key]
 			this.saveBundler.call()
-			trackSet(this.data, key)
 		}
 	}
 

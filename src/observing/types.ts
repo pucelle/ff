@@ -9,16 +9,17 @@ export type Observed<T extends object = object> = T
 
 
 /** 
- * It a class implements `MethodsHalfObserved`,
- * or an value declared with type `MethodsHalfObserved`
+ * It a class implements `MethodsObservable`,
+ * or an value declared with type `MethodsObservable`,
+ * it works like a `Map` or `Set`, if it get wrapped by `Observed<...>`,
+ * or get visited from an observed object as it's sub property.
  * if call methods listed in `GetMethods`, will track get with empty string as key,
  * if call methods listed in `SetMethods`, will track set with empty string as key.
  * 
  * Otherwise, this implement doesn't affect class compiling,
  * but affect the place where use the instance of current class.
- * That's why it is called "half observed."
  */
-export type MethodsHalfObserved<GetMethods, SetMethods>
+export type MethodsObservable<GetMethods, SetMethods>
 	= {[K in (GetMethods extends string ? GetMethods : never) | (SetMethods extends string ? SetMethods : never)]: Function}
 
 
