@@ -1,8 +1,15 @@
+import {MethodsHalfObserved} from "../observing"
+
 /** 
  * `K => V[]` Map Struct.
  * Good for purely adding.
  */
-export class ListMap<K, V> {
+export class ListMap<K, V> implements MethodsHalfObserved<
+	'keys' | 'valueLists' | 'values' | 'entries' | 'flatEntries' | 'has'
+		| 'hasKey' | 'countOf' | 'valueCount' | 'keyCount' | 'get',
+	'add' | 'addSeveral' | 'addIf' | 'addSeveralIf' | 'set' | 'delete'
+		| 'deleteSeveral' | 'deleteOf' | 'clear'
+> {
 
 	protected map: Map<K, V[]> = new Map()
 
@@ -199,7 +206,12 @@ export class ListMap<K, V> {
  * `K => Set<V>` Map Struct.
  * Good for dynamically adding & deleting.
  */
-export class SetMap<K, V> {
+export class SetMap<K, V> implements MethodsHalfObserved<
+	'keys' | 'valueLists' | 'values' | 'entries' | 'flatEntries' | 'has'
+		| 'hasKey' | 'countOf' | 'valueCount' | 'keyCount' | 'get',
+	'add' | 'addSeveral' | 'set' | 'delete'
+		| 'deleteSeveral' | 'deleteOf' | 'clear'
+> {
 
 	protected map: Map<K, Set<V>> = new Map()
 
@@ -346,7 +358,12 @@ export class SetMap<K, V> {
  * `K1 -> K2 -> V` Map Struct.
  * Index each value by a pair of keys.
  */
-export class PairKeysMap<K1, K2, V> {
+export class PairKeysMap<K1, K2, V> implements MethodsHalfObserved<
+	'firstKeys' | 'secondKeysOf' | 'secondValuesOf' | 'values' | 'entries' | 'flatEntries'
+		| 'secondEntriesOf' | 'has' | 'hasFirstKey' | 'firstKeyCount' | 'secondKeyCountOf'
+		| 'get' | 'getSecond',
+	'set' | 'setSecond' | 'delete' | 'deleteOf' | 'clear'
+> {
 
 	private map: Map<K1, Map<K2, V>> = new Map()
 
@@ -435,6 +452,11 @@ export class PairKeysMap<K1, K2, V> {
 		return sub.get(k2)
 	}
 
+	/** Get the map consist of second keys and values from the first key. */
+	getSecond(k1: K1): Map<K2, V> | undefined {
+		return this.map.get(k1)
+	}
+
 	/** Set key pair and associated value. */
 	set(k1: K1, k2: K2, v: V) {
 		let sub = this.map.get(k1)
@@ -444,6 +466,11 @@ export class PairKeysMap<K1, K2, V> {
 		}
 
 		sub.set(k2, v)
+	}
+
+	/** Replace with first key and associated map of second keys and values. */
+	setSecond(k1: K1, m: Map<K2, V>) {
+		this.map.set(k1, m)
 	}
 
 	/** Delete associated value by key pair. */
@@ -474,7 +501,13 @@ export class PairKeysMap<K1, K2, V> {
  * `K1 -> K2 -> V[]` Map Struct.
  * Index a value list by a pair of keys.
  */
-export class PairKeysListMap<K1, K2, V> {
+export class PairKeysListMap<K1, K2, V> implements MethodsHalfObserved<
+	'firstKeys' | 'secondKeysOf' | 'secondValuesOf' | 'values' | 'entries' | 'flatEntries'
+		| 'secondEntriesOf' | 'has' | 'hasFirstKey' | 'firstKeyCount' | 'secondKeyCountOf'
+		| 'get',
+	'set' | 'setSecond' | 'add' | 'addSeveral' | 'addIf' | 'addSeveralIf' | 'delete'
+		| 'deleteKeys' | 'deleteOf' | 'clear'
+> {
 
 	protected map: Map<K1, ListMap<K2, V>> = new Map()
 
@@ -577,6 +610,11 @@ export class PairKeysListMap<K1, K2, V> {
 		return this.map.get(k1)?.countOf(k2)
 	}
 
+	/** Get the count of all the first keys. */
+	firstKeyCount(): number {
+		return this.map.size
+	}
+
 	/** Get the associated secondary key count by first key. */
 	secondKeyCountOf(k1: K1) {
 		return this.map.get(k1)?.keyCount()
@@ -595,6 +633,17 @@ export class PairKeysListMap<K1, K2, V> {
 	/** Get the map consist of second keys and values from the first key. */
 	getSecond(k1: K1): ListMap<K2, V> | undefined {
 		return this.map.get(k1)
+	}
+
+	/** Set key pair and associated values. */
+	set(k1: K1, k2: K2, v: V[]) {
+		let sub = this.map.get(k1)
+		if (!sub) {
+			sub = new ListMap()
+			this.map.set(k1, sub)
+		}
+
+		sub.set(k2, v)
 	}
 
 	/** Replace with first key and associated map of second keys and values. */
@@ -679,7 +728,7 @@ export class PairKeysListMap<K1, K2, V> {
 	}
 
 	/** Delete associated secondary keys and values by first key. */
-	deleteSecondOf(k1: K1) {
+	deleteOf(k1: K1) {
 		this.map.delete(k1)
 	}
 	
@@ -694,7 +743,13 @@ export class PairKeysListMap<K1, K2, V> {
  * `K1 -> K2 -> Set<V>` Map Struct.
  * Index a value set by a pair of keys.
  */
-export class PairKeysSetMap<K1, K2, V> {
+export class PairKeysSetMap<K1, K2, V> implements MethodsHalfObserved<
+'firstKeys' | 'secondKeysOf' | 'secondValuesOf' | 'values' | 'entries' | 'flatEntries'
+	| 'secondEntriesOf' | 'has' | 'hasFirstKey' | 'firstKeyCount' | 'secondKeyCountOf'
+	| 'get',
+'set' | 'setSecond' | 'add' | 'addSeveral' | 'delete'
+	| 'deleteKeys' | 'deleteOf' | 'clear'
+> {
 
 	protected map: Map<K1, SetMap<K2, V>> = new Map()
 
@@ -797,6 +852,11 @@ export class PairKeysSetMap<K1, K2, V> {
 		return this.map.get(k1)?.countOf(k2)
 	}
 
+	/** Get the count of all the first keys. */
+	firstKeyCount(): number {
+		return this.map.size
+	}
+
 	/** Get the associated secondary key count by first key. */
 	secondKeyCountOf(k1: K1) {
 		return this.map.get(k1)?.keyCount()
@@ -815,6 +875,17 @@ export class PairKeysSetMap<K1, K2, V> {
 	/** Get the map consist of second keys and values from the first key. */
 	getSecond(k1: K1): SetMap<K2, V> | undefined {
 		return this.map.get(k1)
+	}
+
+	/** Set key pair and associated values. */
+	set(k1: K1, k2: K2, v: Set<V>) {
+		let sub = this.map.get(k1)
+		if (!sub) {
+			sub = new SetMap()
+			this.map.set(k1, sub)
+		}
+
+		sub.set(k2, v)
 	}
 
 	/** Replace with first key and associated map of second keys and values. */
@@ -847,7 +918,6 @@ export class PairKeysSetMap<K1, K2, V> {
 
 		sub.addSeveral(k2, vs)
 	}
-
 	
 	/** Delete a key pair and associated value. */
 	delete(k1: K1, k2: K2, v: V) {
@@ -874,7 +944,7 @@ export class PairKeysSetMap<K1, K2, V> {
 	}
 
 	/** Delete associated secondary keys and values by first key. */
-	deleteSecondOf(k1: K1) {
+	deleteOf(k1: K1) {
 		this.map.delete(k1)
 	}
 	
@@ -890,7 +960,11 @@ export class PairKeysSetMap<K1, K2, V> {
  * `L -> R`
  * `R -> L`
  */
-export class TwoWayMap<L, R> {
+export class TwoWayMap<L, R> implements MethodsHalfObserved<
+	'leftKeys' | 'rightKeys' | 'entries' | 'hasLeft' | 'hasRight' | 'leftKeyCount'
+		| 'rightKeyCount' | 'getByLeft' | 'getByRight',
+	'set' | 'setUnRepeatably' | 'deleteLeft' | 'deleteRight' | 'clear'
+> {
 
 	private lm: Map<L, R> = new Map()
 	private rm: Map<R, L> = new Map()
@@ -988,7 +1062,12 @@ export class TwoWayMap<L, R> {
  * `L -> R[]`
  * `R -> L[]`
  */
-export class TwoWayListMap<L, R> {
+export class TwoWayListMap<L, R> implements MethodsHalfObserved<
+	'leftKeyCount' | 'rightKeyCount' | 'leftKeys' | 'rightKeys' | 'leftValuesOf' | 'rightValuesOf'
+		| 'leftEntries' | 'rightEntries' | 'flatEntries' | 'has' | 'hasLeft' | 'hasRight'
+		| 'countOfLeft' | 'countOfRight' | 'leftKeyCount' | 'rightKeyCount' | 'getByLeft' | 'getByRight',
+	'add' | 'addIf' | 'delete' | 'deleteLeft' | 'deleteRight' | 'replaceLeft' | 'replaceRight' | 'clear'
+> {
 
 	protected lm: ListMap<L, R> = new ListMap()
 	protected rm: ListMap<R, L> = new ListMap()
@@ -1013,20 +1092,20 @@ export class TwoWayListMap<L, R> {
 		return this.rm.keys()
 	}
 
-	/** Iterate associated right keys by left key. */
-	*rightValuesOf(l: L): Iterable<R> {
-		let rs = this.lm.get(l)
-		if (rs) {
-			yield* rs
-		} 
-	}
-
 	/** Iterate associated left keys by right key. */
 	*leftValuesOf(r: R): Iterable<L> {
 		let ls = this.rm.get(r)
 		if (ls) {
 			yield* ls
 		}
+	}
+
+	/** Iterate associated right keys by left key. */
+	*rightValuesOf(l: L): Iterable<R> {
+		let rs = this.lm.get(l)
+		if (rs) {
+			yield* rs
+		} 
 	}
 
 	/** Iterate left and it's associated right value list. */
@@ -1192,7 +1271,12 @@ export class TwoWayListMap<L, R> {
  * `L -> Set<R>`
  * `R -> Set<L>`
  */
-export class TwoWaySetMap<L, R> {
+export class TwoWaySetMap<L, R> implements MethodsHalfObserved<
+	'leftKeyCount' | 'rightKeyCount' | 'leftKeys' | 'rightKeys' | 'leftValuesOf' | 'rightValuesOf'
+		| 'leftEntries' | 'rightEntries' | 'flatEntries' | 'has' | 'hasLeft' | 'hasRight'
+		| 'countOfLeft' | 'countOfRight' | 'leftKeyCount' | 'rightKeyCount' | 'getByLeft' | 'getByRight',
+	'add' | 'delete' | 'deleteLeft' | 'deleteRight' | 'replaceLeft' | 'replaceRight' | 'clear'
+>  {
 
 	protected lm: SetMap<L, R> = new SetMap()
 	protected rm: SetMap<R, L> = new SetMap()
