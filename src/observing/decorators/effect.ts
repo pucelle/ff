@@ -47,14 +47,17 @@ export class EffectMaker {
 
 	private doUpdate() {
 		try {
-			beginTrack(this.onDepChange, this)
+			this.tracker = beginTrack(this.onDepChange, this)
 			this.fn()
 		}
 		catch (err) {
 			console.error(err)
 		}
 		finally {
-			this.tracker = endTrack()
+			endTrack()
+		}
+
+		if (this.tracker) {
 			this.trackerSnapshot = this.tracker.makeSnapshot()
 		}
 

@@ -1,20 +1,22 @@
-import {Observed} from '../observing'
+import {trackGet, trackSet} from '../observing'
 import {StringUtils} from '../utils'
 
 
-export class Translations implements Observed{
+export class Translations {
 
 	protected lang: string = 'en'
 	protected readonly data: Map<string, Record<string, string>> = new Map([['en', {}]])
 
 	/** Get current language. */
 	getLanguage(): string {
+		trackGet(this, "lang")
 		return this.lang
 	}
 
 	/** Set current language. */
 	setLanguage(lang: string) {
 		this.lang = lang
+		trackSet(this, "lang")
 	}
 
 	/** Add a translation data pieces to translation data. */
@@ -25,6 +27,7 @@ export class Translations implements Observed{
 		}
 
 		Object.assign(data, pieces)
+		trackSet(data, "")
 	}
 
 	/** 
@@ -43,6 +46,9 @@ export class Translations implements Observed{
 		if (args.length) {
 			value = StringUtils.format(value, args)
 		}
+
+		trackGet(this.data, "")
+        trackGet(this, "lang")
 
 		return value
 	}

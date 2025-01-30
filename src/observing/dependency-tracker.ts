@@ -48,17 +48,16 @@ export function trackExecution(fn: () => void, callback: Function, scope: object
  * not only the accurate property that we are tracking by `props` of
  * `trackGet(o, props)` and `trackSet(o, props)`.
  * 
- * If wanting detailed tracking, please use tracker object returned by `endTrack`
- * to do snapshot comparing.
+ * If wanting detailed tracking, please use tracker object returned to do snapshot comparing.
  */
-export function beginTrack(callback: Function, scope: object | null = null) {
+export function beginTrack(callback: Function, scope: object | null = null): DependencyTracker {
 	let boundCallback = bindCallback(callback, scope)
 
 	if (currentTracker) {
 		trackerStack.push(currentTracker)
 	}
 
-	currentTracker = new DependencyTracker(boundCallback)
+	return currentTracker = new DependencyTracker(boundCallback)
 }
 
 
@@ -66,7 +65,7 @@ export function beginTrack(callback: Function, scope: object | null = null) {
  * End capturing dependencies.
  * You must ensure to end each capture, or fatal error will happen.
  */
-export function endTrack(): DependencyTracker {
+export function endTrack() {
 	currentTracker!.apply()
 
 	if (trackerStack.length > 0) {
@@ -75,8 +74,6 @@ export function endTrack(): DependencyTracker {
 	else {
 		currentTracker = null
 	}
-
-	return currentTracker!
 }
 
 

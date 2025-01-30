@@ -57,7 +57,7 @@ export class ComputedMaker<V = any> {
 		}
 
 		try {
-			beginTrack(this.onDepChange, this)
+			this.tracker = beginTrack(this.onDepChange, this)
 			this.value = this.getter()
 			this.valueState = ComputedValueState.Fresh
 		}
@@ -65,7 +65,10 @@ export class ComputedMaker<V = any> {
 			console.error(err)
 		}
 		finally {
-			this.tracker = endTrack()
+			endTrack()
+		}
+
+		if (this.tracker) {
 			this.trackerSnapshot = this.tracker.makeSnapshot()
 		}
 
