@@ -78,8 +78,15 @@ export class DependencyMap {
 	}
 
 	/** Get all refresh callbacks by associated dependency and key. */
-	getCallbacks(dep: object, prop: PropertyKey): Set<Function> | undefined {
-		return this.callbackMap.get(dep, prop)
+	getCallbacks(dep: object, prop: PropertyKey): Iterable<Function> | undefined {
+
+		// If key is empty string, returns all values matching any key.
+		if (prop === '') {
+			return this.callbackMap.secondValuesOf(dep)
+		}
+		else {
+			return this.callbackMap.get(dep, prop)
+		}
 	}
 
 	/** Get all dependencies by associated refresh callback. */
