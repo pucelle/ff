@@ -1,5 +1,4 @@
-import {SetMap} from '../../structs'
-import {beginTrack, compareTrackingValues, computeTrackingValues, endTrack, exportTracked, importTracked, untrack} from '../dependency-tracker'
+import {beginTrack, DependencyTracker, endTrack, untrack} from '../dependency-tracker'
 import {enqueueUpdate} from '../update-queue'
 
 
@@ -10,8 +9,8 @@ import {enqueueUpdate} from '../update-queue'
 export class EffectMaker {
 
 	private fn: () => void
-	private deps: SetMap<object, PropertyKey> | undefined = undefined
-	private depValues: any[] | null = null
+	private tracker: DependencyTracker | null = null
+	private trackerSnapshot: any[] | null = null
 	private needsUpdate: boolean = false
 
 	constructor(fn: () => void, scope?: any) {
@@ -28,6 +27,25 @@ export class EffectMaker {
 	}
 
 	update() {
+		if (this.shouldUpdate()) {
+			this.doUpdate()
+		}
+		else {
+			this.needsUpdate = false
+		}
+	}
+
+	/** Returns whether have changed and need to update. */
+	private shouldUpdate(): boolean {
+		if (this.trackerSnapshot) {
+			return this.tracker!.compareSnapshot(this.trackerSnapshot)
+		}
+		else {
+			return true
+		}
+	}
+
+	private doUpdate() {
 		try {
 			beginTrack(this.onDepChange, this)
 			this.fn()
@@ -36,35 +54,24 @@ export class EffectMaker {
 			console.error(err)
 		}
 		finally {
-			endTrack()
+			this.tracker = endTrack()
+			this.trackerSnapshot = this.tracker.makeSnapshot()
 		}
 
 		this.needsUpdate = false
 	}
 
 	connect() {
-		let shouldUpdate = true
-
-		if (this.deps) {
-			shouldUpdate = !compareTrackingValues(this.deps!, this.depValues!)
-		}
-		
-		if (shouldUpdate) {
-			this.update()
+		if (this.shouldUpdate()) {
+			this.doUpdate()
 		}
 		else {
-			importTracked(this.onDepChange, this, this.deps!)
-		}
-
-		if (this.deps) {
-			this.deps = undefined
-			this.depValues = null
+			this.tracker!.apply()
 		}
 	}
 
 	disconnect() {
-		this.deps = exportTracked(this.onDepChange, this)
-		this.depValues = this.deps ? computeTrackingValues(this.deps) : null
+		this.tracker?.remove()
 	}
 
 	clear() {

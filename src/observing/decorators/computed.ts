@@ -1,5 +1,11 @@
-import {SetMap} from '../../structs'
-import {beginTrack, compareTrackingValues, computeTrackingValues, endTrack, exportTracked, importTracked, untrack} from '../dependency-tracker'
+import {beginTrack, DependencyTracker, endTrack, untrack} from '../dependency-tracker'
+
+
+enum ComputedValueState {
+	Initial,
+	Stale,
+	Fresh,
+}
 
 
 /** 
@@ -11,9 +17,9 @@ export class ComputedMaker<V = any> {
 	private getter: () => V
 	private onReset: (() => void) | undefined
 	private value: V | undefined = undefined
-	private valueFresh: boolean = false
-	private deps: SetMap<object, PropertyKey> | undefined = undefined
-	private depValues: any[] | null = null
+	private valueState: ComputedValueState = ComputedValueState.Initial
+	private tracker: DependencyTracker | null = null
+	private trackerSnapshot: any[] | null = null
 
 	constructor(getter: () => V, onReset?: () => void, scope?: any) {
 		this.getter = scope ? getter.bind(scope) : getter
@@ -21,56 +27,62 @@ export class ComputedMaker<V = any> {
 	}
 
 	private onDepChange() {
-		if (this.valueFresh) {
-			this.value = undefined
-			this.valueFresh = false
-			this.onReset?.()
+		if (this.valueState === ComputedValueState.Fresh) {
+			this.valueState = ComputedValueState.Stale
+		}
+	}
+
+	/** Returns whether have changed and need to update. */
+	private shouldUpdate(): boolean {
+		if (this.trackerSnapshot) {
+			return this.tracker!.compareSnapshot(this.trackerSnapshot)
+		}
+		else {
+			return true
 		}
 	}
 
 	get(): V {
-		if (this.valueFresh) {
+		if (this.valueState === ComputedValueState.Stale) {
+			if (this.shouldUpdate()) {
+				this.onReset?.()
+			}
+			else {
+				this.valueState = ComputedValueState.Fresh
+			}
+		}
+
+		if (this.valueState === ComputedValueState.Fresh) {
 			return this.value!
 		}
 
 		try {
 			beginTrack(this.onDepChange, this)
 			this.value = this.getter()
-			this.valueFresh = true
+			this.valueState = ComputedValueState.Fresh
 		}
 		catch (err) {
 			console.error(err)
 		}
 		finally {
-			endTrack()
+			this.tracker = endTrack()
+			this.trackerSnapshot = this.tracker.makeSnapshot()
 		}
 
 		return this.value!
 	}
 
 	connect() {
-		let shouldUpdate = true
-
-		if (this.deps) {
-			shouldUpdate = !compareTrackingValues(this.deps!, this.depValues!)
-		}
-		
-		if (shouldUpdate) {
+		if (this.shouldUpdate()) {
 			this.onDepChange()
 		}
 		else {
-			importTracked(this.onDepChange, this, this.deps!)
-		}
-
-		if (this.deps) {
-			this.deps = undefined
-			this.depValues = null
+			this.tracker!.apply()
 		}
 	}
 
 	disconnect() {
-		this.deps = exportTracked(this.onDepChange, this)
-		this.depValues = this.deps ? computeTrackingValues(this.deps) : null
+		this.tracker?.remove()
 	}
 
 	clear() {

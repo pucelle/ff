@@ -100,7 +100,7 @@ const PlainObjectProxyHandler = {
 		o[key] = toValue
 
 		if (fromValue !== toValue) {
-			trackSet(o, key)
+			trackSet(o)
 		}
 
 		return true
@@ -109,7 +109,7 @@ const PlainObjectProxyHandler = {
 	deleteProperty(o: any, key: PropertyKey): boolean {
 		let result = delete o[key]
 		if (result) {
-			trackSet(o, key)
+			trackSet(o)
 		}
 
 		return result
@@ -147,7 +147,7 @@ const ArrayProxyHandler = {
 		a[key] = toValue
 
 		if (fromValue !== toValue) {
-			trackSet(a, '')
+			trackSet(a)
 		}
 
 		return true
@@ -162,7 +162,7 @@ const ArrayProxyMethods: any = {
 		let result = Array.prototype.push.call(this, ...values)
 
 		if (values.length > 0) {
-			trackSet(this, '')
+			trackSet(this)
 		}
 
 		return result
@@ -172,7 +172,7 @@ const ArrayProxyMethods: any = {
 		let result = Array.prototype.unshift.call(this, ...values)
 
 		if (values.length > 0) {
-			trackSet(this, '')
+			trackSet(this)
 		}
 
 		return result
@@ -183,7 +183,7 @@ const ArrayProxyMethods: any = {
 		let result = Array.prototype.pop.call(this)
 
 		if (count > 0) {
-			trackSet(this, '')
+			trackSet(this)
 		}
 
 		return result
@@ -194,7 +194,7 @@ const ArrayProxyMethods: any = {
 		let result = Array.prototype.shift.call(this)
 
 		if (count > 0) {
-			trackSet(this, '')
+			trackSet(this)
 		}
 
 		return result
@@ -204,7 +204,7 @@ const ArrayProxyMethods: any = {
 		let result = Array.prototype.splice.call(this, fromIndex, removeCount, insertValues)
 
 		if (removeCount > 0 || insertValues.length > 0) {
-			trackSet(this, '')
+			trackSet(this)
 		}
 
 		return result
@@ -212,7 +212,7 @@ const ArrayProxyMethods: any = {
 
 	reverse(this: any[]) {
 		let result = Array.prototype.reverse.call(this)
-		trackSet(this, '')
+		trackSet(this)
 		
 		return result
 	},
@@ -228,12 +228,12 @@ const MapProxyHandler = {
 
 		// Proxy get type.
 		if (key === 'has' || key === 'get' || key === 'size') {
-			trackGet(a, '')
+			trackGet(a)
 		}
 
 		// Proxy set type.
 		else if (key === 'set' || key === 'delete' || key === 'clear') {
-			trackSet(a, '')
+			trackSet(a)
 		}
 
 		return value
@@ -249,12 +249,12 @@ const SetProxyHandler = {
 
 		// Proxy get type.
 		if (key === 'has' || key === 'size') {
-			trackGet(a, '')
+			trackGet(a)
 		}
 
 		// Proxy set type.
 		else if (key === 'add' || key === 'delete' || key === 'clear') {
-			trackSet(a, '')
+			trackSet(a)
 		}
 
 		return value

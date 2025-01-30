@@ -47,7 +47,6 @@ export class DependencyMap {
 		else {
 			this.dependencyMap.deleteSecondOf(callback)
 		}
-
 	}
 	
 	/** Update Refresh Callback Map by a Dependency Map item. */
