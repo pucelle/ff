@@ -29,6 +29,7 @@ export class ComputedMaker<V = any> {
 	private onDepChange() {
 		if (this.valueState === ComputedValueState.Fresh) {
 			this.valueState = ComputedValueState.Stale
+			this.onReset?.()
 		}
 	}
 
@@ -43,13 +44,8 @@ export class ComputedMaker<V = any> {
 	}
 
 	get(): V {
-		if (this.valueState === ComputedValueState.Stale) {
-			if (this.shouldUpdate()) {
-				this.onReset?.()
-			}
-			else {
-				this.valueState = ComputedValueState.Fresh
-			}
+		if (this.valueState === ComputedValueState.Stale && !this.shouldUpdate()) {
+			this.valueState = ComputedValueState.Fresh
 		}
 
 		if (this.valueState === ComputedValueState.Fresh) {
