@@ -11,6 +11,9 @@ import {DependencyMap} from './helpers/dependency-map'
 /** Caches `Dependency <=> Callback`. */
 const DepMap: DependencyMap = new DependencyMap()
 
+/** Mark the latest version of objects which are tracking elements. */
+const ElementsDepVersionMap: WeakMap<object, number> = new WeakMap()
+
 /** Tracker stack list. */
 const trackerStack: DependencyTracker[] = []
 
@@ -129,6 +132,11 @@ export function trackSet(obj: object, ...props: PropertyKey[]) {
 				callback()
 			}
 		}
+
+		if (prop === '') {
+			let version = ElementsDepVersionMap.get(obj) ?? 0
+			ElementsDepVersionMap.set(obj, version + 1)
+		}
 	}
 }
 
@@ -176,7 +184,7 @@ export class DependencyTracker {
 
 		for (let [dep, prop] of this.dependencies.flatEntries()) {
 			if (prop === '') {
-				values.push([...dep as Map<any, any> | Set<any> | any[]])
+				values.push(ElementsDepVersionMap.get(dep))
 			}
 			else {
 				values.push((dep as any)[prop])
@@ -198,54 +206,9 @@ export class DependencyTracker {
 		for (let [dep, prop] of this.dependencies.flatEntries()) {
 			let oldValue = oldValues[index]
 			if (prop === '') {
-				
-				// May has became `null` or `undefined`.
-				if (!dep) {
+				let newVersion = ElementsDepVersionMap.get(dep)
+				if (newVersion !== oldValue) {
 					return true
-				}
-
-				if (dep instanceof Map) {
-					if (dep.size !== (oldValue as any[]).length) {
-						return true
-					}
-
-					let i = 0
-
-					for (let newItem of dep) {
-						let oldItem = (oldValue as [any, any][])[i]
-						if (oldItem[0] !== newItem[0] || oldItem[1] !== newItem[1]) {
-							return true
-						}
-						i++
-					}
-				}
-				else if (dep instanceof Set) {
-					if (dep.size !== (oldValue as any[]).length) {
-						return true
-					}
-
-					let i = 0
-					
-					for (let newItem of dep) {
-						let oldItem = (oldValue as any[])[i]
-						if (oldItem !== newItem) {
-							return true
-						}
-						i++
-					}
-				}
-				else {
-					if ((dep as any[]).length !== (oldValue as any[]).length) {
-						return true
-					}
-
-					for (let i = 0; i < (dep as any[]).length; i++) {
-						let oldItem = (oldValue as any[])[i]
-						let newItem = (dep as any[])[i]
-						if (oldItem !== newItem) {
-							return true
-						}
-					}
 				}
 			}
 			else {
