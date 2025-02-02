@@ -72,6 +72,10 @@ export class ComputedMaker<V = any> {
 	}
 
 	connect() {
+		if (this.valueState === ComputedValueState.Initial) {
+			return
+		}
+
 		if (this.shouldUpdate()) {
 			this.onDepChange()
 		}
