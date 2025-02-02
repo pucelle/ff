@@ -272,6 +272,25 @@ export class Order<T> {
 		}
 	}
 
+	/** 
+	 * Sort `list` by current order and return a new list.
+	 * @param direction specifies additional order adjustment.
+	 */
+	toSorted(list: T[], direction: OrderDirection = 1): T[] {
+		let normalizedDirection = direction === 'asc' ? 1 : direction === 'desc' ? -1 : direction
+
+		if (normalizedDirection === 1) {
+			return list.toSorted((a, b) => {
+				return this.compare(a, b)
+			})
+		}
+		else {
+			return list.toSorted((a, b) => {
+				return -this.compare(a, b)
+			})
+		}
+	}
+
 	/**
 	 * Compare two items by current order.
 	 * Returns one of `0, -1, 1`.
@@ -351,11 +370,7 @@ export function orderBy<T>(list: T[], ...orders: OrderRule<T>[]): T[] {
  */
 export function toOrdered<T>(list: T[], ...orders: OrderRule<T>[]): T[] {
 	let order = new Order(...orders)
-	let newList = [...list]
-
-	order.sort(newList)
-
-	return newList
+	return order.toSorted(list)
 }
 
 

@@ -5,6 +5,10 @@ import {enqueueUpdate} from '../update-queue'
 /** 
  * Execute `fn` immediately, and if any dependency it used get changed, re-execute `fn`.
  * Note `fn` can only be called once in a event loop.
+ * 
+ * If a method decorated with `@effect`, both get and set type tracking can exist.
+ * But if you instantiate `EffectMaker` by yourself, you should separate get and set
+ * type of parts separately by move get or set part to a new method.
  */
 export class EffectMaker {
 
