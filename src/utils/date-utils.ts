@@ -172,6 +172,7 @@ export function format(date: Date, template = 'yyyy-MM-dd hh:mm:ss'): string {
 /**
  * Returns a short formatted date string relative to current date.
  * @param template is an object, defines which format to choose when associated unit value is different.
+ *   It's default value is `{y: 'yyyy-MM-dd', M: 'MM-dd', h: 'hh:mm'}`.
  */
 export function formatToShort(date: Date, template: {[key in DurationUnit]?: string} = {y: 'yyyy-MM-dd', M: 'MM-dd', h: 'hh:mm'}) {
 	let now = new Date()

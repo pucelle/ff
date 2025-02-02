@@ -111,9 +111,9 @@ export function trackGetDeeply(obj: object, maxDepth = 10) {
 
 	// Plain object.
 	else {
+		trackGet(obj, '')
+		
 		for (let key of Object.keys(obj)) {
-			trackGet(obj, key)
-
 			let item = (obj as any)[key]
 			if (item && typeof item === 'object') {
 				trackGetDeeply(item, maxDepth - 1)
