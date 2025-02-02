@@ -126,17 +126,34 @@ export function trackGetDeeply(obj: object, maxDepth = 10) {
 /** When doing setting property, notify the dependency is changed. */
 export function trackSet(obj: object, ...props: PropertyKey[]) {
 	for (let prop of props) {
-		let callbacks = DepMap.getCallbacks(obj, prop)
-		if (callbacks) {
-			for (let callback of callbacks) {
-				callback()
-			}
-		}
-
 		if (prop === '') {
+			let callbacks = DepMap.getAllPropCallbacks(obj)
+			if (callbacks) {
+				for (let callback of callbacks) {
+					callback()
+				}
+			}
+
+			// Although no callbacks existing, may have in the future.
 			let version = ElementsDepVersionMap.get(obj) ?? 0
 			ElementsDepVersionMap.set(obj, version + 1)
 		}
+		else {
+			let callbacks = DepMap.getCallbacks(obj, prop)
+			if (callbacks) {
+				for (let callback of callbacks) {
+					callback()
+				}
+			}
+
+			// Should also calls elements callbacks, low frequency. 
+			let elementsCallbacks = DepMap.getCallbacks(obj, '')
+			if (elementsCallbacks) {
+				for (let callback of elementsCallbacks) {
+					callback()
+				}
+			}
+		}	
 	}
 }
 
