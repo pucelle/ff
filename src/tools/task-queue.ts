@@ -22,7 +22,7 @@ export enum TaskQueueState {
 }
 
 /** Events of queue. */
-interface SyncTaskQueueEvents<T, V> {
+interface TaskQueueEvents<T, V> {
 
 	/** After a task processed successfully. */
 	'task-finished'(item: T, value: V): void
@@ -56,14 +56,14 @@ interface SyncTaskQueueEvents<T, V> {
 }
 
 /** Cache item of queue, each caches one task. */
-interface SyncTaskQueueTask<T> {
+interface TaskQueueTask<T> {
 	item: T
 	retriedTimes: number
 	abort: Function | null
 }
 
 /** Options of queue. */
-export interface SyncTaskQueueOptions<T, V> {
+export interface TaskQueueOptions<T, V> {
 
 	/** 
 	 * Specifies how many tasks are allowed to run simultaneously.
@@ -89,10 +89,10 @@ export interface SyncTaskQueueOptions<T, V> {
 	data?: T[]
 
 	/** The handler to process each task. */
-	handler: SyncTaskQueueHandler<T, V>
+	handler: TaskQueueHandler<T, V>
 }
 
-const DefaultSyncTaskQueueOptions: Partial<SyncTaskQueueOptions<any, any>> = {
+const DefaultSyncTaskQueueOptions: Partial<TaskQueueOptions<any, any>> = {
 	concurrency: 5,
 	continueOnError: false,
 	maxRetryTimes: 0,
@@ -100,11 +100,11 @@ const DefaultSyncTaskQueueOptions: Partial<SyncTaskQueueOptions<any, any>> = {
 }
 
 /** Queue handler, can returns a promise, a value or {promise, abort}.*/
-type SyncTaskQueueHandler<T, V> = (task: T) => {promise: Promise<V>, abort: Function} | Promise<V> | V
+type TaskQueueHandler<T, V> = (task: T) => {promise: Promise<V>, abort: Function} | Promise<V> | V
 
 
 /** Class to queue tasks and pass them to handler in specified concurrency. */
-export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents<T, V>> implements Required<SyncTaskQueueOptions<T, V>> {
+export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, V>> implements Required<TaskQueueOptions<T, V>> {
 
 	/**
 	 * Run each task by passing `data` items to `handler` in order.
@@ -197,7 +197,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 
 	data: T[] = []
 
-	readonly handler!: SyncTaskQueueHandler<T, V>
+	readonly handler!: TaskQueueHandler<T, V>
 	
 	/** 
 	 * Returns current working state.
@@ -215,12 +215,12 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 	 * All running tasks.
 	 * Readonly outside.
 	 */
-	runningTasks: SyncTaskQueueTask<T>[] = []
+	runningTasks: TaskQueueTask<T>[] = []
 
 	/** All failed tasks. */
-	private failedTasks: SyncTaskQueueTask<T>[] = []
+	private failedTasks: TaskQueueTask<T>[] = []
 
-	constructor(options: SyncTaskQueueOptions<T, V>) {
+	constructor(options: TaskQueueOptions<T, V>) {
 		super()
 
 		// Skip `data`.
@@ -385,7 +385,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 		}
 	}
 
-	private handleTask(task: SyncTaskQueueTask<T>) {
+	private handleTask(task: TaskQueueTask<T>) {
 		let {item: data} = task
 		let onTaskFinish = this.onTaskFinish.bind(this, task)
 		let onItemError = this.onTaskError.bind(this, task)
@@ -412,7 +412,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 			&& typeof value.abort === 'function'
 	}
 
-	private async onTaskFinish(task: SyncTaskQueueTask<T>, value: V) {
+	private async onTaskFinish(task: TaskQueueTask<T>, value: V) {
 		await this.prepareTask(task)
 		
 		if (!this.removeFromRunningTasks(task)) {
@@ -432,7 +432,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 		}
 	}
 
-	private async onTaskError(task: SyncTaskQueueTask<T>, err: Error | string | number) {
+	private async onTaskError(task: TaskQueueTask<T>, err: Error | string | number) {
 		await this.prepareTask(task)
 		
 		if (!this.removeFromRunningTasks(task)) {
@@ -451,11 +451,11 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 	}
 
 	/** Prepare all resources are prepared and can start to run task. */ 
-	private async prepareTask(task: SyncTaskQueueTask<T>) {
+	private async prepareTask(task: TaskQueueTask<T>) {
 		task.abort = null
 	}
 
-	private removeFromRunningTasks(task: SyncTaskQueueTask<T>): boolean {
+	private removeFromRunningTasks(task: TaskQueueTask<T>): boolean {
 		return ListUtils.remove(this.runningTasks, task).length > 0
 	}
 
@@ -511,7 +511,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<SyncTaskQueueEvents
 		this.runningTasks = []
 	}
 
-	private abortTask(task: SyncTaskQueueTask<T>) {
+	private abortTask(task: TaskQueueTask<T>) {
 		let {item: data, abort} = task
 
 		if (abort) {

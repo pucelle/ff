@@ -86,19 +86,27 @@ export class Logger {
 		}
 	}
 
-	/** Start a new time interval counter. */
-	timeStart(name: string) {
+	/** 
+	 * Start a new time interval counter.
+	 * Returns an end function, can pass it a null value to prevent printing message,
+	 * or a new value to overwrite message.
+	 */
+	timeStart(startName?: string): (endName?: string | null) => void {
 		let startTime = 0
 
 		if (this.logLevel >= LogLevel.Log) {
 			startTime = performance.now()
 		}
 
-		return () => {
+		return (endName?: string | null) => {
+			if (endName === null) {
+				return
+			}
+
 			if (this.logLevel >= LogLevel.Log) {
 				let endTime = performance.now()
 				let costTime = NumberUtils.toDecimal(endTime - startTime, 2)
-				let message = `${name} cost ${costTime} ms`
+				let message = `${endName ?? startName} cost ${costTime} ms`
 
 				if (costTime > 300) {
 					console.log('%c' + message, 'color: #c00')
