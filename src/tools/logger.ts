@@ -91,15 +91,15 @@ export class Logger {
 	 * Returns an end function, can pass it a null value to prevent printing message,
 	 * or a new value to overwrite message.
 	 */
-	timeStart(startName?: string): (endName?: string | null) => void {
+	timeStart(startName?: string): (endName?: string) => void {
 		let startTime = 0
 
 		if (this.logLevel >= LogLevel.Log) {
 			startTime = performance.now()
 		}
 
-		return (endName?: string | null) => {
-			if (endName === null) {
+		return (endName?: string) => {
+			if (endName === undefined && startName === undefined) {
 				return
 			}
 
