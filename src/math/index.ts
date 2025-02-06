@@ -6,7 +6,7 @@ export * from './matrix'
 export * from './matrix2'
 export * from './point'
 export * from './radial-line'
-export * from './recursive-variance'
+export * from './recursive-average-variance'
 export * from './size'
 export * from './vector'
 
