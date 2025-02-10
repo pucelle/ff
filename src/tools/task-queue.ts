@@ -36,6 +36,9 @@ interface TaskQueueEvents<T, V> {
 	 */
 	'task-error'(item: T, err: Error | string | number): void
 
+	/** After queue started. */
+	started(): void
+
 	/** After called `pause()`. */
 	paused(): void
 
@@ -284,6 +287,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 		}
 		else if (this.data.length > 0) {
 			this.state = TaskQueueState.Running
+			this.fire('started')
 			this.tryNextTask()
 		}
 		else {

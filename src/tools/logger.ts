@@ -91,36 +91,90 @@ export class Logger {
 	 * Returns an end function, can pass it a null value to prevent printing message,
 	 * or a new value to overwrite message.
 	 */
-	timeStart(startName?: string): (endName?: string) => void {
-		let startTime = 0
+	timeStart(startName?: string): LoggerTimer {
+		let timer = new LoggerTimer(this)
+		timer.start(startName)
 
-		if (this.logLevel >= LogLevel.Log) {
-			startTime = performance.now()
+		return timer
+	}
+}
+
+
+/** Help to measure time cost. */
+export class LoggerTimer {
+
+	private logger: Logger
+	private name?: string | undefined
+	private running: boolean = false
+	private startTime: number = 0
+	private cost: number = 0
+
+	constructor(logger: Logger) {
+		this.logger = logger
+	}
+
+	start(name?: string) {
+		this.name = name
+		this.startTime = performance.now()
+		this.cost = 0
+		this.running = true
+	}
+
+	pause() {
+		if (!this.running) {
+			return
 		}
 
-		return (endName?: string) => {
-			if (endName === undefined && startName === undefined) {
-				return
-			}
+		this.cost += performance.now() - this.startTime
+		this.running = false
+	}
 
-			if (this.logLevel >= LogLevel.Log) {
-				let endTime = performance.now()
-				let costTime = NumberUtils.toDecimal(endTime - startTime, 2)
-				let message = `${endName ?? startName} cost ${costTime} ms`
+	resume() {
+		if (this.running) {
+			return
+		}
 
-				if (costTime > 300) {
-					console.log('%c' + message, 'color: #c00')
-				}
-				else if (costTime > 15) {
-					console.log('%c' + message, 'color: #c80')
-				}
-				else {
-					this.log(message)
-				}
-			}
+		this.startTime = performance.now()
+	}
+
+	end(name: string | undefined = this.name) {
+		this.pause()
+
+		if (name === undefined) {
+			return
+		}
+
+		if (this.logger.logLevel >= LogLevel.Log) {
+			return
+		}
+		
+		let cost = this.cost
+		let costTime: string
+
+		if (cost > 60000) {
+			costTime = NumberUtils.toDecimal(this.cost / 60000, 2) + ' mins'
+		}
+		else if (cost > 1000) {
+			costTime = NumberUtils.toDecimal(this.cost / 1000, 2) + ' secs'
+		}
+		else {
+			costTime = NumberUtils.toDecimal(this.cost, 2) + ' ms'
+		}
+
+		let message = `${name} cost ${costTime} ms`
+
+		if (cost > 300) {
+			console.log('%c' + message, 'color: #c00')
+		}
+		else if (cost > 16) {
+			console.log('%c' + message, 'color: #c80')
+		}
+		else {
+			this.logger.log(message)
 		}
 	}
 }
+
 
 /** Default log level logger. */
 export const logger = new Logger()
