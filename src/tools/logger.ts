@@ -109,8 +109,8 @@ export class LoggerTimer {
 	private startTime: number = 0
 	private cost: number = 0
 
-	constructor(logger: Logger) {
-		this.logger = logger
+	constructor(l: Logger = logger) {
+		this.logger = l
 	}
 
 	start(name?: string) {
@@ -144,7 +144,7 @@ export class LoggerTimer {
 			return
 		}
 
-		if (this.logger.logLevel >= LogLevel.Log) {
+		if (this.logger.logLevel < LogLevel.Log) {
 			return
 		}
 		
@@ -152,16 +152,16 @@ export class LoggerTimer {
 		let costTime: string
 
 		if (cost > 60000) {
-			costTime = NumberUtils.toDecimal(this.cost / 60000, 2) + ' mins'
+			costTime = NumberUtils.toPrecision(this.cost / 60000, 3) + ' mins'
 		}
 		else if (cost > 1000) {
-			costTime = NumberUtils.toDecimal(this.cost / 1000, 2) + ' secs'
+			costTime = NumberUtils.toPrecision(this.cost / 1000, 3) + ' secs'
 		}
 		else {
-			costTime = NumberUtils.toDecimal(this.cost, 2) + ' ms'
+			costTime = NumberUtils.toPrecision(this.cost, 3) + ' ms'
 		}
 
-		let message = `${name} cost ${costTime} ms`
+		let message = `${name} cost ${costTime}`
 
 		if (cost > 300) {
 			console.log('%c' + message, 'color: #c00')

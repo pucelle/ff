@@ -282,6 +282,10 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 	 * Returns `true` if queue started.
 	 */
 	start() {
+		if (this.state === TaskQueueState.Running) {
+			return false
+		}
+
 		if (this.state === TaskQueueState.Paused) {
 			this.resume()
 		}
@@ -531,13 +535,16 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 
 	/** End and finish queue, abort all running tasks and clear all tasks. */
 	clear() {
-		this.state = TaskQueueState.Finished
 		this.data = []
 		this.failedTasks = []
 		this.processedCount = 0
 		this.abortRunningTasks()
-		this.fire('finished')
-		this.fire('ended', null)
+		
+		if (this.state !== TaskQueueState.Finished) {
+			this.state = TaskQueueState.Finished
+			this.fire('finished')
+			this.fire('ended', null)
+		}
 	}
 
 	/** 
