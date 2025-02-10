@@ -195,6 +195,10 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 	maxRetryTimes!: number
 	delayMs!: number
 
+	/** 
+	 * Note data will not be emptied after finished.
+	 * You may set it to `[]` manually.
+	 */
 	data: T[] = []
 
 	readonly handler!: TaskQueueHandler<T, V>
@@ -532,7 +536,11 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 		this.fire('ended', null)
 	}
 
-	/** Remove all not running and failed tasks and keeps running tasks still. */
+	/** 
+	 * 
+	 * Wait for all the running tasks ended,
+	 * And then clear all the tasks.
+	 */
 	async clearRest() {
 		this.data = []
 		await this.untilEnd()
