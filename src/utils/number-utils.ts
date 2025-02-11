@@ -43,7 +43,7 @@ export function toPrecision(number: number, precision: number): number {
 
 
 /** 
- * Compute euclidean modulo of `m % n`, will always return positive value.
+ * Compute euclidean modulo of `n % m`, will always return positive value.
  * 
  * e.g., `-1 % 2 = 1`.
  */
