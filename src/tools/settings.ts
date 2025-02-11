@@ -22,25 +22,25 @@ export abstract class Settings<O extends object> {
 
 	/** Get initial data. */
 	getData(): Partial<O> {
-		trackGet(this, '')
+		trackGet(this.data, '')
 		return this.data
 	}
 
 	/** Get full data fulfilled by default data. */
 	getFullData(): O {
-		trackGet(this, '')
+		trackGet(this.data, '')
 		return {...this.defaultData, ...this.data}
 	}
 
 	/** Has specified option by key. */
 	has<K extends keyof O>(key: K): boolean {
-		trackGet(this, key)
+		trackGet(this.data, key)
 		return this.data.hasOwnProperty(key)
 	}
 
 	/** Get option value by key, choose default value if option data doesn't specified it. */
 	get<K extends keyof O>(key: K): O[K] {
-		trackGet(this, key)
+		trackGet(this.data, key)
 		return this.data[key] ?? this.defaultData[key]!
 	}
 
@@ -49,21 +49,21 @@ export abstract class Settings<O extends object> {
 		if (this.data[key] !== value) {
 			this.data[key] = value
 			this.saveBundler.call()
-			trackSet(this, key)
+			trackSet(this.data, key)
 		}
 	}
 
 	/** Set new data. */
 	setData(data: Partial<O>) {
 		this.data = data
-		trackSet(this, '')
+		trackSet(this.data, '')
 	}
 
 	/** Modify option key and value pair. */
 	delete<K extends keyof O>(key: K) {
 		if (this.data[key] !== undefined) {
 			delete this.data[key]
-			trackSet(this, key)
+			trackSet(this.data, key)
 			this.saveBundler.call()
 		}
 	}
