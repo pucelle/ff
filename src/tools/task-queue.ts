@@ -242,6 +242,31 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 		}
 	}
 
+	/** Whether in pending state. */
+	get pending(): boolean {
+		return this.state === TaskQueueState.Pending
+	}
+
+	/** Whether in running state. */
+	get running(): boolean {
+		return this.state === TaskQueueState.Running
+	}
+
+	/** Whether in paused state. */
+	get paused(): boolean {
+		return this.state === TaskQueueState.Paused
+	}
+
+	/** Whether in aborted state. */
+	get aborted(): boolean {
+		return this.state === TaskQueueState.Aborted
+	}
+
+	/** Whether in finished state. */
+	get finished(): boolean {
+		return this.state === TaskQueueState.Finished
+	}
+
 	/** Returns the count of total tasks, included processed, unprocessed and failed. */
 	get totalCount() {
 		return this.processedCount + this.unprocessedCount + this.failedCount
@@ -302,7 +327,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 	}
 
 	/** Returns a promise which will be resolved after finished. */
-	untilFinish(): Promise<void> {
+	untilFinished(): Promise<void> {
 		let {promise, resolve} = promiseWithResolves()
 
 		if (this.unprocessedCount > 0) {
@@ -316,7 +341,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 	}
 
 	/** Returns a promise which will be resolved after ended. */
-	untilEnd(): Promise<void> {
+	untilEnded(): Promise<void> {
 		let {promise, resolve, reject} = promiseWithResolves()
 
 		if (this.unprocessedCount > 0) {
@@ -554,7 +579,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 	 */
 	async clearRest() {
 		this.data = []
-		await this.untilEnd()
+		await this.untilEnded()
 		this.failedTasks = []
 		this.processedCount = 0
 	}
