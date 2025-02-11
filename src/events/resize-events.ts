@@ -39,6 +39,7 @@ function onResizeCallback(entries: ResizeObserverEntry[]) {
 /** 
  * Observe an element,
  * to get notification callback after size of `el` get changed.
+ * You should remember don't change watching container size in the callback.
  */
 export function on(el: Element, callback: ObserverCallback, scope: any = null, options: ResizeObserverOptions = {}) {
 	if (!observer) {
