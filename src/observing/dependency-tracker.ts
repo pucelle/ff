@@ -80,7 +80,10 @@ export function endTrack() {
 }
 
 
-/** When doing getting property, add a dependency. */
+/** 
+ * When doing property getting, add a dependency.
+ * Note if a property is not empty, you must ensure it's property key of `obj`.
+ */
 export function trackGet(obj: object, ...props: PropertyKey[]) {
 	if (currentTracker) {
 		currentTracker.dependencies.addSeveral(obj, props)

@@ -4,7 +4,7 @@ import {ObjectUtils, DOMUtils} from '../utils'
 
 
 /** Options for anchor-aligning two elements. */
-export interface AlignerOptions {
+export interface AnchorAlignerOptions {
 
 	/** 
 	 * Align where of content element to where of anchor element.
@@ -176,7 +176,7 @@ const DefaultContentAlignmentState: ContentAlignmentState = {
 const SharedContentAlignmentState: WeakMap<HTMLElement, ContentAlignmentState> = new WeakMap()
 
 
-const DefaultAnchorAlignerOptions: AlignerOptions = {
+const DefaultAnchorAlignerOptions: AnchorAlignerOptions = {
 	position: 'b',
 	gap: 0,
 	stickToEdges: true,
@@ -205,7 +205,7 @@ export class AnchorAligner {
 	readonly anchor: Element
 
 	/** Full options. */
-	private options!: AlignerOptions
+	private options!: AnchorAlignerOptions
 
 	/** Directions of content and anchor elements. */
 	private directions!: [Direction, Direction]
@@ -250,7 +250,7 @@ export class AnchorAligner {
 	 * Align content to beside anchor element.
 	 * Returns whether did alignment.
 	 */
-	async align(options: Partial<AlignerOptions> = {}): Promise<boolean> {
+	async align(options: Partial<AnchorAlignerOptions> = {}): Promise<boolean> {
 
 		// Wait for update complete, now can read dom properties.
 		await untilUpdateComplete()
@@ -282,7 +282,7 @@ export class AnchorAligner {
 	}
 
 	/** Align content element to the position of a mouse event. */
-	async alignToEvent(event: MouseEvent, options: Partial<AlignerOptions> = {}): Promise<boolean> {
+	async alignToEvent(event: MouseEvent, options: Partial<AnchorAlignerOptions> = {}): Promise<boolean> {
 
 		// Wait for update complete, now can read dom properties.
 		await untilUpdateComplete()
@@ -312,7 +312,7 @@ export class AnchorAligner {
 	 * Get initialize by partial options.
 	 * Returns whether options get changed.
 	 */
-	private initOptions(options: Partial<AlignerOptions> = {}): boolean {
+	private initOptions(options: Partial<AnchorAlignerOptions> = {}): boolean {
 		let newOptions = {...DefaultAnchorAlignerOptions, ...options}
 
 		let changed = !ObjectUtils.deepEqual(this.options, newOptions)
@@ -445,7 +445,7 @@ export class AnchorAligner {
 
 		// Fixed content element position.
 		let position = {x: anchor2.x - anchor1.x, y: anchor2.y - anchor1.y}
-		this.addGapToAlignPosition(position, anchorFaceDirection)
+		this.addGapToAlignPosition(position)
 
 		// Handle vertical alignment.
 		let alignResult = this.alignVertical(position.y, anchorFaceDirection, contentRect, anchorRect, triangleRelativeRect)
@@ -456,7 +456,7 @@ export class AnchorAligner {
 		if (overflowOnY) {
 			anchor1 = this.getContentRelativeAnchorPoint(anchorFaceDirection, contentRect, triangleRelativeRect)
 			position = {x: anchor2.x - anchor1.x, y: anchor2.y - anchor1.y}
-			this.addGapToAlignPosition(position, anchorFaceDirection)
+			this.addGapToAlignPosition(position)
 		}
 
 		// Handle horizontal alignment.
@@ -531,13 +531,21 @@ export class AnchorAligner {
 	}
 
 	/** Add gap to a rough align position. */
-	private addGapToAlignPosition(position: Coord, anchorFaceDirection: Direction) {
-		let edgeKey = anchorFaceDirection.toBoxEdgeKey()
-		let gap = edgeKey ? this.gaps[edgeKey] : 0
-		let faceVector = anchorFaceDirection.toVector()
+	private addGapToAlignPosition(position: Coord) {
+		let anchorDirection = this.directions[1]
+		let edgeKeys = anchorDirection.toBoxEdgeKeys()
+		let alignVector = anchorDirection.toVector()
 
-		position.x += faceVector.x * gap
-		position.y += faceVector.y * gap
+		for (let key of edgeKeys) {
+			let gap = this.gaps[key]
+
+			if (key === 'left' || key === 'right') {
+				position.x += alignVector.x * gap
+			}
+			else {
+				position.y += alignVector.y * gap
+			}
+		}
 	}
 
 	/** 
