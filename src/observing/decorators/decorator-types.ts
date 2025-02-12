@@ -61,7 +61,7 @@ export declare function watch<T, P extends ((this: T) => any) | keyof T>(fnOrPro
 
 /** Infer watch method declaration by class T, and property or getter. */
 type InferMethod<T, P extends (() => any) | keyof T>
-	= (value: InferPropertyType<T, P>, oldValue?: InferPropertyType<T, P>) => void
+	= (value: InferPropertyType<T, P>, oldValue: InferPropertyType<T, P> | undefined) => void
 
 /** Infer property type by class T, and property or getter. */
 type InferPropertyType<T, P extends ((() => any) | keyof T)>
@@ -97,7 +97,7 @@ export declare function watchMulti<T, PS extends (((this: T) => any) | keyof T)[
 
 /** Infer watch multi method declaration by class T, and list of property or getter. */
 type InferMultiMethod<T, PS extends ((() => any) | keyof T)[]>
-	= (values: InferMultiMethodParameters<T, PS>, oldValues?: InferMultiMethodParameters<T, PS>) => void
+	= (values: InferMultiMethodParameters<T, PS>, oldValues: InferMultiMethodParameters<T, PS> | undefined) => void
 
 /** Infer watch multi method parameters by class T, and list of property or getter. */
 type InferMultiMethodParameters<T, PS extends ((() => any) | keyof T)[]>
