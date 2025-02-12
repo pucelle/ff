@@ -5,7 +5,7 @@ import {PerFrameTransitionEasingName, PerFrameTransition} from '../transition'
 let scrollBarWidth: number | null = null
 
 /** Cache the element and the transition playing. */
-const ScrollTransition: Map<Element, PerFrameTransition> = new Map()
+const RunningScrollTransitions: Map<Element, PerFrameTransition> = new Map()
 
 
 /**
@@ -76,10 +76,10 @@ export function getSizedOverflowDirection(wrapper: HTMLElement): HVDirection | n
 	let direction: HVDirection | null = null
 
 	if (wrapper.scrollWidth > wrapper.clientWidth) {
-		direction = 'vertical'
+		direction = 'horizontal'
 	}
 	else if (wrapper.scrollHeight > wrapper.clientHeight) {
-		direction = 'horizontal'
+		direction = 'vertical'
 	}
 
 	return direction
@@ -152,19 +152,18 @@ export async function scrollToView(
 	duration: number = 0,
 	easing: PerFrameTransitionEasingName = 'ease-out'
 ): Promise<boolean> {
-	scrollDirection = scrollDirection || getSizedOverflowDirection(el)
-
-	if (!scrollDirection) {
-		return false
-	}
-
 	let wrapper = findClosestSizedScrollWrapper(el)
 	if (!wrapper) {
 		return false
 	}
 
-	if (ScrollTransition.has(el)) {
-		ScrollTransition.get(el)!.cancel()
+	scrollDirection = scrollDirection || getSizedOverflowDirection(wrapper)
+	if (!scrollDirection) {
+		return false
+	}
+
+	if (RunningScrollTransitions.has(el)) {
+		RunningScrollTransitions.get(el)!.cancel()
 	}
 
 	if (scrollDirection === 'vertical') {
@@ -202,7 +201,7 @@ export async function scrollToView(
 					}
 				)
 
-				ScrollTransition.set(el, transition)
+				RunningScrollTransitions.set(el, transition)
 
 				return transition.untilEnd()
 			}
@@ -245,7 +244,7 @@ export async function scrollToView(
 					}
 				)
 
-				ScrollTransition.set(el, transition)
+				RunningScrollTransitions.set(el, transition)
 
 				return transition.untilEnd()
 			}
@@ -277,19 +276,18 @@ export async function scrollToStart(
 	duration: number = 0,
 	easing: PerFrameTransitionEasingName = 'ease-out'
 ): Promise<boolean> {
-	scrollDirection = scrollDirection || getSizedOverflowDirection(el) || getCSSOverflowDirection(el)
-
-	if (!scrollDirection) {
-		return false
-	}
-
 	let wrapper = findClosestSizedScrollWrapper(el)
 	if (!wrapper) {
 		return false
 	}
 
-	if (ScrollTransition.has(el)) {
-		ScrollTransition.get(el)!.cancel()
+	scrollDirection = scrollDirection || getSizedOverflowDirection(wrapper)
+	if (!scrollDirection) {
+		return false
+	}
+
+	if (RunningScrollTransitions.has(el)) {
+		RunningScrollTransitions.get(el)!.cancel()
 	}
 	
 	let offset = getNonScrollOffset(el, wrapper, scrollDirection)
@@ -312,7 +310,7 @@ export async function scrollToStart(
 				}
 			)
 
-			ScrollTransition.set(el, transition)
+			RunningScrollTransitions.set(el, transition)
 
 			return transition.untilEnd()
 		}
