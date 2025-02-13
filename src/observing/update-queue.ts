@@ -25,6 +25,12 @@ class UpdateHeap {
 	/** Dynamically sorted callbacks. */
 	private heap: MiniHeap<{callback: Function, order: number}>
 
+	/** 
+	 * Increase and been added to order, to ensure output in the same order with adding
+	 * for those items with same `order` property.
+	 */
+	private orderIncreasement = 0
+
 	constructor() {
 		this.heap = new MiniHeap(function(a, b) {
 			return a.order - b.order
@@ -41,6 +47,9 @@ class UpdateHeap {
 
 	add(callback: Function, scope: object | null, order: number) {
 		let boundCallback = bindCallback(callback, scope)
+
+		// Just ensure will not reach 1 within each loop updating.
+		order += this.orderIncreasement += 1e-8
 
 		this.heap.add({
 			callback: boundCallback,
@@ -80,6 +89,7 @@ let phase: QueueUpdatePhase = QueueUpdatePhase.NotStarted
 /** 
  * Enqueue a callback with a scope, will call it before the next animate frame.
  * Note you must prevent adding same callback multiple times before updating.
+ * E.g., you may implement a `needsUpdate` property, and avoid enqueuing if it's `true`.
  * @param order specifies the callback order, default value is `0`.
  */
 export function enqueueUpdate(callback: () => void, scope: object | null = null, order: number = 0) {

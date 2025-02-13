@@ -18,4 +18,18 @@ describe('Test MiniHeap', () => {
 			lastValue = v
 		}
 	})
+
+	// Not possible for heap struct.
+	// test('MiniHeap keep add order when having same comparing value', () => {
+	// 	let m = new MiniHeap<{value: number, order: number}>((a, b) => a.order - b.order)
+		
+	// 	for (let i = 0; i < 100; i++) {
+	// 		m.add({value: i, order: 0})
+	// 	}
+
+	// 	for (let i = 0; i < 100; i++) {
+	// 		let v = m.popHead()!
+	// 		expect(v.value).toBe(i)
+	// 	}
+	// })
 })

@@ -136,10 +136,6 @@ export function trackSet(obj: object, ...props: PropertyKey[]) {
 					callback()
 				}
 			}
-
-			// Although no callbacks existing, may have in the future.
-			let version = ElementsDepVersionMap.get(obj) ?? 0
-			ElementsDepVersionMap.set(obj, version + 1)
 		}
 		else {
 			let callbacks = DepMap.getCallbacks(obj, prop)
@@ -148,15 +144,21 @@ export function trackSet(obj: object, ...props: PropertyKey[]) {
 					callback()
 				}
 			}
-
-			// Should also calls elements callbacks, low frequency. 
-			let elementsCallbacks = DepMap.getCallbacks(obj, '')
-			if (elementsCallbacks) {
-				for (let callback of elementsCallbacks) {
-					callback()
-				}
-			}
 		}	
+	}
+
+	// Should also calls elements callbacks, low frequency.
+	if (DepMap.hasCallbacks(obj, '')) {
+		if (!props.includes('')) {
+			let elementsCallbacks = DepMap.getCallbacks(obj, '')!
+			for (let callback of elementsCallbacks) {
+				callback()
+			}
+		}
+
+		// Upgrade elements dependency version, for snapshot comparing.
+		let version = ElementsDepVersionMap.get(obj) ?? 0
+		ElementsDepVersionMap.set(obj, version + 1)
 	}
 }
 

@@ -572,16 +572,10 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 		}
 	}
 
-	/** 
-	 * 
-	 * Wait for all the running tasks ended,
-	 * And then clear all the tasks.
-	 */
-	async clearRest() {
+	/** Clear all the not processed, include failed tasks. */
+	clearUnProcessed() {
 		this.data = []
-		await this.untilEnded()
 		this.failedTasks = []
-		this.processedCount = 0
 	}
 
 	/** Push task data to queue. */

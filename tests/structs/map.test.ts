@@ -245,7 +245,7 @@ describe('Test Map Structs', () => {
 		expect(m.hasKeys('a', 'b')).toEqual(false)
 
 		m.add('a', 'b', 'c')
-		m.deleteSecondOf('a')
+		m.deleteOf('a')
 		expect(m.hasFirstKey('a')).toEqual(false)
 	})
 
@@ -277,7 +277,7 @@ describe('Test Map Structs', () => {
 		expect(m.hasKeys('a', 'b')).toEqual(false)
 
 		m.add('a', 'b', 'c')
-		m.deleteSecondOf('a')
+		m.deleteOf('a')
 		expect(m.hasFirstKey('a')).toEqual(false)
 	})
 })
