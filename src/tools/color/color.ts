@@ -45,6 +45,8 @@ export class Color {
 				return null
 			}
 
+			name = name.toLowerCase()
+
 			// rgb, rgba.
 			if (name === 'rgb' || name === 'rgba') {
 				rgba = parseRGBA(str)

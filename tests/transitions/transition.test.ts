@@ -1,10 +1,10 @@
-import {TransitionEasingName, getEasingFunction, makeMixer} from '../../src'
+import {PerFrameTransitionEasingName, WebTransitionEasingName, getEasingFunction, makeMixer} from '../../src'
 
 
 describe('Test transition', () => {
 	
 	test('getEasingFunction', () => {
-		for (let name of ['linear', 'ease', 'ease-in', 'ease-out', 'ease-in-out'] as TransitionEasingName[]) {
+		for (let name of ['linear', 'ease', 'ease-in', 'ease-out', 'ease-in-out'] as WebTransitionEasingName[]) {
 			let fn = getEasingFunction(name)
 			expect(fn(0)).toEqual(0)
 			expect(fn(1)).toEqual(1)
@@ -12,7 +12,7 @@ describe('Test transition', () => {
 	})
 
 	test('getEasingFunction of custom easing names', () => {
-		for (let name of ['ease-in-elastic', 'ease-out-elastic', 'ease-in-out-elastic', 'ease-in-bounce', 'ease-out-bounce', 'ease-in-out-bounce'] as TransitionEasingName[]) {
+		for (let name of ['ease-in-elastic', 'ease-out-elastic', 'ease-in-out-elastic', 'ease-in-bounce', 'ease-out-bounce', 'ease-in-out-bounce'] as PerFrameTransitionEasingName[]) {
 			let fn = getEasingFunction(name)
 			expect(fn(0)).toEqual(0)
 			expect(fn(1)).toEqual(1)

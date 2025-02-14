@@ -144,7 +144,6 @@ export class WatchMultiMaker<V extends any[] = any> {
 		}
 
 		if (values!) {
-				
 			let shouldCallback = this.values && values! && !this.compare(values, this.values!)
 				|| !this.values && this.options.immediate
 
@@ -154,6 +153,8 @@ export class WatchMultiMaker<V extends any[] = any> {
 			
 			this.values = values
 		}
+
+		this.needsUpdate = false
 	}
 
 	/** Returns whether each value is same. */

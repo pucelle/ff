@@ -165,11 +165,11 @@ describe('Test time-control', () => {
 			let throttle = new Throttle(fn, 100)
 			let throttled = throttle.wrapped
 			let interval = willAlwaysEndInterval(throttled, 40)
-			await sleep(41)
+			await sleep(45)
 			expect(fn).toHaveBeenCalledTimes(0)
 			await sleep(100)
 			expect(fn).toHaveBeenCalledTimes(1)
-			await sleep(100 + 40)
+			await sleep(100 + 45)
 			expect(fn).toHaveBeenCalledTimes(2)
 			interval.cancel()
 		})

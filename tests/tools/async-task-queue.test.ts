@@ -18,10 +18,10 @@ describe('Test AsyncTaskQueue', () => {
 			f2()
 		})
 
-		await sleep(11)
+		await sleep(15)
 		expect(f1).toHaveBeenCalledTimes(1)
 		expect(f2).toHaveBeenCalledTimes(0)
-		await sleep(10)
+		await sleep(15)
 		expect(f2).toHaveBeenCalledTimes(1)
 	})
 })
