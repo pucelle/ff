@@ -113,7 +113,7 @@ export function untilUpdateComplete(): Promise<void> {
 
 
 /** 
- * If you want to read a dom property, and update later depend on the read value, you should:
+ * If you want to read a dom property, and write soon depend on the read value, you should:
  * 1. `untilUpdateComplete()`
  * 2. read dom property
  * 3. `untilReadComplete()`
@@ -166,6 +166,9 @@ async function update() {
 			// Bad part is it may postpone callback to next frame.
 			// await sleep(0)
 		}
+
+		// Wait for a more micro task to wait for async updates get run.
+		await Promise.resolve()
 
 		// Calls read complete callback.
 		let callbacks = readCompleteCallbacks
