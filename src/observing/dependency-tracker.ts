@@ -148,16 +148,18 @@ export function trackSet(obj: object, ...props: PropertyKey[]) {
 	}
 
 	// Should also calls elements callbacks, low frequency.
-	if (DepMap.hasCallbacks(obj, '')) {
-		if (!props.includes('')) {
-			let elementsCallbacks = DepMap.getCallbacks(obj, '')!
+	if (!props.includes('')) {
+		let elementsCallbacks = DepMap.getCallbacks(obj, '')
+		if (elementsCallbacks) {
 			for (let callback of elementsCallbacks) {
 				callback()
 			}
 		}
+	}
 
-		// Upgrade elements dependency version, for snapshot comparing.
-		let version = ElementsDepVersionMap.get(obj) ?? 0
+	// Upgrade elements dependency version if it exists, for snapshot comparing.
+	let version = ElementsDepVersionMap.get(obj)
+	if (version !== undefined) {
 		ElementsDepVersionMap.set(obj, version + 1)
 	}
 }
@@ -206,7 +208,11 @@ export class DependencyTracker {
 
 		for (let [dep, prop] of this.dependencies.flatEntries()) {
 			if (prop === '') {
-				values.push(ElementsDepVersionMap.get(dep))
+				let version = ElementsDepVersionMap.get(dep)
+				if (version === undefined) {
+					ElementsDepVersionMap.set(dep, version = 0)
+				}
+				values.push(version)
 			}
 			else {
 				values.push((dep as any)[prop])

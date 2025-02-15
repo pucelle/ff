@@ -76,11 +76,6 @@ export class DependencyMap {
 		}
 	}
 
-	/** Check whether has any callback existing by associated dependency and key. */
-	hasCallbacks(dep: object, prop: PropertyKey): boolean {
-		return this.callbackMap.hasKeys(dep, prop)
-	}
-
 	/** Get all refresh callbacks by associated dependency and key. */
 	getCallbacks(dep: object, prop: PropertyKey): Iterable<Function> | undefined {
 		return this.callbackMap.get(dep, prop)

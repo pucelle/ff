@@ -167,9 +167,6 @@ async function update() {
 			// await sleep(0)
 		}
 
-		// Wait for a more micro task to wait for async updates get run.
-		await Promise.resolve()
-
 		// Calls read complete callback.
 		let callbacks = readCompleteCallbacks
 		for (let callback of callbacks) {
