@@ -25,16 +25,16 @@ export enum TaskQueueState {
 interface TaskQueueEvents<T, V> {
 
 	/** After a task processed successfully. */
-	'task-finished'(item: T, value: V): void
+	'task-finished'(data: T, value: V): void
 
 	/** After error occurred when processing a task or called `abort()` on task. */
-	'task-aborted'(item: T): void
+	'task-aborted'(data: T): void
 
 	/**
 	 * After error occurred when processing task.
 	 * If `continueOnError` is `false` and `maxRetryTimes` equals `0`, queue will be aborted.
 	 */
-	'task-error'(item: T, err: Error | string | number): void
+	'task-error'(data: T, err: Error | string | number): void
 
 	/** After queue started. */
 	started(): void
@@ -58,9 +58,9 @@ interface TaskQueueEvents<T, V> {
 	ended(err: Error | string | number | null): void
 }
 
-/** Cache item of queue, each caches one task. */
+/** Cache data of queue, each caches one task. */
 interface TaskQueueTask<T> {
-	item: T
+	data: T
 	retriedTimes: number
 	abort: Function | null
 }
@@ -113,7 +113,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 	 * Run each task by passing `data` items to `handler` in order.
 	 * Returns a promise which will be resolved after tasks become finished.
 	 */
-	static each<T>(data: T[], handler: (item: T) => Promise<void> | void, concurrency?: number): Promise<void> {
+	static each<T>(data: T[], handler: (data: T) => Promise<void> | void, concurrency?: number): Promise<void> {
 		let {promise, resolve, reject} = promiseWithResolves()
 
 		let q = new TaskQueue({
@@ -133,7 +133,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 	 * Run each task by passing `data` items to `handler` in order.
 	 * Returns a promise which will be resolved with returned values list.
 	 */
-	static map<T, V>(data: T[], handler: (item: T) => Promise<V> | V, concurrency?: number): Promise<V[]> {
+	static map<T, V>(data: T[], handler: (data: T) => Promise<V> | V, concurrency?: number): Promise<V[]> {
 		let {promise, resolve, reject} = promiseWithResolves<V[]>()
 		let values: V[] = []
 		let indexedTasks = data.map((task, index) => ({task, index}))
@@ -289,17 +289,17 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 
 	/** Returns the running task data. */
 	get runningTaskData() {
-		return this.runningTasks.map(t => t.item)
+		return this.runningTasks.map(t => t.data)
 	}
 
 	/** Returns the failed task data. */
 	get failedTaskData(): T[] {
-		return this.failedTasks.map(t => t.item)
+		return this.failedTasks.map(t => t.data)
 	}
 
 	/** Returns the unprocessed tasks. */
 	get unprocessedTaskData() {
-		return [...this.runningTasks.map(t => t.item), ...this.data]
+		return [...this.runningTasks.map(t => t.data), ...this.data]
 	}
 
 	/**
@@ -396,7 +396,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 			let item = this.data.shift()!
 
 			this.handleTask({
-				item: item,
+				data: item,
 				retriedTimes: 0,
 				abort: null
 			})
@@ -423,7 +423,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 	}
 
 	private handleTask(task: TaskQueueTask<T>) {
-		let {item: data} = task
+		let {data: data} = task
 		let onTaskFinish = this.onTaskFinish.bind(this, task)
 		let onItemError = this.onTaskError.bind(this, task)
 		let value = this.handler(data)
@@ -459,7 +459,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 		this.processedCount++
 
 		if (this.state === TaskQueueState.Running) {
-			this.fire('task-finished', task.item, value)
+			this.fire('task-finished', task.data, value)
 
 			if (this.delayMs > 0) {
 				await sleep(this.delayMs)
@@ -477,7 +477,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 		}
 
 		this.failedTasks.push(task)
-		this.fire('task-error', task.item, err)
+		this.fire('task-error', task.data, err)
 
 		if (!this.continueOnError && this.maxRetryTimes === 0) {
 			this.onError(err)
@@ -549,7 +549,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 	}
 
 	private abortTask(task: TaskQueueTask<T>) {
-		let {item: data, abort} = task
+		let {data: data, abort} = task
 
 		if (abort) {
 			abort()
@@ -594,15 +594,15 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 	 * Find first task data match test function `fn`.
 	 * Processed tasks are ignored.
 	 */
-	find(fn: (item: T) => boolean): T | undefined {
-		let task = this.runningTasks.find(item => fn(item.item))
+	find(fn: (data: T) => boolean): T | undefined {
+		let task = this.runningTasks.find(item => fn(item.data))
 		if (task) {
-			return task.item
+			return task.data
 		}
 
-		task = this.failedTasks.find(item => fn(item.item))
+		task = this.failedTasks.find(item => fn(item.data))
 		if (task) {
-			return task.item
+			return task.data
 		}
 
 		let data = this.data.find(task => fn(task))
@@ -632,8 +632,8 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 		let toRemove: T[] = []
 
 		this.runningTasks = this.runningTasks.filter(task => {
-			if (fn(task.item)) {
-				toRemove.push(task.item)
+			if (fn(task.data)) {
+				toRemove.push(task.data)
 				return false
 			}
 			else {
@@ -642,8 +642,8 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 		})
 
 		this.failedTasks = this.failedTasks.filter(task => {
-			if (fn(task.item)) {
-				toRemove.push(task.item)
+			if (fn(task.data)) {
+				toRemove.push(task.data)
 				return false
 			}
 			else {
