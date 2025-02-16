@@ -74,9 +74,9 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 		this.options = {...DefaultWebTransitionOptions, ...options}
 	}
 
-	/** Whether transition is playing, or within delay period. */
+	/** Whether transition is playing, or will run. */
 	get running(): boolean {
-		return !!this.animation
+		return !!this.animation && this.animation.playState === 'running'
 	}
 
 	/** 
@@ -204,7 +204,7 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 		let duration = this.options.duration
 		let delay = this.options.delay
 
-		let animation = this.animation = this.el.animate(
+		this.animation = this.el.animate(
 			[this.startFrame as any as Keyframe, this.endFrame as any as Keyframe],
 			{
 				easing,
@@ -219,15 +219,11 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 		this.resolve = resolve
 
 		this.animation.onfinish = () => {
-			if (animation === this.animation) {
-				this.onFinished()
-			}
+			this.onFinished()
 		}
 
 		this.animation.oncancel = () => {
-			if (animation === this.animation) {
-				this.onCanceled()
-			}
+			this.onCanceled()
 		}
 
 		let finish = await promise
@@ -268,7 +264,9 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 			return
 		}
 
+		this.animation.oncancel = null
 		this.animation.cancel()
+		this.onCanceled()
 	}
 
 	private onCanceled() {

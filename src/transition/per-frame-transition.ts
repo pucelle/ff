@@ -122,17 +122,9 @@ export class PerFrameTransition<T extends TransitionAbleValue = any> extends Eve
 		this.easingFn = getEasingFunction(this.options.easing)
 	}
 
-	/** Whether transition is playing, or within delay period. */
+	/** Whether transition is playing, or will run. */
 	get running(): boolean {
 		return !!this.promise
-	}
-
-	/** 
-	 * Whether transition is playing.
-	 * Within delay period means not playing.
-	 */
-	get playing(): boolean {
-		return !!this.frameLoop.running
 	}
 
 	/** 

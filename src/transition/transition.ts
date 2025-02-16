@@ -1,5 +1,5 @@
 import {DeepReadonly, untilUpdateComplete} from '../observing'
-import {ObjectUtils} from '../utils'
+import {ObjectUtils, promiseWithResolves} from '../utils'
 import {PerFrameTransition, PerFrameTransitionOptions} from './per-frame-transition'
 import {WebTransition, WebTransitionKeyFrame, WebTransitionOptions} from './web-transition'
 
@@ -132,11 +132,17 @@ export class Transition {
 	private readonly el: Element
 	private version = 0
 	private result: TransitionResult | null = null
-	private mixedTransitionType: MixedTransitionType | null = null
-	private mixedTransition: PerFrameTransition | WebTransition | null = null
+	private mixedType: MixedTransitionType | null = null
+	private mixed: PerFrameTransition | WebTransition | null = null
+	private mixedReady: Promise<void> | null = null
 
 	constructor(el: Element) {
 		this.el = el
+	}
+
+	/** Whether transition is playing, or will run. */
+	get running(): boolean {
+		return !!this.mixedReady || !!this.mixed && this.mixed.running
 	}
 
 	update(result: TransitionResult | null) {
@@ -149,11 +155,11 @@ export class Transition {
 	}
 
 	private clearTransition() {
-		this.mixedTransitionType = null
+		this.mixedType = null
 
-		if (this.mixedTransition) {
-			this.mixedTransition.cancel()
-			this.mixedTransition = null
+		if (this.mixed) {
+			this.mixed.cancel()
+			this.mixed = null
 		}
 	}
 
@@ -169,39 +175,48 @@ export class Transition {
 		}
 
 		let version = ++this.version
+		let {promise, resolve} = promiseWithResolves()
+
+		this.mixedReady = promise.then(() => {
+			this.mixedReady = null
+		})
 
 		// Most transition getters will read dom properties.
 		// Ensure it first render, then play.
 		await untilUpdateComplete()
 
 		if (this.version !== version) {
+			resolve()
 			return false
 		}
 
 		let props = await result.getter(this.el, result.options, 'enter')
 		if (!props) {
+			resolve()
 			return null
 		}
 
 		if (this.version !== version) {
+			resolve()
 			return false
 		}
 		
 		this.updateTransition(props)
+		resolve()
 
 		let enterStartedEvent = new CustomEvent('transition-enter-started')
 		this.el.dispatchEvent(enterStartedEvent)
 
 		let finish: boolean
 
-		if (this.mixedTransitionType === MixedTransitionType.PerFrame) {
+		if (this.mixedType === MixedTransitionType.PerFrame) {
 			let perFrame = (props as PerFrameTransitionProperties).perFrame
-			finish = await (this.mixedTransition as PerFrameTransition).playBetween(0, 1, perFrame)
+			finish = await (this.mixed as PerFrameTransition).playBetween(0, 1, perFrame)
 		}
 		else {
 			let startFrame = (props as WebTransitionProperties).startFrame;
 			let endFrame = (props as WebTransitionProperties).endFrame;
-			finish = await (this.mixedTransition as WebTransition).playBetween(startFrame, endFrame)
+			finish = await (this.mixed as WebTransition).playBetween(startFrame, endFrame)
 		}
 
 		if (finish) {
@@ -224,39 +239,48 @@ export class Transition {
 		}
 
 		let version = ++this.version
+		let {promise, resolve} = promiseWithResolves()
+
+		this.mixedReady = promise.then(() => {
+			this.mixedReady = null
+		})
 
 		// Most transition getters will read dom properties.
 		// Ensure it first render, then play.
 		await untilUpdateComplete()
 
 		if (this.version !== version) {
+			resolve()
 			return false
 		}
 
 		let props = await result.getter(this.el, result.options, 'leave')
 		if (!props) {
+			resolve()
 			return null
 		}
 
 		if (this.version !== version) {
+			resolve()
 			return false
 		}
 
 		this.updateTransition(props)
+		resolve()
 
 		let leaveStartedEvent = new CustomEvent('transition-leave-started')
 		this.el.dispatchEvent(leaveStartedEvent)
 
 		let finish: boolean
 
-		if (this.mixedTransitionType === MixedTransitionType.PerFrame) {
+		if (this.mixedType === MixedTransitionType.PerFrame) {
 			let perFrame = (props as PerFrameTransitionProperties).perFrame;
-			finish = await (this.mixedTransition as PerFrameTransition).playBetween(1, 0, perFrame);
+			finish = await (this.mixed as PerFrameTransition).playBetween(1, 0, perFrame);
 		}
 		else {
 			let startFrame = (props as WebTransitionProperties).startFrame;
 			let endFrame = (props as WebTransitionProperties).endFrame;
-			finish = await (this.mixedTransition as WebTransition).playBetween(endFrame, startFrame)
+			finish = await (this.mixed as WebTransition).playBetween(endFrame, startFrame)
 		}
 
 		if (finish) {
@@ -270,16 +294,16 @@ export class Transition {
 	private updateTransition(props: TransitionProperties) {
 		let type = this.getTransitionType(props)
 
-		if (this.mixedTransitionType !== type) {
-			if (this.mixedTransition) {
-				this.mixedTransition.finish()
+		if (this.mixedType !== type) {
+			if (this.mixed) {
+				this.mixed.finish()
 			}
 
-			this.mixedTransition = null
-			this.mixedTransitionType = type
+			this.mixed = null
+			this.mixedType = type
 		}
 
-		if (!this.mixedTransition) {
+		if (!this.mixed) {
 			let options = ObjectUtils.cleanEmptyValues({
 				duration: props.duration,
 				easing: props.easing,
@@ -287,10 +311,10 @@ export class Transition {
 			})
 
 			if (type === MixedTransitionType.PerFrame) {
-				this.mixedTransition = new PerFrameTransition(options)
+				this.mixed = new PerFrameTransition(options)
 			}
 			else {
-				this.mixedTransition = new WebTransition(this.el, options as WebTransitionOptions)
+				this.mixed = new WebTransition(this.el, options as WebTransitionOptions)
 			}
 		}
 	}
@@ -309,8 +333,12 @@ export class Transition {
 	 * for per-frame transition, will apply final state,
 	 * for web transition, will fallback to initial state,
 	 */
-	finish() {
-		this.mixedTransition?.finish()
+	async finish() {
+		if (this.mixedReady) {
+			await this.mixedReady
+		}
+		
+		this.mixed?.finish()
 	}
 	
 	/** 
@@ -321,6 +349,7 @@ export class Transition {
 	 * Both of them will not apply final state.
 	 */
 	cancel() {
-		this.mixedTransition?.cancel()
+		this.mixed?.cancel()
+		this.version++
 	}
 }
