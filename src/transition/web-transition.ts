@@ -204,7 +204,7 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 		let duration = this.options.duration
 		let delay = this.options.delay
 
-		this.animation = this.el.animate(
+		let animation = this.animation = this.el.animate(
 			[this.startFrame as any as Keyframe, this.endFrame as any as Keyframe],
 			{
 				easing,
@@ -218,13 +218,17 @@ export class WebTransition extends EventFirer<WebTransitionEvents> {
 		this.promise = promise
 		this.resolve = resolve
 
-		this.animation!.addEventListener('finish', () => {
-			this.onFinished()
-		}, false)
+		this.animation.onfinish = () => {
+			if (animation === this.animation) {
+				this.onFinished()
+			}
+		}
 
-		this.animation!.addEventListener('cancel', () => {
-			this.onCanceled()
-		}, false)
+		this.animation.oncancel = () => {
+			if (animation === this.animation) {
+				this.onCanceled()
+			}
+		}
 
 		let finish = await promise
 		if (finish) {
