@@ -1,4 +1,4 @@
-import {ListUtils, ObjectUtils, promiseWithResolves, sleep} from '../utils'
+import {ListUtils, ObjectUtils, promiseWithResolves, sleep, Timeout} from '../utils'
 import {EventFirer} from '../events'
 
 
@@ -62,7 +62,6 @@ interface TaskQueueEvents<T, V> {
 interface TaskQueueTask<T> {
 	data: T
 	retriedTimes: number
-	abort: Function | null
 }
 
 /** Options of queue. */
@@ -77,6 +76,9 @@ export interface TaskQueueOptions<T, V> {
 	/** If `true`, will continue processing tasks after any error occurred. */
 	continueOnError?: boolean
 
+	/** If specified, and a task's run time exceed, then it will be passed. */
+	taskTimeout?: number
+
 	/**
 	 * Specifies how many times can retry before a task success.
 	 * If a task's retry times exceed, it will not be retried automatically,
@@ -89,10 +91,13 @@ export interface TaskQueueOptions<T, V> {
 	delayMs?: number
 
 	/** The task data array. */
-	data?: T[]
+	data: T[]
 
 	/** The handler to process each task. */
-	handler: TaskQueueHandler<T, V>
+	handler: (task: T) => Promise<V> | V
+
+	/** To handle aborting task. */
+	abortHandler?: (task: T) => void
 }
 
 const DefaultSyncTaskQueueOptions: Partial<TaskQueueOptions<any, any>> = {
@@ -102,12 +107,9 @@ const DefaultSyncTaskQueueOptions: Partial<TaskQueueOptions<any, any>> = {
 	delayMs: 0,
 }
 
-/** Queue handler, can returns a promise, a value or {promise, abort}.*/
-type TaskQueueHandler<T, V> = (task: T) => {promise: Promise<V>, abort: Function} | Promise<V> | V
-
 
 /** Class to queue tasks and pass them to handler in specified concurrency. */
-export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, V>> implements Required<TaskQueueOptions<T, V>> {
+export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, V>> implements Partial<TaskQueueOptions<T, V>> {
 
 	/**
 	 * Run each task by passing `data` items to `handler` in order.
@@ -197,6 +199,8 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 	continueOnError!: boolean
 	maxRetryTimes!: number
 	delayMs!: number
+	taskTimeout: number | undefined = undefined
+	abortHandler: ((task: T) => void) | undefined = undefined
 
 	/** 
 	 * Note data will not be emptied after finished.
@@ -204,7 +208,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 	 */
 	data: T[] = []
 
-	readonly handler!: TaskQueueHandler<T, V>
+	readonly handler!: (task: T) => Promise<V> | V
 	
 	/** 
 	 * Returns current working state.
@@ -229,17 +233,8 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 
 	constructor(options: TaskQueueOptions<T, V>) {
 		super()
-
-		// Skip `data`.
-		let fullOptions = {...DefaultSyncTaskQueueOptions}
-		ObjectUtils.assignExisting(fullOptions, options)
-		ObjectUtils.assign(this, fullOptions)
-
-		this.handler = options.handler
-
-		if (options.data) {
-			this.push(...options.data)
-		}
+		ObjectUtils.assign(this, DefaultSyncTaskQueueOptions, options)
+		this.data = [...options.data]
 	}
 
 	/** Whether in pending state. */
@@ -265,6 +260,12 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 	/** Whether in finished state. */
 	get finished(): boolean {
 		return this.state === TaskQueueState.Finished
+	}
+
+	/** Whether in finished or aborted state. */
+	get ended(): boolean {
+		return this.state === TaskQueueState.Finished
+			|| this.state === TaskQueueState.Aborted
 	}
 
 	/** Returns the count of total tasks, included processed, unprocessed and failed. */
@@ -398,7 +399,6 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 			this.handleTask({
 				data: item,
 				retriedTimes: 0,
-				abort: null
 			})
 		}
 
@@ -422,36 +422,41 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 		}
 	}
 
-	private handleTask(task: TaskQueueTask<T>) {
-		let {data: data} = task
-		let onTaskFinish = this.onTaskFinish.bind(this, task)
-		let onItemError = this.onTaskError.bind(this, task)
-		let value = this.handler(data)
-	
+	private async handleTask(task: TaskQueueTask<T>) {
+		let {data} = task
+		let taskReturned = this.handler(data)
+		let timeout: Timeout | null = null
+
+		if (this.taskTimeout) {
+			timeout = new Timeout(() => {
+				this.off('task-aborted', onTaskAborted)
+				this.onTaskError(task, 'Timeout')
+			}, this.taskTimeout)
+
+			let onTaskAborted = (data: T) => {
+				if (data === task.data) {
+					timeout!.cancel()
+				}
+			}
+
+			this.on('task-aborted', onTaskAborted)
+		}
+
 		this.runningTasks.push(task)
 
-		if (this.isPromiseAbortObject(value)) {
-			(value as any).promise.then(onTaskFinish, onItemError)
-			task.abort = (value as any).abort
+		try {
+			let value = await taskReturned
+			this.onTaskFinish(task, value)
 		}
-		else if (value instanceof Promise) {
-			value.then(onTaskFinish, onItemError)
+		catch (err) {
+			this.onTaskError(task, err as any)
 		}
-		else {
-			Promise.resolve().then(() => onTaskFinish(<V>value))
+		finally {
+			timeout?.cancel()
 		}
-	}
-
-	private isPromiseAbortObject(value: any): value is {promise: Promise<V>, abort: Function} {
-		return value
-			&& typeof value === 'object'
-			&& value.promise instanceof Promise
-			&& typeof value.abort === 'function'
 	}
 
 	private async onTaskFinish(task: TaskQueueTask<T>, value: V) {
-		await this.prepareTask(task)
-		
 		if (!this.removeFromRunningTasks(task)) {
 			return
 		}
@@ -470,8 +475,6 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 	}
 
 	private async onTaskError(task: TaskQueueTask<T>, err: Error | string | number) {
-		await this.prepareTask(task)
-		
 		if (!this.removeFromRunningTasks(task)) {
 			return
 		}
@@ -485,11 +488,6 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 		else {
 			this.tryNextTask()
 		}
-	}
-
-	/** Prepare all resources are prepared and can start to run task. */ 
-	private async prepareTask(task: TaskQueueTask<T>) {
-		task.abort = null
 	}
 
 	private removeFromRunningTasks(task: TaskQueueTask<T>): boolean {
@@ -544,18 +542,13 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 	}
 
 	private abortRunningTasks() {
-		this.runningTasks.map(task => this.abortTask(task))
+		this.runningTasks.forEach(task => this.abortTask(task))
 		this.runningTasks = []
 	}
 
 	private abortTask(task: TaskQueueTask<T>) {
-		let {data: data, abort} = task
-
-		if (abort) {
-			abort()
-		}
-
-		this.fire('task-aborted', data)
+		this.abortHandler?.(task.data)
+		this.fire('task-aborted', task.data)
 	}
 
 	/** End and finish queue, abort all running tasks and clear all tasks. */
@@ -572,7 +565,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 		}
 	}
 
-	/** Clear all the not processed, include failed tasks. */
+	/** Clear all the not processed tasks, include failed tasks. */
 	clearUnProcessed() {
 		this.data = []
 		this.failedTasks = []

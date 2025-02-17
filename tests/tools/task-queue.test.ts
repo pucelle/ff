@@ -113,11 +113,9 @@ describe('Test queue', () => {
 			concurrency: 2,
 			data: a,
 			handler: () => {
-				return {
-					promise: sleep(),
-					abort
-				}
-			}
+				return sleep(10)
+			},
+			abortHandler: abort,
 		})
 
 		q.start()
@@ -227,7 +225,7 @@ describe('Test queue', () => {
 
 	test('Can get right count', async () => {
 		let q = new TaskQueue({
-			concurrency: 2,
+			concurrency: 1,
 			data: a,
 			continueOnError: true,
 			handler: (n) => {
@@ -239,8 +237,8 @@ describe('Test queue', () => {
 		})
 
 		q.start()
-		expect(q.runningCount).toEqual(2)
-		expect(q.runningTaskData).toEqual([0, 1])
+		expect(q.runningCount).toEqual(1)
+		expect(q.runningTaskData).toEqual([0])
 
 		await (new Promise(resolve => {
 			q.on('task-finished', (n: number) => {

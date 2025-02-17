@@ -1,9 +1,9 @@
-import {ComputedMaker, trackGet, trackSet} from '../../src'
+import {ComputedMaker, trackGet, trackSet, untilUpdateComplete} from '../../src'
 
 
 describe('Test computed', () => {
 
-	it('Test computed', () => {
+	it('Test computed', async () => {
 		class A {
 			v!: number
 		}
@@ -19,11 +19,13 @@ describe('Test computed', () => {
 
 		a.v = 1
 		trackSet(a, 'v')
+		await untilUpdateComplete()
 		expect(v1.get()).toEqual(2)
 		expect(fn1).toBeCalledTimes(1)
 
 		a.v = 2
 		trackSet(a, 'v')
+		await untilUpdateComplete()
 		expect(v1.get()).toEqual(3)
 		expect(fn1).toBeCalledTimes(2)
 
@@ -32,6 +34,7 @@ describe('Test computed', () => {
 		a.v = 3
 		trackSet(a, 'v')
 		v1.connect()
+		await untilUpdateComplete()
 		expect(v1.get()).toEqual(4)
 		expect(fn1).toBeCalledTimes(3)
 
@@ -40,6 +43,7 @@ describe('Test computed', () => {
 		a.v = 3
 		trackSet(a, 'v')
 		v1.connect()
+		await untilUpdateComplete()
 		expect(v1.get()).toEqual(4)
 		expect(fn1).toBeCalledTimes(3)
 	})
