@@ -16,9 +16,16 @@ export interface AnchorAlignerOptions {
  	/** 
 	  * The gaps betweens content element and anchor element.
 	  * It nearly equals expanding anchor element area with this value.
-	  * can be a number or a number array composed of 1-4 numbers, in `top right? bottom? left?` order.
+	  * Can be a number or a number array composed of 1-4 numbers, in `top right? bottom? left?` order.
 	  */
-	gap: number | number[]
+	gaps: number | number[]
+
+	/** 
+	  * The gaps betweens content element and viewport edges.
+	  * Can be a number or a number array composed of 1-4 numbers, in `top right? bottom? left?` order.
+	  * Works only when `stickToEdges` set to `true`.
+	  */
+	edgeGaps: number | number[]
 
 	/** 
 	 * Whether stick content element to viewport edges.
@@ -178,7 +185,8 @@ const SharedContentAlignmentState: WeakMap<HTMLElement, ContentAlignmentState> =
 
 const DefaultAnchorAlignerOptions: AnchorAlignerOptions = {
 	position: 'b',
-	gap: 0,
+	gaps: 0,
+	edgeGaps: 0,
 	stickToEdges: true,
 	canFlip: true,
 	canShrinkOnY: false,
@@ -223,6 +231,9 @@ export class AnchorAligner {
 
 	/** Gaps betweens anchor and content element. */
 	private gaps!: AnchorGap
+
+	/** Gaps betweens content element and viewport edges. */
+	private edgeGaps!: AnchorGap
 
 	/** Represent previous alignment state. */
 	private alignmentState: ContentAlignmentState
@@ -322,7 +333,8 @@ export class AnchorAligner {
 
 		this.directions = parseAlignDirections(newOptions.position)
 		this.anchorFaceDirection = this.directions[1].joinToStraight(this.directions[0].opposite)
-		this.gaps = parseGap(newOptions.gap, newOptions.triangle, this.anchorFaceDirection)
+		this.gaps = parseGaps(newOptions.gaps, newOptions.triangle, this.anchorFaceDirection)
+		this.edgeGaps = parseGaps(newOptions.edgeGaps, newOptions.triangle, this.anchorFaceDirection)
 
 		// If anchor element is not affected by document scrolling, content element should be the same.
 		// A potential problem here: once becomes fixed, can't be restored for reuseable popups.
@@ -576,19 +588,19 @@ export class AnchorAligner {
 		else {
 
 			// Can move up a little to become fully visible.
-			if (y + h > dh && this.options.stickToEdges) {
+			if (y + h + this.edgeGaps.bottom > dh && this.options.stickToEdges) {
 				
 				// Gives enough space for triangle.
 				let minY = anchorRect.top + (triangleSize ? triangleSize.height : 0) - h
-				y = Math.max(dh - h, minY)
+				y = Math.max(dh - h - this.edgeGaps.bottom, minY)
 			}
 
 			// Can move down a little to become fully visible.
-			if (y < 0 && this.options.stickToEdges) {
+			if (y - this.edgeGaps.top < 0 && this.options.stickToEdges) {
 
 				// Gives enough space for triangle.
 				let maxY = anchorRect.bottom - (triangleSize ? triangleSize.height : 0)
-				y = Math.min(0, maxY)
+				y = Math.min(this.edgeGaps.top, maxY)
 			}
 		}
 
@@ -657,19 +669,19 @@ export class AnchorAligner {
 		else {
 
 			// Can move left a little to become fully visible.
-			if (x + w > dw && this.options.stickToEdges) {
+			if (x + w + this.edgeGaps.right > dw && this.options.stickToEdges) {
 
 				// Gives enough space for triangle.
 				let minX = anchorRect.left + (triangleSize ? triangleSize.width : 0) - w
-				x = Math.max(dw - w, minX)
+				x = Math.max(dw - w - this.edgeGaps.right, minX)
 			}
 
 			// Can move right a little to become fully visible.
-			if (x < 0 && this.options.stickToEdges) {
+			if (x - this.edgeGaps.left < 0 && this.options.stickToEdges) {
 
 				// Gives enough space for triangle.
 				let minX = anchorRect.right - (triangleSize ? triangleSize.width : 0)
-				x = Math.min(0, minX)
+				x = Math.min(this.edgeGaps.left, minX)
 			}
 		}
 
@@ -841,7 +853,7 @@ function parseAlignDirections(position: AnchorPosition): [Direction, Direction] 
 
 
 /** Parse margin values to get a margin object, and apply triangle size to it. */
-function parseGap(gapValue: number | number[], triangle: HTMLElement | undefined, anchorFaceDirection: Direction): AnchorGap {
+function parseGaps(gapValue: number | number[], triangle: HTMLElement | undefined, anchorFaceDirection: Direction): AnchorGap {
 	let gap: AnchorGap
 
 	if (typeof gapValue === 'number') {
