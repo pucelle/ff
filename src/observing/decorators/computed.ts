@@ -1,4 +1,5 @@
 import {beginTrack, DependencyTracker, endTrack, untrack} from '../dependency-tracker'
+import {enqueueUpdate} from '../update-queue'
 
 
 enum ComputedValueState {
@@ -20,6 +21,7 @@ export class ComputedMaker<V = any> {
 	private valueState: ComputedValueState = ComputedValueState.Initial
 	private tracker: DependencyTracker | null = null
 	private trackerSnapshot: any[] | null = null
+	private needsUpdate: boolean = false
 
 	constructor(getter: () => V, onReset?: () => void, scope?: any) {
 		this.getter = scope ? getter.bind(scope) : getter
@@ -27,15 +29,28 @@ export class ComputedMaker<V = any> {
 	}
 
 	private onDepChange() {
-		if (this.valueState === ComputedValueState.Fresh) {
+		if (this.needsUpdate) {
+			return
+		}
+
+		// Here doesn't reset value immediately after dependency get changed,
+		// but update them in the same order with effectors and watchers.
+		enqueueUpdate(this.update, this)
+		this.needsUpdate = true
+	}
+
+	update() {
+		if (this.shouldUpdate()) {
 			this.valueState = ComputedValueState.Stale
 			this.onReset?.()
 		}
+
+		this.needsUpdate = false
 	}
 
 	/** Returns whether have changed and need to update. */
 	private shouldUpdate(): boolean {
-		if (this.trackerSnapshot) {
+		if (this.valueState === ComputedValueState.Fresh && this.trackerSnapshot) {
 			return this.tracker!.compareSnapshot(this.trackerSnapshot)
 		}
 		else {
@@ -44,10 +59,6 @@ export class ComputedMaker<V = any> {
 	}
 
 	get(): V {
-		if (this.valueState === ComputedValueState.Stale && !this.shouldUpdate()) {
-			this.valueState = ComputedValueState.Fresh
-		}
-
 		if (this.valueState === ComputedValueState.Fresh) {
 			return this.value!
 		}
