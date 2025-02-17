@@ -41,10 +41,16 @@ export class ComputedMaker<V = any> {
 
 	update() {
 		if (this.shouldUpdate()) {
-			this.valueState = ComputedValueState.Stale
-			this.onReset?.()
+			this.doUpdate()
 		}
+		else {
+			this.needsUpdate = false
+		}
+	}
 
+	private doUpdate() {
+		this.valueState = ComputedValueState.Stale
+		this.onReset?.()
 		this.needsUpdate = false
 	}
 
@@ -88,7 +94,7 @@ export class ComputedMaker<V = any> {
 		}
 
 		if (this.shouldUpdate()) {
-			this.onDepChange()
+			this.doUpdate()
 		}
 		else {
 			this.tracker!.apply()
