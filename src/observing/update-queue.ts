@@ -25,12 +25,6 @@ class UpdateHeap {
 	/** Dynamically sorted callbacks. */
 	private heap: MiniHeap<{callback: Function, order: number}>
 
-	/** 
-	 * Increase and been added to order, to ensure output in the same order with adding
-	 * for those items with same `order` property.
-	 */
-	private orderIncreasement = 0
-
 	constructor() {
 		this.heap = new MiniHeap(function(a, b) {
 			return a.order - b.order
@@ -47,9 +41,6 @@ class UpdateHeap {
 
 	add(callback: Function, scope: object | null, order: number) {
 		let boundCallback = bindCallback(callback, scope)
-
-		// Just ensure will not reach 1 within each loop updating.
-		order += this.orderIncreasement += 1e-8
 
 		this.heap.add({
 			callback: boundCallback,
@@ -82,6 +73,12 @@ let updateCompleteCallbacks: (() => void)[] = []
 /** Callbacks wait to be called after ended reading the dom properties. */
 let readCompleteCallbacks: (() => void)[] = []
 
+/** 
+ * Increase and been added to order, to ensure output in the same order with adding
+ * for those items with same `order` property.
+ */
+let orderIncreasement = 0
+
 /** What's updating right now. */
 let phase: QueueUpdatePhase = QueueUpdatePhase.NotStarted
 
@@ -93,14 +90,29 @@ let phase: QueueUpdatePhase = QueueUpdatePhase.NotStarted
  * @param order specifies the callback order, default value is `0`.
  */
 export function enqueueUpdate(callback: () => void, scope: object | null = null, order: number = 0) {
+	
+	// Just ensure will not reach 1 within each loop updating.
+	order += orderIncreasement += 1e-8
+
 	heap.add(callback, scope, order)
 	willUpdateIfNotYet()
 }
 
 
 /** 
+ * Enqueue a callback with a scope, will call it before all enqueued callbacks
+ * with order `0` have been called, normally watchers / effectors / computers.
+ * All component updates have not started yet.
+ */
+export function enqueueAfterDataApplied(callback: () => void, scope: object | null = null) {
+	heap.add(callback, scope, 0.5)
+	willUpdateIfNotYet()
+}
+
+
+/** 
  * Returns a promise which will be resolved after all the enqueued callbacks were called.
- * Can safely read computed style and rendered properties after returned promise was resolved.
+ * Can safely read computed style and rendered properties after promise resolved.
  * Normally you should wait for updating complete before reading any dom property.
  */
 export function untilUpdateComplete(): Promise<void> {
@@ -179,4 +191,5 @@ async function update() {
 
 	// Back to start stage.
 	phase = QueueUpdatePhase.NotStarted
+	orderIncreasement = 0
 }
