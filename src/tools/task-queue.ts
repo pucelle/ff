@@ -100,13 +100,6 @@ export interface TaskQueueOptions<T, V> {
 	abortHandler?: (task: T) => void
 }
 
-const DefaultSyncTaskQueueOptions: Partial<TaskQueueOptions<any, any>> = {
-	concurrency: 5,
-	continueOnError: false,
-	maxRetryTimes: 0,
-	delayMs: 0,
-}
-
 
 /** Class to queue tasks and pass them to handler in specified concurrency. */
 export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, V>> implements Partial<TaskQueueOptions<T, V>> {
@@ -195,10 +188,10 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 	}
 
 
-	concurrency!: number
-	continueOnError!: boolean
-	maxRetryTimes!: number
-	delayMs!: number
+	concurrency = 5
+	continueOnError = false
+	maxRetryTimes = 0
+	delayMs = 0
 	taskTimeout: number | undefined = undefined
 	abortHandler: ((task: T) => void) | undefined = undefined
 
@@ -233,7 +226,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 
 	constructor(options: TaskQueueOptions<T, V>) {
 		super()
-		ObjectUtils.assign(this, DefaultSyncTaskQueueOptions, options)
+		ObjectUtils.assign(this, options)
 		this.data = [...options.data]
 	}
 

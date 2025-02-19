@@ -59,7 +59,7 @@ export function elementIndexOf(el: Element): number {
 
 /**
  * Get computed style value from an element.
- * Note that this method may cause reflow.
+ * Note that this method may cause re-layout.
  */
 export function getStyleValue(el: Element, property: StylePropertyName): string {
 	return getComputedStyle(el)[property as any]
@@ -67,7 +67,7 @@ export function getStyleValue(el: Element, property: StylePropertyName): string 
 
 /**
  * Set style value for an element.
- * Note that this method may cause reflow.
+ * Note that this method may cause re-layout.
  */
 export function setStyleValue(el: HTMLElement, property: StylePropertyName, value: string) {
 	(el.style as any)[property] = value
@@ -75,7 +75,7 @@ export function setStyleValue(el: HTMLElement, property: StylePropertyName, valu
 
 /**
  * Get computed style value from an element, and convert it to a number.
- * Note that this method may cause reflow.
+ * Note that this method may cause re-layout.
  */
 export function getNumericStyleValue(el: Element, property: StylePropertyName): number {
 	let value = getStyleValue(el, property)
@@ -84,7 +84,7 @@ export function getNumericStyleValue(el: Element, property: StylePropertyName): 
 
 /**
  * Set style value for an element, convert number value to pixels.
- * Note that this method may cause reflow.
+ * Note that this method may cause re-layout.
  */
 export function setNumericStyleValue(el: HTMLElement, property: StylePropertyName, value: number) {
 	(el.style as any)[property] = value + 'px'
@@ -94,7 +94,7 @@ export function setNumericStyleValue(el: HTMLElement, property: StylePropertyNam
 
 /**
  * Get inner width of specified element, which equals `clientWidth - paddingWidths` or `width - paddingWidths - scrollbarWidth`.
- * Note that this method may cause page reflow.
+ * Note that this method may cause page re-layout.
  */
 export function getInnerWidth(el: Element): number {
 	let w = el.clientWidth
@@ -108,7 +108,7 @@ export function getInnerWidth(el: Element): number {
 
 /**
  * Get inner height of specified element, which equals to `clientHeight - paddingHeights` or `height - paddingHeights - scrollbarHeight`.
- * Note that this method may cause page reflow.
+ * Note that this method may cause page re-layout.
  */
 export function getInnerHeight(el: Element): number {
 	let h = el.clientHeight
@@ -122,7 +122,7 @@ export function getInnerHeight(el: Element): number {
 
 /**
  * Get inner size of specified element, which equals `clientSize - paddingSizes` or `size - paddingSizes - scrollbarSize`.
- * Note that this method may cause page reflow.
+ * Note that this method may cause page re-layout.
  */
 export function getInnerSize(el: Element): SizeLike {
 	return {
@@ -135,7 +135,7 @@ export function getInnerSize(el: Element): SizeLike {
 
 /**
  * Get outer width of specified element, which equals `offsetWidth + marginWidths`.
- * Note that this method may cause page reflow.
+ * Note that this method may cause page re-layout.
  */
 export function getOuterWidth(el: HTMLElement) {
 	let w = el.offsetWidth
@@ -149,7 +149,7 @@ export function getOuterWidth(el: HTMLElement) {
 
 /**
  * Get outer height of specified element, which equals `offsetHeight + marginHeights`.
- * Note that this method may cause page reflow.
+ * Note that this method may cause page re-layout.
  */
 export function getOuterHeight(el: HTMLElement) {
 	let h = el.offsetHeight
@@ -163,7 +163,7 @@ export function getOuterHeight(el: HTMLElement) {
 
 /**
  * Get outer size of specified element, which equals `offsetSize + marginSizes`.
- * Note that this method may cause page reflow.
+ * Note that this method may cause page re-layout.
  */
 export function getOuterSize(el: HTMLElement): SizeLike {
 	return {

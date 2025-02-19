@@ -9,7 +9,7 @@ let willEmitDocumentChange: boolean = false
 
 /** 
  * Bind a callback, to call it after document get changed,
- * or resize/scroll event fired, and also all rendering completed.
+ * or resize/scroll event fired, and also after update complete.
  */
 export function bind(callback: Function, scope: any = null) {
 	let boundCallback = bindCallback(callback, scope)

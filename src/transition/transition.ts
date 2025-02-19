@@ -167,6 +167,7 @@ export class Transition {
 	 * Play enter transition.
 	 * e.g., `enter(fade({duration: 1000, easing: 'linear}))`.
 	 * Returns true if transition finished, false if canceled, null if prevented.
+	 * It will wait for update complete then reading dom properties.
 	 */
 	async enter(result: TransitionResult): Promise<boolean | null> {
 		let {phase} = result.options as DeepReadonly<TransitionOptions>
@@ -231,6 +232,7 @@ export class Transition {
 	 * Play leave transition.
 	 * e.g., `leave(fade({duration: 1000, easing: 'linear}))`.
 	 * Returns true if transition finished, false if canceled, null if prevented.
+	 * It will wait for update complete then reading dom properties.
 	 */
 	async leave(result: TransitionResult): Promise<boolean | null> {
 		let {phase} = result.options as DeepReadonly<TransitionOptions>

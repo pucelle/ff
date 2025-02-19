@@ -1,6 +1,7 @@
 import {bindCallback} from '../utils'
 import * as DocumentWatcher from './document-watcher'
 import {ListMap} from '../structs'
+import {untilUpdateComplete} from '../tracking'
 
 
 type RectObserverCallback = (rect: DOMRect) => void
@@ -14,7 +15,7 @@ const ElementRectCache: WeakMap<HTMLElement, DOMRect> = new WeakMap()
 
 let documentWatcherBound = false
 
-
+/** Check each element rect. */
 function checkOnDocumentWatcherCallback() {
 	for (let el of CallbackMap.keys()) {
 		let newRect = el.getBoundingClientRect()
@@ -40,13 +41,16 @@ function checkOnDocumentWatcherCallback() {
 
 /**
  * Watch rect of an element, get notified by `callback` if this rect get changed.
- * Note that this method wll read dom properties, please ensure rendering has completed.
+ * Note that this method may cause additional page re-layout.
+ * It will wait for update complete then read bounding rect.
  */
-export function watch(el: HTMLElement, callback: RectObserverCallback, scope: any = null) {
+export async function watch(el: HTMLElement, callback: RectObserverCallback, scope: any = null) {
 	let boundCallback = bindCallback(callback, scope)
 	if (CallbackMap.has(el, boundCallback)) {
 		return
 	}
+
+	await untilUpdateComplete()
 
 	CallbackMap.add(el, boundCallback)
 	ElementRectCache.set(el, el.getBoundingClientRect())

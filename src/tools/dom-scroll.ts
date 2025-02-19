@@ -11,7 +11,7 @@ const RunningScrollTransitions: Map<Element, PerFrameTransition> = new Map()
 /**
  * Get scroll bar width.
  * After first time running, the returned value will keep constant.
- * Note that this method will cause reflow when call it the first time.
+ * Note that this method may cause page re-layout when call it the first time.
  */
 export function getScrollbarWidth(): number {
 	if (scrollBarWidth !== null) {
@@ -33,7 +33,7 @@ export function getScrollbarWidth(): number {
  * Find the closest scroll wrapper, which is the closest ancestral element,
  * and it's contents get overflow.
  * Note this method can test get scroll wrapper only when overflow happens.
- * Note that this method may cause reflow.
+ * Note this method read dom properties and may cause page re-layout.
  */
 export function findClosestSizedScrollWrapper(el: HTMLElement): HTMLElement | null {
 	while (el) {
@@ -52,7 +52,7 @@ export function findClosestSizedScrollWrapper(el: HTMLElement): HTMLElement | nu
  * Find the closest scroll wrapper, which is the closest ancestral element,
  * and has `overflow: auto / scroll` set.
  * Note this method can test get scroll wrapper only when overflow happens.
- * Note that this method may cause reflow.
+ * Note this method read dom properties and may cause page re-layout.
  */
 export function findClosestCSSScrollWrapper(el: HTMLElement): HTMLElement | null {
 	while (el) {
@@ -70,7 +70,7 @@ export function findClosestCSSScrollWrapper(el: HTMLElement): HTMLElement | null
 /** 
  * Get the overflow direction of scroll wrapper, may return `horizontal | vertical | null`.
  * Note this method can only test overflow direction when overflow happens.
- * Note this method may cause reflow.
+ * Note this method read dom properties and may cause page re-layout.
  */
 export function getSizedOverflowDirection(wrapper: HTMLElement): HVDirection | null {
 	let direction: HVDirection | null = null
@@ -90,7 +90,7 @@ export function getSizedOverflowDirection(wrapper: HTMLElement): HVDirection | n
  * Get the overflow direction of scroll wrapper, which has `overflow: auto / scroll` set.
  * May return `horizontal | vertical | null`.
  * If can overflow in both directions, returns `vertical`.
- * Note this method may cause reflow.
+ * Note this method read dom properties and may cause page re-layout.
  */
 export function getCSSOverflowDirection(wrapper: HTMLElement): HVDirection | null {
 	let direction: HVDirection | null = null
