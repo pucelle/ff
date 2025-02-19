@@ -2,7 +2,7 @@ import {ListMap} from '../structs'
 import {bindCallback} from '../utils'
 
 
-type ObserverCallback = (entry: IntersectionObserverEntry) => void
+type IntersectionObserverCallback = (entry: IntersectionObserverEntry) => void
 
 
 /** 
@@ -12,10 +12,7 @@ type ObserverCallback = (entry: IntersectionObserverEntry) => void
 let observer: IntersectionObserver | null = null
 
 /** Cache element -> bound callbacks. */
-const CallbackMap: ListMap<Element, ObserverCallback> = new ListMap()
-
-/** Cache once bound callbacks. */
-const OnceMap: WeakSet<ObserverCallback> = new WeakSet()
+const CallbackMap: ListMap<Element, IntersectionObserverCallback> = new ListMap()
 
 
 /** Accept intersection entries. */
@@ -25,19 +22,17 @@ function onIntersectionCallback(entries: IntersectionObserverEntry[]) {
 		if (callbacks) {
 			for (let callback of [...callbacks]) {
 				callback(entry)
-
-				if (OnceMap.has(callback)) {
-					CallbackMap.delete(entry.target, callback)
-					OnceMap.delete(callback)
-				}
 			}
 		}
 	}
 }
 
 
-/** Observe an element. */
-export function on(el: Element, callback: ObserverCallback, scope: any = null) {
+/** 
+ * Watch intersection of an element.
+ * Get notified after the intersection ratio between element's visible part and viewport get changed.
+ */
+export function watch(el: Element, callback: IntersectionObserverCallback, scope: any = null) {
 	if (!observer) {
 		observer = new IntersectionObserver(onIntersectionCallback)
 	}
@@ -53,17 +48,8 @@ export function on(el: Element, callback: ObserverCallback, scope: any = null) {
 }
 
 
-/** Observe intersection of an element. */
-export function once(el: Element, callback: ObserverCallback, scope: any = null) {
-	on(el, callback, scope)
-	
-	let boundCallback = bindCallback(callback, scope)
-	OnceMap.add(boundCallback)
-}
-
-
-/** Unobserve intersection of an element. */
-export function off(el: Element, callback: ObserverCallback, scope: any = null) {
+/** Unwatch intersection of an element. */
+export function unwatch(el: Element, callback: IntersectionObserverCallback, scope: any = null) {
 	let boundCallback = bindCallback(callback, scope)
 	CallbackMap.delete(el, boundCallback)
 

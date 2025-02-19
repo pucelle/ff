@@ -1,4 +1,4 @@
-import {MethodsObservable} from "../observing"
+import {MethodsObservable} from "../tracking"
 
 /** 
  * `K => V[]` Map Struct.

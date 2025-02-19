@@ -1,4 +1,4 @@
-import {BarrierQueue} from '../../observing'
+import {BarrierQueue} from '../../tracking'
 import {PairKeysMap} from '../../structs'
 import {ObjectUtils} from '../../utils'
 import {TransitionOptions, TransitionProperties, TransitionResult, Transition} from '../transition'

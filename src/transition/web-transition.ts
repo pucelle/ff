@@ -1,7 +1,8 @@
 import {getCSSEasingValue, WebTransitionEasingName} from './easing'
 import {PerFrameTransitionEvents, PerFrameTransitionOptions} from './per-frame-transition'
-import {DocumentWatcher, EventFirer} from '../events'
+import {EventFirer} from '../events'
 import {promiseWithResolves} from '../utils'
+import {DocumentWatcher} from '../watchers'
 
 
 /** 

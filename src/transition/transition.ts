@@ -1,4 +1,4 @@
-import {DeepReadonly, untilUpdateComplete} from '../observing'
+import {DeepReadonly, untilUpdateComplete} from '../tracking'
 import {ObjectUtils, promiseWithResolves} from '../utils'
 import {PerFrameTransition, PerFrameTransitionOptions} from './per-frame-transition'
 import {WebTransition, WebTransitionKeyFrame, WebTransitionOptions} from './web-transition'

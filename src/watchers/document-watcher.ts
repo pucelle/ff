@@ -1,5 +1,6 @@
-import {untilUpdateComplete} from "../observing"
-import {bindCallback} from "../utils"
+import {untilUpdateComplete} from '../tracking'
+import {bindCallback} from '../utils'
+
 
 const Observer = new MutationObserver(fireDocumentChangeLater)
 const MutationCallbacks: Array<Function> = []
@@ -9,7 +10,6 @@ let willEmitDocumentChange: boolean = false
 /** 
  * Bind a callback, to call it after document get changed,
  * or resize/scroll event fired, and also all rendering completed.
- * 
  */
 export function bind(callback: Function, scope: any = null) {
 	let boundCallback = bindCallback(callback, scope)
@@ -44,7 +44,7 @@ export function unbind(callback: Function, scope: any = null) {
 
 /** 
  * Fire mutation events manually.
- * Normally after playing a web transition events.
+ * Normally after playing a web transition.
  */
 export function trigger() {
 	if (MutationCallbacks.length > 0) {
