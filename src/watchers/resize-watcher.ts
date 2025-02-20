@@ -1,5 +1,5 @@
 import {ListMap} from '../structs'
-import {bindCallback} from '../utils'
+import {AnimationFrame, bindCallback} from '../utils'
 
 
 type ResizeObserverCallback = (entry: ResizeObserverEntry) => void
@@ -14,6 +14,9 @@ let observer: ResizeObserver | null
 /** Cache element -> bound callbacks. */
 const CallbackMap: ListMap<Element, ResizeObserverCallback> = new ListMap()
 
+/** Which get prevented to call. */
+const PreventingCallbacks: WeakSet<ResizeObserverCallback> = new WeakSet()
+
 
 /** Accept resize entries. */
 function onResizeCallback(entries: ResizeObserverEntry[]) {
@@ -21,6 +24,10 @@ function onResizeCallback(entries: ResizeObserverEntry[]) {
 		let callbacks = CallbackMap.get(entry.target)
 		if (callbacks) {
 			for (let callback of [...callbacks]) {
+				if (PreventingCallbacks.has(callback)) {
+					continue
+				}
+				
 				callback(entry)
 			}
 		}
@@ -29,9 +36,11 @@ function onResizeCallback(entries: ResizeObserverEntry[]) {
 
 
 /** 
- * Observe an element,
- * to get notification callback immediately and after size of `el` get changed.
+ * Observe an element, to get notification after it's size changed.
  * You should remember don't change watching container size in the callback.
+ * 
+ * Original ResizeObserve will cause getting notification on later than next frame
+ * after observe an element, use this will prevent notification for 2 frames.
  */
 export function watch(el: Element, callback: ResizeObserverCallback, scope: any = null, options: ResizeObserverOptions = {}) {
 	if (!observer) {
@@ -43,6 +52,16 @@ export function watch(el: Element, callback: ResizeObserverCallback, scope: any 
 		return
 	}
 
+	PreventingCallbacks.add(boundCallback)
+
+	// Update after target size changed.
+	// Resize watcher will calls update on next frame after started.
+	AnimationFrame.requestNext(() => {
+		AnimationFrame.requestNext(() => {
+			PreventingCallbacks.delete(boundCallback)
+		})
+	})
+	
 	observer.observe(el, options)
 	CallbackMap.add(el, boundCallback)
 }
