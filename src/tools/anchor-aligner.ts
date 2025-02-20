@@ -195,9 +195,9 @@ export class AnchorAligner {
 	 */
 	alignTo(anchor: Element) {
 		this.anchor = anchor
-		this.update()
-		
+
 		// Update after target size changed.
+		// It immediately calls update.
 		ResizeWatcher.watch(this.target, this.update, this)
 
 		if (!this.useCSSAnchorPositioning()) {
