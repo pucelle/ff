@@ -1,7 +1,7 @@
 import {Direction} from '../math'
 import {untilUpdateComplete} from '../tracking'
 import {ObjectUtils} from '../utils'
-import {ResizeWatcher} from '../watchers'
+import {RectWatcher, ResizeWatcher} from '../watchers'
 import {AnchorGaps, AnchorPosition, PureCSSComputed, getGapTranslate, parseAlignDirections, parseGaps, PureCSSAnchorAlignment} from './anchor-alignment'
 import {MeasuredAlignment, PositionComputer, AnchorAlignmentType} from './anchor-alignment'
 export {AnchorGaps, AnchorPosition} from './anchor-alignment'
@@ -199,6 +199,10 @@ export class AnchorAligner {
 		
 		// Update after target size changed.
 		ResizeWatcher.watch(this.target, this.update, this)
+
+		if (!this.useCSSAnchorPositioning()) {
+			RectWatcher.watch(anchor, this.update, this)
+		}
 	}
 
 	/** 
@@ -231,6 +235,11 @@ export class AnchorAligner {
 	stop() {
 		if (this.alignment) {
 			ResizeWatcher.unwatch(this.target, this.update, this)
+
+			if (this.useCSSAnchorPositioning()) {
+				RectWatcher.unwatch(this.anchor!, this.update, this)
+			}
+
 			this.alignment!.reset()
 			this.alignment = null
 		}
@@ -241,12 +250,12 @@ export class AnchorAligner {
 	 * Means should measure to get state.
 	 */
 	shouldDoPureCSSAlignment(): boolean {
-		return this.canApplyCSSAnchorPositioning()
+		return this.useCSSAnchorPositioning()
 			&& !(this.needAdjustTriangle() || this.canFlip())
 	}
 
 	/** Whether can apply css anchor positioning. */
-	canApplyCSSAnchorPositioning(): boolean {
+	useCSSAnchorPositioning(): boolean {
 		return AnchorAligner.cssAnchorPositioningSupports()
 			&& (this.anchor instanceof HTMLElement)
 	}

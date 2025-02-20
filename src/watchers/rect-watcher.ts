@@ -8,10 +8,10 @@ type RectObserverCallback = (rect: DOMRect) => void
 
 
 /** Cache element -> bound callbacks. */
-const CallbackMap: ListMap<HTMLElement, RectObserverCallback> = new ListMap()
+const CallbackMap: ListMap<Element, RectObserverCallback> = new ListMap()
 
 /** Cache elements' rect boxes. */
-const ElementRectCache: WeakMap<HTMLElement, DOMRect> = new WeakMap()
+const ElementRectCache: WeakMap<Element, DOMRect> = new WeakMap()
 
 let documentWatcherBound = false
 
@@ -44,7 +44,7 @@ function checkOnDocumentWatcherCallback() {
  * Note that this method may cause additional page re-layout.
  * It will wait for update complete then read bounding rect.
  */
-export async function watch(el: HTMLElement, callback: RectObserverCallback, scope: any = null) {
+export async function watch(el: Element, callback: RectObserverCallback, scope: any = null) {
 	let boundCallback = bindCallback(callback, scope)
 	if (CallbackMap.has(el, boundCallback)) {
 		return
@@ -66,7 +66,7 @@ export async function watch(el: HTMLElement, callback: RectObserverCallback, sco
  * End watch rect of an element.
  * If `callback` omitted, unwatch all callbacks for element.
  */
-export function unwatch(el: HTMLElement, callback?: RectObserverCallback, scope?: any) {
+export function unwatch(el: Element, callback?: RectObserverCallback, scope?: any) {
 	if (callback) {
 		let boundCallback = bindCallback(callback, scope)
 		CallbackMap.delete(el, boundCallback)
