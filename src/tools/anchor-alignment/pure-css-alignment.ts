@@ -127,9 +127,13 @@ export class PureCSSAnchorAlignment {
 		}
 		else if (targetInsetKeyH === 'center') {
 			transform = 'translateX(-50%)'
+			target.style.setProperty('position-anchor', '')
+			target.style.setProperty('position-area', '')
 		}
 		else if (targetInsetKeyV === 'center') {
 			transform = 'translateY(-50%)'
+			target.style.setProperty('position-anchor', '')
+			target.style.setProperty('position-area', '')
 		}
 
 		if (targetTranslate.x !== 0 || targetTranslate.y !== 0) {
