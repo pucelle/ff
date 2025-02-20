@@ -344,8 +344,7 @@ export class PositionComputer {
 				computed
 			)
 
-			let translateX = x - triangleRelRect.x
-			transforms.push(`translateX(${translateX}px)`)
+			transforms.push(`translateX(${x}px)`)
 		}
 		else if (computed.anchorFaceDirection.beHorizontal) {
 			let y = this.computeTrianglePosition(
@@ -355,8 +354,7 @@ export class PositionComputer {
 				computed
 			)
 
-			let translateY = y - triangleRelRect.y
-			transforms.push(`translateY(${translateY}px)`)
+			transforms.push(`translateY(${y}px)`)
 		}
 
 		let triangleSwapped = computed.anchorFaceDirection !== this.aligner.anchorFaceDirection
@@ -375,18 +373,22 @@ export class PositionComputer {
 		if (computed.anchorFaceDirection === Direction.Top) {
 			computed.triangle.inset.top = 'auto'
 			computed.triangle.inset.bottom = -triangleRelRect.height + 'px'
+			computed.triangle.inset.left = '0'
 		}
 		else if (computed.anchorFaceDirection === Direction.Bottom) {
 			computed.triangle.inset.top = -triangleRelRect.height + 'px'
 			computed.triangle.inset.bottom = 'auto'
+			computed.triangle.inset.left = '0'
 		}
 		else if (computed.anchorFaceDirection === Direction.Left) {
 			computed.triangle.inset.left = 'auto'
 			computed.triangle.inset.right = -triangleRelRect.width + 'px'
+			computed.triangle.inset.top = '0'
 		}
 		else if (computed.anchorFaceDirection === Direction.Right) {
 			computed.triangle.inset.left = -triangleRelRect.width + 'px'
 			computed.triangle.inset.right = 'auto'
+			computed.triangle.inset.top = '0'
 		}
 
 		computed.triangle.transform = transforms.join(' ')

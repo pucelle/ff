@@ -1,6 +1,7 @@
 import {Direction} from '../math'
 import {untilUpdateComplete} from '../tracking'
 import {ObjectUtils} from '../utils'
+import {ResizeWatcher} from '../watchers'
 import {AnchorGaps, AnchorPosition, PureCSSComputed, getGapTranslate, parseAlignDirections, parseGaps, PureCSSAnchorAlignment} from './anchor-alignment'
 import {MeasuredAlignment, PositionComputer, AnchorAlignmentType} from './anchor-alignment'
 export {AnchorGaps, AnchorPosition} from './anchor-alignment'
@@ -161,7 +162,7 @@ export class AnchorAligner {
 	}
 
 	/** 
-	 * Update options, will re-align if needed.
+	 * Update options, will re-align if options get changed.
 	 * Will not re-align on event mode.
 	 */
 	updateOptions(options: Partial<AnchorAlignerOptions> = {}) {
@@ -182,8 +183,8 @@ export class AnchorAligner {
 		this.gaps = parseGaps(newOptions.gaps, newOptions.triangle, this.anchorFaceDirection)
 		this.edgeGaps = parseGaps(newOptions.edgeGaps, newOptions.triangle, this.anchorFaceDirection)
 
-		if (this.anchor && this.alignment) {
-			this.align(this.anchor)
+		if (this.anchor && this.aligning) {
+			this.update()
 		}
 	}
 
@@ -192,15 +193,29 @@ export class AnchorAligner {
 	 * After align, will keep syncing align position.
 	 * You may still call this to force align immediately.
 	 */
-	align(anchor: Element) {
+	alignTo(anchor: Element) {
 		this.anchor = anchor
+		this.update()
+		
+		// Update after target size changed.
+		ResizeWatcher.watch(this.target, this.update, this)
+	}
+
+	/** 
+	 * Update anchor alignment if in aligning.
+	 * Works only when anchor specified, not work for event mode.
+	 */
+	update() {
+		if (!this.anchor) {
+			return
+		}
 
 		let doPureCSSAlignment = this.shouldDoPureCSSAlignment()
 		if (doPureCSSAlignment) {
 			this.doPureCSSAnchorAlignment()
 		}
 		else {
-			this.doAnchorMeasuredAlignment(anchor)
+			this.doAnchorMeasuredAlignment(this.anchor)
 		}
 	}
 
@@ -215,6 +230,7 @@ export class AnchorAligner {
 	 */
 	stop() {
 		if (this.alignment) {
+			ResizeWatcher.unwatch(this.target, this.update, this)
 			this.alignment!.reset()
 			this.alignment = null
 		}

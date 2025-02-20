@@ -120,6 +120,8 @@ export class MeasuredAlignment {
 
 	private applyCSSPositionProperties(computed: PositionComputed) {
 		let {x, y} = computed.target.position
+
+		// Read dom properties below.
 		let targetInAbsolutePosition = DOMUtils.getStyleValue(this.target, 'position') === 'absolute'
 
 		// For absolute layout content, convert x, y to absolute position.
@@ -136,6 +138,8 @@ export class MeasuredAlignment {
 				y -= parentRect.top
 			}
 		}
+
+		// Write dom properties below.
 
 		// May scrollbar appears after alignment,
 		// such that it should align to right.
