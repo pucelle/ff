@@ -62,10 +62,18 @@ export async function watch(el: HTMLElement, callback: RectObserverCallback, sco
 }
 
 
-/** End watch rect of an element. */
-export function unwatch(el: HTMLElement, callback: RectObserverCallback, scope: any = null) {
-	let boundCallback = bindCallback(callback, scope)
-	CallbackMap.delete(el, boundCallback)
+/** 
+ * End watch rect of an element.
+ * If `callback` omitted, unwatch all callbacks for element.
+ */
+export function unwatch(el: HTMLElement, callback?: RectObserverCallback, scope?: any) {
+	if (callback) {
+		let boundCallback = bindCallback(callback, scope)
+		CallbackMap.delete(el, boundCallback)
+	}
+	else {
+		CallbackMap.deleteOf(el)
+	}
 
 	if (CallbackMap.keyCount() === 0) {
 		DocumentWatcher.unbind(checkOnDocumentWatcherCallback)

@@ -1,18 +1,20 @@
 import {Direction} from '../../math'
 import {AnchorAligner} from '../anchor-aligner'
-import {getGapTranslate} from './position-gap-parser'
+import {getAnchorPointAt, getGapTranslate} from './position-gap-parser'
 
 
 /** Includes target and triangle position. */
 export interface PositionComputed {
 	anchorFaceDirection: Direction
+	anchorDirection: Direction
 	anchor: {
 		rect: DOMRect
-	}
+	},
 	target: {
 		position: Coord
 		limitHeight: number | null
 		rect: DOMRect
+		flipped: boolean
 	}
 	triangle: {
 		inset: {
@@ -33,19 +35,19 @@ export class PositionComputer {
 	private aligner: AnchorAligner
 	private target: HTMLElement
 	private triangle: HTMLElement | undefined
-	private anchorFaceDirection: Direction
 	private anchorRect: DOMRect
 	private targetRect: DOMRect
 	private triangleRelRect: DOMRect | null
+	private anchorFaceDirection: Direction
 
 	constructor(aligner: AnchorAligner, anchorRect: DOMRect) {
 		this.aligner = aligner
 		this.target = aligner.target
 		this.triangle = aligner.options.triangle
-		this.anchorFaceDirection = aligner.anchorFaceDirection
 		this.anchorRect = anchorRect
 		this.targetRect = aligner.target.getBoundingClientRect()
 		this.triangleRelRect = this.getTriangleRelRect()
+		this.anchorFaceDirection = aligner.anchorFaceDirection
 	}
 
 	/** Get triangle rect based on target origin. */
@@ -71,14 +73,16 @@ export class PositionComputer {
 	 */
 	compute(): PositionComputed {
 		let computed: PositionComputed = {
-			anchorFaceDirection: Direction.None,
+			anchorFaceDirection: this.aligner.anchorFaceDirection,
+			anchorDirection: this.aligner.anchorDirection,
 			anchor: {
-				rect: this.anchorRect,
+				rect: this.anchorRect
 			},
 			target: {
 				position: {x: 0, y: 0},
 				limitHeight: null,
 				rect: this.targetRect,
+				flipped: false,
 			},
 			triangle: null,
 		}
@@ -93,6 +97,7 @@ export class PositionComputer {
 
 		computed.anchorFaceDirection = this.anchorFaceDirection
 		computed.target.rect = this.targetRect
+		computed.target.flipped = this.anchorFaceDirection !== this.aligner.anchorFaceDirection
 
 		return computed
 	}
@@ -137,7 +142,7 @@ export class PositionComputer {
 			}
 		}
 		else {
-			point = this.getAnchorPointAt(this.targetRect, this.aligner.targetDirection)
+			point = getAnchorPointAt(this.targetRect, this.aligner.targetDirection)
 	
 			// From absolute to relative.
 			point.x -= this.targetRect.x
@@ -149,18 +154,8 @@ export class PositionComputer {
 
 	/** Get absolute position of anchor in the origin of scrolling page. */
 	private getAnchorAbsoluteAnchorPoint(): Coord {
-		let point = this.getAnchorPointAt(this.anchorRect, this.aligner.anchorDirection)
+		let point = getAnchorPointAt(this.anchorRect, this.aligner.anchorDirection)
 		return point
-	}
-
-	/** Get the anchor point by a rect and direction. */
-	private getAnchorPointAt(rect: DOMRect, d: Direction): Coord {
-		let v = d.toAnchorVector()
-
-		return {
-			x: rect.x + v.x * rect.width,
-			y: rect.y + v.y * rect.height,
-		}
 	}
 
 	/** Get position by two anchors. */
@@ -193,12 +188,14 @@ export class PositionComputer {
 			if (this.anchorFaceDirection === Direction.Top && y < 0 && spaceTop < spaceBottom && this.aligner.options.flipDirection) {
 				y = this.anchorRect.bottom + this.aligner.gaps.bottom
 				this.anchorFaceDirection = Direction.Bottom
+				computed.anchorDirection = computed.anchorDirection.horizontal.joinWith(Direction.Bottom)
 			}
 
 			// Not enough space at bottom side, switch to top.
 			else if (this.anchorFaceDirection === Direction.Bottom && y + h > dh && spaceTop > spaceBottom && this.aligner.options.flipDirection) {
 				y = this.anchorRect.top - this.aligner.gaps.top - h
 				this.anchorFaceDirection = Direction.Top
+				computed.anchorDirection = computed.anchorDirection.horizontal.joinWith(Direction.Top)
 			}
 		}
 		else {
@@ -271,13 +268,16 @@ export class PositionComputer {
 			// Not enough space at left side.
 			if (this.anchorFaceDirection === Direction.Left && x < 0 && spaceLeft < spaceRight && this.aligner.options.flipDirection) {
 				x = this.anchorRect.right + this.aligner.gaps.right
+				computed.target.position.x = this.anchorRect.right
 				this.anchorFaceDirection = Direction.Right
+				computed.anchorDirection = computed.anchorDirection.vertical.joinWith(Direction.Right)
 			}
 
 			// Not enough space at right side.
 			else if (this.anchorFaceDirection === Direction.Right && x > dw - w && spaceLeft > spaceRight && this.aligner.options.flipDirection) {
 				x = this.anchorRect.left - this.aligner.gaps.left - w
 				this.anchorFaceDirection = Direction.Left
+				computed.anchorDirection = computed.anchorDirection.vertical.joinWith(Direction.Left)
 			}
 		}
 		else {
@@ -356,25 +356,25 @@ export class PositionComputer {
 			else {
 				transforms.push('scaleY(-1)')
 			}
-	
-			if (this.anchorFaceDirection === Direction.Top) {
-				computed.triangle.inset.top = 'auto'
-				computed.triangle.inset.bottom = -triangleRelRect.height + 'px'
-			}
-			else if (this.anchorFaceDirection === Direction.Bottom) {
-				computed.triangle.inset.top = -triangleRelRect.height + 'px'
-				computed.triangle.inset.bottom = 'auto'
-			}
-			else if (this.anchorFaceDirection === Direction.Left) {
-				computed.triangle.inset.left = 'auto'
-				computed.triangle.inset.right = -triangleRelRect.width + 'px'
-			}
-			else if (this.anchorFaceDirection === Direction.Right) {
-				computed.triangle.inset.left = -triangleRelRect.width + 'px'
-				computed.triangle.inset.right = 'auto'
-			}
 
 			computed.triangle.flipped = true
+		}
+			
+		if (this.anchorFaceDirection === Direction.Top) {
+			computed.triangle.inset.top = 'auto'
+			computed.triangle.inset.bottom = -triangleRelRect.height + 'px'
+		}
+		else if (this.anchorFaceDirection === Direction.Bottom) {
+			computed.triangle.inset.top = -triangleRelRect.height + 'px'
+			computed.triangle.inset.bottom = 'auto'
+		}
+		else if (this.anchorFaceDirection === Direction.Left) {
+			computed.triangle.inset.left = 'auto'
+			computed.triangle.inset.right = -triangleRelRect.width + 'px'
+		}
+		else if (this.anchorFaceDirection === Direction.Right) {
+			computed.triangle.inset.left = -triangleRelRect.width + 'px'
+			computed.triangle.inset.right = 'auto'
 		}
 
 		computed.triangle.transform = transforms.join(' ')

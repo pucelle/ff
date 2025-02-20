@@ -137,3 +137,15 @@ export function getGapTranslate(anchorDirection: Direction, gaps: AnchorGaps): C
 
 	return translate
 }
+
+
+
+/** Get the anchor point by a rect and direction. */
+export function getAnchorPointAt(rect: DOMRect, d: Direction): Coord {
+	let v = d.toAnchorVector()
+
+	return {
+		x: rect.x + v.x * rect.width,
+		y: rect.y + v.y * rect.height,
+	}
+}

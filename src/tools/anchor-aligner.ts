@@ -1,9 +1,9 @@
 import {Direction} from '../math'
 import {untilUpdateComplete} from '../tracking'
 import {ObjectUtils} from '../utils'
-import {AnchorGaps, AnchorPosition, parseAlignDirections, parseGaps, PureCSSAnchorAlignment} from './anchor-alignment'
-import {MeasuredAlignment} from './anchor-alignment/measured-alignment'
-import {AnchorAlignmentType} from './anchor-alignment/types'
+import {AnchorGaps, AnchorPosition, PureCSSComputed, getGapTranslate, parseAlignDirections, parseGaps, PureCSSAnchorAlignment} from './anchor-alignment'
+import {MeasuredAlignment, PositionComputer, AnchorAlignmentType} from './anchor-alignment'
+export {AnchorGaps, AnchorPosition} from './anchor-alignment'
 
 
 /** 
@@ -12,7 +12,7 @@ import {AnchorAlignmentType} from './anchor-alignment/types'
 export interface AnchorAlignerOptions {
 
 	/** If specified, use this as css anchor name. */
-	name: string
+	name?: string
 
 	/** 
 	 * Align where of target to where of anchor.
@@ -74,25 +74,7 @@ export interface AnchorAlignerOptions {
 }
 
 
-let ElementAnchorNameSeed = 1
-const ElementAnchorNameMap: WeakMap<HTMLElement, string> = new WeakMap()
-
-function getElementAnchorName(el: HTMLElement): string | undefined {
-	return ElementAnchorNameMap.get(el)
-}
-
-function getNewElementAnchorName(): string {
-	return '--anchor-' + ElementAnchorNameSeed++
-}
-
-function setElementAnchorName(el: HTMLElement, name: string) {
-	el.style.setProperty('anchor-name', name)
-	return ElementAnchorNameMap.set(el, name)
-}
-
-
 const DefaultAnchorAlignerOptions: AnchorAlignerOptions = {
-	name: '',
 	position: 'b',
 	gaps: 0,
 	edgeGaps: 0,
@@ -136,9 +118,6 @@ export class AnchorAligner {
 	/** Anchor to align besides. */
 	anchor: Element | null = null
 
-	/** The anchor name of anchor element. */
-	anchorName: string | null = null
-
 	/** Full options. */
 	options: AnchorAlignerOptions = DefaultAnchorAlignerOptions
 
@@ -176,7 +155,15 @@ export class AnchorAligner {
 		}
 	}
 
-	/** Update options, will re-align if needed. */
+	/** Whether in aligning. */
+	get aligning(): boolean {
+		return !!this.alignment
+	}
+
+	/** 
+	 * Update options, will re-align if needed.
+	 * Will not re-align on event mode.
+	 */
 	updateOptions(options: Partial<AnchorAlignerOptions> = {}) {
 		let newOptions = {...DefaultAnchorAlignerOptions, ...options}
 
@@ -195,12 +182,6 @@ export class AnchorAligner {
 		this.gaps = parseGaps(newOptions.gaps, newOptions.triangle, this.anchorFaceDirection)
 		this.edgeGaps = parseGaps(newOptions.edgeGaps, newOptions.triangle, this.anchorFaceDirection)
 
-		if (this.canApplyCSSAnchorPositioning()) {
-			this.anchorName = getElementAnchorName(this.anchor as HTMLElement)
-				?? options.name
-				?? getNewElementAnchorName()
-		}
-
 		if (this.anchor && this.alignment) {
 			this.align(this.anchor)
 		}
@@ -208,13 +189,10 @@ export class AnchorAligner {
 
 	/** 
 	 * Align current target to beside anchor and keep sync their positions.
-	 * Returns whether did alignment.
+	 * After align, will keep syncing align position.
+	 * You may still call this to force align immediately.
 	 */
 	align(anchor: Element) {
-		if (this.alignment) {
-			this.stop()
-		}
-
 		this.anchor = anchor
 
 		let doPureCSSAlignment = this.shouldDoPureCSSAlignment()
@@ -228,14 +206,7 @@ export class AnchorAligner {
 
 	/** Align target to the position of a mouse event. */
 	alignToEvent(event: MouseEvent) {
-		let anchorRect = new DOMRect(
-			event.clientX,
-			event.clientY,
-			0,
-			0
-		)
-
-		this.doEventMeasuredAlignment(anchorRect)
+		this.doEventMeasuredAlignment(event)
 	}
 
 	/** 
@@ -282,8 +253,13 @@ export class AnchorAligner {
 	 */
 	private doPureCSSAnchorAlignment() {
 		let alignment = this.replaceAlignment(AnchorAlignmentType.PureCSS)
-		alignment.align()
-		setElementAnchorName(this.anchor as HTMLElement, this.anchorName!)
+
+		let computed: PureCSSComputed = {
+			anchorDirection: this.anchorDirection,
+			targetTranslate: getGapTranslate(this.anchorDirection, this.gaps),
+		}
+
+		alignment.align(computed)
 	}
 
 	/** Do alignment with measurements and re-syncing positions. */
@@ -301,15 +277,16 @@ export class AnchorAligner {
 			return
 		}
 
-		alignment.align(anchor.getBoundingClientRect())
+		// Do position computation.
+		let computer = new PositionComputer(this, anchor.getBoundingClientRect())
+		let computed = computer.compute()
 
-		if (this.canApplyCSSAnchorPositioning()) {
-			setElementAnchorName(anchor as HTMLElement, this.anchorName!)
-		}
+		// Do alignment by computation.
+		alignment.align(computed)
 	}
 
 	/** Do alignment with events. */
-	private async doEventMeasuredAlignment(eventRect: DOMRect) {
+	private async doEventMeasuredAlignment(event: MouseEvent) {
 		let alignment = this.replaceAlignment(AnchorAlignmentType.Measured)
 
 		// May cause write to dom properties.
@@ -323,7 +300,20 @@ export class AnchorAligner {
 			return
 		}
 
-		alignment.align(eventRect)
+		// Do position computation.
+		let anchorRect = new DOMRect(
+			event.clientX,
+			event.clientY,
+			0,
+			0
+		)
+
+		let computer = new PositionComputer(this, anchorRect)
+		let computed = computer.compute()
+
+		// Do alignment by computation.
+		alignment.align(computed)
+
 	}
 
 	/** Replace alignment class. */

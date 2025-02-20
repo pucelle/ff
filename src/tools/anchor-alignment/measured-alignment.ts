@@ -1,7 +1,9 @@
 import {Direction} from '../../math'
 import {DOMUtils} from '../../utils'
 import {AnchorAligner} from '../anchor-aligner'
-import {PositionComputed, PositionComputer} from './position-computer'
+import {PositionComputed} from './position-computer'
+import {getAnchorPointAt} from './position-gap-parser'
+import {PureCSSComputed, PureCSSAnchorAlignment} from './pure-css-alignment'
 import {AnchorAlignmentType} from './types'
 
 
@@ -16,11 +18,11 @@ export class MeasuredAlignment {
 	/** Whether applied CSS Anchor Positioning properties. */
 	private useCSSAnchorPositioning: boolean = false
 
-	/** Whether target element use fixed position. */
-	private targetInAbsolutePosition: boolean | null = null
-
 	/** Previously computed. */
 	private lastComputed: PositionComputed | null = null
+
+	/** To do css alignment. */
+	private cssAlignment: PureCSSAnchorAlignment | null = null
 	
 	constructor(aligner: AnchorAligner) {
 		this.aligner = aligner
@@ -40,8 +42,12 @@ export class MeasuredAlignment {
 
 		this.resetBeforeAlign()
 
+		if (this.useCSSAnchorPositioning) {
+			this.cssAlignment!.reset()
+		}
+
 		// Absolute element's layout will be affected by parent container.
-		if (this.targetInAbsolutePosition) {
+		else {
 			this.target.style.top = ''
 			this.target.style.right = ''
 			this.target.style.left = ''
@@ -75,12 +81,8 @@ export class MeasuredAlignment {
 	 * Align content after known both rects.
 	 * Should wait for all dom write operations completed.
 	 */
-	align(anchorRect: DOMRect) {
+	align(computed: PositionComputed) {
 		this.useCSSAnchorPositioning = this.aligner.canApplyCSSAnchorPositioning()
-		this.targetInAbsolutePosition = DOMUtils.getStyleValue(this.target, 'position') === 'absolute'
-
-		let computer = new PositionComputer(this.aligner, anchorRect)
-		let computed = computer.compute()
 
 		if (this.useCSSAnchorPositioning) {
 			this.applyCSSAnchorPositioningProperties(computed)
@@ -94,51 +96,31 @@ export class MeasuredAlignment {
 	}
 
 	private applyCSSAnchorPositioningProperties(computed: PositionComputed) {
-		let {x, y} = computed.target.position
-
-		let aligner = this.aligner
-		let target = this.target
-		let anchorD = this.aligner.anchorDirection
-		let targetD = this.aligner.targetDirection
-		let anchorH = anchorD.horizontal.toBoxEdgeKey() ?? 'center'
-		let anchorV = anchorD.vertical.toBoxEdgeKey() ?? 'center'
-		let targetH = targetD.horizontal.toBoxEdgeKey() ?? 'center'
-		let targetV = targetD.vertical.toBoxEdgeKey() ?? 'center'
-		let anchor = aligner.anchor as HTMLElement
-
-		anchor.style.setProperty('anchor-name', aligner.anchorName)
-
-		target.style.setProperty(targetH === 'center' ? 'left' : targetH, `anchor(${aligner.anchorName} ${anchorH})`)
-		target.style.setProperty(targetV === 'center' ? 'top' : targetV, `anchor(${aligner.anchorName} ${anchorV})`)
-
-		// When align to center, no gap assigned.
-		if (targetH === 'center' && targetV === 'center') {
-			target.style.setProperty('position-anchor', aligner.anchorName)
-			target.style.setProperty('position-area', 'center')
-			target.style.setProperty('transform', '')
+		if (!this.cssAlignment) {
+			this.cssAlignment = new PureCSSAnchorAlignment(this.aligner)
 		}
-		else if (targetH === 'center') {
-			target.style.setProperty('transform', 'translateX(-50%)')
-		}
-		else if (targetV === 'center') {
-			target.style.setProperty('transform', 'translateY(-50%)')
-		}
-		else {
-			let transform = ''
-			
-			if (gap.x || gap.y) {
-				transform += `translate(${gap.x}px, ${gap.y}px)`
-			}
 
-			target.style.setProperty('transform', transform)
+		let rawAnchorPosition = getAnchorPointAt(computed.anchor.rect, computed.anchorDirection)
+
+		let targetTranslate: Coord = {
+			x: computed.target.position.x - rawAnchorPosition.x,
+			y: computed.target.position.y - rawAnchorPosition.y,
 		}
+
+		let cssComputed: PureCSSComputed = {
+			anchorDirection: computed.anchorDirection,
+			targetTranslate
+		}
+
+		this.cssAlignment.align(cssComputed)
 	}
 
 	private applyCSSPositionProperties(computed: PositionComputed) {
 		let {x, y} = computed.target.position
+		let targetInAbsolutePosition = DOMUtils.getStyleValue(this.target, 'position') === 'absolute'
 
 		// For absolute layout content, convert x, y to absolute position.
-		if (this.targetInAbsolutePosition
+		if (targetInAbsolutePosition
 			&& this.aligner.anchor !== document.body
 			&& this.aligner.anchor !== document.documentElement
 		) {

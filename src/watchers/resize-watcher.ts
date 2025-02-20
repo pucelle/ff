@@ -48,10 +48,18 @@ export function watch(el: Element, callback: ResizeObserverCallback, scope: any 
 }
 
 
-/** Unobserve resizing of an element. */
-export function unwatch(el: Element, callback: ResizeObserverCallback, scope: any = null) {
-	let boundCallback = bindCallback(callback, scope)
-	CallbackMap.delete(el, boundCallback)
+/** 
+ * Unobserve resizing of an element.
+ * If `callback` omitted, unwatch all callbacks for element.
+ */
+export function unwatch(el: Element, callback?: ResizeObserverCallback, scope?: any) {
+	if (callback) {
+		let boundCallback = bindCallback(callback, scope)
+		CallbackMap.delete(el, boundCallback)
+	}
+	else {
+		CallbackMap.deleteOf(el)
+	}
 
 	if (!CallbackMap.hasKey(el)) {
 		observer?.unobserve(el)

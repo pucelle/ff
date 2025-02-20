@@ -48,10 +48,18 @@ export function watch(el: Element, callback: IntersectionObserverCallback, scope
 }
 
 
-/** Unwatch intersection of an element. */
-export function unwatch(el: Element, callback: IntersectionObserverCallback, scope: any = null) {
-	let boundCallback = bindCallback(callback, scope)
-	CallbackMap.delete(el, boundCallback)
+/** 
+ * Unwatch intersection of an element.
+ * If `callback` omitted, unwatch all callbacks for element.
+ */
+export function unwatch(el: Element, callback?: IntersectionObserverCallback, scope?: any) {
+	if (callback) {
+		let boundCallback = bindCallback(callback, scope)
+		CallbackMap.delete(el, boundCallback)
+	}
+	else {
+		CallbackMap.deleteOf(el)
+	}
 
 	if (!CallbackMap.hasKey(el)) {
 		observer?.unobserve(el)
