@@ -214,8 +214,10 @@ export class AnchorAligner {
 	 * Note target element will not be hidden.
 	 */
 	stop() {
-		this.alignment!.reset()
-		this.alignment = null
+		if (this.alignment) {
+			this.alignment!.reset()
+			this.alignment = null
+		}
 	}
 
 	/** 
@@ -252,10 +254,11 @@ export class AnchorAligner {
 	 * by pure CSS anchor positioning.
 	 */
 	private doPureCSSAnchorAlignment() {
-		let alignment = this.replaceAlignment(AnchorAlignmentType.PureCSS)
+		let alignment = this.updateAlignment(AnchorAlignmentType.PureCSS)
 
 		let computed: PureCSSComputed = {
 			anchorDirection: this.anchorDirection,
+			targetDirection: this.targetDirection,
 			targetTranslate: getGapTranslate(this.anchorDirection, this.gaps),
 		}
 
@@ -264,7 +267,7 @@ export class AnchorAligner {
 
 	/** Do alignment with measurements and re-syncing positions. */
 	private async doAnchorMeasuredAlignment(anchor: Element) {
-		let alignment = this.replaceAlignment(AnchorAlignmentType.Measured)
+		let alignment = this.updateAlignment(AnchorAlignmentType.Measured)
 
 		// May cause write to dom properties.
 		alignment.resetBeforeAlign()
@@ -287,7 +290,7 @@ export class AnchorAligner {
 
 	/** Do alignment with events. */
 	private async doEventMeasuredAlignment(event: MouseEvent) {
-		let alignment = this.replaceAlignment(AnchorAlignmentType.Measured)
+		let alignment = this.updateAlignment(AnchorAlignmentType.Measured)
 
 		// May cause write to dom properties.
 		alignment.resetBeforeAlign()
@@ -316,8 +319,8 @@ export class AnchorAligner {
 
 	}
 
-	/** Replace alignment class. */
-	private replaceAlignment<T extends AnchorAlignmentType>(alignmentType: T):
+	/** Update alignment class if needed. */
+	private updateAlignment<T extends AnchorAlignmentType>(alignmentType: T):
 		T extends AnchorAlignmentType.PureCSS ? PureCSSAnchorAlignment : MeasuredAlignment
 	{
 		if (this.alignment && this.alignment.type !== alignmentType) {

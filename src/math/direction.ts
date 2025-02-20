@@ -101,8 +101,8 @@ export class Direction {
 		return ValueToDirection[value]
 	}
 
-	/** Make direction from a box edge distance key. */
-	static fromBoxEdgeKey(key: BoxDistanceKey): Direction {
+	/** Make direction from a inset key. */
+	static fromInsetKey(key: InsetKey): Direction {
 		if (key === 'left') {
 			return Direction.Left
 		}
@@ -210,8 +210,11 @@ export class Direction {
 		else if (this === Direction.BottomLeft) {
 			return Direction.Left
 		}
-		else {
+		else if (this.beHorizontal) {
 			return this
+		}
+		else {
+			return Direction.Center
 		}
 	}
 
@@ -600,10 +603,10 @@ export class Direction {
 	}
 
 	/** 
-	 * Convert to a box edge distance key.
+	 * Convert to a inset key.
 	 * Returns `null` if not be straight.
 	 */
-	toBoxEdgeKey(): BoxDistanceKey | null {
+	toInsetKey(): InsetKey | null {
 		if (this === Direction.Left) {
 			return 'left'
 		}
@@ -625,7 +628,7 @@ export class Direction {
 	 * Convert to one or two directional keys.
 	 * Returns empty array for Center or None direction.
 	 */
-	toBoxEdgeKeys(): BoxDistanceKey[] {
+	toInsetKeys(): InsetKey[] {
 		if (this === Direction.Left) {
 			return ['left']
 		}

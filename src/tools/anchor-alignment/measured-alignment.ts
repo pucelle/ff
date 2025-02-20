@@ -2,7 +2,7 @@ import {Direction} from '../../math'
 import {DOMUtils} from '../../utils'
 import {AnchorAligner} from '../anchor-aligner'
 import {PositionComputed} from './position-computer'
-import {getAnchorPointAt} from './position-gap-parser'
+import {getAnchorPointAt, getRelativeAnchorPointAt} from './position-gap-parser'
 import {PureCSSComputed, PureCSSAnchorAlignment} from './pure-css-alignment'
 import {AnchorAlignmentType} from './types'
 
@@ -93,6 +93,7 @@ export class MeasuredAlignment {
 
 		this.applyTargetProperties(computed)
 		this.applyTriangleProperties(computed)
+		this.lastComputed = computed
 	}
 
 	private applyCSSAnchorPositioningProperties(computed: PositionComputed) {
@@ -100,16 +101,18 @@ export class MeasuredAlignment {
 			this.cssAlignment = new PureCSSAnchorAlignment(this.aligner)
 		}
 
-		let rawAnchorPosition = getAnchorPointAt(computed.anchor.rect, computed.anchorDirection)
+		let anchorPoint = getAnchorPointAt(computed.anchor.rect, computed.anchorDirection)
+		let targetPoint = getRelativeAnchorPointAt(computed.target.rect, computed.targetDirection)
 
 		let targetTranslate: Coord = {
-			x: computed.target.position.x - rawAnchorPosition.x,
-			y: computed.target.position.y - rawAnchorPosition.y,
+			x: computed.target.position.x - (anchorPoint.x - targetPoint.x),
+			y: computed.target.position.y - (anchorPoint.y - targetPoint.y),
 		}
 
 		let cssComputed: PureCSSComputed = {
 			anchorDirection: computed.anchorDirection,
-			targetTranslate
+			targetDirection: computed.targetDirection,
+			targetTranslate,
 		}
 
 		this.cssAlignment.align(cssComputed)

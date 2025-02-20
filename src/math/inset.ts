@@ -1,19 +1,18 @@
 import type {Direction} from './direction'
 
 
-/** All 4 box edge distance keys. */
-const BoxDistanceKeys: BoxDistanceKey[] = ['top', 'right', 'bottom', 'left']
+/** Represents a insets object, which including top, right, bottom, left values. */
+export class Inset {
 
+	/** All 4 inset keys. */
+	static Keys: InsetKey[] = ['top', 'right', 'bottom', 'left']
 
-/** Represents a box edge distances object, which including top, right, bottom, left values. */
-export class BoxDistances {
-
-	/** Constant zero box edge distance object. */
-	static Zero: BoxDistances = Object.freeze(new BoxDistances())
+	/** Constant zero inset object. */
+	static Zero: Inset = Object.freeze(new Inset())
 
 	/** Parse from a string to get an edge distance object. */
 	static fromString(string: string) {
-		return new BoxDistances(...string.split(/\s+/).map(s => Number(s)))
+		return new Inset(...string.split(/\s+/).map(s => Number(s)))
 	}
 
 
@@ -55,8 +54,8 @@ export class BoxDistances {
 		this.left = left
 	}
 
-	/** Copy values from another box edge distance object. */
-	copyFrom(o: BoxDistances) {
+	/** Copy values from another inset object. */
+	copyFrom(o: Inset) {
 		this.top = o.top
 		this.right = o.right
 		this.bottom = o.bottom
@@ -65,7 +64,7 @@ export class BoxDistances {
 
 	/** Clone current object. */
 	clone() {
-		return new BoxDistances(
+		return new Inset(
 			this.top,
 			this.right,
 			this.bottom,
@@ -84,12 +83,12 @@ export class BoxDistances {
 	}
 
 	/** 
-	 * Collapse with several box edge distance objects into current,
+	 * Collapse with several inset objects into current,
 	 * pick maximum value in all the directions.
 	 */
-	collapse(...os: BoxDistances[]): this {
+	collapse(...os: Inset[]): this {
 		for (let o of os) {
-			for (let key of BoxDistanceKeys) {
+			for (let key of Inset.Keys) {
 				this[key] = Math.max(this[key], o[key])
 			}
 		}
@@ -98,33 +97,33 @@ export class BoxDistances {
 	}
 
 	/** 
-	 * Collapse with a box edge distance object,
+	 * Collapse with a inset object,
 	 * pick maximum value at specified direction.
 	 */
-	collapseAt(o: BoxDistances, direction: Direction) {
-		let keys = direction.toBoxEdgeKeys()
+	collapseAt(o: Inset, direction: Direction) {
+		let keys = direction.toInsetKeys()
 
 		for (let key of keys) {
 			this[key] = Math.max(this[key], o[key])
 		}
 	}
 
-	/** Collapse box edge distance value by box edge distance key. */
-	collapseValueBy(key: BoxDistanceKey, value: number) {
+	/** Collapse inset value by inset key. */
+	collapseValueBy(key: InsetKey, value: number) {
 		this[key] = Math.max(this[key], value)
 	}
 
-	/** Collapse box edge distance value at direction. */
+	/** Collapse inset value at direction. */
 	collapseValueAt(direction: Direction, value: number) {
-		let keys = direction.toBoxEdgeKeys()
+		let keys = direction.toInsetKeys()
 
 		for (let key of keys) {
 			this[key] = Math.max(this[key], value)
 		}
 	}
 
-	/** Pick values by specified box edge distance keys, values at other directions will become `0`. */
-	pickBy(keys: BoxDistanceKey[]): BoxDistances {
+	/** Pick values by specified inset keys, values at other directions will become `0`. */
+	pickBy(keys: InsetKey[]): Inset {
 		let {top, right, bottom, left} = this
 
 		top = keys.includes('top') ? top : 0
@@ -132,7 +131,7 @@ export class BoxDistances {
 		bottom = keys.includes('bottom') ? bottom : 0
 		left = keys.includes('left') ? left : 0
 
-		return new BoxDistances(
+		return new Inset(
 			top,
 			right,
 			bottom,
@@ -141,13 +140,13 @@ export class BoxDistances {
 	}
 
 	/** Pick values at specified direction, values at other directions will become `0`. */
-	pickAt(direction: Direction): BoxDistances {
-		let keys = direction.toBoxEdgeKeys()
+	pickAt(direction: Direction): Inset {
+		let keys = direction.toInsetKeys()
 		return this.pickBy(keys)
 	}
 
 	/** Multiply scalar value, returns a new object. */
-	multiplyScalar(factor: number): BoxDistances {
+	multiplyScalar(factor: number): Inset {
 		return this.clone().multiplyScalarSelf(factor)
 	}
 
@@ -163,7 +162,7 @@ export class BoxDistances {
 
 
 	/** Round all values, returns a new object. */
-	round(): BoxDistances {
+	round(): Inset {
 		return this.clone().roundSelf()
 	}
 
@@ -178,7 +177,7 @@ export class BoxDistances {
 	}
 
 	/** Do Math Ceil for all values, returns a new object. */
-	ceil(): BoxDistances {
+	ceil(): Inset {
 		return this.clone().ceilSelf()
 	}
 
@@ -193,7 +192,7 @@ export class BoxDistances {
 	}
 
 	/** Do Math Floor for all values, returns a new object. */
-	floor(): BoxDistances {
+	floor(): Inset {
 		return this.clone().floorSelf()
 	}
 
@@ -208,7 +207,7 @@ export class BoxDistances {
 	}
 	
 	/** Convert to JSON data. */
-	toJSON(): Record<BoxDistanceKey, number> {
+	toJSON(): Record<InsetKey, number> {
 		return {
 			top: this.top,
 			right: this.right,

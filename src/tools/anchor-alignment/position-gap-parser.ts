@@ -120,7 +120,7 @@ export function parseGaps(gapValue: number | number[], triangle: HTMLElement | u
 
 /** Get gap translate apply to target element. */
 export function getGapTranslate(anchorDirection: Direction, gaps: AnchorGaps): Coord {
-	let edgeKeys = anchorDirection.toBoxEdgeKeys()
+	let edgeKeys = anchorDirection.toInsetKeys()
 	let alignVector = anchorDirection.toVector()
 	let translate = {x: 0, y: 0}
 
@@ -147,5 +147,16 @@ export function getAnchorPointAt(rect: DOMRect, d: Direction): Coord {
 	return {
 		x: rect.x + v.x * rect.width,
 		y: rect.y + v.y * rect.height,
+	}
+}
+
+
+/** Get the relative anchor point by a rect and direction. */
+export function getRelativeAnchorPointAt(rect: DOMRect, d: Direction): Coord {
+	let v = d.toAnchorVector()
+
+	return {
+		x: v.x * rect.width,
+		y: v.y * rect.height,
 	}
 }
