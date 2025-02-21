@@ -30,7 +30,7 @@ function onIntersectionCallback(entries: IntersectionObserverEntry[]) {
 
 /** 
  * Watch intersection of an element.
- * Get notified after the intersection ratio between element's visible part and viewport get changed.
+ * Get notified after element's becomes fully visible or fully invisible.
  */
 export function watch(el: Element, callback: IntersectionObserverCallback, scope: any = null) {
 	if (!observer) {
