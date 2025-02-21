@@ -120,7 +120,7 @@ export class AnchorAligner {
 	anchor: Element | null = null
 
 	/** Full options. */
-	options: AnchorAlignerOptions = DefaultAnchorAlignerOptions
+	options!: AnchorAlignerOptions
 
 	/** Target align direction. */
 	anchorDirection!: Direction
@@ -150,7 +150,7 @@ export class AnchorAligner {
 
 	constructor(target: HTMLElement, options?: Partial<AnchorAlignerOptions>) {
 		this.target = target
-
+		
 		if (options) {
 			this.updateOptions(options)
 		}
