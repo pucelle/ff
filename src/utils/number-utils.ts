@@ -99,3 +99,29 @@ export function mayValue(x: number, value: number): number {
 export function fract(n: number): number {
 	return n - Math.floor(n)
 }
+
+
+
+/** Linear interpolation betweens `a` and `b`, `bRate` specifies the rate of `b`. */
+export function mix(a: number, b: number, bRate: number): number {
+	return a * (1 - bRate) + b * bRate
+}
+
+/** 
+ * Returns a value betweens 0~1 which represent the rate of number `x` ~ `max` distance,
+ * to `min` ~ `max` distance.
+ * Returns `0` if `x` <= `min`, returns `1` if `x` >= `max`.
+ */
+export function linearStep(x: number, min: number, max: number): number {
+	if (x <= min) {
+		return 0
+	}
+
+	if (x >= max) {
+		return 1
+	}
+
+	x = (x - min) / (max - min) || 0
+
+	return x
+}
