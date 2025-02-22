@@ -1,10 +1,10 @@
-import {MethodsObservable} from '../tracking'
+import {MethodsObserved} from '../tracking'
 import * as MathUtils from './math-utils'
 import {Vector} from './vector'
 
 
 /* Represent a point at 2d panel. */
-export class Point implements MethodsObservable<
+export class Point implements MethodsObserved<
 	'clone' | 'equals' | 'isZero' | 'round' | 'ceil' | 'floor' | 'add' | 'sub' | 'translate'
 		| 'transform' | 'mix' | 'diff' | 'distanceTo' | 'toJSON',
 	'set' | 'reset' | 'copyFrom' | 'roundSelf' | 'ceilSelf' | 'floorSelf' | 'addSelf' | 'subSelf'

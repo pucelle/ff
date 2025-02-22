@@ -9,8 +9,8 @@ export type Observed<T extends object = object> = T
 
 
 /** 
- * It a class implements `MethodsObservable`,
- * or an value declared with type `MethodsObservable`,
+ * It a class implements `MethodsObserved`,
+ * or an value declared with type `MethodsObserved`,
  * it works like a `Map` or `Set`, if it get wrapped by `Observed<...>`,
  * or get visited from an observed object as it's sub property.
  * if call methods listed in `GetMethods`, will track get with empty string as key,
@@ -19,7 +19,7 @@ export type Observed<T extends object = object> = T
  * Otherwise, this implement doesn't affect class compiling,
  * but affect the place where use the instance of current class.
  */
-export type MethodsObservable<GetMethods, SetMethods>
+export type MethodsObserved<GetMethods, SetMethods>
 	= {[K in (GetMethods extends string ? GetMethods : never) | (SetMethods extends string ? SetMethods : never)]: Function}
 
 

@@ -3,11 +3,11 @@ import {Point} from './point'
 import {Box} from './box'
 import * as MathUtils from './math-utils'
 import {Size} from './size'
-import {MethodsObservable} from '../tracking'
+import {MethodsObserved} from '../tracking'
 
 
 /** Represents a 2D Transform Matrix. */
-export class Matrix implements MatrixData, MethodsObservable<
+export class Matrix implements MatrixData, MethodsObserved<
 	'clone' | 'equals' | 'isI' | 'isZero' | 'isRigid' | 'isSimilar' | 'isSkewed' | 'isMirrored'
 		| 'getDeterminant' | 'getEigenValues' | 'getPrimaryScaling' | 'getSecondaryScaling' | 'multiply'
 		| 'multiplyScalar' | 'preMultiply' | 'translate' | 'translateBy' | 'scale' | 'rotateInDegree'

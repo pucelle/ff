@@ -1,9 +1,9 @@
-import {MethodsObservable} from '../tracking'
+import {MethodsObserved} from '../tracking'
 import type {Direction} from './direction'
 
 
 /** Represents a insets object, which including top, right, bottom, left values. */
-export class Inset implements MethodsObservable<
+export class Inset implements MethodsObserved<
 	'clone' | 'getMaximumAbsoluteValue' | 'collapse' | 'collapseAt' | 'collapseValueBy' | 'collapseValueAt'
 		| 'pickBy' | 'pickAt' | 'multiplyScalar' | 'round' | 'ceil' | 'floor' | 'toJSON' | 'toArray',
 	'reset' | 'set' | 'copyFrom' | 'multiplyScalarSelf' | 'roundSelf' | 'ceilSelf' | 'floorSelf'

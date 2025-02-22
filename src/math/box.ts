@@ -6,11 +6,11 @@ import {Point} from './point'
 import {Size} from './size'
 import {Vector} from './vector'
 import type {Matrix} from './matrix'
-import {MethodsObservable} from '../tracking'
+import {MethodsObserved} from '../tracking'
 
 
 /** Represent a rectangle bounding box. */
-export class Box implements BoxLike, MethodsObservable<
+export class Box implements BoxLike, MethodsObserved<
 	'isIntersectWith' | 'round' | 'ceil' | 'floor' | 'equals' | 'edges' | 'size' | 'paddingTo'
 		| 'union' | 'intersect' | 'difference' | 'unionAtHV' | 'unionAt' | 'expand'
 		| 'expandByBoxEdges' | 'expandToContain' | 'translate' | 'translateBy' | 'transform'

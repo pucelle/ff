@@ -1,7 +1,7 @@
 import {Vector} from './vector'
 import {Point} from './point'
 import {Matrix} from './matrix'
-import {MethodsObservable} from '../tracking'
+import {MethodsObserved} from '../tracking'
 
 
 /** A point and some parameters to represent how one radial line intersect with another. */
@@ -28,7 +28,7 @@ export interface LineIntersection {
 
 
 /** Represent a line segment. */
-export class LineSegment implements MethodsObservable<
+export class LineSegment implements MethodsObserved<
 	never,
 	'intersect'
 > {

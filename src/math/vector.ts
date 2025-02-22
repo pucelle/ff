@@ -1,10 +1,10 @@
-import {MethodsObservable} from '../tracking'
+import {MethodsObserved} from '../tracking'
 import * as MathUtils from './math-utils'
 import {Matrix} from './matrix'
 
 
 /** A Vector represent a vector at 2d panel. */
-export class Vector implements MethodsObservable<
+export class Vector implements MethodsObserved<
 	'clone' | 'equals' | 'isZero' | 'angleInDegree' | 'angle' | 'round' | 'ceil' | 'floor'
 		| 'getLengthSquare' | 'getLength' | 'add' | 'sub' | 'multiply' | 'complexMultiply'
 		| 'multiplyScalar' | 'divide' | 'complexDivide' | 'divideScalar' | 'negative' | 'rotate'

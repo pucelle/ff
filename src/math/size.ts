@@ -1,8 +1,8 @@
-import {MethodsObservable} from '../tracking'
+import {MethodsObserved} from '../tracking'
 import type {Matrix} from './matrix'
 
 
-export class Size implements MethodsObservable<
+export class Size implements MethodsObserved<
 	'clone' | 'round' | 'ceil' | 'floor' | 'equals' | 'transform' | 'toJSON',
 	'set' | 'reset' | 'copyFrom' | 'roundSelf' | 'ceilSelf' | 'floorSelf' | 'transformSelf'
 > {
