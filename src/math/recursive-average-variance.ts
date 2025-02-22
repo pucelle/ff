@@ -1,7 +1,13 @@
 // Reference to https://math.stackexchange.com/questions/374881/recursive-formula-for-variance
 
+import {MethodsObservable} from '../tracking'
+
+
 /** Do statistic for average and variance, every time update a value, output new average value and variance. */
-export class RecursiveVariance {
+export class RecursiveVariance implements MethodsObservable<
+	never,
+	'update'
+>{
 
 	n = 0
 	average: number = 0
@@ -21,7 +27,10 @@ export class RecursiveVariance {
 
 
 /** Do statistic for average value, every time update a value, output new average value. */
-export class RecursiveAverage {
+export class RecursiveAverage implements MethodsObservable<
+	never,
+	'update'
+> {
 
 	n = 0
 	average: number = 0

@@ -1,7 +1,11 @@
+import {MethodsObservable} from '../tracking'
 import type {Matrix} from './matrix'
 
 
-export class Size {
+export class Size implements MethodsObservable<
+	'clone' | 'round' | 'ceil' | 'floor' | 'equals' | 'transform' | 'toJSON',
+	'set' | 'reset' | 'copyFrom' | 'roundSelf' | 'ceilSelf' | 'floorSelf' | 'transformSelf'
+> {
 
 	/** Zero size object. */
 	static Zero: Readonly<Size> = Object.freeze(new Size())
@@ -10,6 +14,7 @@ export class Size {
 	static fromLike(sizeLike: SizeLike): Size {
 		return new Size(sizeLike.width, sizeLike.height)
 	}
+
 
 	width: number
 	height: number

@@ -1,21 +1,21 @@
-import {Direction, BoxDistances} from '../../src'
+import {Direction, Inset} from '../../src'
 
 
-describe('Test BoxDistances', () => {
+describe('Test Inset', () => {
 
-	test('BoxDistances', () => {
-		let d = new BoxDistances(10)
+	test('Inset', () => {
+		let d = new Inset(10)
 		
 		expect(d.horizontal).toEqual(20)
 		expect(d.vertical).toEqual(20)
 		expect(d.getMaximumAbsoluteValue()).toEqual(10)
 
 		d.set(10)
-		d.collapse(new BoxDistances(20))
+		d.collapse(new Inset(20))
 		expect(d.toArray()).toEqual([20, 20, 20, 20])
 
 		d.set(10)
-		d.collapseAt(new BoxDistances(20), Direction.Top)
+		d.collapseAt(new Inset(20), Direction.Top)
 		expect(d.toArray()).toEqual([20, 10, 10, 10])
 
 		d.set(10)

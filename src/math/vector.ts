@@ -1,10 +1,21 @@
+import {MethodsObservable} from '../tracking'
 import * as MathUtils from './math-utils'
-import type {Matrix} from './matrix'
-import {Matrix2} from './matrix2'
+import {Matrix} from './matrix'
 
 
 /** A Vector represent a vector at 2d panel. */
-export class Vector {
+export class Vector implements MethodsObservable<
+	'clone' | 'equals' | 'isZero' | 'angleInDegree' | 'angle' | 'round' | 'ceil' | 'floor'
+		| 'getLengthSquare' | 'getLength' | 'add' | 'sub' | 'multiply' | 'complexMultiply'
+		| 'multiplyScalar' | 'divide' | 'complexDivide' | 'divideScalar' | 'negative' | 'rotate'
+		| 'rotateInDegree' | 'transform' | 'normalize' | 'mix' | 'getRotateAngleFrom' | 'getRotateAngleInDegreeFrom'
+		| 'getRotateFlagFrom' | 'dot' | 'cross' | 'projectTo' | 'restAfterProjectTo' | 'backProjectFrom'
+		| 'decompressFactor' | 'decompress' | 'toJSON',
+	'set' | 'reset' | 'copyFrom' | 'roundSelf' | 'ceilSelf' | 'floorSelf' | 'addSelf' | 'subSelf'
+		| 'multiplySelf' | 'complexMultiplySelf' | 'multiplyScalarSelf' | 'divideSelf' | 'complexDivideSelf'
+		| 'divideScalarSelf' | 'negativeSelf' | 'rotateSelf' | 'rotateInDegreeSelf' | 'transformSelf'
+		| 'normalizeSelf' | 'mixSelf'
+> {
 
 	/** Zero vector. */
 	static Zero: Readonly<Vector> = Object.freeze(new Vector(0, 0))
@@ -321,10 +332,15 @@ export class Vector {
 
 	/** Mix with `v` to get a new one. */
 	mix(v: Vector, vRate: number): Vector {
-		let x = this.x * (1 - vRate) + v.x * vRate
-		let y = this.y * (1 - vRate) + v.y * vRate
+		return this.clone().mixSelf(v, vRate)
+	}
 
-		return new Vector(x, y)
+	/** Mix with `v` to self. */
+	mixSelf(v: Vector, vRate: number): this {
+		this.x = this.x * (1 - vRate) + v.x * vRate
+		this.y = this.y * (1 - vRate) + v.y * vRate
+
+		return this
 	}
 	
 	/** Get the rotate angle in radians that can rotate from `v` to current. */
@@ -403,7 +419,7 @@ export class Vector {
 		// [a b] * [μ ν]^T = diff
 		// [μ ν]^T = [a b]^-1 * diff
 
-		return Matrix2.fromCoords(a, b).inverse().transformVector(this)
+		return Matrix.fromCoords(a, b).inverse().transformVector(this)
 	}
 
 	/** Decompress current vector to `μ * a + ν * b`, returns an vector pair `[μ * a, ν * b]`. */

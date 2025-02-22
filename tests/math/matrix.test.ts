@@ -164,7 +164,7 @@ describe('Test Matrix', () => {
 		expect(m.mix(new Matrix(1, 2, 3, 4, 5, 6), 0.5)).toEqual(new Matrix(1, 1, 1.5, 2.5, 2.5, 3))
 
 		expect(new Matrix(1, 2, 3, 4, 5, 6).toString()).toEqual(`matrix(1, 2, 3, 4, 5, 6)`)
-		expect(new Matrix(1, 2, 3, 4, 5, 6).mixI(0.5)).toEqual(new Matrix(1, 1, 1.5, 2.5, 2.5, 3))
+		expect(new Matrix(1, 2, 3, 4, 5, 6).mix(Matrix.I, 0.5)).toEqual(new Matrix(1, 1, 1.5, 2.5, 2.5, 3))
 		expect(new Matrix(1, 2, 3, 4, 5, 6).toJSON()).toEqual(new Matrix(1, 2, 3, 4, 5, 6))
 	})
 })

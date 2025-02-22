@@ -6,10 +6,23 @@ import {Point} from './point'
 import {Size} from './size'
 import {Vector} from './vector'
 import type {Matrix} from './matrix'
+import {MethodsObservable} from '../tracking'
 
 
 /** Represent a rectangle bounding box. */
-export class Box implements BoxLike {
+export class Box implements BoxLike, MethodsObservable<
+	'isIntersectWith' | 'round' | 'ceil' | 'floor' | 'equals' | 'edges' | 'size' | 'paddingTo'
+		| 'union' | 'intersect' | 'difference' | 'unionAtHV' | 'unionAt' | 'expand'
+		| 'expandByBoxEdges' | 'expandToContain' | 'translate' | 'translateBy' | 'transform'
+		| 'anchorPointAt' | 'anchorPointByVector' | 'containsPoint' | 'containsPointAfterExpanded'
+		| 'containsBox' | 'getCornerPoints' | 'minDistancedVectorToPoint' | 'minDistancedDirectionToBox'
+		| 'minDistancedVectorToBox' | 'minBouncedVectorToPoint' | 'minBouncedDirectionToBox'
+		| 'minBouncedVectorToBox' | 'distanceToPoint' | 'distanceToBox' | 'toJSON',
+	'set' | 'reset' | 'copyFrom' | 'roundSelf' | 'ceilSelf' | 'floorSelf' | 'unionSelf'
+		| 'intersectSelf' | 'differenceSelf' | 'unionAtHVSelf' | 'unionAtSelf' | 'expandSelf'
+		| 'expandByBoxEdgesSelf' | 'expandToContainSelf' | 'translateSelf' | 'translateBySelf'
+		| 'transformSelf'
+>  {
 
 	/** Constant empty box, not writable. */
 	static Empty: Readonly<Box> = Object.freeze(new Box(0, 0, 0, 0))

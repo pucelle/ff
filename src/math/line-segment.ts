@@ -1,6 +1,7 @@
 import {Vector} from './vector'
 import {Point} from './point'
-import {Matrix2} from './matrix2'
+import {Matrix} from './matrix'
+import {MethodsObservable} from '../tracking'
 
 
 /** A point and some parameters to represent how one radial line intersect with another. */
@@ -27,7 +28,10 @@ export interface LineIntersection {
 
 
 /** Represent a line segment. */
-export class LineSegment {
+export class LineSegment implements MethodsObservable<
+	never,
+	'intersect'
+> {
 
 	/** Make line segment from start and end points. */
 	static fromPoints(point1: Point, point2: Point) {
@@ -35,8 +39,8 @@ export class LineSegment {
 	}
 
 	
-	point: Point
-	vector: Vector
+	readonly point: Point
+	readonly vector: Vector
 
 	constructor(point: Point, vector: Vector) {
 		this.point = point
@@ -70,7 +74,7 @@ export function normalIntersect(pv1: {point: Point, vector: Vector}, pv2: {point
 	let c = pv2.point
 	let d = pv2.vector
 
-	let m = Matrix2.fromCoords(b, d)
+	let m = Matrix.fromCoords(b, d)
 
 	// Two vectors are parallel with each other.
 	if (m.getDeterminant() === 0) {

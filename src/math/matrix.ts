@@ -3,11 +3,20 @@ import {Point} from './point'
 import {Box} from './box'
 import * as MathUtils from './math-utils'
 import {Size} from './size'
-import {Matrix2} from './matrix2'
+import {MethodsObservable} from '../tracking'
 
 
 /** Represents a 2D Transform Matrix. */
-export class Matrix implements MatrixData {
+export class Matrix implements MatrixData, MethodsObservable<
+	'clone' | 'equals' | 'isI' | 'isZero' | 'isRigid' | 'isSimilar' | 'isSkewed' | 'isMirrored'
+		| 'getDeterminant' | 'getEigenValues' | 'getPrimaryScaling' | 'getSecondaryScaling' | 'multiply'
+		| 'multiplyScalar' | 'preMultiply' | 'translate' | 'translateBy' | 'scale' | 'rotateInDegree'
+		| 'rotate' | 'skewInDegree' | 'skew' | 'inverse' | 'transformPoint' | 'transformVector'
+		| 'transformBox' | 'transformSize' | 'mix',
+	'set' | 'reset' | 'copyFrom' | 'multiplySelf' | 'multiplyScalarSelf' | 'preMultiplySelf' | 'translateSelf'
+		| 'translateBySelf' | 'scaleSelf' | 'rotateInDegreeSelf' | 'rotateSelf' | 'skewInDegreeSelf'
+		| 'skewSelf' | 'invertSelf' | 'mixSelf'
+> {
 
 	/** Constant Identity Matrix. */
 	static I: Readonly<Matrix> = Object.freeze(Matrix.i())
@@ -90,6 +99,15 @@ export class Matrix implements MatrixData {
 		return matrix
 	}
 
+	/** Create a matrix from 2 Coords. */
+	static fromCoords(c1: Coord, c2: Coord) {
+		return new Matrix(
+			c1.x, c1.y,
+			c2.x, c2.y,
+			0, 0
+		)
+	}
+
 	
 	/** 
 	 * Make a transform matrix which will transform from two start points, to two final points.
@@ -146,11 +164,10 @@ export class Matrix implements MatrixData {
 		let c4 = toPoints[1]
 		let c12d = c1.diff(c2)
 
-		let m = new Matrix2(
-			 c12d.x,
-			-c12d.y,
-			 c12d.y,
-			 c12d.x
+		let m = new Matrix(
+			 c12d.x, c12d.y,
+			-c12d.y, c12d.x,
+			0, 0
 		)
 		
 		let v = c3.diff(c4)
@@ -619,28 +636,28 @@ export class Matrix implements MatrixData {
 	}
 
 	/** 
-	 * Mix with another matrix.
+	 * Mix with another matrix and returns a new matrix.
 	 * @param rate is the mix rate of `m`.
 	 */
-	mix(m: MatrixData, rate: number) {
-		let selfRate = 1 - rate
-
-		return new Matrix(
-			this.a * selfRate + m.a * rate,
-			this.b * selfRate + m.b * rate,
-			this.c * selfRate + m.c * rate,
-			this.d * selfRate + m.d * rate,
-			this.e * selfRate + m.e * rate,
-			this.f * selfRate + m.f * rate
-		)
+	mix(m: MatrixData, rate: number): Matrix {
+		return this.clone().mixSelf(m, rate)
 	}
 
 	/** 
-	 * Mix with I.
-	 * Returns I when `rate = 0`, returns current matrix when `rate = 1`.
+	 * Mix with another matrix to self.
+	 * @param rate is the mix rate of `m`.
 	 */
-	mixI(rate: number) {
-		return this.mix(Matrix.I, 1 - rate)
+	mixSelf(m: MatrixData, rate: number): this {
+		let selfRate = 1 - rate
+
+		this.a = this.a * selfRate + m.a * rate
+		this.b = this.b * selfRate + m.b * rate
+		this.c = this.c * selfRate + m.c * rate
+		this.d = this.d * selfRate + m.d * rate
+		this.e = this.e * selfRate + m.e * rate
+		this.f = this.f * selfRate + m.f * rate
+
+		return this
 	}
 
 	/** Convert to `matrix(...)` format, can be used as CSS transform value. */

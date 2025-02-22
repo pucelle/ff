@@ -1,8 +1,13 @@
+import {MethodsObservable} from '../tracking'
 import type {Direction} from './direction'
 
 
 /** Represents a insets object, which including top, right, bottom, left values. */
-export class Inset {
+export class Inset implements MethodsObservable<
+	'clone' | 'getMaximumAbsoluteValue' | 'collapse' | 'collapseAt' | 'collapseValueBy' | 'collapseValueAt'
+		| 'pickBy' | 'pickAt' | 'multiplyScalar' | 'round' | 'ceil' | 'floor' | 'toJSON' | 'toArray',
+	'reset' | 'set' | 'copyFrom' | 'multiplyScalarSelf' | 'roundSelf' | 'ceilSelf' | 'floorSelf'
+> {
 
 	/** All 4 inset keys. */
 	static Keys: InsetKey[] = ['top', 'right', 'bottom', 'left']

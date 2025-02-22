@@ -1,10 +1,15 @@
+import {MethodsObservable} from '../tracking'
 import * as MathUtils from './math-utils'
-import type {Matrix} from './matrix'
 import {Vector} from './vector'
 
 
 /* Represent a point at 2d panel. */
-export class Point {
+export class Point implements MethodsObservable<
+	'clone' | 'equals' | 'isZero' | 'round' | 'ceil' | 'floor' | 'add' | 'sub' | 'translate'
+		| 'transform' | 'mix' | 'diff' | 'distanceTo' | 'toJSON',
+	'set' | 'reset' | 'copyFrom' | 'roundSelf' | 'ceilSelf' | 'floorSelf' | 'addSelf' | 'subSelf'
+		| 'translateSelf' | 'mixSelf' | 'transformSelf'
+> {
 
 	/** Constant zero point. */
 	static Zero: Readonly<Point> = Object.freeze(new Point(0, 0))
@@ -145,12 +150,12 @@ export class Point {
 	}
 
 	/** Transform current point to get a new one. */
-	transform(matrix: Matrix): Point {
+	transform(matrix: MatrixData): Point {
 		return this.clone().transformSelf(matrix)
 	}
 
 	/** Transform current point. */
-	transformSelf(matrix: Matrix): this {
+	transformSelf(matrix: MatrixData): this {
 		let {a, b, c, d, e, f} = matrix
 		let {x, y} = this
 
@@ -160,20 +165,25 @@ export class Point {
 		return this
 	}
 
+	/** Mix with another point to get a new point. */
+	mix(p: Point, pRate: number): Point {
+		return this.clone().mixSelf(p, pRate)
+	}
+
+	/** Mix with another point to self. */
+	mixSelf(p: Point, pRate: number): this {
+		this.x = this.x * (1 - pRate) + p.x * pRate
+		this.y = this.y * (1 - pRate) + p.y * pRate
+
+		return this
+	}
+
 	/** Minus another point to get a difference vector. */
 	diff(p: Point): Vector {
 		let x = this.x - p.x
 		let y = this.y - p.y
 
 		return new Vector(x, y)
-	}
-
-	/** Mix with another point to get a new point. */
-	mix(p: Point, pRate: number): Point {
-		let x = this.x * (1 - pRate) + p.x * pRate
-		let y = this.y * (1 - pRate) + p.y * pRate
-
-		return new Point(x, y)
 	}
 
 	/** Get the distance to another point. */
