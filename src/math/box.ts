@@ -13,14 +13,14 @@ import {MethodsObserved} from '../tracking'
 export class Box implements BoxLike, MethodsObserved<
 	'isIntersectWith' | 'round' | 'ceil' | 'floor' | 'equals' | 'edges' | 'size' | 'paddingTo'
 		| 'union' | 'intersect' | 'difference' | 'unionAtHV' | 'unionAt' | 'expand'
-		| 'expandByBoxEdges' | 'expandToContain' | 'translate' | 'translateBy' | 'transform'
+		| 'expandByInset' | 'expandToContain' | 'translate' | 'translateBy' | 'transform'
 		| 'anchorPointAt' | 'anchorPointByVector' | 'containsPoint' | 'containsPointAfterExpanded'
 		| 'containsBox' | 'getCornerPoints' | 'minDistancedVectorToPoint' | 'minDistancedDirectionToBox'
 		| 'minDistancedVectorToBox' | 'minBouncedVectorToPoint' | 'minBouncedDirectionToBox'
 		| 'minBouncedVectorToBox' | 'distanceToPoint' | 'distanceToBox' | 'toJSON',
 	'set' | 'reset' | 'copyFrom' | 'roundSelf' | 'ceilSelf' | 'floorSelf' | 'unionSelf'
 		| 'intersectSelf' | 'differenceSelf' | 'unionAtHVSelf' | 'unionAtSelf' | 'expandSelf'
-		| 'expandByBoxEdgesSelf' | 'expandToContainSelf' | 'translateSelf' | 'translateBySelf'
+		| 'expandByInsetSelf' | 'expandToContainSelf' | 'translateSelf' | 'translateBySelf'
 		| 'transformSelf'
 >  {
 
@@ -461,12 +461,12 @@ export class Box implements BoxLike, MethodsObserved<
 	}
 
 	/** Expand by a box edge distances object, returns a new box. */
-	expandByBoxEdges(o: Inset): Box {
-		return this.clone().expandByBoxEdgesSelf(o)
+	expandByInset(o: Inset): Box {
+		return this.clone().expandByInsetSelf(o)
 	}
 
 	/** Expand by a box edge distances object. */
-	expandByBoxEdgesSelf(o: Inset): Box {
+	expandByInsetSelf(o: Inset): Box {
 		let {top, right, bottom, left} = o
 		this.x = this.x - left
 		this.y = this.y - top

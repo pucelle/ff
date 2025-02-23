@@ -22,7 +22,10 @@ export function mix(a: number, b: number, bRate: number): number {
 	return a * (1 - bRate) + b * bRate
 }
 
-/** Returns a value which represent the rate of number x inside range `start` and `end`. */
+/** 
+ * Returns a value which represent the rate of number x inside range `start` and `end`.
+ * It may returns any value that not limit in range 0~1.
+ */
 export function linearInterpolate(x: number, start: number, end: number): number {
 	return (x - start) / (end - start)
 }

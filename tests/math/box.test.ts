@@ -42,7 +42,7 @@ describe('Test Box', () => {
 		expect(b.unionAt(new Box(-1, -1, 12, 12), Direction.Top)).toEqual(new Box(0, -1, 10, 11))
 		expect(b.unionAt(new Box(-1, -1, 12, 12), Direction.Left)).toEqual(new Box(-1, 0, 11, 10))
 		expect(b.expand(1)).toEqual(new Box(-1, -1, 12, 12))
-		expect(b.expandByBoxEdges(new Inset(1))).toEqual(new Box(-1, -1, 12, 12))
+		expect(b.expandByInset(new Inset(1))).toEqual(new Box(-1, -1, 12, 12))
 
 		b.set(0, 0, 20, 20)
 		expect(b.area).toEqual(400)

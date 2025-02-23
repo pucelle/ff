@@ -58,8 +58,8 @@ export class Direction {
 	static fromVector(vector: Vector): Direction {
 
 		// Avoid 1e-13 != 0.
-		let x = NumberUtils.mayZero(vector.x)
-		let y = NumberUtils.mayZero(vector.y)
+		let x = NumberUtils.nearlyZero(vector.x)
+		let y = NumberUtils.nearlyZero(vector.y)
 
 		if (x < 0 && y < 0) {
 			return Direction.TopLeft

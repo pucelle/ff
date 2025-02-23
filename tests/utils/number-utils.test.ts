@@ -37,13 +37,13 @@ describe('Test NumberUtils', () => {
 	})
 
 	test('closeTo', () => {
-		expect(NumberUtils.closeTo(-1, -1)).toEqual(true)
-		expect(NumberUtils.closeTo(-1, 0)).toEqual(false)
+		expect(NumberUtils.nearlyEquals(-1, -1)).toEqual(true)
+		expect(NumberUtils.nearlyEquals(-1, 0)).toEqual(false)
 	})
 
 	test('mayZero', () => {
-		expect(NumberUtils.mayZero(-1)).toEqual(-1)
-		expect(NumberUtils.mayZero(0)).toEqual(0)
+		expect(NumberUtils.nearlyZero(-1)).toEqual(-1)
+		expect(NumberUtils.nearlyZero(0)).toEqual(0)
 	})
 
 	test('mayValue', () => {

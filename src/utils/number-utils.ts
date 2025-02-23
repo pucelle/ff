@@ -78,19 +78,19 @@ export function nonZeroFlag(x: number): 1 | -1 {
 
 
 
-/** Returns whether `x` close to `value`. */
-export function closeTo(x: number, value: number): boolean {
-	return Math.abs(x - value) < Number.EPSILON
+/** Returns whether `x` nearly equals to `value`. */
+export function nearlyEquals(x: number, value: number): boolean {
+	return Math.abs(x - value) <= Number.EPSILON
 }
 
-/** If `x` is close to `0`, returns `0`, otherwise returns `x`. */
-export function mayZero(x: number): number {
+/** If `x` is nearly equals to `0`, returns `0`, otherwise returns `x`. */
+export function nearlyZero(x: number): number {
 	return mayValue(x, 0)
 }
 
-/** If `x` is close to `value`, returns `value`, otherwise returns `x`. */
+/** If `x` is nearly equals to `value`, returns `value`, otherwise returns `x`. */
 export function mayValue(x: number, value: number): number {
-	return closeTo(x, value) ? value : x
+	return nearlyEquals(x, value) ? value : x
 }
 
 
@@ -98,30 +98,4 @@ export function mayValue(x: number, value: number): number {
 /** Get fract part of a number, always betweens `[0~1)`. */
 export function fract(n: number): number {
 	return n - Math.floor(n)
-}
-
-
-
-/** Linear interpolation betweens `a` and `b`, `bRate` specifies the rate of `b`. */
-export function mix(a: number, b: number, bRate: number): number {
-	return a * (1 - bRate) + b * bRate
-}
-
-/** 
- * Returns a value betweens 0~1 which represent the rate of number `x` ~ `max` distance,
- * to `min` ~ `max` distance.
- * Returns `0` if `x` <= `min`, returns `1` if `x` >= `max`.
- */
-export function linearStep(x: number, min: number, max: number): number {
-	if (x <= min) {
-		return 0
-	}
-
-	if (x >= max) {
-		return 1
-	}
-
-	x = (x - min) / (max - min) || 0
-
-	return x
 }
