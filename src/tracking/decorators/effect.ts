@@ -1,5 +1,6 @@
 import {beginTrack, DependencyTracker, endTrack, untrack} from '../dependency-tracker'
 import {enqueueUpdate} from '../update-queue'
+import {getIncrementalOrder} from './order'
 
 
 /** 
@@ -11,6 +12,8 @@ import {enqueueUpdate} from '../update-queue'
  * type of parts separately by move get or set part to a new method.
  */
 export class EffectMaker {
+
+	readonly order = getIncrementalOrder()
 
 	private fn: () => void
 	private tracker: DependencyTracker | null = null
@@ -26,7 +29,7 @@ export class EffectMaker {
 			return
 		}
 
-		enqueueUpdate(this.update, this)
+		enqueueUpdate(this.update, this, this.order)
 		this.needsUpdate = true
 	}
 

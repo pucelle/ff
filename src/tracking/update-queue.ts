@@ -73,12 +73,6 @@ let updateCompleteCallbacks: (() => void)[] = []
 /** Callbacks wait to be called after ended reading the dom properties. */
 let readCompleteCallbacks: (() => void)[] = []
 
-/** 
- * Increase and been added to order, to ensure output in the same order with adding
- * for those items with same `order` property.
- */
-let orderIncreasement = 0
-
 /** What's updating right now. */
 let phase: QueueUpdatePhase = QueueUpdatePhase.NotStarted
 
@@ -90,10 +84,6 @@ let phase: QueueUpdatePhase = QueueUpdatePhase.NotStarted
  * @param order specifies the callback order, default value is `0`.
  */
 export function enqueueUpdate(callback: () => void, scope: object | null = null, order: number = 0) {
-	
-	// Just ensure will not reach 1 within each loop updating.
-	order += orderIncreasement += 1e-8
-
 	heap.add(callback, scope, order)
 	willUpdateIfNotYet()
 }
@@ -191,5 +181,4 @@ async function update() {
 
 	// Back to start stage.
 	phase = QueueUpdatePhase.NotStarted
-	orderIncreasement = 0
 }

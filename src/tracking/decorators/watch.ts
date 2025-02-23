@@ -1,5 +1,6 @@
 import {beginTrack, endTrack, untrack} from '../dependency-tracker'
 import {enqueueUpdate} from '../update-queue'
+import {getIncrementalOrder} from './order'
 
 
 export interface WatchOptions {
@@ -30,6 +31,8 @@ const DefaultWatchOptions: WatchOptions = {
  */
 export class WatchMaker<V = any> {
 
+	readonly order = getIncrementalOrder()
+
 	private getter: () => V
 	private callback: (value: V, oldValue: V | undefined) => void
 	private value: V | undefined = undefined
@@ -48,7 +51,7 @@ export class WatchMaker<V = any> {
 			return
 		}
 
-		enqueueUpdate(this.update, this)
+		enqueueUpdate(this.update, this, this.order)
 		this.needsUpdate = true
 	}
 
@@ -108,6 +111,8 @@ type InferValueGetters<V extends any[]> = {[K in keyof V]: () => V[K]}
  */
 export class WatchMultiMaker<V extends any[] = any> {
 
+	readonly order = getIncrementalOrder()
+
 	private getters: InferValueGetters<V>
 	private callback: (values: V, oldValues: V | undefined) => void
 	private values: V | undefined = undefined
@@ -125,7 +130,7 @@ export class WatchMultiMaker<V extends any[] = any> {
 			return
 		}
 
-		enqueueUpdate(this.update, this)
+		enqueueUpdate(this.update, this, this.order)
 		this.needsUpdate = true
 	}
 

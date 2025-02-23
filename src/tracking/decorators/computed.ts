@@ -1,5 +1,6 @@
 import {beginTrack, DependencyTracker, endTrack, untrack} from '../dependency-tracker'
 import {enqueueUpdate} from '../update-queue'
+import {getIncrementalOrder} from './order'
 
 
 enum ComputedValueState {
@@ -14,6 +15,8 @@ enum ComputedValueState {
  * and automatically re-computing the value after any dependency changed.
  */
 export class ComputedMaker<V = any> {
+
+	readonly order = getIncrementalOrder()
 
 	private getter: () => V
 	private onReset: (() => void) | undefined
@@ -35,7 +38,7 @@ export class ComputedMaker<V = any> {
 
 		// Here doesn't reset value immediately after dependency get changed,
 		// but update them in the same order with effectors and watchers.
-		enqueueUpdate(this.update, this)
+		enqueueUpdate(this.update, this, this.order)
 		this.needsUpdate = true
 	}
 
