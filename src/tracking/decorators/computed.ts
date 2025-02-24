@@ -31,66 +31,6 @@ export class ComputedMaker<V = any> {
 		this.onReset = onReset && scope ? onReset.bind(scope) : onReset
 	}
 
-	private onDepChange() {
-		if (this.needsUpdate) {
-			return
-		}
-
-		// Here doesn't reset value immediately after dependency get changed,
-		// but update them in the same order with effectors and watchers.
-		enqueueUpdate(this.update, this, this.order)
-		this.needsUpdate = true
-	}
-
-	update() {
-		if (this.shouldUpdate()) {
-			this.doUpdate()
-		}
-		else {
-			this.needsUpdate = false
-		}
-	}
-
-	private doUpdate() {
-		this.valueState = ComputedValueState.Stale
-		this.onReset?.()
-		this.needsUpdate = false
-	}
-
-	/** Returns whether have changed and need to update. */
-	private shouldUpdate(): boolean {
-		if (this.valueState === ComputedValueState.Fresh && this.trackerSnapshot) {
-			return this.tracker!.compareSnapshot(this.trackerSnapshot)
-		}
-		else {
-			return true
-		}
-	}
-
-	get(): V {
-		if (this.valueState === ComputedValueState.Fresh) {
-			return this.value!
-		}
-
-		try {
-			this.tracker = beginTrack(this.onDepChange, this)
-			this.value = this.getter()
-			this.valueState = ComputedValueState.Fresh
-		}
-		catch (err) {
-			console.error(err)
-		}
-		finally {
-			endTrack()
-		}
-
-		if (this.tracker) {
-			this.trackerSnapshot = this.tracker.makeSnapshot()
-		}
-
-		return this.value!
-	}
-
 	connect() {
 		if (this.valueState === ComputedValueState.Initial) {
 			return
@@ -108,7 +48,68 @@ export class ComputedMaker<V = any> {
 		this.tracker?.remove()
 	}
 
+	private willUpdate() {
+		if (this.needsUpdate) {
+			return
+		}
+
+		// Here doesn't reset value immediately after dependency get changed,
+		// but update them in the same order with effectors and watchers.
+		enqueueUpdate(this.update, this, this.order)
+		this.needsUpdate = true
+	}
+
+	update() {
+		if (this.shouldUpdate()) {
+			this.doUpdate()
+		}
+		else if (!this.tracker!.tracking) {
+			this.tracker!.apply()
+		}
+
+		this.needsUpdate = false
+	}
+
+	/** Returns whether have changed and need to update. */
+	private shouldUpdate(): boolean {
+		if (this.valueState === ComputedValueState.Fresh && this.trackerSnapshot) {
+			return this.tracker!.compareSnapshot(this.trackerSnapshot)
+		}
+		else {
+			return true
+		}
+	}
+
+	private doUpdate() {
+		this.valueState = ComputedValueState.Stale
+		this.onReset?.()
+	}
+
+	get(): V {
+		if (this.valueState === ComputedValueState.Fresh) {
+			return this.value!
+		}
+
+		try {
+			this.tracker = beginTrack(this.willUpdate, this)
+			this.value = this.getter()
+			this.valueState = ComputedValueState.Fresh
+		}
+		catch (err) {
+			console.error(err)
+		}
+		finally {
+			endTrack()
+		}
+
+		if (this.tracker) {
+			this.trackerSnapshot = this.tracker.makeSnapshot()
+		}
+
+		return this.value!
+	}
+
 	clear() {
-		untrack(this.onDepChange, this)
+		untrack(this.willUpdate, this)
 	}
 }

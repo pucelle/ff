@@ -24,7 +24,15 @@ export class EffectMaker {
 		this.fn = scope ? fn.bind(scope) : fn
 	}
 
-	private onDepChange() {
+	connect() {
+		this.willUpdate()
+	}
+
+	disconnect() {
+		this.tracker?.remove()
+	}
+
+	private willUpdate() {
 		if (this.needsUpdate) {
 			return
 		}
@@ -37,9 +45,11 @@ export class EffectMaker {
 		if (this.shouldUpdate()) {
 			this.doUpdate()
 		}
-		else {
-			this.needsUpdate = false
+		else if (!this.tracker!.tracking) {
+			this.tracker!.apply()
 		}
+
+		this.needsUpdate = false
 	}
 
 	/** Returns whether have changed and need to update. */
@@ -54,7 +64,7 @@ export class EffectMaker {
 
 	private doUpdate() {
 		try {
-			this.tracker = beginTrack(this.onDepChange, this)
+			this.tracker = beginTrack(this.willUpdate, this)
 			this.fn()
 		}
 		catch (err) {
@@ -67,24 +77,9 @@ export class EffectMaker {
 		if (this.tracker) {
 			this.trackerSnapshot = this.tracker.makeSnapshot()
 		}
-
-		this.needsUpdate = false
-	}
-
-	connect() {
-		if (this.shouldUpdate()) {
-			this.doUpdate()
-		}
-		else {
-			this.tracker!.apply()
-		}
-	}
-
-	disconnect() {
-		this.tracker?.remove()
 	}
 
 	clear() {
-		untrack(this.onDepChange, this)
+		untrack(this.willUpdate, this)
 	}
 }

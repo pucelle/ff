@@ -178,11 +178,14 @@ export function untrack(callback: Function, scope: object | null = null) {
  */
 export class DependencyTracker {
 
-	// Refresh callback, to call it after any dependency changed.
+	/** Refresh callback, to call it after any dependency changed. */
 	readonly callback: Function
 
-	// Each object and accessed property.
+	/** Each object and accessed property. */
 	readonly dependencies: SetMap<object, PropertyKey> = new SetMap()
+
+	/** Whether in tracking. */
+	tracking: boolean = false
 
 	constructor(callback: Function) {
 		this.callback = callback
@@ -191,11 +194,13 @@ export class DependencyTracker {
 	/** Apply or restore current tracking to global tracking. */
 	apply() {
 		DepMap.apply(this.callback, this.dependencies)
+		this.tracking = true
 	}
 
 	/** Remove current tracking from global tracking.  */
 	remove() {
 		DepMap.deleteCallback(this.callback)
+		this.tracking = false
 	}
 
 	/** 

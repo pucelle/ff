@@ -46,7 +46,15 @@ export class WatchMaker<V = any> {
 		this.options = options ? {...DefaultWatchOptions, ...options} : DefaultWatchOptions
 	}
 
-	private onDepChange() {
+	connect() {
+		this.update()
+	}
+
+	disconnect() {
+		untrack(this.willUpdate, this)
+	}
+
+	private willUpdate() {
 		if (this.needsUpdate) {
 			return
 		}
@@ -59,7 +67,7 @@ export class WatchMaker<V = any> {
 		let value: V
 
 		try {
-			beginTrack(this.onDepChange, this)
+			beginTrack(this.willUpdate, this)
 			value = this.getter()
 		}
 		catch (err) {
@@ -88,16 +96,8 @@ export class WatchMaker<V = any> {
 		}
 	}
 
-	connect() {
-		this.update()
-	}
-
-	disconnect() {
-		untrack(this.onDepChange, this)
-	}
-
 	clear() {
-		untrack(this.onDepChange, this)
+		untrack(this.willUpdate, this)
 	}
 }
 
@@ -125,7 +125,15 @@ export class WatchMultiMaker<V extends any[] = any> {
 		this.options = options ? {...DefaultWatchOptions, ...options} : DefaultWatchOptions
 	}
 
-	private onDepChange() {
+	connect() {
+		this.update()
+	}
+
+	disconnect() {
+		untrack(this.willUpdate, this)
+	}
+
+	private willUpdate() {
 		if (this.needsUpdate) {
 			return
 		}
@@ -138,7 +146,7 @@ export class WatchMultiMaker<V extends any[] = any> {
 		let values: V
 
 		try {
-			beginTrack(this.onDepChange, this)
+			beginTrack(this.willUpdate, this)
 			values = this.getters.map(getter => getter()) as V
 		}
 		catch (err) {
@@ -173,15 +181,7 @@ export class WatchMultiMaker<V extends any[] = any> {
 		return true
 	}
 
-	connect() {
-		this.update()
-	}
-
-	disconnect() {
-		untrack(this.onDepChange, this)
-	}
-
 	clear() {
-		untrack(this.onDepChange, this)
+		untrack(this.willUpdate, this)
 	}
 }
