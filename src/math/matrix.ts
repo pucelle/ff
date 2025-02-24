@@ -3,7 +3,7 @@ import {Point} from './point'
 import {Box} from './box'
 import * as MathUtils from './math-utils'
 import {Size} from './size'
-import {MethodsObserved} from '../tracking'
+import {MethodsObserved} from '../observer'
 
 
 /** Represents a 2D Transform Matrix. */

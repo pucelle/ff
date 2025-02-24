@@ -1,4 +1,4 @@
-import {MethodsObserved} from '../tracking'
+import {MethodsObserved} from '../observer'
 import type {Direction} from './direction'
 
 

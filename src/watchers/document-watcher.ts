@@ -1,4 +1,4 @@
-import {untilUpdateComplete} from '../tracking'
+import {untilUpdateComplete} from '../observer'
 import {bindCallback} from '../utils'
 
 

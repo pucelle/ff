@@ -6,7 +6,7 @@ import {Point} from './point'
 import {Size} from './size'
 import {Vector} from './vector'
 import type {Matrix} from './matrix'
-import {MethodsObserved} from '../tracking'
+import {MethodsObserved} from '../observer'
 
 
 /** Represent a rectangle bounding box. */

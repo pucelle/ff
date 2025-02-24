@@ -1,4 +1,4 @@
-import {MethodsObserved} from '../tracking'
+import {MethodsObserved} from '../observer'
 import * as MathUtils from './math-utils'
 import {Vector} from './vector'
 

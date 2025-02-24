@@ -1,4 +1,4 @@
-import {trackGet, trackSet} from '../tracking'
+import {trackGet, trackSet} from '../observer'
 import {EmptyBundler} from './bundler'
 import {webStorage} from './storage'
 

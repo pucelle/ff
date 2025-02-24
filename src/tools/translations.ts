@@ -1,4 +1,4 @@
-import {trackGet, trackSet} from '../tracking'
+import {trackGet, trackSet} from '../observer'
 import {StringUtils} from '../utils'
 
 

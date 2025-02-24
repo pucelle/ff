@@ -173,8 +173,11 @@ export function untrack(callback: Function, scope: object | null = null) {
 
 
 /** 
- * Contains captured dependencies, and the refresh callback it need to call after any dependency get changed.
- * Can also use it to compute a dependency values snapshot, and to compare it later.
+ * Contains captured dependencies, and the refresh callbacks,
+ * which it need to call after any dependency get changed.
+ * 
+ * Can also use it to generate a dependency values snapshot,
+ * you may compare it later to test whether any dependency has changed.
  */
 export class DependencyTracker {
 

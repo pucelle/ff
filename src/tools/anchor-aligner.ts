@@ -1,5 +1,5 @@
 import {Direction} from '../math'
-import {untilUpdateComplete} from '../tracking'
+import {untilUpdateComplete} from '../observer'
 import {ObjectUtils} from '../utils'
 import {RectWatcher, ResizeWatcher} from '../watchers'
 import {AnchorGaps, AnchorPosition, PureCSSComputed, getGapTranslate, parseAlignDirections, parseGaps, PureCSSAnchorAlignment} from './anchor-alignment'
