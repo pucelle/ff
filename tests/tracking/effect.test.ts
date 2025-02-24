@@ -13,6 +13,7 @@ describe('Test effect', () => {
 			fn()
 		})
 		effect.connect()
+		await untilUpdateComplete()
 		expect(fn).toHaveBeenCalledTimes(1)
 
 		a.b = 2

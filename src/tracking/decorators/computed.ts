@@ -36,12 +36,7 @@ export class ComputedMaker<V = any> {
 			return
 		}
 
-		if (this.shouldUpdate()) {
-			this.doUpdate()
-		}
-		else {
-			this.tracker!.apply()
-		}
+		this.willUpdate()
 	}
 
 	disconnect() {

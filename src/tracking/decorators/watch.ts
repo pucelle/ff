@@ -47,7 +47,7 @@ export class WatchMaker<V = any> {
 	}
 
 	connect() {
-		this.update()
+		this.willUpdate()
 	}
 
 	disconnect() {
@@ -126,7 +126,7 @@ export class WatchMultiMaker<V extends any[] = any> {
 	}
 
 	connect() {
-		this.update()
+		this.willUpdate()
 	}
 
 	disconnect() {

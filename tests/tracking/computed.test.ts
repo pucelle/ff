@@ -34,6 +34,7 @@ describe('Test computed', () => {
 		a.v = 3
 		trackSet(a, 'v')
 		v1.connect()
+		await untilUpdateComplete()
 		expect(v1.get()).toEqual(4)
 		expect(fn1).toBeCalledTimes(3)
 
@@ -42,6 +43,7 @@ describe('Test computed', () => {
 		a.v = 3
 		trackSet(a, 'v')
 		v1.connect()
+		await untilUpdateComplete()
 		expect(v1.get()).toEqual(4)
 		expect(fn1).toBeCalledTimes(3)
 	})

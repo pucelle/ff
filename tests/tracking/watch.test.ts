@@ -14,7 +14,8 @@ describe('Test watch', () => {
 			return a.b
 		}, callback)
 		watch.connect()
-
+		await untilUpdateComplete()
+		
 		a.b = 2
 		trackSet(a, 'b')
 		await untilUpdateComplete()
@@ -54,6 +55,7 @@ describe('Test watch', () => {
 		}, fn, null, {immediate: true})
 		watch.connect()
 		
+		await untilUpdateComplete()
 		expect(fn).toHaveBeenCalledTimes(1)
 
 		a.b = 2
@@ -71,7 +73,9 @@ describe('Test watch', () => {
 			trackGet(a, 'b')
 			return a.b
 		}, fn, null, {once: true})
+
 		watch.connect()
+		await untilUpdateComplete()
 
 		a.b = 2
 		trackSet(a, 'b')
