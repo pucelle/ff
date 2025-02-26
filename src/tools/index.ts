@@ -1,4 +1,4 @@
-export * from './anchor-aligner'
+export * from './anchor-aligner/anchor-aligner'
 export * from './browser-info'
 export * from './bundler'
 export * from './color'
@@ -8,6 +8,7 @@ export * from './storage'
 export * from './task-queue'
 export * from './async-task-queue'
 export * from './translations'
+export * from './anchor-aligner'
 
 export * as ClipboardAPI from './clipboard-api'
 export * as DOMScroll from './dom-scroll'

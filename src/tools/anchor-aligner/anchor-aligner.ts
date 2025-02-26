@@ -1,10 +1,12 @@
-import {Direction} from '../math'
-import {untilUpdateComplete} from '../observer'
-import {ObjectUtils} from '../utils'
-import {RectWatcher, ResizeWatcher} from '../watchers'
-import {AnchorGaps, AnchorPosition, PureCSSComputed, getGapTranslate, parseAlignDirections, parseGaps, PureCSSAnchorAlignment} from './anchor-alignment'
-import {MeasuredAlignment, PositionComputer, AnchorAlignmentType} from './anchor-alignment'
-export {AnchorGaps, AnchorPosition} from './anchor-alignment'
+import {Direction} from '../../math'
+import {untilUpdateComplete} from '../../observer'
+import {ObjectUtils} from '../../utils'
+import {RectWatcher, ResizeWatcher} from '../../watchers'
+import {MeasuredAlignment} from './measured-alignment'
+import {PositionComputer} from './position-computer'
+import {AnchorGaps, AnchorPosition, getGapTranslate, parseAlignDirections, parseGaps} from './position-gap-parser'
+import {PureCSSAnchorAlignment, PureCSSComputed} from './pure-css-alignment'
+import {AnchorAlignmentType} from './types'
 
 
 /** 

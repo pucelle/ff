@@ -1,6 +1,6 @@
 import {Direction, Inset} from '../../math'
 import {WeakListMap} from '../../structs'
-import {AnchorAligner} from '../anchor-aligner'
+import {AnchorAligner} from './anchor-aligner'
 import {AnchorAlignmentType} from './types'
 
 

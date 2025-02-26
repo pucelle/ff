@@ -1,5 +1,5 @@
 import {Direction} from '../../math'
-import {AnchorAligner} from '../anchor-aligner'
+import {AnchorAligner} from './anchor-aligner'
 import {getAnchorPointAt, getGapTranslate, getRelativeAnchorPointAt} from './position-gap-parser'
 
 
@@ -178,6 +178,7 @@ export class PositionComputer {
 		let heightLimited = false
 		let h = this.targetRect.height
 
+		// Handle flipping.
 		if (computed.anchorFaceDirection.beVertical) {
 
 			// Not enough space at top side, switch to bottom.
@@ -200,28 +201,15 @@ export class PositionComputer {
 				this.flipDirections(computed, Direction.Top)
 			}
 		}
-		else {
 
-			// Can move up a little to become fully visible.
-			if (y + h + this.aligner.edgeGaps.bottom > dh && this.aligner.options.stickToEdges) {
-				y = dh - h - this.aligner.edgeGaps.bottom
-			}
-
-			// Can move down a little to become fully visible.
-			if (y - this.aligner.edgeGaps.top < 0 && this.aligner.options.stickToEdges) {
-				y = this.aligner.edgeGaps.top
-			}
-		}
-
+		// Limit element height if has not enough space.
 		if (this.aligner.options.stickToEdges) {
-
-			// Limit element height if has not enough space.
-			if (computed.anchorFaceDirection === Direction.Top && y < 0 && this.aligner.options.stickToEdges) {
+			if (computed.anchorFaceDirection === Direction.Top && y < 0) {
 				y = 0
 				h = spaceTop
 				heightLimited = true
 			}
-			else if (computed.anchorFaceDirection === Direction.Bottom && y + h > dh && this.aligner.options.stickToEdges) {
+			else if (computed.anchorFaceDirection === Direction.Bottom && y + h > dh) {
 				h = spaceBottom
 				heightLimited = true
 			}
@@ -232,11 +220,20 @@ export class PositionComputer {
 			}
 		}
 
+
 		// Handle sticking to edges.
-		else if (this.aligner.options.stickToEdges) {
-			if (computed.anchorFaceDirection.beVertical) {
-				y = Math.min(y, dh - this.targetRect.height)
-				y = Math.max(0, y)
+		if (this.aligner.options.stickToEdges) {
+			if (computed.anchorFaceDirection.beHorizontal) {
+
+				// Can move up a little to become fully visible.
+				if (y + h + this.aligner.edgeGaps.bottom > dh) {
+					y = dh - h - this.aligner.edgeGaps.bottom
+				}
+
+				// Can move down a little to become fully visible.
+				if (y - this.aligner.edgeGaps.top < 0) {
+					y = this.aligner.edgeGaps.top
+				}
 			}
 		}
 
@@ -273,6 +270,7 @@ export class PositionComputer {
 		let spaceRight = dw - (this.anchorRect.right + this.aligner.gaps.right)
 		let w = this.targetRect.width
 
+		// Handle flipping.
 		if (computed.anchorFaceDirection.beHorizontal) {
 
 			// Not enough space at left side.
@@ -296,7 +294,9 @@ export class PositionComputer {
 				this.flipDirections(computed, Direction.Left)
 			}
 		}
-		else {
+
+		// Handle sticking to edges.
+		if (this.aligner.options.stickToEdges) {
 
 			// Move left a little to become fully visible.
 			if (x + w + this.aligner.edgeGaps.right > dw && this.aligner.options.stickToEdges) {
@@ -306,14 +306,6 @@ export class PositionComputer {
 			// Move right a little to become fully visible.
 			if (x - this.aligner.edgeGaps.left < 0 && this.aligner.options.stickToEdges) {
 				x = this.aligner.edgeGaps.left
-			}
-		}
-
-		// Process sticking to edges.
-		if (this.aligner.options.stickToEdges) {
-			if (computed.anchorFaceDirection.beHorizontal) {
-				x = Math.min(x, dw - this.targetRect.width)
-				x = Math.max(0, x)
 			}
 		}
 

@@ -1,6 +1,6 @@
 import {Direction} from '../../math'
 import {DOMUtils} from '../../utils'
-import {AnchorAligner} from '../anchor-aligner'
+import {AnchorAligner} from './anchor-aligner'
 import {PositionComputed} from './position-computer'
 import {getAnchorPointAt, getRelativeAnchorPointAt} from './position-gap-parser'
 import {PureCSSComputed, PureCSSAnchorAlignment} from './pure-css-alignment'
