@@ -8,13 +8,13 @@
 abstract class Bundler<T, I extends Iterable<T>> {
 
 	protected abstract bundled: I
-	protected callback: (list: I) => void
+	protected callback: (list: I) => Promise<void> | void
 	protected started: boolean = false
 
 	/** Delay in milliseconds to trigger callback. */
 	delay: number = 0
 
-	constructor(callback: (list: I) => void) {
+	constructor(callback: (list: I) => Promise<void> | void) {
 		this.callback = callback
 	}
 
@@ -40,8 +40,8 @@ abstract class Bundler<T, I extends Iterable<T>> {
 
 	protected abstract addItemOnly(item: T): void
 
-	protected fireBundled() {
-		this.callback(this.bundled)
+	protected async fireBundled() {
+		await this.callback(this.bundled)
 		this.started = false
 	}
 }
@@ -83,13 +83,13 @@ export class SetBundler<T = any> extends Bundler<T, Set<T>> {
  */
 export class EmptyBundler {
 
-	protected callback: () => void
+	protected callback: () => Promise<void> | void
 	protected started: boolean = false
 
 	/** Delay in milliseconds to trigger callback. */
 	delay: number = 0
 
-	constructor(callback: () => void) {
+	constructor(callback: () => Promise<void> | void) {
 		this.callback = callback
 	}
 
@@ -111,8 +111,8 @@ export class EmptyBundler {
 		this.started = true
 	}
 
-	protected fireBundled() {
-		this.callback()
+	protected async fireBundled() {
+		await this.callback()
 		this.started = false
 	}
 }

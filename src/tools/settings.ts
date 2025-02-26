@@ -20,11 +20,6 @@ export abstract class Settings<O extends object> {
 		this.saveBundler = new EmptyBundler(this.saveStorageData.bind(this))
 	}
 
-	/** Set save delay in milliseconds. */
-	setSaveDelay(delay: number) {
-		this.saveBundler.delay = delay
-	}
-
 	/** Get initial data. */
 	getData(): Partial<O> {
 		trackGet(this.data, '')
@@ -74,12 +69,8 @@ export abstract class Settings<O extends object> {
 		}
 	}
 
-	protected willSave() {
-
-	}
-
 	/** Save data to storage place. */
-	protected abstract saveStorageData(): void
+	protected abstract saveStorageData(): Promise<void> | void
 }
 
 
