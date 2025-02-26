@@ -6,7 +6,7 @@ import {MethodsObserved} from "../observer"
  */
 export class ListMap<K, V> implements MethodsObserved<
 	'keys' | 'valueLists' | 'values' | 'entries' | 'flatEntries' | 'has'
-		| 'hasKey' | 'countOf' | 'valueCount' | 'keyCount' | 'get',
+		| 'hasKey' | 'countOf' | 'valueCount' | 'keyCount' | 'get' | 'clone',
 	'add' | 'addSeveral' | 'addIf' | 'addSeveralIf' | 'set' | 'delete'
 		| 'deleteSeveral' | 'deleteOf' | 'clear'
 > {
@@ -73,6 +73,22 @@ export class ListMap<K, V> implements MethodsObserved<
 	/** Get the count of all the keys. */
 	keyCount(): number {
 		return this.map.size
+	}
+
+	/** Get value list by associated key. */
+	get(k: K): V[] | undefined {
+		return this.map.get(k)
+	}
+
+	/** Clone to get a new list map with same data. */
+	clone(): ListMap<K, V> {
+		let cloned = new ListMap<K, V>()
+
+		for (let [key, list] of this.map.entries()) {
+			cloned.map.set(key, [...list])
+		}
+
+		return cloned
 	}
 
 	/** 
@@ -148,11 +164,6 @@ export class ListMap<K, V> implements MethodsObserved<
 		}
 	}
 
-	/** Get value list by associated key. */
-	get(k: K): V[] | undefined {
-		return this.map.get(k)
-	}
-
 	/** Set and replace whole value list by associated key. */
 	set(k: K, list: V[]) {
 		return this.map.set(k, list)
@@ -208,7 +219,7 @@ export class ListMap<K, V> implements MethodsObserved<
  */
 export class SetMap<K, V> implements MethodsObserved<
 	'keys' | 'valueLists' | 'values' | 'entries' | 'flatEntries' | 'has'
-		| 'hasKey' | 'countOf' | 'valueCount' | 'keyCount' | 'get',
+		| 'hasKey' | 'countOf' | 'valueCount' | 'keyCount' | 'get' | 'clone',
 	'add' | 'addSeveral' | 'set' | 'delete'
 		| 'deleteSeveral' | 'deleteOf' | 'clear'
 > {
@@ -277,6 +288,22 @@ export class SetMap<K, V> implements MethodsObserved<
 		return this.map.size
 	}
 
+	/** Get value list by associated key. */
+	get(k: K): Set<V> | undefined {
+		return this.map.get(k)
+	}
+
+	/** Clone to get a new list map with same data. */
+	clone(): SetMap<K, V> {
+		let cloned = new SetMap<K, V>()
+
+		for (let [key, set] of this.map.entries()) {
+			cloned.map.set(key, new Set(set))
+		}
+
+		return cloned
+	}
+
 	/** Add a key value pair. */
 	add(k: K, v: V) {
 		let values = this.map.get(k)
@@ -304,11 +331,6 @@ export class SetMap<K, V> implements MethodsObserved<
 				values.add(v)
 			}
 		}
-	}
-
-	/** Get value list by associated key. */
-	get(k: K): Set<V> | undefined {
-		return this.map.get(k)
 	}
 
 	/** Set and replace whole value list by associated key. */
@@ -361,7 +383,7 @@ export class SetMap<K, V> implements MethodsObserved<
 export class PairKeysMap<K1, K2, V> implements MethodsObserved<
 	'firstKeys' | 'secondKeysOf' | 'secondValuesOf' | 'values' | 'entries' | 'flatEntries'
 		| 'secondEntriesOf' | 'has' | 'hasFirstKey' | 'firstKeyCount' | 'secondKeyCountOf'
-		| 'get' | 'getSecond',
+		| 'get' | 'getSecond' | 'clone',
 	'set' | 'setSecond' | 'delete' | 'deleteOf' | 'clear'
 > {
 
@@ -457,6 +479,17 @@ export class PairKeysMap<K1, K2, V> implements MethodsObserved<
 		return this.map.get(k1)
 	}
 
+	/** Clone to get a new pair keys map with same data. */
+	clone(): PairKeysMap<K1, K2, V> {
+		let cloned = new PairKeysMap<K1, K2, V>()
+
+		for (let [key, map] of this.map.entries()) {
+			cloned.map.set(key, new Map(map))
+		}
+
+		return cloned
+	}
+
 	/** Set key pair and associated value. */
 	set(k1: K1, k2: K2, v: V) {
 		let sub = this.map.get(k1)
@@ -504,7 +537,7 @@ export class PairKeysMap<K1, K2, V> implements MethodsObserved<
 export class PairKeysListMap<K1, K2, V> implements MethodsObserved<
 	'firstKeys' | 'secondKeysOf' | 'secondValuesOf' | 'values' | 'entries' | 'flatEntries'
 		| 'secondEntriesOf' | 'has' | 'hasFirstKey' | 'firstKeyCount' | 'secondKeyCountOf'
-		| 'get',
+		| 'get' | 'getSecond' | 'clone',
 	'set' | 'setSecond' | 'add' | 'addSeveral' | 'addIf' | 'addSeveralIf' | 'delete'
 		| 'deleteKeys' | 'deleteOf' | 'clear'
 > {
@@ -635,6 +668,17 @@ export class PairKeysListMap<K1, K2, V> implements MethodsObserved<
 		return this.map.get(k1)
 	}
 
+	/** Clone to get a new pair keys list map with same data. */
+	clone(): PairKeysListMap<K1, K2, V> {
+		let cloned = new PairKeysListMap<K1, K2, V>()
+
+		for (let [key, map] of this.map.entries()) {
+			cloned.map.set(key, map.clone())
+		}
+
+		return cloned
+	}
+
 	/** Set key pair and associated values. */
 	set(k1: K1, k2: K2, v: V[]) {
 		let sub = this.map.get(k1)
@@ -746,7 +790,7 @@ export class PairKeysListMap<K1, K2, V> implements MethodsObserved<
 export class PairKeysSetMap<K1, K2, V> implements MethodsObserved<
 'firstKeys' | 'secondKeysOf' | 'secondValuesOf' | 'values' | 'entries' | 'flatEntries'
 	| 'secondEntriesOf' | 'has' | 'hasFirstKey' | 'firstKeyCount' | 'secondKeyCountOf'
-	| 'get',
+	| 'get' | 'getSecond' | 'clone',
 'set' | 'setSecond' | 'add' | 'addSeveral' | 'delete'
 	| 'deleteKeys' | 'deleteOf' | 'clear'
 > {
@@ -877,6 +921,17 @@ export class PairKeysSetMap<K1, K2, V> implements MethodsObserved<
 		return this.map.get(k1)
 	}
 
+	/** Clone to get a new pair keys set map with same data. */
+	clone(): PairKeysSetMap<K1, K2, V> {
+		let cloned = new PairKeysSetMap<K1, K2, V>()
+
+		for (let [key, map] of this.map.entries()) {
+			cloned.map.set(key, map.clone())
+		}
+
+		return cloned
+	}
+
 	/** Set key pair and associated values. */
 	set(k1: K1, k2: K2, v: Set<V>) {
 		let sub = this.map.get(k1)
@@ -962,7 +1017,7 @@ export class PairKeysSetMap<K1, K2, V> implements MethodsObserved<
  */
 export class TwoWayMap<L, R> implements MethodsObserved<
 	'leftKeys' | 'rightKeys' | 'entries' | 'hasLeft' | 'hasRight' | 'leftKeyCount'
-		| 'rightKeyCount' | 'getByLeft' | 'getByRight',
+		| 'rightKeyCount' | 'getByLeft' | 'getByRight' | 'clone',
 	'set' | 'setUnRepeatably' | 'deleteLeft' | 'deleteRight' | 'clear'
 > {
 
@@ -1012,6 +1067,16 @@ export class TwoWayMap<L, R> implements MethodsObserved<
 	/** Get left key by a right key. */
 	getByRight(r: R): L | undefined {
 		return this.rm.get(r)
+	}
+
+	/** Clone to get a new two way map with same data. */
+	clone(): TwoWayMap<L, R> {
+		let cloned = new TwoWayMap<L, R>()
+
+		cloned.lm = new Map(this.lm)
+		cloned.rm = new Map(this.rm)
+
+		return cloned
 	}
 
 	/** 
@@ -1065,7 +1130,8 @@ export class TwoWayMap<L, R> implements MethodsObserved<
 export class TwoWayListMap<L, R> implements MethodsObserved<
 	'leftKeyCount' | 'rightKeyCount' | 'leftKeys' | 'rightKeys' | 'leftValuesOf' | 'rightValuesOf'
 		| 'leftEntries' | 'rightEntries' | 'flatEntries' | 'has' | 'hasLeft' | 'hasRight'
-		| 'countOfLeft' | 'countOfRight' | 'leftKeyCount' | 'rightKeyCount' | 'getByLeft' | 'getByRight',
+		| 'countOfLeft' | 'countOfRight' | 'leftKeyCount' | 'rightKeyCount' | 'getByLeft' | 'getByRight'
+		| 'clone',
 	'add' | 'addIf' | 'delete' | 'deleteLeft' | 'deleteRight' | 'replaceLeft' | 'replaceRight' | 'clear'
 > {
 
@@ -1156,6 +1222,16 @@ export class TwoWayListMap<L, R> implements MethodsObserved<
 	/** Get associated left keys by a right key. */
 	getByRight(r: R): L[] | undefined {
 		return this.rm.get(r)
+	}
+
+	/** Clone to get a new two way list map with same data. */
+	clone(): TwoWayListMap<L, R> {
+		let cloned = new TwoWayListMap<L, R>()
+
+		cloned.lm = this.lm.clone()
+		cloned.rm = this.rm.clone()
+
+		return cloned
 	}
 
 	/** 
@@ -1274,7 +1350,8 @@ export class TwoWayListMap<L, R> implements MethodsObserved<
 export class TwoWaySetMap<L, R> implements MethodsObserved<
 	'leftKeyCount' | 'rightKeyCount' | 'leftKeys' | 'rightKeys' | 'leftValuesOf' | 'rightValuesOf'
 		| 'leftEntries' | 'rightEntries' | 'flatEntries' | 'has' | 'hasLeft' | 'hasRight'
-		| 'countOfLeft' | 'countOfRight' | 'leftKeyCount' | 'rightKeyCount' | 'getByLeft' | 'getByRight',
+		| 'countOfLeft' | 'countOfRight' | 'leftKeyCount' | 'rightKeyCount' | 'getByLeft' | 'getByRight'
+		| 'clone',
 	'add' | 'delete' | 'deleteLeft' | 'deleteRight' | 'replaceLeft' | 'replaceRight' | 'clear'
 >  {
 
@@ -1365,6 +1442,16 @@ export class TwoWaySetMap<L, R> implements MethodsObserved<
 	/** Get associated left keys by a right key. */
 	getByRight(r: R): Set<L> | undefined {
 		return this.rm.get(r)
+	}
+
+	/** Clone to get a new two way set map with same data. */
+	clone(): TwoWaySetMap<L, R> {
+		let cloned = new TwoWaySetMap<L, R>()
+
+		cloned.lm = this.lm.clone()
+		cloned.rm = this.rm.clone()
+
+		return cloned
 	}
 
 	/** 
