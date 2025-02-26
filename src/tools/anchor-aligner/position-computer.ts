@@ -299,12 +299,12 @@ export class PositionComputer {
 		if (this.aligner.options.stickToEdges) {
 
 			// Move left a little to become fully visible.
-			if (x + w + this.aligner.edgeGaps.right > dw && this.aligner.options.stickToEdges) {
+			if (x + w + this.aligner.edgeGaps.right > dw) {
 				x = dw - w - this.aligner.edgeGaps.right
 			}
 
 			// Move right a little to become fully visible.
-			if (x - this.aligner.edgeGaps.left < 0 && this.aligner.options.stickToEdges) {
+			if (x - this.aligner.edgeGaps.left < 0) {
 				x = this.aligner.edgeGaps.left
 			}
 		}
