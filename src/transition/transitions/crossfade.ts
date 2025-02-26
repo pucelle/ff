@@ -67,7 +67,7 @@ export const crossfade = Transition.define(async function(el: Element, options: 
 		},
 		endFrame: {
 			transform: 'none',
-			opacity: getComputedStyle(el).opacity,
+			opacity: '1',
 		},
 	}
 

@@ -21,7 +21,7 @@ export interface FoldTransitionOptions extends TransitionOptions {
 
 /** 
  * When enter, fold from.
- * When leave, fade opacity from initial opacity value to 0.
+ * When leave, fade opacity from 1 to 0.
  * Use Web Animations API, fallback to initial state after transition end.
  */
 export const fold = Transition.define(function(el: HTMLElement, options: FoldTransitionOptions = {}) {
@@ -59,7 +59,7 @@ export const fold = Transition.define(function(el: HTMLElement, options: FoldTra
 
 	if (options.fade) {
 		o.startFrame.opacity = '0'
-		o.endFrame.opacity = computed.opacity
+		o.endFrame.opacity = '1'
 	}
 
 	return ObjectUtils.assignWithoutKeys(o, options, ['direction', 'fade'])

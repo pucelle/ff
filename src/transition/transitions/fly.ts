@@ -33,10 +33,9 @@ export interface FlyTransitionOptions extends TransitionOptions {
  * 
  * Use Web Animations API, fallback to initial state after transition end.
  */
-export const fly = Transition.define(function(el: Element, options: FlyTransitionOptions = {}) {
+export const fly = Transition.define(function(_el: Element, options: FlyTransitionOptions = {}) {
 	let x = options.x || 0
 	let y = options.y || 0
-	let transform = new DOMMatrix(getComputedStyle(el).transform)
 
 	if (typeof x === 'number') {
 		x = x + 'px'
@@ -47,11 +46,10 @@ export const fly = Transition.define(function(el: Element, options: FlyTransitio
 	}
 
 	let flyTransform = new DOMMatrix(`translate(${x}, ${y})`)
-	transform.preMultiplySelf(flyTransform)
 
 	let o: TransitionProperties = {
 		startFrame: {
-			transform: transform.toString(),
+			transform: flyTransform.toString(),
 		},
 		endFrame: {
 			transform: 'none',
@@ -60,7 +58,7 @@ export const fly = Transition.define(function(el: Element, options: FlyTransitio
 
 	if (options.fade) {
 		o.startFrame.opacity = '0'
-		o.endFrame.opacity = getComputedStyle(el).opacity
+		o.endFrame.opacity = '1'
 	}
 
 	return ObjectUtils.assignWithoutKeys(o, options, ['x', 'y', 'fade'])
