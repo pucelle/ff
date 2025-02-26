@@ -2,12 +2,17 @@
  * Bundle all added data items into one during a micro task.
  * Can be used to bundle callback parameter to a group,
  * and calls with it as parameters for at most once in one micro task.
+ * 
+ * If `delay` set, use timeout with delay as timeout milliseconds.
  */
 abstract class Bundler<T, I extends Iterable<T>> {
 
 	protected abstract bundled: I
 	protected callback: (list: I) => void
 	protected started: boolean = false
+
+	/** Delay in milliseconds to trigger callback. */
+	delay: number = 0
 
 	constructor(callback: (list: I) => void) {
 		this.callback = callback
@@ -17,13 +22,20 @@ abstract class Bundler<T, I extends Iterable<T>> {
 	add(param: T) {
 		this.addItemOnly(param)
 
-		if (!this.started) {
+		if (this.started) {
+			return
+		}
+
+		if (this.delay > 0) {
+			setTimeout(this.fireBundled.bind(this), this.delay)
+		}
+		else {
 			Promise.resolve().then(() => {
 				this.fireBundled()
 			})
-
-			this.started = true
 		}
+
+		this.started = true
 	}
 
 	protected abstract addItemOnly(item: T): void
@@ -74,19 +86,29 @@ export class EmptyBundler {
 	protected callback: () => void
 	protected started: boolean = false
 
+	/** Delay in milliseconds to trigger callback. */
+	delay: number = 0
+
 	constructor(callback: () => void) {
 		this.callback = callback
 	}
 
 	/** Start a delayed callback if not yet. */
 	call() {
-		if (!this.started) {
+		if (this.started) {
+			return
+		}
+
+		if (this.delay > 0) {
+			setTimeout(this.fireBundled.bind(this), this.delay)
+		}
+		else {
 			Promise.resolve().then(() => {
 				this.fireBundled()
 			})
-
-			this.started = true
 		}
+
+		this.started = true
 	}
 
 	protected fireBundled() {

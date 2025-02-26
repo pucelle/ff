@@ -11,13 +11,18 @@ export abstract class Settings<O extends object> {
 
 	protected data: Partial<O>
 	protected readonly defaultData: O
-	saveBundler: EmptyBundler
+	protected saveBundler: EmptyBundler
 
 	constructor(data: Partial<O>, defaultData: O) {
 		this.data = data
 		this.defaultData = defaultData
 
 		this.saveBundler = new EmptyBundler(this.saveStorageData.bind(this))
+	}
+
+	/** Set save delay in milliseconds. */
+	setSaveDelay(delay: number) {
+		this.saveBundler.delay = delay
 	}
 
 	/** Get initial data. */
@@ -57,6 +62,7 @@ export abstract class Settings<O extends object> {
 	setData(data: Partial<O>) {
 		this.data = data
 		trackSet(this.data, '')
+		this.saveBundler.call()
 	}
 
 	/** Modify option key and value pair. */
@@ -68,12 +74,16 @@ export abstract class Settings<O extends object> {
 		}
 	}
 
+	protected willSave() {
+
+	}
+
 	/** Save data to storage place. */
 	protected abstract saveStorageData(): void
 }
 
 
-/** Used to caches settings, can restore them after reload page. */
+/** Uses web storage to store settings data, can restore them after page reloaded. */
 export class StorableSettings<O extends object> extends Settings<O> {
 
 	protected readonly storageKey: string
