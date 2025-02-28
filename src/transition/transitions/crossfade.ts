@@ -1,4 +1,4 @@
-import {BarrierQueue} from '../../observer'
+import {untilUpdateComplete} from '../../observer'
 import {PairKeysMap} from '../../structs'
 import {ObjectUtils} from '../../utils'
 import {TransitionOptions, TransitionProperties, TransitionResult, Transition} from '../transition'
@@ -7,7 +7,10 @@ import {TransitionOptions, TransitionProperties, TransitionResult, Transition} f
 export interface CrossFadeTransitionOptions extends TransitionOptions {
 
 	/** The key to match a pair of elements. */
-	key: string | number
+	key: any
+
+	/** As only transition pair, not play transition itself. */
+	asOnlyPair?: boolean
 
 	/** 
 	 * Define the fallback transition when no matched element.
@@ -19,14 +22,22 @@ export interface CrossFadeTransitionOptions extends TransitionOptions {
 
 
 /** Cache "Crossfade Key" -> "enter / leave" -> Element. */
-const CrossFadeElementMatchMap: PairKeysMap<string | number, 'enter' | 'leave', Element> = new PairKeysMap()
+const CrossFadeElementMatchMap: PairKeysMap<any, 'enter' | 'leave' | 'any', Element> = new PairKeysMap()
+
 
 /** 
- * Help to sync enter and leave cross fade transitions,
- * make sure they can communicate before playing.
- * For `crossfade` transition.
+ * Set element for crossfade transition.
+ * It will provide the mapped element rect for later connected `crossfade` transition,
+ * but itself will not play transition.
  */
-const CrossFadeTransitionBarrierQueue = new BarrierQueue()
+export function setCrossFadeElementForPairOnly(key: any, el: Element) {
+	CrossFadeElementMatchMap.set(key, 'any', el)
+}
+
+/** Delete element previously set by `setCrossFadeElementForPairOnly` for crossfade transition. */
+export function deleteCrossFadeElementForPairOnly(key: any) {
+	CrossFadeElementMatchMap.delete(key, 'any')
+}
 
 
 /** 
@@ -39,10 +50,18 @@ export const crossfade = Transition.define(async function(el: Element, options: 
 	CrossFadeElementMatchMap.set(options.key, phase, el)
 
 	// Sync same keyed enter and leave transitions.
-	await CrossFadeTransitionBarrierQueue.barrier(0)
+	await untilUpdateComplete()
 
 	let oppositePhase: 'enter' | 'leave' = phase === 'enter' ? 'leave' : 'enter'
+
+	// Firstly try opposite phase, otherwise try any phase.
 	let oppositeEl = CrossFadeElementMatchMap.get(options.key, oppositePhase)
+		?? CrossFadeElementMatchMap.get(options.key, 'any')
+
+	// Delete key match after next-time update complete.
+	untilUpdateComplete().then(() => {
+		CrossFadeElementMatchMap.delete(options.key, phase)
+	})
 
 	// Fallback when there is no opposite element.
 	if (!oppositeEl) {
@@ -54,21 +73,27 @@ export const crossfade = Transition.define(async function(el: Element, options: 
 		return fallback.getter(el, fallback.options, phase)
 	}
 
-	let boxEl = el.getBoundingClientRect()
-	let boxOp = oppositeEl.getBoundingClientRect()
+	let opBox = oppositeEl.getBoundingClientRect()
+	let elBox = el.getBoundingClientRect()
 
 	// Transform box of current element to box of opposite element.
-	let transform = transformMatrixFromBoxPair(boxEl, boxOp)
+	let transform = transformMatrixFromBoxPair(elBox, opBox, elBox)
 
 	let o: TransitionProperties = {
 		startFrame: {
 			transform: transform.toString(),
+			transformOrigin: 'left top',
 			opacity: '0',
 		},
 		endFrame: {
 			transform: 'none',
+			transformOrigin: 'left top',
 			opacity: '1',
 		},
+	}
+
+	if (phase === 'leave') {
+		CrossFadeElementMatchMap.delete(options.key, phase)
 	}
 
 	return ObjectUtils.assignWithoutKeys(o, options, ['key', 'fallback'])
@@ -79,16 +104,18 @@ export const crossfade = Transition.define(async function(el: Element, options: 
  * Make a transform matrix, which will convert `fromBox` to `toBox`.
  * Not use `Matrix` at `@pucelle/ff` because it imports additional `10kb` zipped codes.
  */
-function transformMatrixFromBoxPair(fromBox: BoxLike, toBox: BoxLike): DOMMatrix {
-	let fromX = fromBox.x + fromBox.width / 2
-	let fromY = fromBox.y + fromBox.height / 2
-	let toX = toBox.x + toBox.width / 2
-	let toY = toBox.y + toBox.height / 2
+function transformMatrixFromBoxPair(fromBox: BoxLike, toBox: BoxLike, origin: Coord): DOMMatrix {
+	let fromX = fromBox.x + fromBox.width / 2 - origin.x
+	let fromY = fromBox.y + fromBox.height / 2 - origin.y
+	let toX = toBox.x + toBox.width / 2 - origin.x
+	let toY = toBox.y + toBox.height / 2 - origin.y
 
+	// The DOMMatrix apply these transforms all in self-origin.
+	// So they have the opposite order with `Matrix` at `@pucelle/ff`.
 	let matrix = new DOMMatrix()
-		.translateSelf(-fromX, -fromY)
-		.scaleSelf(toBox.width / fromBox.width, toBox.height / fromBox.height)
 		.translateSelf(toX, toY)
+		.scaleSelf(toBox.width / fromBox.width, toBox.height / fromBox.height)
+		.translateSelf(-fromX, -fromY)
 
 	return matrix
 }
