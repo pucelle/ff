@@ -9,8 +9,8 @@ export interface CrossFadeTransitionOptions extends TransitionOptions {
 	/** The key to match a pair of elements. */
 	key: any
 
-	/** As only transition pair, not play transition itself. */
-	asOnlyPair?: boolean
+	/** If specified, select this element and use it's rect to do transition. */
+	rectSelector?: string
 
 	/** 
 	 * Define the fallback transition when no matched element.
@@ -35,8 +35,10 @@ export function setCrossFadeElementForPairOnly(key: any, el: Element) {
 }
 
 /** Delete element previously set by `setCrossFadeElementForPairOnly` for crossfade transition. */
-export function deleteCrossFadeElementForPairOnly(key: any) {
-	CrossFadeElementMatchMap.delete(key, 'any')
+export function deleteCrossFadeElementForPairOnly(key: any, el: Element) {
+	if (CrossFadeElementMatchMap.get(key, 'any') === el) {
+		CrossFadeElementMatchMap.delete(key, 'any')
+	}
 }
 
 
@@ -73,11 +75,13 @@ export const crossfade = Transition.define(async function(el: Element, options: 
 		return fallback.getter(el, fallback.options, phase)
 	}
 
+	let useRectOf = options.rectSelector ? el.querySelector(options.rectSelector) ?? el : el
 	let opBox = oppositeEl.getBoundingClientRect()
 	let elBox = el.getBoundingClientRect()
+	let reBox = useRectOf === el ? elBox : useRectOf.getBoundingClientRect()
 
 	// Transform box of current element to box of opposite element.
-	let transform = transformMatrixFromBoxPair(elBox, opBox, elBox)
+	let transform = transformMatrixFromBoxPair(reBox, opBox, elBox)
 
 	let o: TransitionProperties = {
 		startFrame: {
