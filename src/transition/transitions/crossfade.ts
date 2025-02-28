@@ -12,6 +12,9 @@ export interface CrossFadeTransitionOptions extends TransitionOptions {
 	/** If specified, select this element and use it's rect to do transition. */
 	rectSelector?: string
 
+	/** Whether also play fade transition. */
+	fade: boolean
+
 	/** 
 	 * Define the fallback transition when no matched element.
 	 * E.g., `{fallback: fade()}`.
@@ -87,13 +90,16 @@ export const crossfade = Transition.define(async function(el: Element, options: 
 		startFrame: {
 			transform: transform.toString(),
 			transformOrigin: 'left top',
-			opacity: '0',
 		},
 		endFrame: {
 			transform: 'none',
 			transformOrigin: 'left top',
-			opacity: '1',
 		},
+	}
+
+	if (options.fade) {
+		o.startFrame.opacity = '0'
+		o.endFrame.opacity = '1'
 	}
 
 	if (phase === 'leave') {
