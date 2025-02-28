@@ -13,7 +13,7 @@ export interface CrossFadeTransitionOptions extends TransitionOptions {
 	rectSelector?: string
 
 	/** Whether also play fade transition. */
-	fade: boolean
+	fade?: boolean
 
 	/** 
 	 * Define the fallback transition when no matched element.
