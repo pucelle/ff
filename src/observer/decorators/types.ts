@@ -56,7 +56,7 @@ export declare function effect(originalMethod: any, context: ClassMethodDecorato
  * 
  * This is only a declaration, it will be replaced after been compiled by `@pucelle/lupos.compiler`.
  */
-export declare function watch<T, P extends ((this: T) => any) | keyof T>(fnOrProps: P, options?: WatchOptions):
+export declare function watch<T, P extends ((this: T) => any) | keyof T>(fnOrProps: P, options?: Partial<WatchOptions>):
 	(originalMethod: InferMethod<T, P>, context: ClassMethodDecoratorContext<T>) => any
 
 /** Infer watch method declaration by class T, and property or getter. */
@@ -92,7 +92,7 @@ type InferPropertyType<T, P extends ((() => any) | keyof T)>
  * 
  * This is only a declaration, it will be replaced after been compiled by `@pucelle/lupos.compiler`.
  */
-export declare function watchMulti<T, PS extends (((this: T) => any) | keyof T)[]>(fnOrProps: PS, options?: WatchOptions):
+export declare function watchMulti<T, PS extends (((this: T) => any) | keyof T)[]>(fnOrProps: PS, options?: Partial<WatchOptions>):
 	(originalMethod: InferMultiMethod<T, PS>, context: ClassMethodDecoratorContext<T>) => any
 
 /** Infer watch multi method declaration by class T, and list of property or getter. */
