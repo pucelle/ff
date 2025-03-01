@@ -124,7 +124,7 @@ export const crossfade = Transition.define(async function(el: Element, options: 
 			startFrame: {
 				transform: 'none',
 				transformOrigin: 'left top',
-				zIndex: String(zIndex + 1),
+				zIndex: String(zIndex + 1),	// Higher than siblings.
 			},
 			endFrame: {
 				transform: pTransform.toString(),
