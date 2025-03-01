@@ -1,7 +1,7 @@
 import {untilUpdateComplete} from '../../observer'
 import {PairKeysMap} from '../../structs'
-import {ObjectUtils} from '../../utils'
-import {TransitionOptions, TransitionProperties, TransitionResult, Transition} from '../transition'
+import {DOMUtils, ObjectUtils} from '../../utils'
+import {TransitionOptions, TransitionResult, Transition, WebTransitionProperties} from '../transition'
 
 
 export interface CrossFadeTransitionOptions extends TransitionOptions {
@@ -14,6 +14,7 @@ export interface CrossFadeTransitionOptions extends TransitionOptions {
 
 	/** Whether also play fade transition. */
 	fade?: boolean
+
 
 	/** 
 	 * Define the fallback transition when no matched element.
@@ -58,10 +59,15 @@ export const crossfade = Transition.define(async function(el: Element, options: 
 	await untilUpdateComplete()
 
 	let oppositePhase: 'enter' | 'leave' = phase === 'enter' ? 'leave' : 'enter'
+	let useAnyPair = false
 
 	// Firstly try opposite phase, otherwise try any phase.
-	let oppositeEl = CrossFadeElementMatchMap.get(options.key, oppositePhase)
-		?? CrossFadeElementMatchMap.get(options.key, 'any')
+	let pairEl = CrossFadeElementMatchMap.get(options.key, oppositePhase)
+
+	if (!pairEl) {
+		pairEl = CrossFadeElementMatchMap.get(options.key, 'any')
+		useAnyPair = true
+	}
 
 	// Delete key match after next-time update complete.
 	untilUpdateComplete().then(() => {
@@ -69,7 +75,7 @@ export const crossfade = Transition.define(async function(el: Element, options: 
 	})
 
 	// Fallback when there is no opposite element.
-	if (!oppositeEl) {
+	if (!pairEl) {
 		let fallback = options.fallback
 		if (!fallback) {
 			return null
@@ -79,14 +85,14 @@ export const crossfade = Transition.define(async function(el: Element, options: 
 	}
 
 	let useRectOf = options.rectSelector ? el.querySelector(options.rectSelector) ?? el : el
-	let opBox = oppositeEl.getBoundingClientRect()
+	let prBox = pairEl.getBoundingClientRect()
 	let elBox = el.getBoundingClientRect()
-	let reBox = useRectOf === el ? elBox : useRectOf.getBoundingClientRect()
-
+	let seBox = useRectOf === el ? elBox : useRectOf.getBoundingClientRect()
+	
 	// Transform box of current element to box of opposite element.
-	let transform = transformMatrixFromBoxPair(reBox, opBox, elBox)
+	let transform = transformMatrixFromBoxPair(seBox, prBox, elBox)
 
-	let o: TransitionProperties = {
+	let o: WebTransitionProperties = {
 		startFrame: {
 			transform: transform.toString(),
 			transformOrigin: 'left top',
@@ -102,11 +108,43 @@ export const crossfade = Transition.define(async function(el: Element, options: 
 		o.endFrame.opacity = '1'
 	}
 
+	o = ObjectUtils.assignWithoutKeys(o, options, ['key', 'fallback'])
+
 	if (phase === 'leave') {
 		CrossFadeElementMatchMap.delete(options.key, phase)
 	}
 
-	return ObjectUtils.assignWithoutKeys(o, options, ['key', 'fallback'])
+	// Play transitions for both el and pair element.
+	if (useAnyPair) {
+		let pTransform = transformMatrixFromBoxPair(prBox, seBox, prBox)
+		let zIndex = parseInt(DOMUtils.getStyleValue(pairEl, 'zIndex')) || 0
+
+		let po: WebTransitionProperties = {
+			el: pairEl,
+			startFrame: {
+				transform: 'none',
+				transformOrigin: 'left top',
+				zIndex: String(zIndex + 1),
+			},
+			endFrame: {
+				transform: pTransform.toString(),
+				transformOrigin: 'left top',
+				zIndex: String(zIndex + 1),
+			},
+		}
+
+		if (options.fade) {
+			po.startFrame.opacity = '1'
+			po.endFrame.opacity = '0'
+		}
+	
+		po = ObjectUtils.assignWithoutKeys(po, options, ['key', 'fallback'])
+
+		return [o, po]
+	}
+	else {
+		return o
+	}
 })
 
 
