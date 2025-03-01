@@ -1,3 +1,4 @@
+import {Matrix} from '../../math'
 import {untilUpdateComplete} from '../../observer'
 import {PairKeysMap} from '../../structs'
 import {DOMUtils, ObjectUtils} from '../../utils'
@@ -12,9 +13,17 @@ export interface CrossFadeTransitionOptions extends TransitionOptions {
 	/** If specified, select this element and use it's rect to do transition. */
 	rectSelector?: string
 
+	/** 
+	 * How to fit transition element with it's pair element.
+	 *  - `contain`: be contained by pair element.
+	 *  - `cover`: covers pair element.
+	 *  - `stretch`: stretch to fit pair element's width and height.
+	 * Default value is `stretch`.
+	 */
+	fitMode?: 'contain' | 'cover' | 'stretch'
+
 	/** Whether also play fade transition. */
 	fade?: boolean
-
 
 	/** 
 	 * Define the fallback transition when no matched element.
@@ -58,11 +67,11 @@ export const crossfade = Transition.define(async function(el: Element, options: 
 	// Sync same keyed enter and leave transitions.
 	await untilUpdateComplete()
 
-	let oppositePhase: 'enter' | 'leave' = phase === 'enter' ? 'leave' : 'enter'
+	let pairPhase: 'enter' | 'leave' = phase === 'enter' ? 'leave' : 'enter'
 	let useAnyPair = false
 
-	// Firstly try opposite phase, otherwise try any phase.
-	let pairEl = CrossFadeElementMatchMap.get(options.key, oppositePhase)
+	// Firstly try pair phase, otherwise try any phase.
+	let pairEl = CrossFadeElementMatchMap.get(options.key, pairPhase)
 
 	if (!pairEl) {
 		pairEl = CrossFadeElementMatchMap.get(options.key, 'any')
@@ -74,7 +83,7 @@ export const crossfade = Transition.define(async function(el: Element, options: 
 		CrossFadeElementMatchMap.delete(options.key, phase)
 	})
 
-	// Fallback when there is no opposite element.
+	// Fallback when there is no pair element.
 	if (!pairEl) {
 		let fallback = options.fallback
 		if (!fallback) {
@@ -87,14 +96,21 @@ export const crossfade = Transition.define(async function(el: Element, options: 
 	let useRectOf = options.rectSelector ? el.querySelector(options.rectSelector) ?? el : el
 	let prBox = pairEl.getBoundingClientRect()
 	let elBox = el.getBoundingClientRect()
-	let seBox = useRectOf === el ? elBox : useRectOf.getBoundingClientRect()
+	let roBox = useRectOf === el ? elBox : useRectOf.getBoundingClientRect()
 	
-	// Transform box of current element to box of opposite element.
-	let transform = transformMatrixFromBoxPair(seBox, prBox, elBox)
+	// Transform coord from el origin to pair element origin, based on viewport origin.
+	let transformInViewport = Matrix.fromBoxPair(roBox, prBox, options.fitMode ?? 'stretch')
+
+	// TransformInViewport * elLocalToViewport = elLocalToViewport * TransformInEl
+	// TransformInEl = elLocalToViewport^-1 * TransformInViewport * elLocalToViewport
+	let transformInElOrigin = Matrix.i()
+		.translateSelf(elBox.x, elBox.y)
+		.preMultiplySelf(transformInViewport)
+		.translateSelf(-elBox.x, -elBox.y)
 
 	let o: WebTransitionProperties = {
 		startFrame: {
-			transform: transform.toString(),
+			transform: transformInElOrigin.toString(),
 			transformOrigin: 'left top',
 		},
 		endFrame: {
@@ -116,7 +132,17 @@ export const crossfade = Transition.define(async function(el: Element, options: 
 
 	// Play transitions for both el and pair element.
 	if (useAnyPair) {
-		let pTransform = transformMatrixFromBoxPair(prBox, seBox, prBox)
+
+		// PairTransformInPair will transform pair element to el, based on top-left or pair element.
+		// PairTransformInViewport = TransformInViewport^-1
+		// PairTransformInViewport * pairLocalToViewport = pairLocalToViewport * PairTransformInPair
+		// PairTransformInPair = pairLocalToViewport^-1 * PairTransformInViewport * pairLocalToViewport
+		//                     = pairLocalToViewport^-1 * TransformInViewport^-1 * pairLocalToViewport
+		let pTransform = Matrix.i()
+			.translateSelf(prBox.x, prBox.y)
+			.preMultiplySelf(transformInViewport.invertSelf())
+			.translateSelf(-prBox.x, -prBox.y)
+
 		let zIndex = parseInt(DOMUtils.getStyleValue(pairEl, 'zIndex')) || 0
 
 		let po: WebTransitionProperties = {
@@ -146,24 +172,3 @@ export const crossfade = Transition.define(async function(el: Element, options: 
 		return o
 	}
 })
-
-
-/** 
- * Make a transform matrix, which will convert `fromBox` to `toBox`.
- * Not use `Matrix` at `@pucelle/ff` because it imports additional `10kb` zipped codes.
- */
-function transformMatrixFromBoxPair(fromBox: BoxLike, toBox: BoxLike, origin: Coord): DOMMatrix {
-	let fromX = fromBox.x + fromBox.width / 2 - origin.x
-	let fromY = fromBox.y + fromBox.height / 2 - origin.y
-	let toX = toBox.x + toBox.width / 2 - origin.x
-	let toY = toBox.y + toBox.height / 2 - origin.y
-
-	// The DOMMatrix apply these transforms all in self-origin.
-	// So they have the opposite order with `Matrix` at `@pucelle/ff`.
-	let matrix = new DOMMatrix()
-		.translateSelf(toX, toY)
-		.scaleSelf(toBox.width / fromBox.width, toBox.height / fromBox.height)
-		.translateSelf(-fromX, -fromY)
-
-	return matrix
-}

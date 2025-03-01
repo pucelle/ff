@@ -61,16 +61,34 @@ export class Matrix implements MatrixData, MethodsObserved<
 		return new Matrix(a, b, c, d, e, f)
 	}
 
-	/** Make a transform matrix, which will convert `fromBox` to `toBox`. */
-	static fromBoxPair(fromBox: BoxLike, toBox: BoxLike): Matrix {
+	/** 
+	 * Make a transform matrix, which will convert `fromBox` to `toBox`.
+	 * 
+	 * `fitMode` decides how to fit transition element with it's pair element.
+	 *  - `contain`: be contained by pair element.
+	 *  - `cover`: covers pair element.
+	 *  - `stretch`: stretch to fit pair element's width and height.
+	 * Default value is `stretch`.
+	 */
+	static fromBoxPair(fromBox: BoxLike, toBox: BoxLike, fitMode: 'contain' | 'cover' | 'stretch' = 'stretch'): Matrix {
 		let fromX = fromBox.x + fromBox.width / 2
 		let fromY = fromBox.y + fromBox.height / 2
 		let toX = toBox.x + toBox.width / 2
 		let toY = toBox.y + toBox.height / 2
 
+		let scaleX = toBox.width / fromBox.width
+		let scaleY = toBox.height / fromBox.height
+
+		if (fitMode === 'contain') {
+			scaleX = scaleY = Math.min(scaleX, scaleY)
+		}
+		else if (fitMode === 'cover') {
+			scaleX = scaleY = Math.max(scaleX, scaleY)
+		}
+
 		let matrix = Matrix.i()
 			.translateSelf(-fromX, -fromY)
-			.scaleSelf(toBox.width / fromBox.width, toBox.height / fromBox.height)
+			.scaleSelf(scaleX, scaleY)
 			.translateSelf(toX, toY)
 
 		return matrix
