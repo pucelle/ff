@@ -3,12 +3,25 @@
  * mutations of it's properties, and sub properties.
  * 
  * You may declare a variable / property / parameter as `Observed<...>` type,
+ * or use as expression `a as Observed<...>`,
  * or make a class declaration implements `Observed`,
  * or make a type parameter extends `Observed<...>`.
  * 
  * Code must be compiled by `@pucelle/lupos.compiler` to work.
  */
 export type Observed<T extends object = object> = T
+
+
+/** 
+ * `UnObserved` means we will stop observe this object.
+ * 
+ * You may declare a variable / property / parameter as `UnObserved<...>` type,
+ * or use as expression `a as UnObserved<...>`,
+ * or make a class declaration implements `UnObserved` to overwrite super,
+ * or make a type parameter extends `UnObserved<...>`.
+ */
+export type UnObserved<T extends object = object> = T
+
 
 
 /** 
