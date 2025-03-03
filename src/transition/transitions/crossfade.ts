@@ -1,6 +1,6 @@
 import {Matrix} from '../../math'
 import {untilUpdateComplete} from '../../observer'
-import {PairKeysMap} from '../../structs'
+import {PairKeysListMap} from '../../structs'
 import {DOMUtils, ObjectUtils} from '../../utils'
 import {TransitionOptions, TransitionResult, Transition, WebTransitionProperties} from '../transition'
 
@@ -35,7 +35,7 @@ export interface CrossFadeTransitionOptions extends TransitionOptions {
 
 
 /** Cache "Crossfade Key" -> "enter / leave" -> Element. */
-const CrossFadeElementMatchMap: PairKeysMap<any, 'enter' | 'leave' | 'any', Element> = new PairKeysMap()
+const CrossFadeElementMatchMap: PairKeysListMap<any, 'enter' | 'leave' | 'any', Element> = new PairKeysListMap()
 
 
 /** 
@@ -44,14 +44,23 @@ const CrossFadeElementMatchMap: PairKeysMap<any, 'enter' | 'leave' | 'any', Elem
  * but itself will not play transition.
  */
 export function setCrossFadeElementForPairOnly(key: any, el: Element) {
-	CrossFadeElementMatchMap.set(key, 'any', el)
+	CrossFadeElementMatchMap.add(key, 'any', el)
 }
 
 /** Delete element previously set by `setCrossFadeElementForPairOnly` for crossfade transition. */
 export function deleteCrossFadeElementForPairOnly(key: any, el: Element) {
-	if (CrossFadeElementMatchMap.get(key, 'any') === el) {
-		CrossFadeElementMatchMap.delete(key, 'any')
+	CrossFadeElementMatchMap.delete(key, 'any', el)
+}
+
+/** Get element for crossfade transition pair. */
+export function getCrossFadeElementForPhase(key: any, phase: 'enter' | 'leave' | 'any') {
+	let els = CrossFadeElementMatchMap.get(key, phase)
+	if (!els) {
+		return undefined
 	}
+
+	// Returns latest.
+	return els[els.length - 1]
 }
 
 
@@ -62,7 +71,7 @@ export function deleteCrossFadeElementForPairOnly(key: any, el: Element) {
  * Use Web Animations API, fallback to initial state after transition end.
  */
 export const crossfade = Transition.define(async function(el: Element, options: CrossFadeTransitionOptions, phase: 'enter' | 'leave') {
-	CrossFadeElementMatchMap.set(options.key, phase, el)
+	CrossFadeElementMatchMap.add(options.key, phase, el)
 
 	// Sync same keyed enter and leave transitions.
 	await untilUpdateComplete()
@@ -71,16 +80,15 @@ export const crossfade = Transition.define(async function(el: Element, options: 
 	let useAnyPair = false
 
 	// Firstly try pair phase, otherwise try any phase.
-	let pairEl = CrossFadeElementMatchMap.get(options.key, pairPhase)
-
+	let pairEl = getCrossFadeElementForPhase(options.key, pairPhase)
 	if (!pairEl) {
-		pairEl = CrossFadeElementMatchMap.get(options.key, 'any')
+		pairEl = getCrossFadeElementForPhase(options.key, 'any')
 		useAnyPair = true
 	}
 
 	// Delete key match after next-time update complete.
 	untilUpdateComplete().then(() => {
-		CrossFadeElementMatchMap.delete(options.key, phase)
+		CrossFadeElementMatchMap.delete(options.key, phase, el)
 	})
 
 	// Fallback when there is no pair element.
@@ -125,10 +133,6 @@ export const crossfade = Transition.define(async function(el: Element, options: 
 	}
 
 	o = ObjectUtils.assignWithoutKeys(o, options, ['key', 'fallback'])
-
-	if (phase === 'leave') {
-		CrossFadeElementMatchMap.delete(options.key, phase)
-	}
 
 	// Play transitions for both el and pair element.
 	if (useAnyPair) {
