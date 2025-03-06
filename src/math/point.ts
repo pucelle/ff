@@ -6,9 +6,9 @@ import {Vector} from './vector'
 /* Represent a point at 2d panel. */
 export class Point implements MethodsObserved<
 	'clone' | 'equals' | 'isZero' | 'round' | 'ceil' | 'floor' | 'add' | 'sub' | 'translate'
-		| 'transform' | 'mix' | 'diff' | 'distanceTo' | 'toJSON',
+		| 'translateBy' | 'transform' | 'mix' | 'diff' | 'distanceTo' | 'toJSON',
 	'set' | 'reset' | 'copyFrom' | 'roundSelf' | 'ceilSelf' | 'floorSelf' | 'addSelf' | 'subSelf'
-		| 'translateSelf' | 'mixSelf' | 'transformSelf'
+		| 'translateSelf' | 'translateBySelf' | 'mixSelf' | 'transformSelf'
 > {
 
 	/** Constant zero point. */
@@ -145,6 +145,19 @@ export class Point implements MethodsObserved<
 	translateSelf(x: number, y: number): this {
 		this.x += x
 		this.y += y
+
+		return this
+	}
+
+	/** Translate current point by coord specified, returns a new point. */
+	translateBy(coord: Coord): Point {
+		return this.clone().translateBySelf(coord)
+	}
+
+	/** Translate current point by coord specified. */
+	translateBySelf(coord: Coord): this {
+		this.x += coord.x
+		this.y += coord.y
 
 		return this
 	}
