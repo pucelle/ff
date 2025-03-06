@@ -205,7 +205,7 @@ export class FrameLoop<F extends FrameLoopCallback = FrameLoopCallback> extends 
 			AnimationFrame.cancel(this.id)
 		}
 
-		this.id = AnimationFrame.requestCurrent(this.onFirstInterval.bind(this))
+		this.id = AnimationFrame.requestCurrent(this.onCurrentFrame.bind(this))
 		this.canceled = false
 		this.fn(0)
 	}
@@ -218,7 +218,7 @@ export class FrameLoop<F extends FrameLoopCallback = FrameLoopCallback> extends 
 		this.reset()
 	}
 
-	private onFirstInterval(timestamp: number) {
+	private onCurrentFrame(timestamp: number) {
 		this.startTimestamp = timestamp
 		this.id = AnimationFrame.requestNext(this.onFrame.bind(this))
 	}
