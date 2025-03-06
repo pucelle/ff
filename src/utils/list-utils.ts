@@ -602,7 +602,7 @@ export function quickBinaryFindLowerInsertIndex<T>(sortedList: ArrayLike<T>, fn:
  * @param fn used to know whether a value is larger or smaller,
  *   it returns negative value to move cursor right, and positive value to move cursor left.
  */
-function quickBinaryFindIndex<T>(sortedList: ArrayLike<T>, fn: (v: T) => number): number {
+export function quickBinaryFindIndex<T>(sortedList: ArrayLike<T>, fn: (v: T) => number): number {
 	if (sortedList.length === 0) {
 		return -1
 	}

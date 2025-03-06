@@ -139,16 +139,27 @@ export function binaryInsert<T extends number | string>(sorted: T[], toInsert: T
 }
 
 
-/** Binary find a numeric value from a list, which has been sorted from lower to upper. */
-export function binaryFind<T extends number | string>(sorted: ArrayLike<T>, value: T): T | undefined {
+/** Binary find index of a value from a list, which has been sorted from lower to upper. */
+export function binaryFindIndex<T extends number | string>(sorted: ArrayLike<T>, value: T): number {
 	let index = binaryFindLowerInsertIndex(sorted, value)
 	if (index === sorted.length) {
-		return undefined
+		return -1
 	}
 
 	if (sorted[index] === value) {
-		return sorted[index]
+		return index
 	}
 
-	return undefined
+	return -1
+}
+
+
+/** Binary find a numeric value from a list, which has been sorted from lower to upper. */
+export function binaryFind<T extends number | string>(sorted: ArrayLike<T>, value: T): T | undefined {
+	let index = binaryFindIndex(sorted, value)
+	if (index === -1) {
+		return undefined
+	}
+
+	return sorted[index]
 }
