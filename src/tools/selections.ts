@@ -59,8 +59,11 @@ export class Selections<T extends object> implements MethodsObserved<
 
 	/** Select only these items. */
 	selectOnly(...items: T[]) {
-		this.deselect(...[...this.selected].filter(s => !items.includes(s)))
-		this.select(...items)
+		this.selected = new Set(items)
+		
+		if (items.length > 0) {
+			this.latestTouched = items[items.length - 1]
+		}
 	}
 
 	/** Limit can select only within these data items. */
