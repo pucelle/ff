@@ -2,9 +2,9 @@ import {MethodsObserved} from "../observer"
 
 
 /** Manage selections. */
-export class Selections<T extends object> implements MethodsObserved<
+export class Selections<T = any> implements MethodsObserved<
 	'hasSelected' | 'hasAnySelected' | 'getSelectedCount' | 'getSelected' | 'getLatestSelected'	| 'getLatestTouched',
-	'select' | 'selectOnly' | 'limitSelectionAt' | 'deselect' | 'toggleSelect' | 'clear'
+	'select' | 'selectOnly' | 'selectByMouseEvent' | 'limitSelectionAt' | 'deselect' | 'toggleSelect' | 'clear'
 > {
 
 	private selected: Set<T> = new Set()
@@ -63,6 +63,40 @@ export class Selections<T extends object> implements MethodsObserved<
 		
 		if (items.length > 0) {
 			this.latestTouched = items[items.length - 1]
+		}
+	}
+
+	/** Shift or Ctrl select, or normal select. */
+	selectByMouseEvent(index: number, allData: T[], e: MouseEvent) {
+		let currentItem = allData[index]
+
+		if (e.shiftKey) {
+			let previousTouched = this.getLatestTouched()
+			let previousIndex = previousTouched ? allData.indexOf(previousTouched) : -1
+
+			if (previousIndex === -1) {
+				previousIndex = 0
+			}
+
+			let start = Math.min(previousIndex, index)
+			let end = Math.max(previousIndex, index) + 1
+			let itemsInRange = allData.slice(start, end)
+
+			// Ensure item to be latest touched.
+			itemsInRange.push(currentItem)
+
+			if (this.hasSelected(currentItem)) {
+				this.deselect(...itemsInRange)
+			}
+			else {
+				this.select(...itemsInRange)
+			}
+		}
+		else if (e.ctrlKey) {
+			this.toggleSelect(currentItem)
+		}
+		else {
+			this.selectOnly(currentItem)
 		}
 	}
 
