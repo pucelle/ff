@@ -70,9 +70,6 @@ const heap: UpdateHeap = new UpdateHeap()
 /** Callbacks wait to be called after all the things update. */
 let updateCompleteCallbacks: (() => void)[] = []
 
-/** Callbacks wait to be called after ended reading the dom properties. */
-let readCompleteCallbacks: (() => void)[] = []
-
 /** What's updating right now. */
 let phase: QueueUpdatePhase = QueueUpdatePhase.NotStarted
 
@@ -108,22 +105,6 @@ export function enqueueAfterDataApplied(callback: () => void, scope: object | nu
 export function untilUpdateComplete(): Promise<void> {
 	let {promise, resolve} = promiseWithResolves()
 	updateCompleteCallbacks.push(resolve)
-	willUpdateIfNotYet()
-	
-	return promise
-}
-
-
-/** 
- * If you want to read a dom property, and write soon depend on the read value, you should:
- * 1. `untilUpdateComplete()`
- * 2. read dom property
- * 3. `untilReadComplete()`
- * 4. write dom property.
- */
-export function untilReadComplete(): Promise<void> {
-	let {promise, resolve} = promiseWithResolves()
-	readCompleteCallbacks.push(resolve)
 	willUpdateIfNotYet()
 	
 	return promise
@@ -167,12 +148,6 @@ async function update() {
 			// Wait for those very deep micro tasks to be completed.
 			// Bad part is it may postpone callback to next frame.
 			// await sleep(0)
-		}
-
-		// Calls read complete callback.
-		let callbacks = readCompleteCallbacks
-		for (let callback of callbacks) {
-			callback()
 		}
 	}
 	catch (err) {
