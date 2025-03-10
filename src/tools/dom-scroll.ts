@@ -5,7 +5,7 @@ import {PerFrameTransitionEasingName, PerFrameTransition} from '../transition'
 let scrollBarWidth: number | null = null
 
 /** Cache the element and the transition playing. */
-const RunningScrollTransitions: Map<Element, PerFrameTransition> = new Map()
+const RunningScrollTransitions: WeakMap<Element, PerFrameTransition> = new WeakMap()
 
 
 /**
@@ -162,9 +162,7 @@ export async function scrollToView(
 		return false
 	}
 
-	if (RunningScrollTransitions.has(el)) {
-		RunningScrollTransitions.get(el)!.cancel()
-	}
+	RunningScrollTransitions.get(wrapper)?.cancel()
 
 	if (scrollDirection === 'vertical') {
 		let oldScrollY = wrapper.scrollTop
@@ -201,8 +199,7 @@ export async function scrollToView(
 					}
 				)
 
-				RunningScrollTransitions.set(el, transition)
-
+				RunningScrollTransitions.set(wrapper, transition)
 				return transition.untilEnd()
 			}
 			else {
@@ -244,9 +241,8 @@ export async function scrollToView(
 					}
 				)
 
-				RunningScrollTransitions.set(el, transition)
-
-				return transition.untilEnd()
+				RunningScrollTransitions.set(wrapper, transition)
+				return await transition.untilEnd()
 			}
 			else {
 				wrapper.scrollLeft = newScrollX
