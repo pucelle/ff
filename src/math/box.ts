@@ -11,15 +11,15 @@ import {MethodsObserved} from '../observer'
 
 /** Represent a rectangle bounding box. */
 export class Box implements BoxLike, MethodsObserved<
-	'isIntersectWith' | 'round' | 'ceil' | 'floor' | 'equals' | 'edges' | 'size' | 'paddingTo'
-		| 'union' | 'intersect' | 'difference' | 'unionAtHV' | 'unionAt' | 'expand'
+	'isIntersectWith' | 'isIntersectWithAtHV' | 'round' | 'ceil' | 'floor' | 'equals' | 'edges' | 'size' | 'paddingTo'
+		| 'union' | 'intersect' | 'intersectAtHV' | 'difference' | 'unionAtHV' | 'unionAt' | 'expand'
 		| 'expandByInset' | 'expandToContain' | 'translate' | 'translateBy' | 'transform'
 		| 'anchorPointAt' | 'anchorPointByVector' | 'containsPoint' | 'containsPointAfterExpanded'
 		| 'containsBox' | 'getCornerPoints' | 'minDistancedVectorToPoint' | 'minDistancedDirectionToBox'
 		| 'minDistancedVectorToBox' | 'minBouncedVectorToPoint' | 'minBouncedDirectionToBox'
 		| 'minBouncedVectorToBox' | 'distanceToPoint' | 'distanceToBox' | 'toJSON',
 	'set' | 'reset' | 'copyFrom' | 'roundSelf' | 'ceilSelf' | 'floorSelf' | 'unionSelf'
-		| 'intersectSelf' | 'differenceSelf' | 'unionAtHVSelf' | 'unionAtSelf' | 'expandSelf'
+		| 'intersectSelf' | 'intersectAtHVSelf' | 'differenceSelf' | 'unionAtHVSelf' | 'unionAtSelf' | 'expandSelf'
 		| 'expandByInsetSelf' | 'expandToContainSelf' | 'translateSelf' | 'translateBySelf'
 		| 'transformSelf'
 >  {
@@ -185,11 +185,23 @@ export class Box implements BoxLike, MethodsObserved<
 		let right = Math.min(this.right, b.right)
 		let bottom = Math.min(this.bottom, b.bottom)
 
-		if (left > right || top > bottom) {
-			return false
-		}
+		return left < right && top < bottom
+	}
 
-		return true
+	/** Whether intersect with another box at HV direction. */
+	isIntersectWithAtHV(b: Box, hv: HVDirection): boolean {
+		if (hv === 'horizontal') {
+			let left = Math.max(this.left, b.left)
+			let right = Math.min(this.right, b.right)
+
+			return left < right
+		}
+		else {
+			let top = Math.max(this.top, b.top)
+			let bottom = Math.min(this.bottom, b.bottom)
+
+			return top < bottom
+		}
 	}
 
 	/** Round both position and size, returns a new box. */
@@ -390,6 +402,31 @@ export class Box implements BoxLike, MethodsObserved<
 	}
 
 	/** Intersect with another box at horizontal or vertical direction, returns a new box. */
+	intersectAtHV(b: Box, hvDirection: HVDirection): Box {
+		return this.clone().intersectAtHVSelf(b, hvDirection)
+	}
+
+	/** Intersect with another box at horizontal or vertical direction. */
+	intersectAtHVSelf(b: Box, hvDirection: HVDirection): this {
+		if (hvDirection === 'horizontal') {
+			let left = Math.max(this.x, b.x)
+			let right = Math.min(this.right, b.right)
+
+			this.x = left
+			this.width = right - left
+		}
+		else {
+			let top = Math.max(this.y, b.y)
+			let bottom = Math.min(this.bottom, b.bottom)
+
+			this.y = top
+			this.height = bottom - top
+		}
+
+		return this
+	}
+
+	/** Union with another box at horizontal or vertical direction, returns a new box. */
 	unionAtHV(b: Box, hvDirection: HVDirection): Box {
 		return this.clone().unionAtHVSelf(b, hvDirection)
 	}
