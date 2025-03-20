@@ -51,6 +51,15 @@ export function euclideanModulo(n: number, m: number): number {
 	return ((n % m) + m) % m
 }
 
+/** Get Greatest Common Divisor of two numbers. */
+export function gcd(a: number, b: number) {
+	if (b === 0) {
+		return a
+	}
+
+	return gcd(b, a % b)
+}
+
 
 
 /** Constrain value to be in range `min ~ max`. */

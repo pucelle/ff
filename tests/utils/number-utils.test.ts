@@ -18,6 +18,10 @@ describe('Test NumberUtils', () => {
 		expect(NumberUtils.euclideanModulo(-1, 3)).toEqual(2)
 	})
 
+	test('gcd', () => {
+		expect(NumberUtils.gcd(1920, 1080)).toEqual(180)
+	})
+
 	test('clamp', () => {
 		expect(NumberUtils.clamp(5, 1, 10)).toEqual(5)
 		expect(NumberUtils.clamp(-1, 1, 10)).toEqual(1)
