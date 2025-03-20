@@ -20,9 +20,10 @@ export interface FoldTransitionOptions extends TransitionOptions {
 
 
 /** 
- * When enter, fold from.
- * When leave, fade opacity from 1 to 0.
- * Use Web Animations API, fallback to initial state after transition end.
+ * When enter, fold from height or width 0 to natural height or width.
+ * When leave, fold from natural height or width to 0.
+ * Note you should normally set `overflow: hidden` to avoid content overflow.
+ * Uses Web Animations API, fallback to initial state after transition end.
  */
 export const fold = Transition.define(function(el: HTMLElement, options: FoldTransitionOptions = {}) {
 	let direction = options.direction ?? 'vertical'

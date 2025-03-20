@@ -24,10 +24,10 @@ export class MouseMovement {
 	 * First parameter is movement from event start.
 	 * Second parameter is movement from previous.
 	 */
-	onMove: ((moves: Vector, latestMoves: Vector) => void) | null = null
+	onMove: ((moves: Vector, latestMoves: Vector, e: MouseEvent) => void) | null = null
 
 	/** Handle after movement end. */
-	onEnd: (() => void) | null = null
+	onEnd: ((e: MouseEvent) => void) | null = null
 
 	protected options: MouseMovementOptions
 	protected startPoint: Point
@@ -58,12 +58,12 @@ export class MouseMovement {
 			}
 		}
 
-		this.onMove?.(moves, latestMoves)
+		this.onMove?.(moves, latestMoves, e)
 	}
 
-	protected onDragEnd(_e: MouseEvent) {
+	protected onDragEnd(e: MouseEvent) {
 		this.end()
-		this.onEnd?.()
+		this.onEnd?.(e)
 	}
 
 	end() {

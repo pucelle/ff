@@ -2,8 +2,8 @@ import {toPrecision} from './number-utils'
 
 
 /** 
- * Format size:
- *  - `1024 ->1 KB`
+ * Format size: `1024 ->1 KB`.
+ * `precision` indicates the number count in scientific notation.
  */
 export function formatSize(size: number, precision: number = 3) {
 	if (size < 1000) {
