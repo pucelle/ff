@@ -82,7 +82,7 @@ export class MeasuredAlignment {
 	 * Should wait for all dom write operations completed.
 	 */
 	align(computed: PositionComputed) {
-		this.useCSSAnchorPositioning = this.aligner.useCSSAnchorPositioning()
+		this.useCSSAnchorPositioning = this.aligner.shouldUseCSSAnchorPositioning()
 
 		if (this.useCSSAnchorPositioning) {
 			this.applyCSSAnchorPositioningProperties(computed)

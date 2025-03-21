@@ -203,7 +203,7 @@ export class AnchorAligner {
 		// Update after target size changed.
 		ResizeWatcher.watch(this.target, this.update, this)
 
-		if (!this.useCSSAnchorPositioning()) {
+		if (!this.shouldUseCSSAnchorPositioning()) {
 			RectWatcher.watch(anchor, this.update, this)
 		}
 	}
@@ -239,7 +239,7 @@ export class AnchorAligner {
 		if (this.alignment) {
 			ResizeWatcher.unwatch(this.target, this.update, this)
 
-			if (this.useCSSAnchorPositioning()) {
+			if (this.shouldUseCSSAnchorPositioning()) {
 				RectWatcher.unwatch(this.anchor!, this.update, this)
 			}
 
@@ -253,12 +253,12 @@ export class AnchorAligner {
 	 * Means should measure to get state.
 	 */
 	shouldDoPureCSSAlignment(): boolean {
-		return this.useCSSAnchorPositioning()
+		return this.shouldUseCSSAnchorPositioning()
 			&& !(this.needAdjustTriangle() || this.canFlip())
 	}
 
 	/** Whether can apply css anchor positioning. */
-	useCSSAnchorPositioning(): boolean {
+	shouldUseCSSAnchorPositioning(): boolean {
 		return AnchorAligner.cssAnchorPositioningSupports()
 			&& (this.anchor instanceof HTMLElement)
 	}

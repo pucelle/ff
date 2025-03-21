@@ -21,11 +21,6 @@ type AnchorPositionSingle = 't'
 	| 'tr'
 	| 'cc'
 
-	| 'lb'
-	| 'lt'
-	| 'rb'
-	| 'rt'
-
 /** 4 directions of gap. */
 export interface AnchorGaps {
 	top: number

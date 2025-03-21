@@ -1,4 +1,4 @@
-import {Direction, Inset} from '../../math'
+import {Direction, Inset, Vector} from '../../math'
 import {WeakListMap} from '../../structs'
 import {AnchorAligner} from './anchor-aligner'
 import {AnchorAlignmentType} from './types'
@@ -9,6 +9,12 @@ export interface PureCSSComputed {
 	anchorDirection: Direction
 	targetDirection: Direction
 	targetTranslate: Coord
+}
+
+
+interface PositionAreaAndTranslate {
+	area: string
+	targetTranslate: Vector
 }
 
 
@@ -65,6 +71,7 @@ export class PureCSSAnchorAlignment {
 
 		this.anchorName = anchorName
 		this.target.style.setProperty('position-visibility', 'anchors-visible')
+		this.target.style.setProperty('position-anchor', this.anchorName)
 	}
 
 	/** 
@@ -87,59 +94,107 @@ export class PureCSSAnchorAlignment {
 	}
 
 	align(computed: PureCSSComputed) {
-		this.setInsetValues(computed)
-		this.setTransform(computed)
+		let areaAndTranslate = this.mapPositionToAreaAndTranslate(computed)
+		this.setPositionProperties(computed, areaAndTranslate)
 	}
 
-	private setInsetValues(computed: PureCSSComputed) {
-		let target = this.target
-		let anchorD = computed.anchorDirection
+	private mapPositionToAreaAndTranslate(computed: PureCSSComputed): PositionAreaAndTranslate {
 		let targetD = computed.targetDirection
-		let anchorInsetKeyH = anchorD.horizontal.toInsetKey() ?? 'center'
-		let anchorInsetKeyV = anchorD.vertical.toInsetKey() ?? 'center'
-		let targetInsetKeyH = targetD.horizontal.toInsetKey() ?? 'center'
-		let targetInsetKeyV = targetD.vertical.toInsetKey() ?? 'center'
+		let anchorD = computed.anchorDirection
+		let primaryD = anchorD.joinToStraight(targetD.opposite)
+		let anchorSecondaryD = anchorD.joinToStraight(primaryD.opposite)
+		let targetSecondaryD = targetD.joinToStraight(primaryD.opposite)
+		let area: string
+		let targetTranslate = new Vector()
 
-		let targetInsetKeyHNonCenter = targetInsetKeyH === 'center' ? 'left' : targetInsetKeyH
-		let targetInsetKeyVNonCenter = targetInsetKeyV === 'center' ? 'top' : targetInsetKeyV
-		let otherInsetKeys: InsetKey[] = Inset.Keys.filter(key => key !== targetInsetKeyHNonCenter && key !== targetInsetKeyVNonCenter)
+		// Faced directions like `left, top, top left, center`.
+		if (targetD.isOppositeOf(anchorD)) {
+			area = anchorD === Direction.Center ? 'center' : anchorD.toInsetKeys().join(' ')
+		}
 
-		target.style.setProperty(targetInsetKeyHNonCenter, `anchor(${this.anchorName} ${anchorInsetKeyH})`)
-		target.style.setProperty(targetInsetKeyVNonCenter, `anchor(${this.anchorName} ${anchorInsetKeyV})`)
+		// Span directions like `span-top left, bottom span-left`
+		else {
 
-		for (let otherKey of otherInsetKeys) {
-			this.target.style[otherKey] = 'auto'
+			// `top span-left`
+			if (primaryD.beVertical && anchorSecondaryD !== Direction.Center) {
+				area = primaryD.toInsetKey()!
+					+ ' span-' + anchorSecondaryD.opposite.toInsetKey()!
+			}
+
+			// `span-top left`
+			else if (primaryD.beHorizontal && anchorSecondaryD !== Direction.Center) {
+				area = 'span-' + anchorSecondaryD.opposite.toInsetKey()!
+					+ ' ' + primaryD.toInsetKey()!
+			}
+
+			// `span-top`
+			else if (anchorD.beStraight) {
+				area = 'span-' + anchorD.opposite.toInsetKey()!
+			}
+
+			// `span-top span-left`
+			else {
+				area = 'span-' + anchorD.vertical.opposite.toInsetKey()!
+					+ ' span-' + anchorD.horizontal.opposite.toInsetKey()!
+			}
+
+			if (anchorSecondaryD !== targetSecondaryD) {
+				targetTranslate = anchorSecondaryD.toAnchorVector().sub(targetSecondaryD.toAnchorVector())
+			}
+		}
+
+		return {
+			area,
+			targetTranslate,
 		}
 	}
 	
-	private setTransform(computed: PureCSSComputed) {
+	private setPositionProperties(computed: PureCSSComputed, areaAndTranslate: PositionAreaAndTranslate) {
 		let target = this.target
-		let targetD = this.aligner.targetDirection
-		let targetInsetKeyH = targetD.horizontal.toInsetKey() ?? 'center'
-		let targetInsetKeyV = targetD.vertical.toInsetKey() ?? 'center'
-		let targetTranslate = computed.targetTranslate
+		let alignTranslate = computed.targetTranslate
+		let areaTranslate = areaAndTranslate.targetTranslate
 		let transform = ''
 
-		// When align to center, no gap transform assigned.
-		if (targetInsetKeyH === 'center' && targetInsetKeyV === 'center') {
-			target.style.setProperty('position-anchor', this.anchorName)
-			target.style.setProperty('position-area', 'center')
-		}
-		else if (targetInsetKeyH === 'center') {
-			transform = 'translateX(-50%)'
-			target.style.setProperty('position-anchor', '')
-			target.style.setProperty('position-area', '')
-		}
-		else if (targetInsetKeyV === 'center') {
-			transform = 'translateY(-50%)'
-			target.style.setProperty('position-anchor', '')
-			target.style.setProperty('position-area', '')
-		}
+		target.style.setProperty('position-area', areaAndTranslate.area)
 
-		if (targetTranslate.x !== 0 || targetTranslate.y !== 0) {
-			transform += `translate(${targetTranslate.x}px, ${targetTranslate.y}px)`
-		}
+		transform += translatePercentageToString(areaTranslate)
+		transform += ' ' + translatePixelsToString(alignTranslate)
+		transform = transform.trim()
 
 		target.style.setProperty('transform', transform)
 	}
+}
+
+
+function translatePercentageToString(translate: Coord) {
+	if (translate.x !== 0 && translate.y !== 0) {
+		return `translate(${translate.x * 100}%, ${translate.y * 100}%)`
+	}
+
+	if (translate.x !== 0) {
+		return `translateX(${translate.x * 100}%)`
+	}
+
+	if (translate.y !== 0) {
+		return `translateY(${translate.y * 100}%)`
+	}
+
+	return ''
+}
+
+
+function translatePixelsToString(translate: Coord) {
+	if (translate.x !== 0 && translate.y !== 0) {
+		return `translate(${translate.x}px, ${translate.y}px)`
+	}
+
+	if (translate.x !== 0) {
+		return `translateX(${translate.x}px)`
+	}
+
+	if (translate.y !== 0) {
+		return `translateY(${translate.y}px)`
+	}
+
+	return ''
 }
