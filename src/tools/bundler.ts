@@ -19,8 +19,8 @@ abstract class Bundler<T, I extends Iterable<T>> {
 	}
 
 	/** Add one parameter to bundler parameters. */
-	add(param: T) {
-		this.addItemOnly(param)
+	add(...items: T[]) {
+		this.addItemOnly(...items)
 
 		if (this.started) {
 			return
@@ -38,7 +38,7 @@ abstract class Bundler<T, I extends Iterable<T>> {
 		this.started = true
 	}
 
-	protected abstract addItemOnly(item: T): void
+	protected abstract addItemOnly(...items: T[]): void
 
 	protected async fireBundled() {
 		await this.callback(this.bundled)
@@ -56,8 +56,8 @@ export class ListBundler<T = any> extends Bundler<T, T[]> {
 	protected bundled: T[] = []
 
 	/** Add one item. */
-	protected addItemOnly(item: T) {
-		this.bundled.push(item)
+	protected addItemOnly(...items: T[]) {
+		this.bundled.push(...items)
 	}
 }
 
@@ -71,8 +71,10 @@ export class SetBundler<T = any> extends Bundler<T, Set<T>> {
 	protected bundled: Set<T> = new Set()
 
 	/** Add one item. */
-	protected addItemOnly(item: T) {
-		this.bundled.add(item)
+	protected addItemOnly(...items: T[]) {
+		for (let item of items) {
+			this.bundled.add(item)
+		}
 	}
 }
 
