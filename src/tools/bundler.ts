@@ -42,8 +42,11 @@ abstract class Bundler<T, I extends Iterable<T>> {
 
 	protected async fireBundled() {
 		await this.callback(this.bundled)
+		this.clearBundled()
 		this.started = false
 	}
+
+	protected abstract clearBundled(): void
 }
 
 
@@ -58,6 +61,10 @@ export class ListBundler<T = any> extends Bundler<T, T[]> {
 	/** Add one item. */
 	protected addItemOnly(...items: T[]) {
 		this.bundled.push(...items)
+	}
+
+	protected clearBundled() {
+		this.bundled = []
 	}
 }
 
@@ -75,6 +82,10 @@ export class SetBundler<T = any> extends Bundler<T, Set<T>> {
 		for (let item of items) {
 			this.bundled.add(item)
 		}
+	}
+
+	protected clearBundled() {
+		this.bundled.clear()
 	}
 }
 
