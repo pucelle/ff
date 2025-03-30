@@ -10,8 +10,9 @@ export class AsyncTaskQueue {
 	/** 
 	 * Request to get a promise, which will be resolved after previous task end,
 	 * and current task can be started immediately.
+	 * Returns a callback, call which to complete current task.
 	 */
-	request(): Promise<() => void> {
+	private request(): Promise<() => void> {
 		let {promise, resolve} = promiseWithResolves<() => void>()
 
 		// Resolve next promise, and shift out a task.
@@ -29,7 +30,10 @@ export class AsyncTaskQueue {
 		return promise
 	}
 
-	/** Enqueue a task function, run it after previous task end. */
+	/** 
+	 * Enqueue a task function, run it after previous task end.
+	 * Returns a promise which will be resolved after this task end.
+	 */
 	async enqueue(taskFn: () => Promise<void>) {
 		let next = await this.request()
 		await taskFn()
