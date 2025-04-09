@@ -61,29 +61,17 @@ export class Timeout<F extends Function = Function> extends TimeControlFunction<
 		return !!this.id
 	}
 
-	/** 
-	 * Restart timeout, even a called or canceled Timeout can be restarted.
-	 * Note will call `fn` immediately if `ms` parameter is `0`.
-	 */
+	/** Restart timeout, even a called or canceled Timeout can be restarted. */
 	reset() {
 		if (this.id !== null) {
 			clearTimeout(this.id)
 		}
 
-		if (this.ms > 0) {
-			this.id = setTimeout(this.onTimeout.bind(this), this.ms)
-		}
-		else {
-			this.onTimeout()
-		}
-
+		this.id = setTimeout(this.onTimeout.bind(this), this.ms)
 		this.canceled = false
 	}
 
-	/** 
-	 * Start or restart timeout, even a called or canceled Timeout can be restarted.
-	 * Note will call `fn` immediately if `ms` parameter is `0`.
-	 */
+	/** Start or restart timeout, even a called or canceled Timeout can be restarted. */
 	start() {
 		this.reset()
 	}
