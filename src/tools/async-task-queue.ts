@@ -25,6 +25,7 @@ export class AsyncTaskQueue {
 		await taskFn()
 		resolve()
 
+		// Release promise to ensure next time not wait it.
 		if (this.lastTaskPromise === promise) {
 			this.lastTaskPromise = null
 		}
