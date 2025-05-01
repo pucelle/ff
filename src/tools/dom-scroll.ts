@@ -147,7 +147,7 @@ export function getNonScrollOffset(el: HTMLElement, wrapper: HTMLElement, direct
  */
 export async function scrollToView(
 	el: HTMLElement,
-	scrollDirection: HVDirection | null,
+	scrollDirection: HVDirection | null = null,
 	gap: number = 0,
 	duration: number = 0,
 	easing: PerFrameTransitionEasingName = 'ease-out'
@@ -267,7 +267,7 @@ export async function scrollToView(
  */
 export async function scrollToStart(
 	el: HTMLElement,
-	scrollDirection: HVDirection | null,
+	scrollDirection: HVDirection | null = null,
 	gap: number = 0,
 	duration: number = 0,
 	easing: PerFrameTransitionEasingName = 'ease-out'
