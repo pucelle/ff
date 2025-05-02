@@ -1,7 +1,7 @@
 /** 
  * Apply mixins to support multiple extends.
  * if wants class C extends A, B, doing extends by using `applyMixins(C, [A, B])`,
- * and don't forget to declare a interface `C extends A, B`.
+ * and don't forget to declare `interface C extends A, B`.
  * Order of `A, B` matters, the following one overwrite preceding one.
  * 
  * Note can't declare `constructor` in the classes that used to be extended,
