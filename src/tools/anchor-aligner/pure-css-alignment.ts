@@ -103,7 +103,7 @@ export class PureCSSAnchorAlignment {
 		let anchorD = computed.anchorDirection
 		let primaryD = anchorD.joinToStraight(targetD.opposite)
 		let anchorSecondaryD = anchorD.joinToStraight(primaryD.opposite)
-		let targetSecondaryD = targetD.joinToStraight(primaryD.opposite)
+		let targetSecondaryD = targetD.joinToStraight(primaryD)
 		let area: string
 		let targetTranslate = new Vector()
 

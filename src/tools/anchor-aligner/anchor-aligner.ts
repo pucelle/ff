@@ -272,7 +272,7 @@ export class AnchorAligner {
 	private canFlip(): boolean {
 		let cantFlip = this.options.flipDirection === null
 			|| this.options.flipDirection === 'auto'
-				&& this.anchorFaceDirection !== Direction.Center
+				&& this.anchorFaceDirection === Direction.Center
 
 		return !cantFlip
 	}
