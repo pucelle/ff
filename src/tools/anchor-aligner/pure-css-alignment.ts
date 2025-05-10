@@ -8,7 +8,8 @@ import {AnchorAlignmentType} from './types'
 export interface PureCSSComputed {
 	anchorDirection: Direction
 	targetDirection: Direction
-	targetTranslate: Coord
+	targetRect: DOMRect
+	targetTranslate: Vector
 }
 
 
@@ -80,8 +81,6 @@ export class PureCSSAnchorAlignment {
 	 * `align` repetitively with same alignment class will not cause reset.
 	 */
 	reset() {
-		this.target.style.setProperty('transform', '')
-
 		for (let key of Inset.Keys) {
 			this.target.style[key] = ''
 		}
@@ -153,48 +152,35 @@ export class PureCSSAnchorAlignment {
 		let target = this.target
 		let alignTranslate = computed.targetTranslate
 		let areaTranslate = areaAndTranslate.targetTranslate
-		let transform = ''
+		let targetD = computed.targetDirection
+		let anchorD = computed.anchorDirection
+		let primaryD = anchorD.joinToStraight(targetD.opposite)
+		let translate = new Vector()
 
 		target.style.setProperty('position-area', areaAndTranslate.area)
+		
+		// Transform not affect anchor positioning, but position does.
+		translate.x += areaTranslate.x * computed.targetRect.width
+		translate.y += areaTranslate.y * computed.targetRect.height
+		translate.addSelf(alignTranslate)
 
-		transform += translatePercentageToString(areaTranslate)
-		transform += ' ' + translatePixelsToString(alignTranslate)
-		transform = transform.trim()
-
-		target.style.setProperty('transform', transform)
+		if (primaryD === Direction.Right || primaryD === Direction.Bottom) {
+			target.style.setProperty('left', translate.x + 'px')
+			target.style.setProperty('top', translate.y + 'px')
+			target.style.setProperty('right', '')
+			target.style.setProperty('bottom', '')
+		}
+		else if (primaryD === Direction.Left) {
+			target.style.setProperty('right', -translate.x + 'px')
+			target.style.setProperty('top', translate.y + 'px')
+			target.style.setProperty('left', '')
+			target.style.setProperty('bottom', '')
+		}
+		else if (primaryD === Direction.Top) {
+			target.style.setProperty('left', translate.x + 'px')
+			target.style.setProperty('bottom', -translate.y + 'px')
+			target.style.setProperty('right', '')
+			target.style.setProperty('top', '')
+		}
 	}
-}
-
-
-function translatePercentageToString(translate: Coord) {
-	if (translate.x !== 0 && translate.y !== 0) {
-		return `translate(${translate.x * 100}%, ${translate.y * 100}%)`
-	}
-
-	if (translate.x !== 0) {
-		return `translateX(${translate.x * 100}%)`
-	}
-
-	if (translate.y !== 0) {
-		return `translateY(${translate.y * 100}%)`
-	}
-
-	return ''
-}
-
-
-function translatePixelsToString(translate: Coord) {
-	if (translate.x !== 0 && translate.y !== 0) {
-		return `translate(${translate.x}px, ${translate.y}px)`
-	}
-
-	if (translate.x !== 0) {
-		return `translateX(${translate.x}px)`
-	}
-
-	if (translate.y !== 0) {
-		return `translateY(${translate.y}px)`
-	}
-
-	return ''
 }

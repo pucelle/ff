@@ -1,4 +1,4 @@
-import {Direction} from '../../math'
+import {Direction, Vector} from '../../math'
 import {AnchorAligner} from './anchor-aligner'
 import {getAnchorPointAt, getGapTranslate, getRelativeAnchorPointAt} from './position-gap-parser'
 
@@ -12,7 +12,7 @@ export interface PositionComputed {
 		rect: DOMRect
 	},
 	target: {
-		position: Coord
+		position: Vector
 		limitHeight: number | null
 		rect: DOMRect
 		flipped: boolean
@@ -79,7 +79,7 @@ export class PositionComputer {
 				rect: this.anchorRect,
 			},
 			target: {
-				position: {x: 0, y: 0},
+				position: new Vector(),
 				limitHeight: null,
 				rect: this.targetRect,
 				flipped: false,
@@ -156,12 +156,11 @@ export class PositionComputer {
 	}
 
 	/** Get position by two anchors. */
-	private getPositionByAnchors(anchorT: Coord, anchorA: Coord) {
-		let position = {x: anchorA.x - anchorT.x, y: anchorA.y - anchorT.y}
+	private getPositionByAnchors(anchorT: Coord, anchorA: Coord): Vector {
+		let position = new Vector(anchorA.x - anchorT.x, anchorA.y - anchorT.y)
 		let gapTranslate = getGapTranslate(this.aligner.anchorDirection, this.aligner.gaps)
 
-		position.x += gapTranslate.x
-		position.y += gapTranslate.y
+		position.addSelf(gapTranslate)
 
 		return position
 	}

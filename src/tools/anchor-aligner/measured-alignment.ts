@@ -1,4 +1,4 @@
-import {Direction} from '../../math'
+import {Direction, Vector} from '../../math'
 import {DOMUtils} from '../../utils'
 import {AnchorAligner} from './anchor-aligner'
 import {PositionComputed} from './position-computer'
@@ -104,14 +104,15 @@ export class MeasuredAlignment {
 		let anchorPoint = getAnchorPointAt(computed.anchor.rect, computed.anchorDirection)
 		let targetPoint = getRelativeAnchorPointAt(computed.target.rect, computed.targetDirection)
 
-		let targetTranslate: Coord = {
-			x: computed.target.position.x - (anchorPoint.x - targetPoint.x),
-			y: computed.target.position.y - (anchorPoint.y - targetPoint.y),
-		}
+		let targetTranslate = new Vector(
+			computed.target.position.x - (anchorPoint.x - targetPoint.x),
+			computed.target.position.y - (anchorPoint.y - targetPoint.y)
+		)
 
 		let cssComputed: PureCSSComputed = {
 			anchorDirection: computed.anchorDirection,
 			targetDirection: computed.targetDirection,
+			targetRect: computed.target.rect,
 			targetTranslate,
 		}
 

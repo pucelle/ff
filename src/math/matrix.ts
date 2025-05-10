@@ -52,7 +52,7 @@ export class Matrix implements MatrixData, MethodsObserved<
 			)
 		}
 
-		return Matrix.zero()
+		return Matrix.i()
 	}
 
 	/** Make a matrix from a matrix like object. */

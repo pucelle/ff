@@ -287,6 +287,7 @@ export class AnchorAligner {
 		let computed: PureCSSComputed = {
 			anchorDirection: this.anchorDirection,
 			targetDirection: this.targetDirection,
+			targetRect: this.target.getBoundingClientRect(),
 			targetTranslate: getGapTranslate(this.anchorDirection, this.gaps),
 		}
 
@@ -309,7 +310,8 @@ export class AnchorAligner {
 		}
 
 		// Do position computation.
-		let computer = new PositionComputer(this, anchor.getBoundingClientRect())
+		let anchorRect = anchor.getBoundingClientRect()
+		let computer = new PositionComputer(this, anchorRect)
 		let computed = computer.compute()
 
 		// Do alignment by computation.

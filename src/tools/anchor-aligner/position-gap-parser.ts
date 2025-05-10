@@ -1,4 +1,4 @@
-import {Direction} from '../../math'
+import {Direction, Vector} from '../../math'
 
 
 /** Align which direction of target to which direction of anchor. */
@@ -114,10 +114,10 @@ export function parseGaps(gapValue: number | number[], triangle: HTMLElement | u
 
 
 /** Get gap translate apply to target element. */
-export function getGapTranslate(anchorDirection: Direction, gaps: AnchorGaps): Coord {
+export function getGapTranslate(anchorDirection: Direction, gaps: AnchorGaps): Vector {
 	let edgeKeys = anchorDirection.toInsetKeys()
 	let alignVector = anchorDirection.toVector()
-	let translate = {x: 0, y: 0}
+	let translate = new Vector()
 
 	for (let key of edgeKeys) {
 		let gap = gaps[key]
