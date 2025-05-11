@@ -127,7 +127,7 @@ export function unlock(triggerEl: Element) {
 			break
 		}
 
-		controller.finish()
+		controller.onLockReleased()
 		Locks.deleteLeft(controller)
 
 		// Unlock next in sequence.
@@ -184,6 +184,9 @@ export function once(trigger: Element, popup: Element, callback: () => void, opt
 
 /** Manages a `trigger -> popup` pair. */
 class MouseLeaveController {
+
+	/** Whether mouse in. */
+	private entered: boolean = false
 		
 	/** Trigger element. */
 	readonly trigger: Element
@@ -216,6 +219,7 @@ class MouseLeaveController {
 	}
 
 	private onMouseEnter() {
+		this.entered = true
 
 		// Lock by current trigger element.
 		lock(this.trigger)
@@ -225,6 +229,7 @@ class MouseLeaveController {
 	}
 
 	private onMouseLeave() {
+		this.entered = false
 
 		// Not been locked.
 		if (!Locks.hasLeft(this)) {
@@ -237,6 +242,13 @@ class MouseLeaveController {
 		// May locks get changed, so should validate again.
 		if (!Locks.hasLeft(this)) {
 			this.finish()
+		}
+	}
+
+	/** After released locks. */
+	onLockReleased() {
+		if (!this.entered) {
+			this.timeout.reset()
 		}
 	}
 

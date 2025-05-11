@@ -243,7 +243,6 @@ export class AnchorAligner {
 				RectWatcher.unwatch(this.anchor!, this.update, this)
 			}
 
-			this.alignment!.reset()
 			this.alignment = null
 		}
 	}

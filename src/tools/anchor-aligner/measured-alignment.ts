@@ -61,7 +61,6 @@ export class MeasuredAlignment {
 			triangle.style.right =''
 			triangle.style.bottom = ''
 			triangle.style.left = ''
-			triangle.style.transform = ''
 		}
 	}
 
