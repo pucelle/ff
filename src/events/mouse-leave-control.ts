@@ -83,34 +83,39 @@ function clearDisconnected() {
  * Lock by a trigger element, make sure related mouse-leave controllers
  * not trigger leave action to make it can't be hidden.
  */
-export function lock(triggerEl: Element) {
+export function lock(trigger: Element) {
 	let lockChanged = false
 
-	while (true) {
-		let nextTriggerEl: Element | null = null
-
-		for (let controller of LiveControllers.values()) {
-			if (!controller.popup.contains(triggerEl)) {
-				continue
-			}
-
-			Locks.setUnRepeatably(controller, triggerEl)
-
-			// Lock next in sequence.
-			nextTriggerEl = controller.trigger
-			lockChanged = true
-			break
-		}
-
-		if (!nextTriggerEl) {
-			break
-		}
-		
-		triggerEl = nextTriggerEl
+	for (let controller of walkControllerChainContains(trigger)) {
+		Locks.setUnRepeatably(controller, trigger)
+		lockChanged = true
 	}
 
 	if (lockChanged) {
 		clearDisconnectedTimeout.reset()
+	}
+}
+
+
+/** Walk controller chain which's popup element containers trigger. */
+function* walkControllerChainContains(trigger: Element): Iterable<MouseLeaveController> {
+	while (trigger) {
+		let controller: MouseLeaveController | null = null
+
+		for (let c of LiveControllers.values()) {
+			if (c.popup.contains(trigger)) {
+				controller = c
+				break
+			}
+		}
+
+		if (!controller) {
+			break
+		}
+
+
+		yield controller
+		trigger = controller.trigger
 	}
 }
 
@@ -120,18 +125,25 @@ export function lock(triggerEl: Element) {
  * make these controllers can trigger leave action, and trigger immediately if should.
  * And specified trigger element can be hidden now.
  */
-export function unlock(triggerEl: Element) {
+export function unlock(trigger: Element) {
+	for (let controller of walkLockChain(trigger)) {
+		controller.onLockReleased()
+		Locks.deleteLeft(controller)
+	}
+}
+
+
+function* walkLockChain(trigger: Element): Iterable<MouseLeaveController> {
 	while (true) {
-		let controller = Locks.getByRight(triggerEl)
+		let controller = Locks.getByRight(trigger)
 		if (!controller) {
 			break
 		}
 
-		controller.onLockReleased()
-		Locks.deleteLeft(controller)
+		yield controller
 
 		// Unlock next in sequence.
-		triggerEl = controller.trigger
+		trigger = controller.trigger
 	}
 }
 
@@ -148,6 +160,37 @@ export function checkLocked(el: Element): boolean {
 	}
 
 	return false
+}
+
+
+/** 
+ * Release controller chain which's trigger element get contained by ``,
+ * E.g., for a menu element, it can release all the submenus sub submenus.
+ */
+export function releaseAllOf(triggerContainer: Element) {
+	let trigger: Element | null = null
+	let willRelease: MouseLeaveController[] = []
+
+	for (let controller of LiveControllers) {
+		if (triggerContainer.contains(controller.trigger)) {
+			willRelease.push(controller)
+			trigger = controller.trigger
+			break
+		}
+	}
+
+	if (trigger) {
+		for (let controller of walkControllerChainContains(trigger)) {
+			willRelease.push(controller)
+			controller.finish()
+			Locks.deleteLeft(controller)
+		}
+	}
+
+	for (let controller of willRelease) {
+		controller.finish()
+		Locks.deleteLeft(controller)
+	}
 }
 
 
