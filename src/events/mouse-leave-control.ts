@@ -163,37 +163,6 @@ export function checkLocked(el: Element): boolean {
 }
 
 
-/** 
- * Release controller chain which's trigger element get contained by ``,
- * E.g., for a menu element, it can release all the submenus sub submenus.
- */
-export function releaseAllOf(triggerContainer: Element) {
-	let trigger: Element | null = null
-	let willRelease: MouseLeaveController[] = []
-
-	for (let controller of LiveControllers) {
-		if (triggerContainer.contains(controller.trigger)) {
-			willRelease.push(controller)
-			trigger = controller.trigger
-			break
-		}
-	}
-
-	if (trigger) {
-		for (let controller of walkControllerChainContains(trigger)) {
-			willRelease.push(controller)
-			controller.finish()
-			Locks.deleteLeft(controller)
-		}
-	}
-
-	for (let controller of willRelease) {
-		controller.finish()
-		Locks.deleteLeft(controller)
-	}
-}
-
-
 /**
  * Calls `callback` after mouse leaves both elements
  * and all the popped-up contents for `ms` milliseconds.
