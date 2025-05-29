@@ -147,6 +147,14 @@ export function removeWhere<T>(list: T[], match: (item: T, index: number) => boo
 }
 
 
+/** Map an iterable to another iterable by lazily convert it by a map function. */
+export function* lazyMap<T, V>(list: Iterable<T>, map: (value: T) => V): Iterable<V> {
+	for (let item of list) {
+		yield map(item)
+	}
+}
+
+
 /** 
  * Create an index map in `K => V` format.
  * @param pairFn get key and value pair by it.
