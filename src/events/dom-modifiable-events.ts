@@ -1,4 +1,5 @@
 import * as DOMEvents from './dom-events'
+import {EventType, InferEventHandlerByType} from './dom-events'
 import {ControlKeyCode, getControlKeyCode, getShortcutKey, getShortcutCode, ShortcutKey} from './event-keys'
 
 
@@ -122,7 +123,7 @@ const EventFilters = {
  * Register an event listener on an element with modifiers.
  * @param modifiers: can specify some modifier to limit event handler only be called when modifiers match.
  */
-export function on<T extends string>(
+export function on<T extends EventType>(
 	el: EventTarget,
 	type: T,
 	modifiers: EventModifierByType<T>[] | null,
@@ -180,7 +181,7 @@ function wrapHandler(el: EventTarget, type: string, modifiers: string[] | null, 
 		}
 
 		if (modifiers && modifiers.includes('once')) {
-			DOMEvents.off(el, type, wrappedHandler)
+			DOMEvents.off(el, type as EventType, wrappedHandler)
 		}
 
 		handler(e)
@@ -192,6 +193,6 @@ function wrapHandler(el: EventTarget, type: string, modifiers: string[] | null, 
  * Unbind all event listeners that match specified parameters.
  * Note it equals to `DOMEvents.off`.
  */
-export function off(el: EventTarget, type: string, handler: EventHandler, scope: any = null) {
+export function off<T extends EventType>(el: EventTarget, type: T, handler: InferEventHandlerByType<T>, scope: any = null) {
 	DOMEvents.off(el, type, handler, scope)
 }

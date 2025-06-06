@@ -13,9 +13,12 @@ interface EventListener {
 	scope: any
 }
 
+
+/** All event types. */
+export type EventType = keyof GlobalEventHandlersEventMap | keyof WindowEventHandlersEventMap
+
 /** Infer event handler by event type. */
-type InferHandlerByEventType<T extends string> = T extends keyof GlobalEventHandlersEventMap
-	? (e: GlobalEventHandlersEventMap[T]) => void : (e: Event) => void
+export type InferEventHandlerByType<T extends EventType> = (e: (GlobalEventHandlersEventMap & WindowEventHandlersEventMap)[T]) => void
 
 
 /** Cache event listeners. */
@@ -26,10 +29,10 @@ const EventListenerMap: WeakPairKeysListMap<EventTarget, string, EventListener> 
  * Bind an event listener on an event target.
  * Can specify `scope` to identify listener when un-binding, and will pass it to listener handler.
  */
-export function on<T extends string>(
+export function on<T extends EventType>(
 	el: EventTarget,
 	type: T,
-	handler: InferHandlerByEventType<T>,
+	handler: InferEventHandlerByType<T>,
 	scope: any = null,
 	options: AddEventListenerOptions = {}
 ) {
@@ -43,10 +46,10 @@ export function on<T extends string>(
  * 
  * Equals bind with `once: true` in options.
  */
-export function once<T extends string>(
+export function once<T extends EventType>(
 	el: EventTarget,
 	type: T,
-	handler: InferHandlerByEventType<T>,
+	handler: InferEventHandlerByType<T>,
 	scope: any = null,
 	options: AddEventListenerOptions = {}
 ) {
@@ -58,10 +61,10 @@ export function once<T extends string>(
 /** Bind event internally. */
 export function bindEvent(
 	el: EventTarget,
-	type: string,
-	handler: EventHandler,
+	type: EventType,
+	handler: InferEventHandlerByType<any>,
 	scope: any,
-	boundHandler: EventHandler,
+	boundHandler: InferEventHandlerByType<any>,
 	options: AddEventListenerOptions
 ) {
 	if (options.once) {
@@ -80,7 +83,7 @@ export function bindEvent(
 }
 
 
-function bindOnce(el: EventTarget, type: string, handler: EventHandler, scope: any, boundHandler: EventHandler) {
+function bindOnce(el: EventTarget, type: EventType, handler: EventHandler, scope: any, boundHandler: EventHandler) {
 	return function(e: Event) {
 		boundHandler(e)
 		off(el, type, handler, scope)
@@ -92,7 +95,7 @@ function bindOnce(el: EventTarget, type: string, handler: EventHandler, scope: a
  * Unbind all event listeners that match specified parameters.
  * If `handler` binds a `scope`, here it must provide the same value to remove the listener.
  */
-export function off<T extends string>(el: EventTarget, type: T, handler: InferHandlerByEventType<T>, scope: any = null) {
+export function off<T extends EventType>(el: EventTarget, type: T, handler: InferEventHandlerByType<T>, scope: any = null) {
 	let listeners = EventListenerMap.get(el, type)
 	if (!listeners) {
 		return
