@@ -55,7 +55,7 @@ export function toDashCase(string: string): string {
 	.replace(/[_ ]/g, '-')
 }
 
-/** Convert `string` to dash case by joining words with `_`: `a bc` -> `a_bc`. */
+/** Convert `string` to underscore case by joining words with `_`: `a bc` -> `a_bc`. */
 export function toUnderscoreCase(string: string): string {
 	return toDashCase(string).replace(/-/g, '_')
 }
