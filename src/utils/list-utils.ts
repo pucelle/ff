@@ -200,14 +200,39 @@ export type OrderDirection = -1 | 1 | 'asc' | 'desc'
 /** Ordering function that map each item to a sortable string or number. */
 export type OrderFunction<T> = (item: T) => string | number | null | undefined
 
-/** Order key or function, or `[order key or function, order direction]` tuple. */
-export type OrderRule<T> = SortableKey<T> | OrderFunction<T> | [SortableKey<T> | OrderFunction<T>, OrderDirection]
-
 /** Extract sortable keys from type `T`. */
-export type SortableKey<T> = T extends object ? keyof T & (string | number) : never;
+export type OrderKey<T> = T extends object ? keyof T & (string | number) : never;
 
-/** `[order key or function, order direction -1 or 1]` tuple. */
-type NormativeOrderRules<T> = {fn: OrderFunction<T>, direction: -1 | 1}
+/** Order key or function, or `[order key or function, order direction]` tuple. */
+export type OrderRule<T> = {
+
+	/** Order by key or a function. */
+	by: OrderKey<T> | OrderFunction<T>
+
+	/** Sort direction. */
+	direction?: OrderDirection
+
+	/** 
+	 * Whether enables numeric sorting.
+	 * Can only apply on string type data value.
+	 * Default value is false.
+	 */
+	numeric?: boolean
+
+	/** 
+	 * Whether disables case sensitivity.
+	 * Can only apply on string type data value.
+	 */
+	ignoreCase?: boolean
+}
+
+/** Order Rule after normalized. */
+type NormativeOrderRule<T> = {
+	fn: OrderFunction<T>
+	direction: -1 | 1
+	numeric: boolean
+	ignoreCase: boolean
+}
 
 
 /**
@@ -221,26 +246,30 @@ export class Order<T> {
 	 * If several orders exist, try to sort by first order, if equals, sort by next...
 	 * It can be re-join with other orders to make a new `Order`.
 	 */
-	readonly orders: NormativeOrderRules<T>[] = []
+	readonly orders: NormativeOrderRule<T>[] = []
 
 	constructor(...orders: OrderRule<T>[]) {
 		for (let order of orders) {
-			if (Array.isArray(order)) {
+			if (typeof order === 'object') {
 				this.orders.push({
-					fn: this.normalizeOrderKey(order[0]), 
-					direction: this.normalizeOrderDirection(order[1]),
+					fn: this.normalizeOrderKey(order.by), 
+					direction: this.normalizeOrderDirection(order.direction),
+					numeric: order.numeric ?? false,
+					ignoreCase: order.ignoreCase ?? false,
 				})
 			}
 			else {
 				this.orders.push({
 					fn: this.normalizeOrderKey(order), 
 					direction: 1,
+					numeric: false,
+					ignoreCase: false,
 				})
 			}
 		}
 	}
 
-	private normalizeOrderKey(keyOrFn: SortableKey<T> | OrderFunction<T>): OrderFunction<T> {
+	private normalizeOrderKey(keyOrFn: OrderKey<T> | OrderFunction<T>): OrderFunction<T> {
 		if (typeof keyOrFn === 'string' || typeof keyOrFn === 'number') {
 			return ((item: T) => item[keyOrFn]) as OrderFunction<T>
 		}
@@ -249,7 +278,7 @@ export class Order<T> {
 		}
 	}
 
-	private normalizeOrderDirection(d: OrderDirection): -1 | 1 {
+	private normalizeOrderDirection(d: OrderDirection | undefined): -1 | 1 {
 		if (d === 'asc') {
 			return 1
 		}
@@ -257,7 +286,7 @@ export class Order<T> {
 			return -1
 		}
 		else {
-			return d
+			return d ?? 1
 		}
 	}
 
@@ -304,15 +333,41 @@ export class Order<T> {
 	 * Returns one of `0, -1, 1`.
 	 */
 	compare(a: T, b: T): 0 | -1 | 1 {
-		for (let {fn, direction} of this.orders) {
+		let collators: (Intl.Collator | null)[] = []
+
+		for (let {numeric, ignoreCase} of this.orders) {
+			if (numeric || ignoreCase) {
+				let collator = new Intl.Collator(undefined, {
+					numeric,
+					sensitivity: ignoreCase ? 'base' : undefined,
+				})
+
+				collators.push(collator)
+			}
+			else {
+				collators.push(null)
+			}
+		}
+
+		for (let i = 0; i < this.orders.length; i++) {
+			let collator = collators[i]
+			let {fn, direction} = this.orders[i]
 			let ai = fn(a) as string | number
 			let bi = fn(b) as string | number
 
-			if (ai < bi) {
+			if (collator) {
+				let result = collator.compare(ai as string, bi as string)
+				if (result < 0) {
+					return -direction as -1 | 1
+				}
+				else if (result > 0) {
+					return direction
+				}
+			}
+			else if (ai < bi) {
 				return -direction as -1 | 1
 			}
-
-			if (ai > bi) {
+			else if (ai > bi) {
 				return direction
 			}
 		}
