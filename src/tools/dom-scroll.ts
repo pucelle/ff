@@ -75,11 +75,11 @@ export function findClosestCSSScrollWrapper(el: HTMLElement): HTMLElement | null
 export function getSizedOverflowDirection(wrapper: HTMLElement): HVDirection | null {
 	let direction: HVDirection | null = null
 
-	if (wrapper.scrollWidth > wrapper.clientWidth) {
-		direction = 'horizontal'
-	}
-	else if (wrapper.scrollHeight > wrapper.clientHeight) {
+	if (wrapper.scrollHeight > wrapper.clientHeight) {
 		direction = 'vertical'
+	}
+	else if (wrapper.scrollWidth > wrapper.clientWidth) {
+		direction = 'horizontal'
 	}
 
 	return direction
