@@ -42,11 +42,12 @@ abstract class Bundler<T, I extends Iterable<T>> {
 
 	protected async fireBundled() {
 		await this.callback(this.bundled)
-		this.clearBundled()
+		this.clear()
 		this.started = false
 	}
 
-	protected abstract clearBundled(): void
+	/** Clear collected bundled. */
+	abstract clear(): void
 }
 
 
@@ -63,7 +64,7 @@ export class ListBundler<T = any> extends Bundler<T, T[]> {
 		this.bundled.push(...items)
 	}
 
-	protected clearBundled() {
+	clear() {
 		this.bundled = []
 	}
 }
@@ -84,7 +85,7 @@ export class SetBundler<T = any> extends Bundler<T, Set<T>> {
 		}
 	}
 
-	protected clearBundled() {
+	clear() {
 		this.bundled.clear()
 	}
 }
