@@ -78,7 +78,9 @@ let phase: QueueUpdatePhase = QueueUpdatePhase.NotStarted
  * Enqueue a callback with a scope, will call it before the next animate frame.
  * Note you must prevent adding same callback multiple times before updating.
  * E.g., you may implement a `needsUpdate` property, and avoid enqueuing if it's `true`.
- * @param order specifies the callback order, default value is `0`.
+ * 
+ * `order` specifies the callback order, default value is `0`.
+ * 	 Normally for component, it's the iid of this component.
  */
 export function enqueueUpdate(callback: () => void, scope: object | null = null, order: number = 0) {
 	heap.add(callback, scope, order)
