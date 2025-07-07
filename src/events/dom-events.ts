@@ -157,7 +157,7 @@ export function havePointer(): boolean {
 
 
 /** Check whether event comes from Apple Pencil. */
-export function comeFromApplePencil(e: Event): boolean {
+export function fromApplePencil(e: Event): boolean {
 	if (!(e.type.startsWith('touch'))) {
 		return false
 	}
