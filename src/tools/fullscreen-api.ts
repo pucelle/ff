@@ -1,4 +1,5 @@
-import {promiseWithResolves} from "../utils"
+import {promiseWithResolves} from '@pucelle/lupos'
+
 
 /** Whether supports fullscreen. */
 export function isSupported(): boolean {

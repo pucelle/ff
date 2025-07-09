@@ -1,7 +1,7 @@
 import {Vector} from './vector'
 import {Point} from './point'
 import {Matrix} from './matrix'
-import {MethodsObserved} from '../observer'
+import {MethodsObserved} from '@pucelle/lupos'
 
 
 /** A point and some parameters to represent how one radial line intersect with another. */

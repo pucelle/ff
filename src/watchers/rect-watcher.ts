@@ -1,7 +1,7 @@
 import {bindCallback} from '../utils'
 import * as DocumentWatcher from './document-watcher'
 import {ListMap} from '../structs'
-import {untilUpdateComplete} from '../observer'
+import {untilUpdateComplete} from '@pucelle/lupos'
 
 
 type RectObserverCallback = (rect: DOMRect) => void

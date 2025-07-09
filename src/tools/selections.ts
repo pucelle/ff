@@ -1,4 +1,4 @@
-import {MethodsObserved} from "../observer"
+import {MethodsObserved} from '@pucelle/lupos'
 
 
 /** Manage selections. */

@@ -1,4 +1,5 @@
-import {RGBA} from "./rgba"
+import {RGBA} from './rgba'
+
 
 /** HSLA color object, h value between `0~6`, others `0~1`. */
 export interface HSLA {

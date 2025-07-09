@@ -1,4 +1,4 @@
-import * as DOMEvents from './dom-events'
+import {DOMEvents} from '@pucelle/lupos'
 import {Point, Vector} from '../math'
 
 

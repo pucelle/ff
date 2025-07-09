@@ -1,5 +1,5 @@
 import {sleep} from './function'
-import {promiseWithResolves} from './promise'
+import {promiseWithResolves} from '@pucelle/lupos'
 
 
 /** Load image source and output an `<image>` element. */

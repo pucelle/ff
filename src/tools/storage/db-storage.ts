@@ -1,4 +1,5 @@
-import {promiseWithResolves} from "../../utils"
+import {promiseWithResolves} from '@pucelle/lupos'
+
 
 /** To config a DBStorage. */
 export interface DBStoreOptions {

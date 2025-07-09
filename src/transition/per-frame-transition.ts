@@ -1,8 +1,8 @@
 import {EasingFunction, PerFrameTransitionEasingName, getEasingFunction} from './easing'
 import {MathUtils} from '../math'
 import {makeMixer} from './mixer'
-import {EventFirer} from '../events'
-import {FrameLoop, promiseWithResolves, Timeout} from '../utils'
+import {EventFirer, promiseWithResolves} from '@pucelle/lupos'
+import {FrameLoop, Timeout} from '../utils'
 
 
 /** Transition events. */

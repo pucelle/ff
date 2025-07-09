@@ -1,8 +1,7 @@
-import {Vector} from '../../../math'
-import {Timeout} from '../../../utils'
-import * as DOMEvents from '../../dom-events'
-import {EventFirer} from '../../event-firer'
-import {SimulatedEventsConfiguration} from '../simulated-events-configuration'
+import {Vector} from '../../math'
+import {Timeout} from '../../utils'
+import {EventFirer, DOMEvents} from '@pucelle/lupos'
+import {SimulatedEventsConfiguration} from './configuration'
 
 
 export interface DoubleTapEvents {
@@ -20,7 +19,7 @@ export class DoubleTapEventProcessor extends EventFirer<DoubleTapEvents> {
 
 	private el: EventTarget
 	private timeout: Timeout
-	private firstTouchStartEvent: TouchEvent | null = null
+	private latestStartEvent: TouchEvent | null = null
 	private touchCount: number = 0
 
 	constructor(el: EventTarget) {
@@ -33,7 +32,7 @@ export class DoubleTapEventProcessor extends EventFirer<DoubleTapEvents> {
 	}
 
 	private get inTouching(): boolean {
-		return !!this.firstTouchStartEvent
+		return !!this.latestStartEvent
 	}
 
 	private onTimeout() {
@@ -51,7 +50,7 @@ export class DoubleTapEventProcessor extends EventFirer<DoubleTapEvents> {
 		}
 		
 		// First touch start.
-		if (!this.firstTouchStartEvent) {
+		if (!this.latestStartEvent) {
 			this.handleFirstTouch(e)
 		}
 
@@ -64,7 +63,7 @@ export class DoubleTapEventProcessor extends EventFirer<DoubleTapEvents> {
 	}
 
 	private handleFirstTouch(e: TouchEvent) {
-		this.firstTouchStartEvent = e
+		this.latestStartEvent = e
 		this.timeout.start()
 
 		DOMEvents.on(document, 'touchmove', this.onTouchMove as any, this)
@@ -73,8 +72,8 @@ export class DoubleTapEventProcessor extends EventFirer<DoubleTapEvents> {
 
 	private handleSecondTouch(e: TouchEvent) {
 		let diff = new Vector(
-			e.touches[0].clientX - this.firstTouchStartEvent!.touches[0].clientX,
-			e.touches[0].clientY - this.firstTouchStartEvent!.touches[0].clientY
+			e.touches[0].clientX - this.latestStartEvent!.touches[0].clientX,
+			e.touches[0].clientY - this.latestStartEvent!.touches[0].clientY
 		)
 
 		// Moved much, set current as first touch.
@@ -90,7 +89,7 @@ export class DoubleTapEventProcessor extends EventFirer<DoubleTapEvents> {
 	}
 
 	private resetFirstTouch(e: TouchEvent) {
-		this.firstTouchStartEvent = e
+		this.latestStartEvent = e
 		this.touchCount = 0
 	}
 
@@ -101,8 +100,8 @@ export class DoubleTapEventProcessor extends EventFirer<DoubleTapEvents> {
 		}
 
 		let moves = new Vector(
-			e.touches[0].clientX - this.firstTouchStartEvent!.touches[0].clientX,
-			e.touches[0].clientY - this.firstTouchStartEvent!.touches[0].clientY
+			e.touches[0].clientX - this.latestStartEvent!.touches[0].clientX,
+			e.touches[0].clientY - this.latestStartEvent!.touches[0].clientY
 		)
 
 		// Moved much.
@@ -124,12 +123,12 @@ export class DoubleTapEventProcessor extends EventFirer<DoubleTapEvents> {
 	private onFirstTouchEnd() {}
 
 	private onSecondTouchEnd(_e: TouchEvent) {
-		this.fire('double-tap', this.firstTouchStartEvent!)
+		this.fire('double-tap', this.latestStartEvent!)
 	}
 
 	private endTouching() {
 		this.timeout.cancel()
-		this.firstTouchStartEvent = null
+		this.latestStartEvent = null
 		this.touchCount = 0
 
 		DOMEvents.off(document, 'touchmove', this.onTouchMove as any, this)

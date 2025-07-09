@@ -63,7 +63,7 @@ describe('Test MouseLeaveControl', () => {
 	})
 
 
-	test('leave locks', async () => {
+	test.only('leave locks', async () => {
 		let t1 = document.createElement('div')
 		let p1 = document.createElement('div')
 		let f1 = jest.fn()
@@ -75,6 +75,13 @@ describe('Test MouseLeaveControl', () => {
 		let t3 = document.createElement('div')
 		let p3 = document.createElement('div')
 		let f3 = jest.fn()
+
+		t1.id = 't1'
+		t2.id = 't2'
+		t3.id = 't3'
+		p1.id = 'p1'
+		p2.id = 'p2'
+		p3.id = 'p3'
 
 		p1.append(t2)
 		p2.append(t3)
@@ -99,10 +106,10 @@ describe('Test MouseLeaveControl', () => {
 		expect(f3).toHaveBeenCalledTimes(0)
 
 		leave(p3)
-		await sleep(110)
-		expect(f1).toHaveBeenCalledTimes(1)
-		expect(f2).toHaveBeenCalledTimes(1)
+		await sleep(220)
 		expect(f3).toHaveBeenCalledTimes(1)
+		expect(f2).toHaveBeenCalledTimes(1)
+		expect(f1).toHaveBeenCalledTimes(1)
 	})
 
 

@@ -1,8 +1,7 @@
-import {Vector} from '../../../math'
-import {Timeout} from '../../../utils'
-import * as DOMEvents from '../../dom-events'
-import {EventFirer} from '../../event-firer'
-import {SimulatedEventsConfiguration} from '../simulated-events-configuration'
+import {Vector} from '../../math'
+import {EventUtils, Timeout} from '../../utils'
+import {EventFirer, DOMEvents} from '@pucelle/lupos'
+import {SimulatedEventsConfiguration} from './configuration'
 
 
 export interface TapEvents {
@@ -22,7 +21,7 @@ export interface TapEvents {
 export class TapEventProcessor extends EventFirer<TapEvents> {
 
 	private el: EventTarget
-	private cachedTouchStartEvent: TouchEvent | null = null
+	private latestStartEvent: TouchEvent | null = null
 	private timeout: Timeout
 
 	constructor(el: EventTarget) {
@@ -34,7 +33,7 @@ export class TapEventProcessor extends EventFirer<TapEvents> {
 	}
 
 	private get inTouching(): boolean {
-		return !!this.cachedTouchStartEvent
+		return !!this.latestStartEvent
 	}
 
 	private onTouchStart(e: TouchEvent) {
@@ -43,7 +42,7 @@ export class TapEventProcessor extends EventFirer<TapEvents> {
 		}
 
 		this.timeout.start()
-		this.cachedTouchStartEvent = e
+		this.latestStartEvent = e
 
 		DOMEvents.on(this.el, 'touchend', this.onTouchEnd as any, this)
 	}
@@ -53,17 +52,17 @@ export class TapEventProcessor extends EventFirer<TapEvents> {
 	}
 
 	private onTouchEnd(e: TouchEvent) {
-		let duration = e.timeStamp - this.cachedTouchStartEvent!.timeStamp
-		let startE = DOMEvents.toSingle(this.cachedTouchStartEvent!)!
-		let endE = DOMEvents.toSingle(e)!
+		let duration = e.timeStamp - this.latestStartEvent!.timeStamp
+		let startP = EventUtils.getClientPosition(this.latestStartEvent!)!
+		let endP = EventUtils.getClientPosition(e)!
 
-		let diff = new Vector(
-			endE.clientX - startE.clientX,
-			endE.clientY - startE.clientY
+		let move = new Vector(
+			endP.x - startP.x,
+			endP.y - startP.y,
 		)
 		
 		if (duration < SimulatedEventsConfiguration.becomeHoldAfterDuration
-			&& diff.getLength() < SimulatedEventsConfiguration.maximumMovelessDistance
+			&& move.getLength() < SimulatedEventsConfiguration.maximumMovelessDistance
 		) {
 			this.fire('tap', e)
 		}
@@ -74,7 +73,7 @@ export class TapEventProcessor extends EventFirer<TapEvents> {
 
 	private endTouching() {
 		this.timeout.cancel()
-		this.cachedTouchStartEvent = null
+		this.latestStartEvent = null
 
 		DOMEvents.off(this.el, 'touchend', this.onTouchEnd as any, this)
 	}

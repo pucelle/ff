@@ -1,5 +1,6 @@
+import {AnimationFrame} from '@pucelle/lupos'
 import {ListMap} from '../structs'
-import {AnimationFrame, bindCallback} from '../utils'
+import {bindCallback} from '../utils'
 
 
 type ResizeObserverCallback = (entry: ResizeObserverEntry) => void

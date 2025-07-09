@@ -1,5 +1,5 @@
+import {untilUpdateComplete} from '@pucelle/lupos'
 import {Direction} from '../../math'
-import {untilUpdateComplete} from '../../observer'
 import {ObjectUtils} from '../../utils'
 import {RectWatcher, ResizeWatcher} from '../../watchers'
 import {MeasuredAlignment} from './measured-alignment'

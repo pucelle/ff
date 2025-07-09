@@ -1,4 +1,4 @@
-import * as DOMEvents from './dom-events'
+import {DOMEvents} from '@pucelle/lupos'
 import {TwoWayMap} from '../structs'
 import {Timeout} from '../utils'
 
@@ -99,23 +99,12 @@ export function lock(trigger: Element) {
 
 /** Walk controller chain which's popup element containers trigger. */
 function* walkControllerChainContains(trigger: Element): Iterable<MouseLeaveController> {
-	while (trigger) {
-		let controller: MouseLeaveController | null = null
+	let controllers = [...LiveControllers.values()]
 
-		for (let c of LiveControllers.values()) {
-			if (c.popup.contains(trigger)) {
-				controller = c
-				break
-			}
+	for (let c of controllers) {
+		if (c.popup.contains(trigger)) {
+			yield c
 		}
-
-		if (!controller) {
-			break
-		}
-
-
-		yield controller
-		trigger = controller.trigger
 	}
 }
 
@@ -231,6 +220,10 @@ class MouseLeaveController {
 	}
 
 	private onMouseEnter() {
+		if (this.entered) {
+			return
+		}
+
 		this.entered = true
 
 		// Lock by current trigger element.
@@ -241,6 +234,10 @@ class MouseLeaveController {
 	}
 
 	private onMouseLeave() {
+		if (!this.entered) {
+			return
+		}
+
 		this.entered = false
 
 		// Not been locked.

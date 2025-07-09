@@ -1,8 +1,8 @@
-import {DoubleTapEventProcessor, DoubleTapEvents} from './processors/double-tap'
-import {EventFirer} from '../event-firer'
-import {HoldEventProcessor, HoldEvents, PinchTransformEvents, PinchTransformProcessor, TapEventProcessor, TapEvents, PinchZoomEvents, PinchZoomProcessor, SlideEvents, SlideEventProcessor} from './processors'
+import {DoubleTapEventProcessor, DoubleTapEvents} from './double-tap'
+import {EventFirer} from '@pucelle/lupos'
+import {HoldEventProcessor, HoldEvents, PinchTransformEvents, PinchTransformProcessor, TapEventProcessor, TapEvents, PinchZoomEvents, PinchZoomProcessor, SlideEvents, SlideEventProcessor} from '.'
 import {WeakPairKeysMap} from '../../structs'
-import {SimulatedEventsConfiguration} from './simulated-events-configuration'
+import {SimulatedEventsConfiguration} from './configuration'
 
 
 type EventProcessor = EventFirer<any> & {remove: () => void}
@@ -15,7 +15,15 @@ type EventType = keyof Events & string
 /** Simulated event configurations. */
 export const Configuration = SimulatedEventsConfiguration
 
-/** All the event processor constructors. */
+/** 
+ * All the event processor constructors.
+ * 
+ * Problems here:
+ * We want to infer event processor by event name,
+ * such that must import all the processors even uses only one.
+ * 
+ * Or we may pass another processor parameter... this is not good.
+ */
 const EventConstructors: Record<string, {new(el: EventTarget): EventProcessor}> = {
 	'tap': TapEventProcessor,
 	'double-tap': DoubleTapEventProcessor,
@@ -27,13 +35,6 @@ const EventConstructors: Record<string, {new(el: EventTarget): EventProcessor}> 
 
 /** Shared Processors. */
 const EventProcessorCache: WeakPairKeysMap<EventTarget, string, EventProcessor> = new WeakPairKeysMap()
-
-
-/** Whether a specified name is simulated event type. */
-export function isSimulatedEventType(name: string): name is EventType {
-	let groupName = name.replace(/:.+/, '')
-	return EventConstructors.hasOwnProperty(groupName)
-}
 
 
 /** 

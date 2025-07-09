@@ -1,6 +1,6 @@
 // Reference to https://math.stackexchange.com/questions/374881/recursive-formula-for-variance
 
-import {MethodsObserved} from '../observer'
+import {MethodsObserved} from '@pucelle/lupos'
 
 
 /** Do statistic for average and variance, every time update a value, output new average value and variance. */

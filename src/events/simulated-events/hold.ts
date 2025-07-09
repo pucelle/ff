@@ -1,8 +1,7 @@
-import {Point} from '../../../math'
-import {Timeout} from '../../../utils'
-import * as DOMEvents from '../../dom-events'
-import {EventFirer} from '../../event-firer'
-import {SimulatedEventsConfiguration} from '../simulated-events-configuration'
+import {Point} from '../../math'
+import {Timeout} from '../../utils'
+import {EventFirer, DOMEvents} from '@pucelle/lupos'
+import {SimulatedEventsConfiguration} from './configuration'
 
 
 export interface HoldEvents {
@@ -17,8 +16,8 @@ export interface HoldEvents {
 export class HoldEventProcessor extends EventFirer<HoldEvents> {
 
 	private el: EventTarget
-	private cachedTouchStartEvent: TouchEvent | null = null
-	private cachedTouchStartPoint: Point | null = null
+	private latestStartEvent: TouchEvent | null = null
+	private latestStartPoint: Point | null = null
 	private timeout: Timeout
 
 	constructor(el: EventTarget) {
@@ -31,7 +30,7 @@ export class HoldEventProcessor extends EventFirer<HoldEvents> {
 	}
 
 	private get inTouching(): boolean {
-		return !!this.cachedTouchStartEvent
+		return !!this.latestStartEvent
 	}
 
 	private onTouchStart(e: TouchEvent) {
@@ -39,11 +38,11 @@ export class HoldEventProcessor extends EventFirer<HoldEvents> {
 			return
 		}
 
-		this.cachedTouchStartEvent = e
+		this.latestStartEvent = e
 
-		this.cachedTouchStartPoint = new Point(
-			this.cachedTouchStartEvent!.touches[0].clientX,
-			this.cachedTouchStartEvent!.touches[0].clientY
+		this.latestStartPoint = new Point(
+			this.latestStartEvent!.touches[0].clientX,
+			this.latestStartEvent!.touches[0].clientY
 		)
 
 		this.timeout.start()
@@ -56,11 +55,11 @@ export class HoldEventProcessor extends EventFirer<HoldEvents> {
 
 		// Try to prevent text selection, but not working.
 		// Must `user-select: none` on elements.
-		if (this.cachedTouchStartEvent?.cancelable) {
-			this.cachedTouchStartEvent.preventDefault()
+		if (this.latestStartEvent?.cancelable) {
+			this.latestStartEvent.preventDefault()
 		}
 		
-		this.fire('hold:start', this.cachedTouchStartEvent!)
+		this.fire('hold:start', this.latestStartEvent!)
 	}
 
 	private onTouchMove(e: TouchEvent) {
@@ -72,7 +71,7 @@ export class HoldEventProcessor extends EventFirer<HoldEvents> {
 		let moves = new Point(
 			e.touches[0].clientX,
 			e.touches[0].clientY
-		).diff(this.cachedTouchStartPoint!)
+		).diff(this.latestStartPoint!)
 
 		if (moves.getLength() > SimulatedEventsConfiguration.maximumMovelessDistance) {
 			this.endTouching()
@@ -86,7 +85,7 @@ export class HoldEventProcessor extends EventFirer<HoldEvents> {
 
 	private endTouching() {
 		this.timeout.cancel()
-		this.cachedTouchStartEvent = null
+		this.latestStartEvent = null
 
 		DOMEvents.off(document, 'touchmove', this.onTouchMove as any, this)
 		DOMEvents.off(document, 'touchend', this.endTouching as any, this)

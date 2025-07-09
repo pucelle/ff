@@ -1,4 +1,4 @@
-import * as AnimationFrame from './animation-frame'
+import {AnimationFrame} from '@pucelle/lupos'
 
 
 /** Base class for Timeout, Interval... */

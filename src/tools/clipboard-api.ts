@@ -1,4 +1,4 @@
-import {promiseWithResolves} from '../utils'
+import {promiseWithResolves} from '@pucelle/lupos'
 import {logger} from './logger'
 import {biggerStorage} from './storage'
 
@@ -125,7 +125,8 @@ export async function write(data: Record<string, string | Blob>, canDropWebCusto
  * On Safari, URL must be https type, and must request in an event loop.
  */
 async function requestPermission(name: 'read' | 'write') {
-	let result = await navigator.permissions.query({name: 'clipboard-' + name as any})
+	let queryName: any = name === 'read' ? 'clipboard-read' : 'clipboard-write'
+	let result = await navigator.permissions.query({name: queryName})
 	if (result.state == 'granted' || result.state == 'prompt') {
 		return
 	}

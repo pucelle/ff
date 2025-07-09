@@ -1,5 +1,5 @@
-import {DeepReadonly, untilUpdateComplete} from '../observer'
-import {ObjectUtils, promiseWithResolves} from '../utils'
+import {DeepReadonly, untilUpdateComplete, promiseWithResolves} from '@pucelle/lupos'
+import {ObjectUtils} from '../utils'
 import {PerFrameTransition, PerFrameTransitionOptions} from './per-frame-transition'
 import {WebTransition, WebTransitionKeyFrame, WebTransitionOptions} from './web-transition'
 

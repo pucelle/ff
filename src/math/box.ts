@@ -6,7 +6,7 @@ import {Point} from './point'
 import {Size} from './size'
 import {Vector} from './vector'
 import type {Matrix} from './matrix'
-import {MethodsObserved} from '../observer'
+import {MethodsObserved} from '@pucelle/lupos'
 
 
 /** Represent a rectangle bounding box. */

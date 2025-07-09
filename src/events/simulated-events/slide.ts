@@ -1,7 +1,7 @@
-import {MathUtils, Vector, Direction} from '../../../math'
-import * as DOMEvents from '../../dom-events'
-import {EventFirer} from '../../event-firer'
-import {SimulatedEventsConfiguration} from '../simulated-events-configuration'
+import {MathUtils, Vector, Direction} from '../../math'
+import {EventFirer, DOMEvents} from '@pucelle/lupos'
+import {SimulatedEventsConfiguration} from './configuration'
+import {EventUtils} from '../../utils'
 
 
 export interface SlideEvents {
@@ -14,7 +14,7 @@ export interface SlideEvents {
 export class SlideEventProcessor extends EventFirer<SlideEvents> {
 
 	private el: EventTarget
-	private cachedTouchStartEvent: TouchEvent | null = null
+	private latestStartEvent: TouchEvent | null = null
 
 	constructor(el: EventTarget) {
 		super()
@@ -24,7 +24,7 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 	}
 
 	private get inTouching(): boolean {
-		return !!this.cachedTouchStartEvent
+		return !!this.latestStartEvent
 	}
 
 	private onTouchStart(e: TouchEvent) {
@@ -32,19 +32,19 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 			return
 		}
 
-		this.cachedTouchStartEvent = e
+		this.latestStartEvent = e
 
 		DOMEvents.on(this.el, 'touchend', this.onTouchEnd as any, this)
 	}
 
 	private onTouchEnd(e: TouchEvent) {
-		let duration = e.timeStamp - this.cachedTouchStartEvent!.timeStamp
-		let startE = DOMEvents.toSingle(this.cachedTouchStartEvent!)!
-		let endE = DOMEvents.toSingle(e)!
+		let duration = e.timeStamp - this.latestStartEvent!.timeStamp
+		let startP = EventUtils.getClientPosition(this.latestStartEvent!)!
+		let endP = EventUtils.getClientPosition(e)!
 
 		let move = new Vector(
-			endE.clientX - startE.clientX,
-			endE.clientY - startE.clientY,
+			endP.x - startP.x,
+			endP.y - startP.y,
 		)
 
 		let direction = this.getSlideDirection(move)
@@ -72,7 +72,7 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 	}
 
 	private endTouching() {
-		this.cachedTouchStartEvent = null
+		this.latestStartEvent = null
 		DOMEvents.off(this.el, 'touchend', this.onTouchEnd as any, this)
 	}
 

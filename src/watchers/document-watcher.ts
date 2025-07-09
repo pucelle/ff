@@ -1,4 +1,4 @@
-import {untilUpdateComplete} from '../observer'
+import {untilUpdateComplete} from '@pucelle/lupos'
 import {bindCallback} from '../utils'
 
 

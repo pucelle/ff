@@ -1,5 +1,5 @@
 import {Matrix} from '../../math'
-import {untilUpdateComplete} from '../../observer'
+import {untilUpdateComplete} from '@pucelle/lupos'
 import {PairKeysListMap} from '../../structs'
 import {DOMUtils, ObjectUtils} from '../../utils'
 import {TransitionOptions, TransitionResult, Transition, WebTransitionProperties} from '../transition'

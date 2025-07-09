@@ -1,5 +1,4 @@
-import {MiniHeap} from '../structs'
-import {promiseWithResolves} from '../utils'
+import {MiniHeap, promiseWithResolves} from '@pucelle/lupos'
 
 
 /** State of BarrierQueue. */

@@ -1,4 +1,5 @@
-import {MethodsObserved} from "../observer"
+import {MethodsObserved} from '@pucelle/lupos'
+
 
 /** 
  * `K => V[]` Map Struct.
