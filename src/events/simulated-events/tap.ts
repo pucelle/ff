@@ -1,7 +1,8 @@
 import {Vector} from '../../math'
-import {EventUtils, Timeout} from '../../utils'
+import {EventUtils} from '../../utils'
 import {EventFirer, DOMEvents} from '@pucelle/lupos'
 import {SimulatedEventsConfiguration} from './configuration'
+import {Timeout} from '../../tools'
 
 
 export interface TapEvents {

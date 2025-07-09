@@ -14,8 +14,6 @@ export function toDecimal(number: number, decimalCount: number): number {
 		return 0
 	}
 
-	Number.prototype.toFixed
-
 	if (decimalCount > 0) {
 		let n = Math.pow(10, decimalCount)
 		return Math.round(number * n) / n

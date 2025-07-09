@@ -10,7 +10,7 @@ export * from './async-task-queue'
 export * from './translations'
 export * from './anchor-aligner'
 export * from './selections'
+export * from './time-control'
 
 export * as ClipboardAPI from './clipboard-api'
-export * as DOMScroll from './dom-scroll'
 export * as FullscreenAPI from './fullscreen-api'

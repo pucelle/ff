@@ -1,5 +1,6 @@
-import {ListUtils, ObjectUtils, sleep, Timeout} from '../utils'
+import {ListUtils, ObjectUtils, sleep} from '../utils'
 import {EventFirer, promiseWithResolves} from '@pucelle/lupos'
+import {Timeout} from './time-control'
 
 
 /** Running state of queue. */

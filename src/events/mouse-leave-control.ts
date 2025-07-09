@@ -1,6 +1,6 @@
 import {DOMEvents} from '@pucelle/lupos'
 import {TwoWayMap} from '../structs'
-import {Timeout} from '../utils'
+import {Timeout} from '../tools'
 
 
 /** Options for mouse leave control. */

@@ -38,17 +38,10 @@ export function unbind(callback: Function, scope: any = null) {
 		Observer.disconnect()
 		window.removeEventListener('resize', fireDocumentChangeLater)
 		window.removeEventListener('wheel', fireDocumentChangeLater)
-	}
-}
 
-
-/** 
- * Fire mutation events manually.
- * Normally after playing a web transition.
- */
-export function trigger() {
-	if (MutationCallbacks.length > 0) {
-		fireDocumentChangeLater()
+		// When playing Animation or Transition, computed style is affected.
+		window.removeEventListener('transitionend', fireDocumentChangeLater)
+		window.removeEventListener('animationend', fireDocumentChangeLater)
 	}
 }
 

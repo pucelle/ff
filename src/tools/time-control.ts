@@ -1,11 +1,8 @@
-import {AnimationFrame} from '@pucelle/lupos'
-
-
-/** Base class for Timeout, Interval... */
-abstract class TimeControlFunction<F extends Function> {
-
-	/** Timeout or Interval id, `null` represents it's not exist. */
-	protected id: any = null
+/** 
+ * Class mode of `setTimeout`.
+ * Note it doesn't start automatically.
+ */
+export class Timeout<F extends Function = Function> {
 
 	/** 
 	 * Whether current time control has been canceled.
@@ -13,48 +10,19 @@ abstract class TimeControlFunction<F extends Function> {
 	 */
 	canceled: boolean = false
 
-	/** The original function. */
+	/** The original function to call after timeout. */
 	fn: F
 
 	/** Get or set the associated time in milliseconds. */
 	ms: number
 
+	/** Timeout id, `null` represents it's not exist. */
+	protected id: any = null
+
 	constructor(fn: F, ms: number) {
 		this.fn = fn
 		this.ms = ms
 	}
-
-	abstract reset(): void
-	abstract flush(): void
-	abstract cancel(): void
-}
-
-
-/** Wrapped a function, throttle or debounce it. */
-abstract class WrappedTimeControlFunction<F extends Function> extends TimeControlFunction<F> {
-
-	/** 
-	 * The wrapped function that after throttled or debounced.
-	 * Readonly outside.
-	 */
-	wrapped: F
-
-	constructor(fn: F, ms: number) {
-		super(fn, ms)
-		this.wrapped = this.wrap()
-	}
-
-	/** Wrap original function. */
-	protected abstract wrap(): F
-}
-
-
-
-/** 
- * Class mode of `setTimeout`.
- * Note it doesn't start automatically.
- */
-export class Timeout<F extends Function = Function> extends TimeControlFunction<F> {
 
 	/** Whether timeout is running. */
 	get running(): boolean {
@@ -114,7 +82,27 @@ export function timeout(fn: Function, ms: number = 0): () => void {
  * Class mode of `setInterval`.
  * Note it doesn't start automatically.
  */ 
-export class Interval<F extends Function = Function> extends TimeControlFunction<F> {
+export class Interval<F extends Function = Function> {
+
+	/** 
+	 * Whether current time control has been canceled.
+	 * Readonly outside.
+	 */
+	canceled: boolean = false
+
+	/** The original function to call each interval. */
+	fn: F
+
+	/** Get or set the associated time interval in milliseconds. */
+	ms: number
+
+	/** Interval id, `null` represents it's not exist. */
+	protected id: any = null
+
+	constructor(fn: F, ms: number) {
+		this.fn = fn
+		this.ms = ms
+	}
 
 	/** Whether interval is running. */
 	get running(): boolean {
@@ -167,86 +155,29 @@ export function interval(fn: Function, ms: number): () => void {
 
 
 
-/** Callback with a timestamp as parameter. */
-type FrameLoopCallback = (duration: number) => void
-
-/** Repeated animation frames. */ 
-export class FrameLoop<F extends FrameLoopCallback = FrameLoopCallback> extends TimeControlFunction<F> {
-	
-	private startTimestamp: number = 0
-
-	constructor(fn: F) {
-		super(fn, 0)
-	}
-
-	/** Whether frame loop is running. */
-	get running(): boolean {
-		return !!this.id
-	}
-
-	/** 
-	 * Restart animation frame, even it was canceled before.
-	 * Calls `fn` with duration parameter `0` immediately.
-	 */
-	reset() {
-		if (this.id !== null) {
-			AnimationFrame.cancel(this.id)
-		}
-
-		this.id = AnimationFrame.requestCurrent(this.onCurrentFrame.bind(this))
-		this.canceled = false
-		this.fn(0)
-	}
-
-	/** 
-	 * Start or restart animation frame, even it was canceled before.
-	 * Calls `fn` with duration parameter `0` immediately.
-	 */
-	start() {
-		this.reset()
-	}
-
-	private onCurrentFrame(timestamp: number) {
-		this.startTimestamp = timestamp
-		this.id = AnimationFrame.requestNext(this.onFrame.bind(this))
-	}
-
-	private onFrame(timestamp: number) {
-		this.id = AnimationFrame.requestNext(this.onFrame.bind(this))
-
-		// Calls `fn` must after request animation frame,
-		// Or will fail if cancel inside `fn`.
-		this.fn(timestamp - this.startTimestamp)
-	}
-
-	/** Just restart animation frame. */
-	flush() {
-		this.reset()
-	}
-
-	/** Cancel animation frame. */
-	cancel() {
-		if (this.id !== null) {
-			AnimationFrame.cancel(this.id)
-			this.id = null
-		}
-		
-		this.canceled = true
-	}
-}
-
-/** Repeated animation frames, call `fn` at every animation frame time. */
-export function frameLoop(fn: FrameLoopCallback): () => void {
-	let l = new FrameLoop(fn)
-	l.start()
-
-	return l.cancel.bind(l)
-}
-
-
-
 /** Throttle `fn` calling frequency, call original at most once every `intervalMs`. */
-export class Throttle<F extends Function> extends WrappedTimeControlFunction<F> {
+export class Throttle<F extends Function> {
+
+	/** 
+	 * Whether current time control has been canceled.
+	 * Readonly outside.
+	 */
+	canceled: boolean = false
+
+	/** The original function to call after each throttle interval. */
+	fn: F
+
+	/** Get or set the associated throttle time in milliseconds. */
+	ms: number
+
+	/** 
+	 * The wrapped function that after throttled.
+	 * Readonly outside.
+	 */
+	wrapped: F
+
+	/** Interval id, `null` represents it's not exist. */
+	protected id: any = null
 
 	/** At `immediateMode`, will call original function immediately. */
 	readonly immediateMode: boolean
@@ -259,7 +190,9 @@ export class Throttle<F extends Function> extends WrappedTimeControlFunction<F> 
 	 * Otherwise will call original function deferred and smoothly.
 	 */
 	constructor(fn: F, ms: number = 200, immediateMode: boolean = false) {
-		super(fn, ms)
+		this.fn = fn
+		this.ms = ms
+		this.wrapped = this.wrap()
 		this.immediateMode = immediateMode
 	}
 
@@ -366,10 +299,37 @@ export function throttle<F extends Function>(fn: F, ms: number = 200, immediateM
  * Debounce `fn` calling frequency,
  * call `fn` after called before and not calling returned function for at least `intervalMs` duration.
  */
-export class Debounce<F extends Function> extends WrappedTimeControlFunction<F> {
+export class Debounce<F extends Function> {
+
+	/** 
+	 * Whether current time control has been canceled.
+	 * Readonly outside.
+	 */
+	canceled: boolean = false
+
+	/** The original function to call after debounce end. */
+	fn: F
+
+	/** Get or set the associated debounce time in milliseconds. */
+	ms: number
+
+	/** 
+	 * The wrapped function that after debounced.
+	 * Readonly outside.
+	 */
+	wrapped: F
+	
+	/** Interval id, `null` represents it's not exist. */
+	protected id: any = null
 
 	/** Cached function, to call it when time meet. */
 	private boundFn: F | null = null
+
+	constructor(fn: F, ms: number = 200) {
+		this.fn = fn
+		this.ms = ms
+		this.wrapped = this.wrap()
+	}
 
 	/** Whether debounce is running. */
 	get running(): boolean {
