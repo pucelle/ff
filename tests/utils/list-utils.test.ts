@@ -64,15 +64,15 @@ describe('Test ListUtils', () => {
 	})
 
 	test('orderBy', () => {
-		expect(ListUtils.orderBy([3,2,1], v => v)).toEqual([1,2,3])
-		expect(ListUtils.orderBy([3,2,1], [v => v, 1])).toEqual([1,2,3])
-		expect(ListUtils.orderBy([1,2,3], [v => v, -1])).toEqual([3,2,1])
+		expect(ListUtils.orderBy([3,2,1], {by: v => v})).toEqual([1,2,3])
+		expect(ListUtils.orderBy([3,2,1], {by: v => v, direction: 1})).toEqual([1,2,3])
+		expect(ListUtils.orderBy([1,2,3], {by: v => v, direction: -1})).toEqual([3,2,1])
 
-		expect(ListUtils.orderBy([{a:2}, {a:1}], 'a')).toEqual([{a:1}, {a:2}])
-		expect(ListUtils.orderBy([{a:1, b:2}, {a:1, b:1}], ['a', 1], 'b')).toEqual([{a:1,b:1}, {a:1,b:2}])
-		expect(ListUtils.orderBy([{a:1, b:2}, {a:1, b:1}], ['a', 1], ['b', -1])).toEqual([{a:1,b:2}, {a:1,b:1}])
+		expect(ListUtils.orderBy([{a:2}, {a:1}], {by: 'a'})).toEqual([{a:1}, {a:2}])
+		expect(ListUtils.orderBy([{a:1, b:2}, {a:1, b:1}], {by: 'a', direction: 1}, {by: 'b'})).toEqual([{a:1,b:1}, {a:1,b:2}])
+		expect(ListUtils.orderBy([{a:1, b:2}, {a:1, b:1}], {by: 'a', direction: 1}, {by: 'b', direction: -1})).toEqual([{a:1,b:2}, {a:1,b:1}])
 
-		expect(ListUtils.orderBy([2, 1, null], v => v ?? -Infinity)).toEqual([null, 1, 2])
+		expect(ListUtils.orderBy([2, 1, null], {by: v => v ?? -Infinity})).toEqual([null, 1, 2])
 	})
 
 	test('minIndex', () => {

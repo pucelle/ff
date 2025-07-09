@@ -19,7 +19,7 @@ describe('Test NumberUtils', () => {
 	})
 
 	test('gcd', () => {
-		expect(NumberUtils.gcd(1920, 1080)).toEqual(180)
+		expect(NumberUtils.gcd(1920, 1080)).toEqual(120)
 	})
 
 	test('clamp', () => {
