@@ -1,4 +1,3 @@
-import {Vector} from '../../math'
 import {Timeout} from '../../tools'
 import {EventFirer, DOMEvents} from '@pucelle/lupos'
 import {SimulatedEventsConfiguration} from './configuration'
@@ -71,13 +70,15 @@ export class DoubleTapEventProcessor extends EventFirer<DoubleTapEvents> {
 	}
 
 	private handleSecondTouch(e: TouchEvent) {
-		let diff = new Vector(
-			e.touches[0].clientX - this.latestStartEvent!.touches[0].clientX,
-			e.touches[0].clientY - this.latestStartEvent!.touches[0].clientY
-		)
+		let moves: Coord = {
+			x: e.touches[0].clientX - this.latestStartEvent!.touches[0].clientX,
+			y: e.touches[0].clientY - this.latestStartEvent!.touches[0].clientY,
+		}
+
+		let movesLength = Math.sqrt(moves.x ** 2 + moves.y ** 2)
 
 		// Moved much, set current as first touch.
-		if (diff.getLength() > SimulatedEventsConfiguration.maximumMovelessDistance) {
+		if (movesLength > SimulatedEventsConfiguration.maximumMovelessDistance) {
 			this.resetFirstTouch(e)
 		}
 
@@ -99,13 +100,15 @@ export class DoubleTapEventProcessor extends EventFirer<DoubleTapEvents> {
 			return
 		}
 
-		let moves = new Vector(
-			e.touches[0].clientX - this.latestStartEvent!.touches[0].clientX,
-			e.touches[0].clientY - this.latestStartEvent!.touches[0].clientY
-		)
+		let moves: Coord = {
+			x: e.touches[0].clientX - this.latestStartEvent!.touches[0].clientX,
+			y: e.touches[0].clientY - this.latestStartEvent!.touches[0].clientY,
+		}
+
+		let movesLength = Math.sqrt(moves.x ** 2 + moves.y ** 2)
 
 		// Moved much.
-		if (moves.getLength() > SimulatedEventsConfiguration.maximumMovelessDistance) {
+		if (movesLength > SimulatedEventsConfiguration.maximumMovelessDistance) {
 			this.endTouching()
 		}
 	}

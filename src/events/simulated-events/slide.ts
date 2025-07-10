@@ -1,4 +1,3 @@
-import {MathUtils, Vector, Direction} from '../../math'
 import {EventFirer, DOMEvents} from '@pucelle/lupos'
 import {SimulatedEventsConfiguration} from './configuration'
 import {EventUtils} from '../../utils'
@@ -7,7 +6,7 @@ import {EventUtils} from '../../utils'
 export interface SlideEvents {
 
 	/** After sliding enough pixels at a direction on a touch screen. */
-	'slide': (e: TouchEvent, direction: Direction) => void
+	'slide': (e: TouchEvent, direction: InsetKey) => void
 }
 
 
@@ -42,15 +41,16 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 		let startP = EventUtils.getClientPosition(this.latestStartEvent!)!
 		let endP = EventUtils.getClientPosition(e)!
 
-		let move = new Vector(
-			endP.x - startP.x,
-			endP.y - startP.y,
-		)
+		let moves: Coord = {
+			x: endP.x - startP.x,
+			y: endP.y - startP.y,
+		}
 
-		let direction = this.getSlideDirection(move)
+		let movesLength = Math.sqrt(moves.x ** 2 + moves.y ** 2)
+		let direction = this.getSlideDirection(moves)
 
 		if (duration <= SimulatedEventsConfiguration.maximumSlideDuration
-			&& move.getLength() >= SimulatedEventsConfiguration.minimumSlideDistance
+			&& movesLength >= SimulatedEventsConfiguration.minimumSlideDistance
 			&& direction
 		) {
 			this.fire('slide', e, direction)
@@ -60,13 +60,18 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 	}
 
 	/** Get slide direction. */
-	private getSlideDirection(move: Vector): Direction | null {
-		let direction = Direction.straightFromVector(move)
-		let v = direction.toVector()
+	private getSlideDirection(moves: Coord): InsetKey | null {
+		let direction = straightFromVector(moves)
+		if (direction === null) {
+			return null
+		}
+
+		let v = directionToVector(direction)
 
 		// Angle must lower than configured angle.
-		let correctAngle = v.dot(move.normalize())
-			> Math.cos(MathUtils.degreeToRadians(SimulatedEventsConfiguration.minimumSlideAngle))
+		// Dot of `v` and `moves` normalized should lower than cos value of minimum
+		let correctAngle = (v.x * moves.x + v.y * moves.y) / Math.sqrt(moves.x ** 2 + moves.y ** 2)
+			> Math.cos(SimulatedEventsConfiguration.minimumSlideAngle / 180 * Math.PI)
 
 		return correctAngle ? direction : null
 	}
@@ -82,5 +87,44 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 		}
 
 		DOMEvents.off(this.el, 'touchstart', this.onTouchStart as any, this)
+	}
+}
+
+
+/** Make a straight direction from a vector, choose dominate direction when it's oblique. */
+function straightFromVector(v: Coord): InsetKey | null {
+	let {x, y} = v
+	let absX = Math.abs(v.x)
+	let absY = Math.abs(v.y)
+
+	if (x < 0 && absX >= absY) {
+		return 'left'
+	}
+	else if (x > 0 && absX >= absY) {
+		return 'right'
+	}
+	else if (y < 0 && absX <= absY) {
+		return 'top'
+	}
+	else if (y > 0 && absX <= absY) {
+		return 'bottom'
+	}
+	else {
+		return null
+	}
+}
+
+function directionToVector(d: InsetKey) {
+	if (d === 'left') {
+		return {x: -1, y: 0}
+	}
+	else if (d === 'right') {
+		return {x: 1, y: 0}
+	}
+	else if (d === 'top') {
+		return {x: 0, y: -1}
+	}
+	else {
+		return {x: 0, y: 1}
 	}
 }

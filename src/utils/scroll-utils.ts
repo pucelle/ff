@@ -3,9 +3,9 @@ let scrollBarWidth: number | null = null
 
 
 /**
- * Get scroll bar width.
+ * Get normal scroll bar width.
  * After first time running, the returned value will keep constant.
- * Note that this method may cause page re-layout when call it the first time.
+ * Note that this method may cause page re-layout when call it for the first time.
  */
 export function getScrollbarWidth(): number {
 	if (scrollBarWidth !== null) {
@@ -26,32 +26,14 @@ export function getScrollbarWidth(): number {
 /**
  * Find the closest scroll wrapper, which is the closest ancestral element,
  * and it's contents get overflow.
- * Note this method can test get scroll wrapper only when overflow happens.
+ * Note this method returns `true` only when overflow happens.
  * Note this method read dom properties and may cause page re-layout.
  */
-export function findClosestSizedScrollWrapper(el: HTMLElement): HTMLElement | null {
+export function findClosestSizedScrollWrapper(el: HTMLElement): {wrapper: HTMLElement, direction: HVDirection} | null {
 	while (el) {
-		if (getSizedOverflowDirection(el) !== null) {
-			return el
-		}
-
-		el = el.parentElement!
-	}
-
-	return null
-}
-
-
-/**
- * Find the closest scroll wrapper, which is the closest ancestral element,
- * and has `overflow: auto / scroll` set.
- * Note this method can test get scroll wrapper only when overflow happens.
- * Note this method read dom properties and may cause page re-layout.
- */
-export function findClosestCSSScrollWrapper(el: HTMLElement): HTMLElement | null {
-	while (el) {
-		if (getCSSOverflowDirection(el) !== null) {
-			return el
+		let direction = getSizedOverflowDirection(el)
+		if (direction !== null) {
+			return {wrapper: el, direction}
 		}
 
 		el = el.parentElement!
@@ -80,6 +62,27 @@ export function getSizedOverflowDirection(wrapper: HTMLElement): HVDirection | n
 }
 
 
+/**
+ * Find the closest scroll wrapper, which is the closest ancestral element,
+ * and has `overflow: auto / scroll` set.
+ * Note this method returns `true` only when `overflow: auto / scroll` specified.
+ * Note this method read dom properties and may cause page re-layout.
+ */
+export function findClosestCSSScrollWrapper(el: HTMLElement): {wrapper: HTMLElement, direction: HVDirection} | null {
+	while (el) {
+		let direction = getCSSOverflowDirection(el)
+		if (direction !== null) {
+			return {wrapper: el, direction}
+		}
+
+		el = el.parentElement!
+	}
+
+	return null
+}
+
+
+
 /** 
  * Get the overflow direction of scroll wrapper, which has `overflow: auto / scroll` set.
  * May return `horizontal | vertical | null`.
@@ -103,10 +106,10 @@ export function getCSSOverflowDirection(wrapper: HTMLElement): HVDirection | nul
 
 /**
  * Get element's offset position relative to wrapper element.
- * This value equals to their document position difference without any scrolling,
- * So it's not affected by scroll positions.
+ * This value equals to the element's document position difference to wrapper element
+ * without any scrolling affected.
  */
-export function getNonScrollOffset(el: HTMLElement, wrapper: HTMLElement, direction: HVDirection): number {
+export function getUnScrolledOffset(el: HTMLElement, wrapper: HTMLElement, direction: HVDirection): number {
 	let property: 'offsetLeft' | 'offsetTop' = direction === 'horizontal' ? 'offsetLeft' : 'offsetTop'
 	let parent = el
 	let offset = 0

@@ -1,5 +1,4 @@
 import {DOMEvents} from '@pucelle/lupos'
-import {Point, Vector} from '../math'
 
 
 export interface MouseMovementOptions {
@@ -24,33 +23,34 @@ export class MouseMovement {
 	 * First parameter is movement from event start.
 	 * Second parameter is movement from previous.
 	 */
-	onMove: ((moves: Vector, latestMoves: Vector, e: MouseEvent) => void) | null = null
+	onMove: ((moves: Coord, latestMoves: Coord, e: MouseEvent) => void) | null = null
 
 	/** Handle after movement end. */
 	onEnd: ((e: MouseEvent) => void) | null = null
 
 	protected options: MouseMovementOptions
-	protected startPoint: Point
-	protected latestPosition: Point
+	protected startPoint: DOMPoint
+	protected latestPosition: DOMPoint
 	protected started: boolean = false
 	
 	constructor(e: MouseEvent, options: Partial<MouseMovementOptions> = {}) {
 		this.options = {...DefaultMouseMovementOptions, ...options}
-		this.startPoint = this.latestPosition = new Point(e.clientX, e.clientY)
+		this.startPoint = this.latestPosition = new DOMPoint(e.clientX, e.clientY)
 
 		DOMEvents.on(document, 'mousemove', this.onDragMove, this)
 		DOMEvents.once(document, 'mouseup', this.onDragEnd, this)
 	}
 
 	protected onDragMove(e: MouseEvent) {
-		let eventPoint = new Point(e.clientX, e.clientY)
-		let moves = eventPoint.diff(this.startPoint)
-		let latestMoves = eventPoint.diff(this.latestPosition)
+		let eventPoint = new DOMPoint(e.clientX, e.clientY)
+		let moves: Coord = {x: eventPoint.x - this.startPoint.x, y: eventPoint.y - this.startPoint.y}
+		let latestMoves: Coord = {x: eventPoint.x - this.latestPosition.x, y: eventPoint.y - this.latestPosition.y}
 
 		this.latestPosition = eventPoint
 
 		if (!this.started) {
-			if (moves.getLength() > this.options.minimumMoves) {
+			let movesLength = Math.sqrt(moves.x ** 2 + moves.y ** 2)
+			if (movesLength > this.options.minimumMoves) {
 				this.started = true
 			}
 			else {

@@ -1,4 +1,3 @@
-import {Vector} from '../../math'
 import {EventUtils} from '../../utils'
 import {EventFirer, DOMEvents} from '@pucelle/lupos'
 import {SimulatedEventsConfiguration} from './configuration'
@@ -57,13 +56,15 @@ export class TapEventProcessor extends EventFirer<TapEvents> {
 		let startP = EventUtils.getClientPosition(this.latestStartEvent!)!
 		let endP = EventUtils.getClientPosition(e)!
 
-		let move = new Vector(
-			endP.x - startP.x,
-			endP.y - startP.y,
-		)
+		let moves: Coord = {
+			x: endP.x - startP.x,
+			y: endP.y - startP.y,
+		}
 		
+		let movesLength = Math.sqrt(moves.x ** 2 + moves.y ** 2)
+
 		if (duration < SimulatedEventsConfiguration.becomeHoldAfterDuration
-			&& move.getLength() < SimulatedEventsConfiguration.maximumMovelessDistance
+			&& movesLength < SimulatedEventsConfiguration.maximumMovelessDistance
 		) {
 			this.fire('tap', e)
 		}

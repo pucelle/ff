@@ -1,4 +1,3 @@
-import {Point} from '../../math'
 import {Timeout} from '../../tools'
 import {EventFirer, DOMEvents} from '@pucelle/lupos'
 import {SimulatedEventsConfiguration} from './configuration'
@@ -17,7 +16,7 @@ export class HoldEventProcessor extends EventFirer<HoldEvents> {
 
 	private el: EventTarget
 	private latestStartEvent: TouchEvent | null = null
-	private latestStartPoint: Point | null = null
+	private latestStartPoint: DOMPoint | null = null
 	private timeout: Timeout
 
 	constructor(el: EventTarget) {
@@ -40,7 +39,7 @@ export class HoldEventProcessor extends EventFirer<HoldEvents> {
 
 		this.latestStartEvent = e
 
-		this.latestStartPoint = new Point(
+		this.latestStartPoint = new DOMPoint(
 			this.latestStartEvent!.touches[0].clientX,
 			this.latestStartEvent!.touches[0].clientY
 		)
@@ -68,12 +67,14 @@ export class HoldEventProcessor extends EventFirer<HoldEvents> {
 			return
 		}
 
-		let moves = new Point(
-			e.touches[0].clientX,
-			e.touches[0].clientY
-		).diff(this.latestStartPoint!)
+		let moves = new DOMPoint(
+			e.touches[0].clientX - this.latestStartPoint!.x,
+			e.touches[0].clientY - this.latestStartPoint!.y,
+		)
 
-		if (moves.getLength() > SimulatedEventsConfiguration.maximumMovelessDistance) {
+		let movesLength = Math.sqrt(moves.x ** 2 + moves.y ** 2)
+		
+		if (movesLength > SimulatedEventsConfiguration.maximumMovelessDistance) {
 			this.endTouching()
 		}
 	}
