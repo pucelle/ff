@@ -113,21 +113,24 @@ export function parseGaps(gapValue: number | number[], triangle: HTMLElement | u
 }
 
 
-/** Get gap translate apply to target element. */
-export function getGapTranslate(anchorDirection: Direction, gaps: AnchorGaps): Vector {
-	let edgeKeys = anchorDirection.toInsetKeys()
-	let alignVector = anchorDirection.toVector()
+/** 
+ * Get gap translate apply to target element.
+ * The gap translate will apply only when none of them is center-aligned.
+ */
+export function getGapTranslate(anchorDirection: Direction, targetDirection: Direction, gaps: AnchorGaps): Vector {
+	let anchorV = anchorDirection.toVector()
 	let translate = new Vector()
 
-	for (let key of edgeKeys) {
-		let gap = gaps[key]
+	if (anchorDirection.horizontal !== Direction.Center
+		&& targetDirection.horizontal !== Direction.Center
+	) {
+		translate.x += anchorV.x * gaps[anchorDirection.horizontal.toInsetKey()!]
+	}
 
-		if (key === 'left' || key === 'right') {
-			translate.x += alignVector.x * gap
-		}
-		else {
-			translate.y += alignVector.y * gap
-		}
+	if (anchorDirection.vertical !== Direction.Center
+		&& targetDirection.vertical !== Direction.Center
+	) {
+		translate.y += anchorV.y * gaps[anchorDirection.vertical.toInsetKey()!]
 	}
 
 	return translate

@@ -129,11 +129,11 @@ export class MeasuredAlignment {
 			&& this.aligner.anchor !== document.body
 			&& this.aligner.anchor !== document.documentElement
 		) {
-			var offsetParent = this.target.offsetParent as HTMLElement
+			let offsetParent = this.target.offsetParent as HTMLElement
 
 			// If we use body's top position, it will cause a bug when body has a margin top (even from margin collapse).
 			if (offsetParent) {
-				var parentRect = offsetParent.getBoundingClientRect()
+				let parentRect = offsetParent.getBoundingClientRect()
 				x -= parentRect.left
 				y -= parentRect.top
 			}

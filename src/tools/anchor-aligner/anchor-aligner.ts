@@ -260,6 +260,9 @@ export class AnchorAligner {
 	shouldUseCSSAnchorPositioning(): boolean {
 		return AnchorAligner.cssAnchorPositioningSupports()
 			&& (this.anchor instanceof HTMLElement)
+
+			// Can't use css anchor positioning when anchor is html or body element.
+			&& this.anchor !== document.documentElement
 	}
 
 	/** Whether need adjust triangle position. */
@@ -287,7 +290,7 @@ export class AnchorAligner {
 			anchorDirection: this.anchorDirection,
 			targetDirection: this.targetDirection,
 			targetRect: this.target.getBoundingClientRect(),
-			targetTranslate: getGapTranslate(this.anchorDirection, this.gaps),
+			targetTranslate: getGapTranslate(this.anchorDirection, this.targetDirection, this.gaps),
 		}
 
 		alignment.align(computed)
@@ -309,7 +312,11 @@ export class AnchorAligner {
 		}
 
 		// Do position computation.
-		let anchorRect = anchor.getBoundingClientRect()
+		// For `<html>`, always use viewport rect.
+		let anchorRect = anchor === document.documentElement
+			? new DOMRect(0, 0, document.documentElement.clientWidth, document.documentElement.clientHeight)
+			: anchor.getBoundingClientRect()
+
 		let computer = new PositionComputer(this, anchorRect)
 		let computed = computer.compute()
 

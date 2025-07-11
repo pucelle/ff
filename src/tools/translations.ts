@@ -1,33 +1,25 @@
-import {trackGet, trackSet} from '@pucelle/lupos'
+import {Observed} from '@pucelle/lupos'
 import {StringUtils} from '../utils'
 
 
-export class Translations {
+export class Translations implements Observed {
 
-	protected lang: string = 'en'
-	protected readonly data: Map<string, Record<string, string>> = new Map([['en', {}]])
+	/** Current language. */
+	lang: string = 'en'
 
-	/** Get current language. */
-	getLanguage(): string {
-		trackGet(this, "lang")
-		return this.lang
-	}
+	/** If can't find translation, try find in this fallback language. */
+	fallbackLang: string = 'en'
 
-	/** Set current language. */
-	setLanguage(lang: string) {
-		this.lang = lang
-		trackSet(this, "lang")
-	}
+	protected readonly map: Map<string, Record<string, string>> = new Map()
 
 	/** Add a translation data pieces to translation data. */
 	add(language: string, pieces: Record<string, string>) {
-		let data = this.data.get(language)
+		let data = this.map.get(language)
 		if (!data) {
-			this.data.set(language, data = {})
+			this.map.set(language, data = {})
 		}
 
 		Object.assign(data, pieces)
-		trackSet(data, "")
 	}
 
 	/** 
@@ -35,10 +27,10 @@ export class Translations {
 	 * If passes `args` parameter, will format with it as arguments.
 	 */
 	get(key: string, ...args: (string | number)[]): string {
-		let data = this.data.get(this.lang)
+		let data = this.map.get(this.lang)
 		
 		if (!data) {
-			data = this.data.get('en')!
+			data = this.map.get('en')!
 		}
 
 		let value = data[key]
@@ -46,9 +38,6 @@ export class Translations {
 		if (args.length) {
 			value = StringUtils.format(value, args)
 		}
-
-		trackGet(this.data, "")
-        trackGet(this, "lang")
 
 		return value
 	}

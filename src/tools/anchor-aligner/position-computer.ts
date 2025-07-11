@@ -158,7 +158,7 @@ export class PositionComputer {
 	/** Get position by two anchors. */
 	private getPositionByAnchors(anchorT: Coord, anchorA: Coord): Vector {
 		let position = new Vector(anchorA.x - anchorT.x, anchorA.y - anchorT.y)
-		let gapTranslate = getGapTranslate(this.aligner.anchorDirection, this.aligner.gaps)
+		let gapTranslate = getGapTranslate(this.aligner.anchorDirection, this.aligner.targetDirection, this.aligner.gaps)
 
 		position.addSelf(gapTranslate)
 

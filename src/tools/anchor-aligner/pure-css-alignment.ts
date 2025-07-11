@@ -14,7 +14,8 @@ export interface PureCSSComputed {
 
 
 interface PositionAreaAndTranslate {
-	area: string
+	areaV: string
+	areaH: string
 	targetTranslate: Vector
 }
 
@@ -71,8 +72,10 @@ export class PureCSSAnchorAlignment {
 		}
 
 		this.anchorName = anchorName
-		this.target.style.setProperty('position-visibility', 'anchors-visible')
 		this.target.style.setProperty('position-anchor', this.anchorName)
+
+		// Test shows when scrolled, elements will become not visible.
+		//this.target.style.setProperty('position-visibility', 'anchors-visible')
 	}
 
 	/** 
@@ -85,9 +88,9 @@ export class PureCSSAnchorAlignment {
 			this.target.style[key] = ''
 		}
 
-		this.target.style.setProperty('position-visibility', '')
 		this.target.style.setProperty('position-anchor', '')
 		this.target.style.setProperty('position-area', '')
+		//this.target.style.setProperty('position-visibility', '')
 
 		deleteElementAnchorName(this.anchor, this)
 	}
@@ -103,12 +106,27 @@ export class PureCSSAnchorAlignment {
 		let primaryD = anchorD.joinToStraight(targetD.opposite)
 		let anchorSecondaryD = anchorD.joinToStraight(primaryD.opposite)
 		let targetSecondaryD = targetD.joinToStraight(primaryD)
-		let area: string
+		let areaV: string
+		let areaH: string
 		let targetTranslate = new Vector()
 
 		// Faced directions like `left, top, top left, center`.
 		if (targetD.isOppositeOf(anchorD)) {
-			area = anchorD === Direction.Center ? 'center' : anchorD.toInsetKeys().join(' ')
+			if (anchorD === Direction.Center) {
+				areaV = 'center'
+				areaH = 'center'
+			}
+			else if (anchorD.beHorizontal) {
+				areaV = 'center'
+				areaH = anchorD.toInsetKey()!
+			}
+			else if (anchorD.beVertical) {
+				areaV = anchorD.toInsetKey()!
+				areaH = 'center'
+			}
+			else {
+				[areaV, areaH] = anchorD.toInsetKeys()
+			}
 		}
 
 		// Span directions like `span-top left, bottom span-left`
@@ -116,25 +134,26 @@ export class PureCSSAnchorAlignment {
 
 			// `top span-left`
 			if (primaryD.beVertical && anchorSecondaryD !== Direction.Center) {
-				area = primaryD.toInsetKey()!
-					+ ' span-' + anchorSecondaryD.opposite.toInsetKey()!
+				areaV = primaryD.toInsetKey()!
+				areaH = 'span-' + anchorSecondaryD.opposite.toInsetKey()!
 			}
 
 			// `span-top left`
 			else if (primaryD.beHorizontal && anchorSecondaryD !== Direction.Center) {
-				area = 'span-' + anchorSecondaryD.opposite.toInsetKey()!
-					+ ' ' + primaryD.toInsetKey()!
+				areaV = 'span-' + anchorSecondaryD.opposite.toInsetKey()!
+				areaH = primaryD.toInsetKey()!
 			}
 
-			// `span-top`
+			// `span-top center`
 			else if (anchorD.beStraight) {
-				area = 'span-' + anchorD.opposite.toInsetKey()!
+				areaV = 'span-' + anchorD.opposite.toInsetKey()!
+				areaH = 'center'
 			}
 
 			// `span-top span-left`
 			else {
-				area = 'span-' + anchorD.vertical.opposite.toInsetKey()!
-					+ ' span-' + anchorD.horizontal.opposite.toInsetKey()!
+				areaV = 'span-' + anchorD.vertical.opposite.toInsetKey()!
+				areaH = 'span-' + anchorD.horizontal.opposite.toInsetKey()!
 			}
 
 			if (anchorSecondaryD !== targetSecondaryD) {
@@ -143,7 +162,8 @@ export class PureCSSAnchorAlignment {
 		}
 
 		return {
-			area,
+			areaV: areaV,
+			areaH: areaH,
 			targetTranslate,
 		}
 	}
@@ -151,36 +171,32 @@ export class PureCSSAnchorAlignment {
 	private setPositionProperties(computed: PureCSSComputed, areaAndTranslate: PositionAreaAndTranslate) {
 		let target = this.target
 		let alignTranslate = computed.targetTranslate
-		let areaTranslate = areaAndTranslate.targetTranslate
-		let targetD = computed.targetDirection
-		let anchorD = computed.anchorDirection
-		let primaryD = anchorD.joinToStraight(targetD.opposite)
+		let {targetTranslate, areaV, areaH} = areaAndTranslate
 		let translate = new Vector()
 
-		target.style.setProperty('position-area', areaAndTranslate.area)
+		target.style.setProperty('position-area', areaV + ' ' + areaH)
 		
 		// Transform not affect anchor positioning, but position does.
-		translate.x += areaTranslate.x * computed.targetRect.width
-		translate.y += areaTranslate.y * computed.targetRect.height
+		translate.x += targetTranslate.x * computed.targetRect.width
+		translate.y += targetTranslate.y * computed.targetRect.height
 		translate.addSelf(alignTranslate)
-
-		if (primaryD === Direction.Right || primaryD === Direction.Bottom) {
-			target.style.setProperty('left', translate.x + 'px')
-			target.style.setProperty('top', translate.y + 'px')
-			target.style.setProperty('right', '')
-			target.style.setProperty('bottom', '')
-		}
-		else if (primaryD === Direction.Left) {
+		
+		if (areaH === 'left' || areaH === 'span-left') {
 			target.style.setProperty('right', -translate.x + 'px')
-			target.style.setProperty('top', translate.y + 'px')
 			target.style.setProperty('left', '')
-			target.style.setProperty('bottom', '')
 		}
-		else if (primaryD === Direction.Top) {
+		else if (areaH !== 'center') {
 			target.style.setProperty('left', translate.x + 'px')
-			target.style.setProperty('bottom', -translate.y + 'px')
 			target.style.setProperty('right', '')
+		}
+
+		if (areaV === 'top' || areaV === 'span-top') {
+			target.style.setProperty('bottom', -translate.y + 'px')
 			target.style.setProperty('top', '')
+		}
+		else if (areaV !== 'center') {
+			target.style.setProperty('top', translate.y + 'px')
+			target.style.setProperty('bottom', '')
 		}
 	}
 }
