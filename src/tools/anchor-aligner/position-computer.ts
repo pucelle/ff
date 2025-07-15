@@ -1,4 +1,6 @@
 import {Direction, Vector} from '../../math'
+import {DOMUtils} from '../../utils'
+import {barrierDOMReading, barrierDOMWriting} from '../barrier-queue'
 import {AnchorAligner} from './anchor-aligner'
 import {getAnchorPointAt, getGapTranslate, getRelativeAnchorPointAt} from './position-gap-parser'
 
@@ -16,6 +18,7 @@ export interface PositionComputed {
 		limitHeight: number | null
 		rect: DOMRect
 		flipped: boolean
+		absolutePositionOffset: Vector | null
 	}
 	triangle: {
 		inset: {
@@ -30,7 +33,10 @@ export interface PositionComputed {
 }
 
 
-/** To computed target and triangle position. */
+/** 
+ * To computed target and triangle position.
+ * Ensure to barrier DOM Reading before calling it.
+ */
 export class PositionComputer {
 	
 	private aligner: AnchorAligner
@@ -70,7 +76,7 @@ export class PositionComputer {
 	 * Align target after known both rects.
 	 * Note normally all internal methods should not write dom properties.
 	 */
-	compute(): PositionComputed {
+	async compute(): Promise<PositionComputed> {
 		let computed: PositionComputed = {
 			anchorFaceDirection: this.aligner.anchorFaceDirection,
 			anchorDirection: this.aligner.anchorDirection,
@@ -83,12 +89,14 @@ export class PositionComputer {
 				limitHeight: null,
 				rect: this.targetRect,
 				flipped: false,
+				absolutePositionOffset: this.getAbsoluteLayoutOffset(),
 			},
 			triangle: null,
 		}
 
 		// Do target alignment.
-		this.doTargetAlignment(computed)
+		// May write and read dom properties.
+		await this.doTargetAlignment(computed)
 
 		// Align `triangle` element.
 		if (this.triangle) {
@@ -102,11 +110,36 @@ export class PositionComputer {
 		return computed
 	}
 
+	/** Get offset to convert fixed position to absolute position. */
+	private getAbsoluteLayoutOffset() {
+		let targetInAbsolutePosition = DOMUtils.getStyleValue(this.target, 'position') === 'absolute'
+
+		// For absolute layout content, convert x, y to absolute position.
+		if (targetInAbsolutePosition
+			&& this.aligner.anchor !== document.body
+			&& this.aligner.anchor !== document.documentElement
+		) {
+			let offset = new Vector()
+			let offsetParent = this.target.offsetParent as HTMLElement
+
+			// If we use body's top position, it will cause a bug when body has a margin top (even from margin collapse).
+			if (offsetParent) {
+				let parentRect = offsetParent.getBoundingClientRect()
+				offset.x -= parentRect.left
+				offset.y -= parentRect.top
+			}
+
+			return offset
+		}
+
+		return null
+	}
+
 	/** 
 	 * Do alignment from target to anchor for once.
 	 * It outputs alignment position to `targetRect`.
 	 */
-	private doTargetAlignment(computed: PositionComputed) {
+	private async doTargetAlignment(computed: PositionComputed) {
 		let targetPoint = this.getTargetRelativeAnchorPoint(computed)
 		let anchorPoint = this.getAnchorAbsoluteAnchorPoint()
 
@@ -118,7 +151,13 @@ export class PositionComputer {
 		// If target's height changed, may also cause width get changed.
 		// So force re-layout here.
 		if (computed.target.limitHeight) {
+
+			// Barrier DOM Reading here.
+			await barrierDOMWriting()
 			this.target.style.height = computed.target.limitHeight + 'px'
+
+			// Barrier DOM Reading here.
+			await barrierDOMReading()
 			this.targetRect = this.target.getBoundingClientRect()
 
 			targetPoint = this.getTargetRelativeAnchorPoint(computed)

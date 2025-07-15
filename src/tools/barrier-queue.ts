@@ -1,4 +1,4 @@
-import {MiniHeap, promiseWithResolves} from '@pucelle/lupos'
+import {MiniHeap, promiseWithResolves, untilUpdateComplete} from '@pucelle/lupos'
 
 
 /** State of BarrierQueue. */
@@ -8,19 +8,24 @@ enum BarrierQueueState {
 	Resolving,
 }
 
+enum BarrierQueueOrder {
+	WillReadDOM = 0,
+	WillWriteDOM = 1,
+}
+
 
 /** 
  * Can enqueue to request with a `step` parameter and get a promise.
  * Later same stepped promises will be resolved one time,
  * and all promises will be resolved in the order of `step`.
  */
-export class BarrierQueue {
+class BarrierQueue {
 
 	/** Caches step -> resolve function list. */
-	private map: Map<number, {promise: Promise<void>, resolve: Function}> = new Map()
+	private map: Map<BarrierQueueOrder, {promise: Promise<void>, resolve: Function}> = new Map()
 
 	/** Can dynamically insert items and order them to get the minimum one. */
-	private heap: MiniHeap<number>
+	private heap: MiniHeap<BarrierQueueOrder>
 
 	/** Current state. */
 	private state: BarrierQueueState = BarrierQueueState.Pending
@@ -37,7 +42,7 @@ export class BarrierQueue {
 	}
 
 	/** Make a barrier promise, with `step` to sort. */
-	barrier(step: number): Promise<void> {
+	barrier(step: BarrierQueueOrder): Promise<void> {
 		if (this.map.has(step)) {
 			return this.map.get(step)!.promise
 		}
@@ -66,7 +71,7 @@ export class BarrierQueue {
 	}
 
 	/** Resolves all barriers in the order of barrier step. */
-	async resolve() {
+	private async resolve() {
 		if (this.state !== BarrierQueueState.WillResolve) {
 			return
 		}
@@ -78,6 +83,7 @@ export class BarrierQueue {
 
 			// Wait for more next stepped barriers come.
 			await Promise.resolve()
+			await Promise.resolve()
 		}
 
 		this.state = BarrierQueueState.Pending
@@ -88,13 +94,75 @@ export class BarrierQueue {
 		let step = this.heap.popHead()!
 		let {resolve} = this.map.get(step)!
 
+		// Wait for all updating complete.
+		if (step === BarrierQueueOrder.WillReadDOM) {
+			await untilUpdateComplete()
+		}
+
 		this.map.delete(step)
 		resolve()
 	}
 
-	/** Clear all items from queue. */
+	/** Clear all items from barrier queue. */
 	clear() {
 		this.map = new Map()
 		this.heap.clear()
 	}
+}
+
+
+const queue = new BarrierQueue()
+
+/** 
+ * Enqueue to request and get a promise,
+ * which will be resolved after can read DOM properties.
+ * 
+ * Normal situation:
+ * READ1
+ * WRITE1
+ * READ2
+ * WRITE2
+ * 
+ * By barrier queue:
+ * await barrierDOMReading()
+ * READ1
+ * await barrierDOMWriting()
+ * WRITE1
+ * ...
+ * 
+ * =>
+ * READ1
+ * READ2
+ * WRITE1
+ * WRITE2
+ */
+export const barrierDOMReading = function() {
+	return queue.barrier(BarrierQueueOrder.WillReadDOM)
+}
+
+/** 
+ * Enqueue to request and get a promise,
+ * which will be resolved after can write DOM properties.
+ * 
+ * Normal situation:
+ * READ1
+ * WRITE1
+ * READ2
+ * WRITE2
+ * 
+ * By barrier queue:
+ * await barrierDOMReading()
+ * READ1
+ * await barrierDOMWriting()
+ * WRITE1
+ * ...
+ * 
+ * =>
+ * READ1
+ * READ2
+ * WRITE1
+ * WRITE2
+ */
+export const barrierDOMWriting = function() {
+	return queue.barrier(BarrierQueueOrder.WillWriteDOM)
 }

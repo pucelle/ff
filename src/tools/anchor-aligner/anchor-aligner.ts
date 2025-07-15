@@ -1,4 +1,3 @@
-import {untilUpdateComplete} from '@pucelle/lupos'
 import {Direction} from '../../math'
 import {ObjectUtils} from '../../utils'
 import {RectWatcher, ResizeWatcher} from '../../watchers'
@@ -7,6 +6,7 @@ import {PositionComputer} from './position-computer'
 import {AnchorGaps, AnchorPosition, getGapTranslate, parseAlignDirections, parseGaps} from './position-gap-parser'
 import {PureCSSAnchorAlignment, PureCSSComputed} from './pure-css-alignment'
 import {AnchorAlignmentType} from './types'
+import {barrierDOMReading, barrierDOMWriting} from '../barrier-queue'
 
 
 /** 
@@ -167,7 +167,7 @@ export class AnchorAligner {
 	 * Update options, will re-align if options get changed.
 	 * Will not re-align on event mode.
 	 */
-	updateOptions(options: Partial<AnchorAlignerOptions> = {}) {
+	async updateOptions(options: Partial<AnchorAlignerOptions> = {}) {
 		let newOptions = {...DefaultAnchorAlignerOptions, ...options}
 
 		let changed = !ObjectUtils.deepEqual(this.options, newOptions)
@@ -182,6 +182,9 @@ export class AnchorAligner {
 		this.anchorDirection = ds[1]
 
 		this.anchorFaceDirection = this.anchorDirection.joinToStraight(this.targetDirection.opposite)
+
+		// Barrier DOM Reading here.
+		await barrierDOMReading()
 		this.gaps = parseGaps(newOptions.gaps, newOptions.triangle, this.anchorFaceDirection)
 		this.edgeGaps = parseGaps(newOptions.edgeGaps, newOptions.triangle, this.anchorFaceDirection)
 
@@ -195,10 +198,10 @@ export class AnchorAligner {
 	 * After align, will keep syncing align position.
 	 * You may still call this to force align immediately.
 	 */
-	alignTo(anchor: Element) {
+	async alignTo(anchor: Element) {
 		this.anchor = anchor
 
-		this.update()
+		await this.update()
 
 		// Update after target size changed.
 		ResizeWatcher.watch(this.target, this.update, this)
@@ -212,17 +215,17 @@ export class AnchorAligner {
 	 * Update anchor alignment if in aligning.
 	 * Works only when anchor specified, not work for event mode.
 	 */
-	update() {
+	async update() {
 		if (!this.anchor) {
 			return
 		}
 
 		let doPureCSSAlignment = this.shouldDoPureCSSAlignment()
 		if (doPureCSSAlignment) {
-			this.doPureCSSAnchorAlignment()
+			await this.doPureCSSAnchorAlignment()
 		}
 		else {
-			this.doAnchorMeasuredAlignment(this.anchor)
+			await this.doAnchorMeasuredAlignment(this.anchor)
 		}
 	}
 
@@ -283,8 +286,11 @@ export class AnchorAligner {
 	 * Do alignment without measurement or re-syncing positions,
 	 * by pure CSS anchor positioning.
 	 */
-	private doPureCSSAnchorAlignment() {
-		let alignment = this.updateAlignment(AnchorAlignmentType.PureCSS)
+	private async doPureCSSAnchorAlignment() {
+		let alignment = await this.updateAlignment(AnchorAlignmentType.PureCSS)
+
+		// Barrier DOM Reading here.
+		await barrierDOMReading()
 
 		let computed: PureCSSComputed = {
 			anchorDirection: this.anchorDirection,
@@ -293,23 +299,19 @@ export class AnchorAligner {
 			targetTranslate: getGapTranslate(this.anchorDirection, this.targetDirection, this.gaps),
 		}
 
+		// Barrier DOM Writing here.
+		await barrierDOMWriting()
+
 		alignment.align(computed)
 	}
 
 	/** Do alignment with measurements and re-syncing positions. */
 	private async doAnchorMeasuredAlignment(anchor: Element) {
-		let alignment = this.updateAlignment(AnchorAlignmentType.Measured)
-
-		// May cause write to dom properties.
+		let alignment = await this.updateAlignment(AnchorAlignmentType.Measured)
 		alignment.resetBeforeAlign()
 
-		// Wait for update complete, now can read dom properties.
-		await untilUpdateComplete()
-
-		// Alignment class changed, no need to align anymore.
-		if (alignment !== this.alignment) {
-			return
-		}
+		// Barrier DOM Reading here.
+		await barrierDOMReading()
 
 		// Do position computation.
 		// For `<html>`, always use viewport rect.
@@ -318,26 +320,18 @@ export class AnchorAligner {
 			: anchor.getBoundingClientRect()
 
 		let computer = new PositionComputer(this, anchorRect)
-		let computed = computer.compute()
+		let computed = await computer.compute()
 
-		// Do alignment by computation.
+		// Barrier DOM Writing here.
+		await barrierDOMWriting()
+
 		alignment.align(computed)
 	}
 
 	/** Do alignment with events. */
 	private async doEventMeasuredAlignment(event: MouseEvent) {
-		let alignment = this.updateAlignment(AnchorAlignmentType.Measured)
-
-		// May cause write to dom properties.
+		let alignment = await this.updateAlignment(AnchorAlignmentType.Measured)
 		alignment.resetBeforeAlign()
-
-		// Wait for update complete, now can read dom properties.
-		await untilUpdateComplete()
-
-		// Alignment class get changed, no need to continue aligning.
-		if (alignment !== this.alignment) {
-			return
-		}
 
 		// Do position computation.
 		let anchorRect = new DOMRect(
@@ -347,8 +341,11 @@ export class AnchorAligner {
 			0
 		)
 
+		// Barrier DOM Reading here.
+		await barrierDOMReading()
+
 		let computer = new PositionComputer(this, anchorRect)
-		let computed = computer.compute()
+		let computed = await computer.compute()
 
 		// Do alignment by computation.
 		alignment.align(computed)
@@ -356,10 +353,14 @@ export class AnchorAligner {
 	}
 
 	/** Update alignment class if needed. */
-	private updateAlignment<T extends AnchorAlignmentType>(alignmentType: T):
-		T extends AnchorAlignmentType.PureCSS ? PureCSSAnchorAlignment : MeasuredAlignment
+	private async updateAlignment<T extends AnchorAlignmentType>(alignmentType: T):
+		Promise<T extends AnchorAlignmentType.PureCSS ? PureCSSAnchorAlignment : MeasuredAlignment>
 	{
 		if (this.alignment && this.alignment.type !== alignmentType) {
+
+			// Barrier DOM Writing here.
+			await barrierDOMWriting()
+
 			this.alignment.reset()
 			this.alignment = null
 		}

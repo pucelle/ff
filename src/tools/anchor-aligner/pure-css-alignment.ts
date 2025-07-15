@@ -82,6 +82,7 @@ export class PureCSSAnchorAlignment {
 	 * Reset css properties after stopping alignment.
 	 * Or toggle alignment class.
 	 * `align` repetitively with same alignment class will not cause reset.
+	 * Ensure barrier DOM Writing before calling it.
 	 */
 	reset() {
 		for (let key of Inset.Keys) {
@@ -95,6 +96,10 @@ export class PureCSSAnchorAlignment {
 		deleteElementAnchorName(this.anchor, this)
 	}
 
+	/**
+	 * Align content after get computed position.
+	 * Ensure to barrier DOM Writing before calling it.
+	 */
 	align(computed: PureCSSComputed) {
 		let areaAndTranslate = this.mapPositionToAreaAndTranslate(computed)
 		this.setPositionProperties(computed, areaAndTranslate)

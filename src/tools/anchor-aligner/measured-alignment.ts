@@ -1,5 +1,5 @@
 import {Direction, Vector} from '../../math'
-import {DOMUtils} from '../../utils'
+import {barrierDOMWriting} from '../barrier-queue'
 import {AnchorAligner} from './anchor-aligner'
 import {PositionComputed} from './position-computer'
 import {getAnchorPointAt, getRelativeAnchorPointAt} from './position-gap-parser'
@@ -35,10 +35,12 @@ export class MeasuredAlignment {
 	 * Or toggle alignment class.
 	 * `align` repetitively with same alignment class will not cause reset.
 	 */
-	reset() {
+	async reset() {
 		if (!this.lastComputed) {
 			return
 		}
+
+		await barrierDOMWriting()
 
 		this.resetBeforeAlign()
 
@@ -77,8 +79,8 @@ export class MeasuredAlignment {
 	}
 
 	/** 
-	 * Align content after known both rects.
-	 * Should wait for all dom write operations completed.
+	 * Align content after get computed position.
+	 * Ensure to barrier DOM Writing before calling it.
 	 */
 	align(computed: PositionComputed) {
 		this.useCSSAnchorPositioning = this.aligner.shouldUseCSSAnchorPositioning()
@@ -121,25 +123,11 @@ export class MeasuredAlignment {
 	private applyCSSPositionProperties(computed: PositionComputed) {
 		let {x, y} = computed.target.position
 
-		// Read dom properties below.
-		let targetInAbsolutePosition = DOMUtils.getStyleValue(this.target, 'position') === 'absolute'
-
-		// For absolute layout content, convert x, y to absolute position.
-		if (targetInAbsolutePosition
-			&& this.aligner.anchor !== document.body
-			&& this.aligner.anchor !== document.documentElement
-		) {
-			let offsetParent = this.target.offsetParent as HTMLElement
-
-			// If we use body's top position, it will cause a bug when body has a margin top (even from margin collapse).
-			if (offsetParent) {
-				let parentRect = offsetParent.getBoundingClientRect()
-				x -= parentRect.left
-				y -= parentRect.top
-			}
+		// Convert from fixed positioning to absolute positioning.
+		if (computed.target.absolutePositionOffset) {
+			x += computed.target.absolutePositionOffset.x
+			y += computed.target.absolutePositionOffset.x
 		}
-
-		// Write dom properties below.
 
 		// May scrollbar appears after alignment,
 		// such that it should align to right.
