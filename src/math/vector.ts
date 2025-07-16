@@ -17,9 +17,6 @@ export class Vector implements MethodsObserved<
 		| 'normalizeSelf' | 'mixSelf'
 > {
 
-	/** Zero vector. */
-	static Zero: Readonly<Vector> = Object.freeze(new Vector(0, 0))
-
 	/** Make a vector from a coord. */
 	static from(coord: Coord): Vector {
 		return new Vector(coord.x, coord.y)

@@ -4,7 +4,7 @@ import {Timeout} from './time-control'
 
 
 /** Running state of queue. */
-export enum TaskQueueState {
+export const enum TaskQueueState {
 
 	/** Not started yet. */
 	Pending,

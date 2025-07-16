@@ -1,8 +1,8 @@
 import {NumberUtils} from '../utils'
 
 
-const DEG2RAD = Math.PI / 180
-const RAD2DEG = 180 / Math.PI
+const DEG2RAD = /*#__PURE__*/(() => Math.PI / 180)()
+const RAD2DEG = /*#__PURE__*/(() => 180 / Math.PI)()
 
 
 /** Convert angle from degree to radians. */

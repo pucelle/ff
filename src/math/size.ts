@@ -7,9 +7,6 @@ export class Size implements MethodsObserved<
 	'set' | 'reset' | 'copyFrom' | 'roundSelf' | 'ceilSelf' | 'floorSelf' | 'transformSelf'
 > {
 
-	/** Zero size object. */
-	static Zero: Readonly<Size> = Object.freeze(new Size())
-
 	/** Make a size object, from a size-like object, such as `Box`. */
 	static fromLike(sizeLike: SizeLike): Size {
 		return new Size(sizeLike.width, sizeLike.height)

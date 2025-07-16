@@ -2,7 +2,7 @@ import {WeakerPairKeysMap} from '../structs'
 
 
 /** Caches all bound callbacks, `Callback -> Scope -> Bound Callback`. */
-const BoundCallbackMap: WeakerPairKeysMap<Function, object, Function> = new WeakerPairKeysMap()
+const BoundCallbackMap: WeakerPairKeysMap<Function, object, Function> = /*#__PURE__*/new WeakerPairKeysMap()
 
 
 /** 

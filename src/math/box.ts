@@ -24,9 +24,6 @@ export class Box implements BoxLike, MethodsObserved<
 		| 'transformSelf'
 >  {
 
-	/** Constant empty box, not writable. */
-	static Empty: Readonly<Box> = Object.freeze(new Box(0, 0, 0, 0))
-
 	/** Empty box. */
 	static empty(): Box {
 		return new Box(0, 0, 0, 0)

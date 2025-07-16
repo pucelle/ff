@@ -12,7 +12,7 @@ type IntersectionObserverCallback = (entry: IntersectionObserverEntry) => void
 let observer: IntersectionObserver | null = null
 
 /** Cache element -> bound callbacks. */
-const CallbackMap: ListMap<Element, IntersectionObserverCallback> = new ListMap()
+const CallbackMap: ListMap<Element, IntersectionObserverCallback> = /*#__PURE__*/new ListMap()
 
 
 /** Accept intersection entries. */

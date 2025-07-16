@@ -11,9 +11,6 @@ export class Point implements MethodsObserved<
 		| 'translateSelf' | 'translateBySelf' | 'mixSelf' | 'transformSelf'
 > {
 
-	/** Constant zero point. */
-	static Zero: Readonly<Point> = Object.freeze(new Point(0, 0))
-
 	/** Make a point from a coord. */
 	static from(coord: Coord): Point {
 		return new Point(coord.x, coord.y)

@@ -103,15 +103,9 @@ export class AnchorAligner {
 		return d2.joinToStraight(d1.opposite)
 	}
 
-	static cachedCSSAnchorPositioningSupports: boolean | undefined = undefined
-
 	/** Test whether support CSS anchor positioning. */
 	static cssAnchorPositioningSupports() {
-		if (this.cachedCSSAnchorPositioningSupports !== undefined) {
-			return this.cachedCSSAnchorPositioningSupports
-		}
-
-		return this.cachedCSSAnchorPositioningSupports = CSS.supports('anchor-name', 'none') 
+		return CSS.supports('anchor-name', 'none') 
 	}
 	
 

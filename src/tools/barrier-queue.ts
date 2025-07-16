@@ -2,13 +2,13 @@ import {MiniHeap, promiseWithResolves, untilUpdateComplete} from '@pucelle/lupos
 
 
 /** State of BarrierQueue. */
-enum BarrierQueueState {
+const enum BarrierQueueState {
 	Pending,
 	WillResolve,
 	Resolving,
 }
 
-enum BarrierQueueOrder {
+const enum BarrierQueueOrder {
 	WillReadDOM = 0,
 	WillWriteDOM = 1,
 }
@@ -111,7 +111,7 @@ class BarrierQueue {
 }
 
 
-const queue = new BarrierQueue()
+const queue = /*#__PURE__*/new BarrierQueue()
 
 /** 
  * Enqueue to request and get a promise,
@@ -136,7 +136,7 @@ const queue = new BarrierQueue()
  * WRITE1
  * WRITE2
  */
-export const barrierDOMReading = function() {
+export function barrierDOMReading() {
 	return queue.barrier(BarrierQueueOrder.WillReadDOM)
 }
 
@@ -163,6 +163,6 @@ export const barrierDOMReading = function() {
  * WRITE1
  * WRITE2
  */
-export const barrierDOMWriting = function() {
+export function barrierDOMWriting() {
 	return queue.barrier(BarrierQueueOrder.WillWriteDOM)
 }

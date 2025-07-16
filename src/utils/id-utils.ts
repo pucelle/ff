@@ -1,4 +1,4 @@
-const PrefixedUIDMap: Map<string, number> = new Map()
+const PrefixedUIDMap: Map<string, number> = /*#__PURE__*/new Map()
 let currentIntUID = 0
 
 

@@ -3,8 +3,8 @@ import {Vector} from './vector'
 
 
 /** All Direction enumerable values. */
-export enum DirectionValue {
-	None = NaN,
+export const enum DirectionValue {
+	None = -1,
 	Center = 0,
 	Left = 1,
 	Right = 2,
@@ -23,16 +23,16 @@ export enum DirectionValue {
  */
 export class Direction {
 
-	static None = new Direction(DirectionValue.None)
-	static Center = new Direction(DirectionValue.Center)
-	static Left = new Direction(DirectionValue.Left)
-	static Right = new Direction(DirectionValue.Right)
-	static Top = new Direction(DirectionValue.Top)
-	static Bottom = new Direction(DirectionValue.Bottom)
-	static TopLeft = new Direction(DirectionValue.TopLeft)
-	static BottomRight = new Direction(DirectionValue.BottomRight)
-	static TopRight = new Direction(DirectionValue.TopRight)
-	static BottomLeft = new Direction(DirectionValue.BottomLeft)
+	static None = /*#__PURE__*/new Direction(DirectionValue.None)
+	static Center = /*#__PURE__*/new Direction(DirectionValue.Center)
+	static Left = /*#__PURE__*/new Direction(DirectionValue.Left)
+	static Right = /*#__PURE__*/new Direction(DirectionValue.Right)
+	static Top = /*#__PURE__*/new Direction(DirectionValue.Top)
+	static Bottom = /*#__PURE__*/new Direction(DirectionValue.Bottom)
+	static TopLeft = /*#__PURE__*/new Direction(DirectionValue.TopLeft)
+	static BottomRight = /*#__PURE__*/new Direction(DirectionValue.BottomRight)
+	static TopRight = /*#__PURE__*/new Direction(DirectionValue.TopRight)
+	static BottomLeft = /*#__PURE__*/new Direction(DirectionValue.BottomLeft)
 
 	/** 4 straight directions. */
 	static get StraightDirections(): Direction[] { 
@@ -148,12 +148,10 @@ export class Direction {
 
 	
 	readonly value: DirectionValue
-	readonly name: string
 
 	/** Never make new Direction instance by yourself after initialized! */
 	constructor(value: DirectionValue) {
 		this.value = value
-		this.name = DirectionValue[value]
 	}
 
 	/** Whether be horizontal direction. */
@@ -680,7 +678,7 @@ export class Direction {
 
 
 /** Map from value to direction. */
-const ValueToDirection: Record<DirectionValue, Direction> = {
+const ValueToDirection: Record<DirectionValue, Direction> = /*#__PURE__*/(() => ({
 	[DirectionValue.None]: Direction.None,
 	[DirectionValue.Center]: Direction.Center,
 	[DirectionValue.Left]: Direction.Left,
@@ -691,4 +689,4 @@ const ValueToDirection: Record<DirectionValue, Direction> = {
 	[DirectionValue.BottomRight]: Direction.BottomRight,
 	[DirectionValue.TopRight]: Direction.TopRight,
 	[DirectionValue.BottomLeft]: Direction.BottomLeft,
-}
+}))()

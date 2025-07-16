@@ -12,9 +12,6 @@ export class Inset implements MethodsObserved<
 	/** All 4 inset keys. */
 	static Keys: InsetKey[] = ['top', 'right', 'bottom', 'left']
 
-	/** Constant zero inset object. */
-	static Zero: Inset = Object.freeze(new Inset())
-
 	/** Parse from a string to get an edge distance object. */
 	static fromString(string: string) {
 		return new Inset(...string.split(/\s+/).map(s => Number(s)))

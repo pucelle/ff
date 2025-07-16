@@ -21,8 +21,8 @@ interface PositionAreaAndTranslate {
 
 
 let ElementAnchorNameSeed = 1
-const ElementAnchorNameMap: WeakMap<HTMLElement, string> = new WeakMap()
-const ElementAnchorReferenceBy: WeakListMap<HTMLElement, any> = new WeakListMap()
+const ElementAnchorNameMap: WeakMap<HTMLElement, string> = /*#__PURE__*/new WeakMap()
+const ElementAnchorReferenceBy: WeakListMap<HTMLElement, any> = /*#__PURE__*/new WeakListMap()
 
 function getElementAnchorName(el: HTMLElement): string | undefined {
 	return ElementAnchorNameMap.get(el)

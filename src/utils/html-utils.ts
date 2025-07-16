@@ -9,8 +9,8 @@ const HTMLEncodingMap: Record<string, string> = {
 
 /** HTML Decoding Characters map. */
 const DynamicHTMLDecodingMap: Record<string, string>
-	= Object.fromEntries(
-		Object.entries(HTMLEncodingMap).map(v => [v[1], v[0]])
+	= /*#__PURE__*/Object.fromEntries(
+		/*#__PURE__*/Object.entries(HTMLEncodingMap).map(v => [v[1], v[0]])
 	)
 
 

@@ -1,4 +1,4 @@
-export enum AnchorAlignmentType {
+export const enum AnchorAlignmentType {
 	PureCSS,
 	Measured,
 }

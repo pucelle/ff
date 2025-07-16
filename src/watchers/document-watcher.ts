@@ -2,7 +2,7 @@ import {untilUpdateComplete} from '@pucelle/lupos'
 import {bindCallback} from '../utils'
 
 
-const Observer = new MutationObserver(fireDocumentChangeLater)
+const Observer = /*#__PURE__*/new MutationObserver(fireDocumentChangeLater)
 const MutationCallbacks: Array<Function> = []
 let willEmitDocumentChange: boolean = false
 

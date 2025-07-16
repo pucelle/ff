@@ -44,13 +44,13 @@ export interface MouseLeaveControlOptions {
 
 
 /** All controllers that begin to enter and not fully leave. */
-const LiveControllers: Set<MouseLeaveController> = new Set()
+const LiveControllers: Set<MouseLeaveController> = /*#__PURE__*/new Set()
 
 /** All locked controllers, and the mapped trigger elements that lock them. */
-const Locks: TwoWayMap<MouseLeaveController, Element> = new TwoWayMap()
+const Locks: TwoWayMap<MouseLeaveController, Element> = /*#__PURE__*/new TwoWayMap()
 
 /** Timeout counter to check and delete disconnected elements. */
-const clearDisconnectedTimeout = new Timeout(clearDisconnectedOnIdle, 3000)
+const clearDisconnectedTimeout = /*#__PURE__*/new Timeout(clearDisconnectedOnIdle, 3000)
 
 /** After idle, clear disconnected elements, and their locked controllers. */
 async function clearDisconnectedOnIdle() {

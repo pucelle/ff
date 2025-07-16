@@ -18,9 +18,6 @@ export class Matrix implements MatrixData, MethodsObserved<
 		| 'skewSelf' | 'invertSelf' | 'mixSelf'
 > {
 
-	/** Constant Identity Matrix. */
-	static I: Readonly<Matrix> = Object.freeze(Matrix.i())
-
 	/** Returns a new Identity Matrix. */
 	static i(): Matrix {
 		return new Matrix(1, 0, 0, 1, 0, 0)

@@ -2,7 +2,7 @@ import {NumberUtils} from '../utils'
 
 
 /** Message level. */
-export enum LogLevel {
+export const enum LogLevel {
 	None = 0,
 	Error = 1,
 	Warn = 2,

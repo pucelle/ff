@@ -51,7 +51,7 @@ export class Translations implements Observed {
 
 
 /** Global transition API. */
-export const translations = new Translations()
+export const translations = /*#__PURE__*/new Translations()
 
 /** Short for `translations.get(key, ...)`. */
-export const t = translations.get.bind(translations)
+export const t = /*#__PURE__*/translations.get.bind(translations)

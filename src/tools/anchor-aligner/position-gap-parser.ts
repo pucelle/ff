@@ -30,12 +30,12 @@ export interface AnchorGaps {
 }
 
 /** Position string -> Direction. */
-const PositionDirectionMap: Record<string, Direction> = {
-	c: Direction.Center,
-	t: Direction.Top,
-	b: Direction.Bottom,
-	l: Direction.Left,
-	r: Direction.Right,
+const PositionDirectionMap: Record<string, Direction> = /*#__PURE__*/(() => ({
+	c : Direction.Center,
+	t : Direction.Top,
+	b : Direction.Bottom,
+	l : Direction.Left,
+	r : Direction.Right,
 	cc: Direction.Center,
 	tl: Direction.TopLeft,
 	tr: Direction.TopRight,
@@ -43,7 +43,7 @@ const PositionDirectionMap: Record<string, Direction> = {
 	bl: Direction.BottomLeft,
 	br: Direction.BottomRight,
 	bc: Direction.Bottom,
-}
+}))()
 
 /**
  * Full type is `[tbc][lrc]-[tbc][lrc]`, means `[Y of el][X of el]-[Y of anchor][X of anchor]`.

@@ -8,10 +8,10 @@ type RectObserverCallback = (rect: DOMRect) => void
 
 
 /** Cache element -> bound callbacks. */
-const CallbackMap: ListMap<Element, RectObserverCallback> = new ListMap()
+const CallbackMap: ListMap<Element, RectObserverCallback> = /*#__PURE__*/new ListMap()
 
 /** Cache elements' rect boxes. */
-const ElementRectCache: WeakMap<Element, DOMRect> = new WeakMap()
+const ElementRectCache: WeakMap<Element, DOMRect> = /*#__PURE__*/new WeakMap()
 
 let documentWatcherBound = false
 

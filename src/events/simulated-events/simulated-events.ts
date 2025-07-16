@@ -34,7 +34,7 @@ const EventConstructors: Record<string, {new(el: EventTarget): EventProcessor}> 
 }
 
 /** Shared Processors. */
-const EventProcessorCache: WeakPairKeysMap<EventTarget, string, EventProcessor> = new WeakPairKeysMap()
+const EventProcessorCache: WeakPairKeysMap<EventTarget, string, EventProcessor> = /*#__PURE__*/new WeakPairKeysMap()
 
 
 /** 

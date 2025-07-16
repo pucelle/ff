@@ -13,10 +13,10 @@ type ResizeObserverCallback = (entry: ResizeObserverEntry) => void
 let observer: ResizeObserver | null
 
 /** Cache element -> bound callbacks. */
-const CallbackMap: ListMap<Element, ResizeObserverCallback> = new ListMap()
+const CallbackMap: ListMap<Element, ResizeObserverCallback> = /*#__PURE__*/new ListMap()
 
 /** Which get prevented to call. */
-const PreventingCallbacks: WeakSet<ResizeObserverCallback> = new WeakSet()
+const PreventingCallbacks: WeakSet<ResizeObserverCallback> = /*#__PURE__*/new WeakSet()
 
 
 /** Accept resize entries. */
