@@ -1,11 +1,12 @@
 import {TaskQueue, TaskQueueState, sleep} from '../../src'
+import {jest} from '@jest/globals'
 
 
-describe('Test queue', () => {
+describe('Test TaskQueue', () => {
 	let a = [0,1,2,3,4,5,6,7,8,9]
 	
 	test('each', async () => {
-		let fn = jest.fn()
+		let fn = jest.fn() as any
 		await TaskQueue.each(a, fn, 2)
 		expect(fn).toHaveBeenCalledTimes(a.length)
 		expect(fn.mock.calls).toEqual(a.map(i => [i]))
@@ -20,7 +21,7 @@ describe('Test queue', () => {
 	})
 
 	test('some', async () => {
-		let fn = jest.fn(i => i >= 5)
+		let fn = jest.fn((i: number) => i >= 5)
 		expect(await TaskQueue.some(a, fn, 2)).toEqual(true)
 		expect(fn.mock.calls.length).toBeGreaterThan(5)
 		expect(fn.mock.calls.length).toBeLessThan(a.length)
@@ -33,7 +34,7 @@ describe('Test queue', () => {
 	})
 
 	test('every', async () => {
-		let fn = jest.fn(i => i <= 9)
+		let fn = jest.fn((i: number) => i <= 9)
 		expect(await TaskQueue.every(a, fn, 2)).toEqual(true)
 		expect(fn.mock.calls.length).toEqual(a.length)
 		for (let i = 0; i < fn.mock.calls.length; i++) {

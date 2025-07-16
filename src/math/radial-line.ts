@@ -26,7 +26,7 @@ export class RadialLine {
 
 	/** Make radial line from start and end points. */
 	static fromPoints(point1: Point, point2: Point) {
-		return new RadialLine(point1, point2.diff(point1))
+		return new RadialLine(point1, Vector.fromDiff(point2, point1))
 	}
 
 	

@@ -1,27 +1,17 @@
-import {BarrierQueue} from '../../src'
+import {barrierDOMReading, barrierDOMWriting} from '../../src'
 
 
 describe('Test BarrierQueue', () => {
 
 	it('Test order', async () => {
-		let q = new BarrierQueue()
-		let v = 0
+		let results: number[] = []
+		let q1 = barrierDOMReading().then(() => results.push(1))
+		let q2 = barrierDOMWriting().then(() => results.push(2))
+		let q3 = barrierDOMReading().then(() => results.push(3))
+		let q4 = barrierDOMWriting().then(() => results.push(4))
 
-		async function f1() {
-			v += 1
-			await q.barrier(0)
-			expect(v).toEqual(2)
-		}
-
-		async function f2() {
-			v += 1
-			await q.barrier(0)
-			expect(v).toEqual(2)
-		}
-
-		await Promise.all([
-			f1(),
-			f2(),
-		])
+		await Promise.all([q1, q2, q3, q4])
+		console.log(results)
+		expect(results).toEqual([1, 3, 2, 4])
 	})
 })

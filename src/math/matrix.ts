@@ -58,6 +58,15 @@ export class Matrix implements MatrixData, MethodsObserved<
 		return new Matrix(a, b, c, d, e, f)
 	}
 
+	/** Create a matrix from 2 Coords. */
+	static fromCoords(c1: Coord, c2: Coord) {
+		return new Matrix(
+			c1.x, c1.y,
+			c2.x, c2.y,
+			0, 0
+		)
+	}
+
 	/** 
 	 * Make a transform matrix, which will convert `fromBox` to `toBox`.
 	 * 
@@ -114,13 +123,19 @@ export class Matrix implements MatrixData, MethodsObserved<
 		return matrix
 	}
 
-	/** Create a matrix from 2 Coords. */
-	static fromCoords(c1: Coord, c2: Coord) {
-		return new Matrix(
-			c1.x, c1.y,
-			c2.x, c2.y,
-			0, 0
-		)
+	/** Decompress a vector to `μ * a + ν * b`, returns factor vector of `(μ, ν)`. */
+	static decompressFactor(from: Vector, a: Vector, b: Vector): Vector {
+
+		// [a b] * [μ ν]^T = diff
+		// [μ ν]^T = [a b]^-1 * diff
+
+		return Matrix.fromCoords(a, b).inverse().transformVector(from)
+	}
+
+	/** Decompress a vector to `μ * a + ν * b`, returns an vector pair `[μ * a, ν * b]`. */
+	static decompress(from: Vector, a: Vector, b: Vector): [Vector, Vector] {
+		let {x: m, y: v} = Matrix.decompressFactor(from, a, b)
+		return [a.multiplyScalar(m), b.multiplyScalar(v)]
 	}
 
 	
@@ -177,7 +192,7 @@ export class Matrix implements MatrixData, MethodsObserved<
 		let c2 = fromPoints[1]
 		let c3 = toPoints[0]
 		let c4 = toPoints[1]
-		let c12d = c1.diff(c2)
+		let c12d = Vector.fromDiff(c1, c2)
 
 		let m = new Matrix(
 			 c12d.x, c12d.y,
@@ -185,7 +200,7 @@ export class Matrix implements MatrixData, MethodsObserved<
 			0, 0
 		)
 		
-		let v = c3.diff(c4)
+		let v = Vector.fromDiff(c3, c4)
 		let {x: a, y: b} = m.invertSelf().transformVector(v)
 		let c = -b
 		let d = a
@@ -229,8 +244,8 @@ export class Matrix implements MatrixData, MethodsObserved<
 		let c4 = toPoints[1]
 		let c5 = c1.mix(c2, 0.5)
 		let c6 = c3.mix(c4, 0.5)
-		let v1 = c2.diff(c1)
-		let v2 = c4.diff(c3)
+		let v1 = Vector.fromDiff(c2, c1)
+		let v2 = Vector.fromDiff(c4, c3)
 		let a = v2.getLength() / v1.getLength()
 		let b = 0
 		let c = 0

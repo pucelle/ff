@@ -4,7 +4,6 @@ import {Point, Vector, NumberUtils} from '../../src'
 describe('Test Point', () => {
 
 	test('Point Static', () => {
-		expect(Point.Zero).toEqual(new Point())
 		expect(Point.from({x: 1, y: 1})).toEqual(new Point(1, 1))
 
 		let p = Point.fromDegree(90)
@@ -49,9 +48,6 @@ describe('Test Point', () => {
 
 		p.set(1, 1)
 		expect(p.translate(1, 1)).toEqual(new Point(2, 2))
-
-		p.set(1, 1)
-		expect(new Point(2, 2).diff(p)).toEqual(new Vector(1, 1))
 
 		p.set(1, 1)
 		expect(p.mix(new Point(2, 2), 0.5)).toEqual(new Point(1.5, 1.5))

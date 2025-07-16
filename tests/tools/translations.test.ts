@@ -9,11 +9,11 @@ describe('Test translations', () => {
 			key2: '"What"',
 		})
 
-		expect(translations.getLanguage()).toEqual('en')
-		translations.setLanguage('zh')
-		expect(translations.getLanguage()).toEqual('zh')
-		translations.setLanguage('en')
-		expect(translations.getLanguage()).toEqual('en')
+		expect(translations.lang).toEqual('en')
+		translations.lang = 'zh'
+		expect(translations.lang).toEqual('zh')
+		translations.lang = 'en'
+		expect(translations.lang).toEqual('en')
 
 		expect(translations.get('key1', 'what')).toEqual('Translate of what')
 		expect(translations.getBolded('key2')).toEqual('<b>What</b>')

@@ -1,4 +1,5 @@
 import {MouseLeaveControl, sleep} from '../../src'
+import {jest} from '@jest/globals'
 
 
 describe('Test MouseLeaveControl', () => {
@@ -20,6 +21,7 @@ describe('Test MouseLeaveControl', () => {
 		let f1 = jest.fn()
 	
 		MouseLeaveControl.on(t1, p1, f1, {delay: 100})
+		enter(t1)
 		leave(t1)
 		expect(f1).toHaveBeenCalledTimes(0)
 
@@ -35,6 +37,7 @@ describe('Test MouseLeaveControl', () => {
 	
 		let cancel = MouseLeaveControl.on(t1, p1, f1, {delay: 100})
 
+		enter(t1)
 		leave(t1)
 		cancel()
 
@@ -63,7 +66,7 @@ describe('Test MouseLeaveControl', () => {
 	})
 
 
-	test.only('leave locks', async () => {
+	test('leave locks', async () => {
 		let t1 = document.createElement('div')
 		let p1 = document.createElement('div')
 		let f1 = jest.fn()
@@ -149,7 +152,7 @@ describe('Test MouseLeaveControl', () => {
 		expect(f3).toHaveBeenCalledTimes(0)
 
 		leave(p3)
-		await sleep(110)
+		await sleep(220)
 		expect(f1).toHaveBeenCalledTimes(1)
 		expect(f2).toHaveBeenCalledTimes(1)
 		expect(f3).toHaveBeenCalledTimes(1)

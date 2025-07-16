@@ -1,4 +1,5 @@
 import {Debounce, Interval, Throttle, timeout, Timeout, sleep} from '../../src'
+import {jest} from '@jest/globals'
 
 
 describe('Test time-control', () => {

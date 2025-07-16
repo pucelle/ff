@@ -10,12 +10,18 @@ describe('Test Matrix', () => {
 		expect(Matrix.fitBoxPair(new Box(-1, -1, 2, 2), new Box(-1, -3, 4, 8), 'cover')).toEqual(new Matrix(4, 0, 0, 4, 1, 1))
 		expect(Matrix.zero()).toEqual(new Matrix(0, 0, 0, 0, 0, 0))
 		expect(Matrix.i()).toEqual(new Matrix(1, 0, 0, 1, 0, 0))
-		expect(Matrix.I).toEqual(new Matrix(1, 0, 0, 1, 0, 0))
+
+		let v = new Vector(1, 1)
+		let v1 = new Vector(1, 2)
+		let v2 = new Vector(2, 1)
+		
+		expect(Matrix.decompressFactor(v, v1, v2)).toEqual(new Vector(1/3, 1/3))
+		expect(Matrix.decompress(v, v1, v2)).toEqual([new Vector(1/3, 2/3), new Vector(2/3, 1/3)])
 
 		expect(Matrix.makeNonSkewMatrixFromPoints(
 			[new Point(-1, 0), new Point(1, 0)],
 			[new Point(-1, 0), new Point(1, 0)]
-		).equals(Matrix.I)).toEqual(true)
+		).equals(Matrix.i())).toEqual(true)
 
 		expect(Matrix.makeNonSkewMatrixFromPoints(
 			[new Point(-1, 0), new Point(1, 0)],
@@ -50,7 +56,7 @@ describe('Test Matrix', () => {
 		expect(m).toEqual(new Matrix(1, 2, 3, 4, 5, 6))
 
 		m.reset()
-		expect(m).toEqual(Matrix.I)
+		expect(m).toEqual(Matrix.i())
 
 		m.copyFrom(new Matrix(1, 2, 3, 4, 5, 6))
 		expect(m).toEqual(new Matrix(1, 2, 3, 4, 5, 6))
@@ -164,7 +170,7 @@ describe('Test Matrix', () => {
 		expect(m.mix(new Matrix(1, 2, 3, 4, 5, 6), 0.5)).toEqual(new Matrix(1, 1, 1.5, 2.5, 2.5, 3))
 
 		expect(new Matrix(1, 2, 3, 4, 5, 6).toString()).toEqual(`matrix(1, 2, 3, 4, 5, 6)`)
-		expect(new Matrix(1, 2, 3, 4, 5, 6).mix(Matrix.I, 0.5)).toEqual(new Matrix(1, 1, 1.5, 2.5, 2.5, 3))
+		expect(new Matrix(1, 2, 3, 4, 5, 6).mix(Matrix.i(), 0.5)).toEqual(new Matrix(1, 1, 1.5, 2.5, 2.5, 3))
 		expect(new Matrix(1, 2, 3, 4, 5, 6).toJSON()).toEqual(new Matrix(1, 2, 3, 4, 5, 6))
 	})
 })

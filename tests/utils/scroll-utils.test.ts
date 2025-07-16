@@ -9,8 +9,8 @@ describe('ScrollUtils', () => {
 		let c = document.createElement('div')
 		p.append(c)
 
-		expect(ScrollUtils.findClosestCSSScrollWrapper(p)).toEqual(p)
-		expect(ScrollUtils.findClosestCSSScrollWrapper(c)).toEqual(p)
+		expect(ScrollUtils.findClosestCSSScrollWrapper(p)?.wrapper).toEqual(p)
+		expect(ScrollUtils.findClosestCSSScrollWrapper(c)?.wrapper).toEqual(p)
 	})
 
 

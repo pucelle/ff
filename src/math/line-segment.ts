@@ -35,7 +35,7 @@ export class LineSegment implements MethodsObserved<
 
 	/** Make line segment from start and end points. */
 	static fromPoints(point1: Point, point2: Point) {
-		return new LineSegment(point1, point2.diff(point1))
+		return new LineSegment(point1, Vector.fromDiff(point2, point1))
 	}
 
 	
@@ -78,7 +78,7 @@ export function normalIntersect(pv1: {point: Point, vector: Vector}, pv2: {point
 
 	// Two vectors are parallel with each other.
 	if (m.getDeterminant() === 0) {
-		let diff = c.diff(a)
+		let diff = Vector.fromDiff(c, a)
 
 		// In the same line.
 		if (diff.cross(b) !== 0) {
@@ -105,7 +105,7 @@ export function normalIntersect(pv1: {point: Point, vector: Vector}, pv2: {point
 		}
 
 		let point = c.addSelf(d.multiplyScalarSelf(niu))
-		let miu = point.diff(a).dot(b) / b.getLengthSquare()
+		let miu = Vector.fromDiff(point, a).dot(b) / b.getLengthSquare()
 
 		return {
 			point,
@@ -120,7 +120,7 @@ export function normalIntersect(pv1: {point: Point, vector: Vector}, pv2: {point
 	//  = [b, d][μ, -v]^T = [c - a]^T
 	// => [μ, -v]^T = [b, d]^-1 * [c - a]^T
 
-	let mn = m.inverse().transformVector(c.diff(a))
+	let mn = m.inverse().transformVector(Vector.fromDiff(c, a))
 	let miu = mn.x
 	let niu = -mn.y
 	let point = a.add(b.multiplyScalar(miu))

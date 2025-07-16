@@ -1,9 +1,10 @@
 import {ListBundler, SetBundler, EmptyBundler} from '../../src'
+import {jest} from '@jest/globals'
 
 
 describe('Test Bundler', () => {
 	test('ListBundler', async () => {
-		let f = jest.fn()
+		let f = jest.fn() as any
 		let b = new ListBundler(f)
 		b.add(1)
 		b.add(2)
@@ -27,7 +28,7 @@ describe('Test Bundler', () => {
 
 
 	test('EmptyBundler', async () => {
-		let f = jest.fn()
+		let f = jest.fn() as any
 		let b = new EmptyBundler(f)
 		b.call()
 		await Promise.resolve()

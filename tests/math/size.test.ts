@@ -4,7 +4,6 @@ import {Size} from '../../src'
 describe('Test Size', () => {
 
 	test('Size Static', () => {
-		expect(Size.Zero).toEqual(new Size(0, 0))
 		expect(Size.fromLike({width: 1, height: 1})).toEqual(new Size(1, 1))
 	})
 

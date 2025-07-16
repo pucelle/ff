@@ -1,4 +1,5 @@
 import {AsyncTaskQueue, sleep} from '../../src'
+import {jest} from '@jest/globals'
 
 
 describe('Test AsyncTaskQueue', () => {

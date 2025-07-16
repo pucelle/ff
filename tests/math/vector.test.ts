@@ -4,7 +4,6 @@ import {Vector, NumberUtils} from '../../src'
 describe('Test Vector', () => {
 
 	test('Vector Static', () => {
-		expect(Vector.Zero).toEqual(new Vector())
 		expect(Vector.from({x: 1, y: 1})).toEqual(new Vector(1, 1))
 
 		let p = Vector.fromDegree(90)
@@ -14,6 +13,8 @@ describe('Test Vector', () => {
 		p = Vector.fromRadians(Math.PI / 2)
 		p.x = NumberUtils.toDecimal(p.x, 8)
 		expect(p).toEqual(new Vector(0, 1))
+
+		expect(Vector.fromDiff({x:2, y:2}, {x:1, y: 1})).toEqual(new Vector(1, 1))
 	})
 
 
@@ -114,9 +115,5 @@ describe('Test Vector', () => {
 		temp.x = NumberUtils.toDecimal(temp.x, 8)
 		temp.y = NumberUtils.toDecimal(temp.y, 8)
 		expect(temp).toEqual(new Vector(2.5, 1.25))
-
-		v.set(1, 1)
-		expect(v.decompressFactor(v1, v2)).toEqual(new Vector(1/3, 1/3))
-		expect(v.decompress(v1, v2)).toEqual([new Vector(1/3, 2/3), new Vector(2/3, 1/3)])
 	})
 })

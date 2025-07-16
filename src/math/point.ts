@@ -1,12 +1,11 @@
 import {MethodsObserved} from '@pucelle/lupos'
 import * as MathUtils from './math-utils'
-import {Vector} from './vector'
 
 
 /* Represent a point at 2d panel. */
 export class Point implements MethodsObserved<
 	'clone' | 'equals' | 'isZero' | 'round' | 'ceil' | 'floor' | 'add' | 'sub' | 'translate'
-		| 'translateBy' | 'transform' | 'mix' | 'diff' | 'distanceTo' | 'toJSON',
+		| 'translateBy' | 'transform' | 'mix' | 'distanceTo' | 'toJSON',
 	'set' | 'reset' | 'copyFrom' | 'roundSelf' | 'ceilSelf' | 'floorSelf' | 'addSelf' | 'subSelf'
 		| 'translateSelf' | 'translateBySelf' | 'mixSelf' | 'transformSelf'
 > {
@@ -186,14 +185,6 @@ export class Point implements MethodsObserved<
 		this.y = this.y * (1 - pRate) + p.y * pRate
 
 		return this
-	}
-
-	/** Minus another point to get a difference vector. */
-	diff(p: Point): Vector {
-		let x = this.x - p.x
-		let y = this.y - p.y
-
-		return new Vector(x, y)
 	}
 
 	/** Get the distance to another point. */

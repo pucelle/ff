@@ -1,6 +1,6 @@
 import {MethodsObserved} from '@pucelle/lupos'
 import * as MathUtils from './math-utils'
-import {Matrix} from './matrix'
+import type {Matrix} from './matrix'
 
 
 /** A Vector represent a vector at 2d panel. */
@@ -10,7 +10,7 @@ export class Vector implements MethodsObserved<
 		| 'multiplyScalar' | 'divide' | 'complexDivide' | 'divideScalar' | 'negative' | 'rotate'
 		| 'rotateInDegree' | 'transform' | 'normalize' | 'mix' | 'getRotateAngleFrom' | 'getRotateAngleInDegreeFrom'
 		| 'getRotateFlagFrom' | 'dot' | 'cross' | 'projectTo' | 'restAfterProjectTo' | 'backProjectFrom'
-		| 'decompressFactor' | 'decompress' | 'toJSON',
+		| 'toJSON',
 	'set' | 'reset' | 'copyFrom' | 'roundSelf' | 'ceilSelf' | 'floorSelf' | 'addSelf' | 'subSelf'
 		| 'multiplySelf' | 'complexMultiplySelf' | 'multiplyScalarSelf' | 'divideSelf' | 'complexDivideSelf'
 		| 'divideScalarSelf' | 'negativeSelf' | 'rotateSelf' | 'rotateInDegreeSelf' | 'transformSelf'
@@ -20,6 +20,14 @@ export class Vector implements MethodsObserved<
 	/** Make a vector from a coord. */
 	static from(coord: Coord): Vector {
 		return new Vector(coord.x, coord.y)
+	}
+
+	/** Minus from a point to another to get a difference vector. */
+	static fromDiff(coord1: Coord, coord2: Coord): Vector {
+		let x = coord1.x - coord2.x
+		let y = coord1.y - coord2.y
+
+		return new Vector(x, y)
 	}
 
 	/** Make a vector to represent a rotating vector from an angle in degree. */
@@ -408,21 +416,6 @@ export class Vector implements MethodsObserved<
 		let tLength = cos === 0 ? 0 : pLength / cos
 
 		return directionV.multiplyScalar(tLength / dLength)
-	}
-
-	/** Decompress current vector to `μ * a + ν * b`, returns factor vector of `(μ, ν)`. */
-	decompressFactor(a: Vector, b: Vector): Vector {
-
-		// [a b] * [μ ν]^T = diff
-		// [μ ν]^T = [a b]^-1 * diff
-
-		return Matrix.fromCoords(a, b).inverse().transformVector(this)
-	}
-
-	/** Decompress current vector to `μ * a + ν * b`, returns an vector pair `[μ * a, ν * b]`. */
-	decompress(a: Vector, b: Vector): [Vector, Vector] {
-		let {x: m, y: v} = this.decompressFactor(a, b)
-		return [a.multiplyScalar(m), b.multiplyScalar(v)]
 	}
 
 	/** Convert to JSON data. */
