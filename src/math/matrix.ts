@@ -3,11 +3,11 @@ import {Point} from './point'
 import {Box} from './box'
 import * as MathUtils from './math-utils'
 import {Size} from './size'
-import {MethodsObserved} from '@pucelle/lupos'
+import {MethodsToObserve, ToObserve} from '@pucelle/lupos'
 
 
 /** Represents a 2D Transform Matrix. */
-export class Matrix implements MatrixData, MethodsObserved<
+export class Matrix implements MatrixData, MethodsToObserve<
 	'clone' | 'equals' | 'isI' | 'isZero' | 'isRigid' | 'isSimilar' | 'isSkewed' | 'isMirrored'
 		| 'getDeterminant' | 'getEigenValues' | 'getPrimaryScaling' | 'getSecondaryScaling' | 'multiply'
 		| 'multiplyScalar' | 'preMultiply' | 'translate' | 'translateBy' | 'scale' | 'rotateInDegree'
@@ -53,13 +53,13 @@ export class Matrix implements MatrixData, MethodsObserved<
 	}
 
 	/** Make a matrix from a matrix like object. */
-	static fromMatrixLike(md: MatrixData): Matrix {
+	static fromMatrixLike(md: ToObserve<MatrixData>): Matrix {
 		let {a, b, c, d, e, f} = md
 		return new Matrix(a, b, c, d, e, f)
 	}
 
 	/** Create a matrix from 2 Coords. */
-	static fromCoords(c1: Coord, c2: Coord) {
+	static fromCoords(c1: ToObserve<Coord>, c2: ToObserve<Coord>) {
 		return new Matrix(
 			c1.x, c1.y,
 			c2.x, c2.y,
@@ -76,7 +76,7 @@ export class Matrix implements MatrixData, MethodsObserved<
 	 *  - `stretch`: stretch to fit pair element's width and height.
 	 * Default value is `stretch`.
 	 */
-	static fromBoxPair(fromBox: BoxLike, toBox: BoxLike, fitMode: 'contain' | 'cover' | 'stretch' = 'stretch'): Matrix {
+	static fromBoxPair(fromBox: ToObserve<BoxLike>, toBox: ToObserve<BoxLike>, fitMode: 'contain' | 'cover' | 'stretch' = 'stretch'): Matrix {
 		let fromX = fromBox.x + fromBox.width / 2
 		let fromY = fromBox.y + fromBox.height / 2
 		let toX = toBox.x + toBox.width / 2
@@ -105,7 +105,7 @@ export class Matrix implements MatrixData, MethodsObserved<
 	 * @param contain after converted, `fromBox` will be exactly contained by `toBox`.
 	 * @param cover after converted, `fromBox` will exactly cover `toBox`.
 	 */
-	static fitBoxPair(fromBox: BoxLike, toBox: BoxLike, mode: 'contain' | 'cover' = 'contain'): Matrix {
+	static fitBoxPair(fromBox: ToObserve<BoxLike>, toBox: ToObserve<BoxLike>, mode: 'contain' | 'cover' = 'contain'): Matrix {
 		let scaling = mode === 'contain'
 			? Math.min(toBox.width / fromBox.width, toBox.height / fromBox.height)
 			: Math.max(toBox.width / fromBox.width, toBox.height / fromBox.height)
@@ -124,7 +124,7 @@ export class Matrix implements MatrixData, MethodsObserved<
 	}
 
 	/** Decompress a vector to `μ * a + ν * b`, returns factor vector of `(μ, ν)`. */
-	static decompressFactor(from: Vector, a: Vector, b: Vector): Vector {
+	static decompressFactor(from: ToObserve<Vector>, a: ToObserve<Vector>, b: ToObserve<Vector>): Vector {
 
 		// [a b] * [μ ν]^T = diff
 		// [μ ν]^T = [a b]^-1 * diff
@@ -133,7 +133,7 @@ export class Matrix implements MatrixData, MethodsObserved<
 	}
 
 	/** Decompress a vector to `μ * a + ν * b`, returns an vector pair `[μ * a, ν * b]`. */
-	static decompress(from: Vector, a: Vector, b: Vector): [Vector, Vector] {
+	static decompress(from: ToObserve<Vector>, a: ToObserve<Vector>, b: ToObserve<Vector>): [Vector, Vector] {
 		let {x: m, y: v} = Matrix.decompressFactor(from, a, b)
 		return [a.multiplyScalar(m), b.multiplyScalar(v)]
 	}
@@ -144,7 +144,10 @@ export class Matrix implements MatrixData, MethodsObserved<
 	 * Ignore skew transform.
 	 * Can be used for calculating transform matrix of pinch event.
 	 */
-	static makeNonSkewMatrixFromPoints(fromPoints: [Point, Point], toPoints: [Point, Point]): Matrix {
+	static makeNonSkewMatrixFromPoints(
+		fromPoints: [ToObserve<Point>, ToObserve<Point>],
+		toPoints: [ToObserve<Point>, ToObserve<Point>]
+	): Matrix {
 
 		// Let it transform from C1 and C2, to C3 and C4:
 
@@ -215,7 +218,10 @@ export class Matrix implements MatrixData, MethodsObserved<
 	 * Ignore rotation part.
 	 * Can be used for calculating the transform matrix of pinch event.
 	 */
-	static makeNonRotationMatrixFromPoints(fromPoints: [Point, Point], toPoints: [Point, Point]): Matrix {
+	static makeNonRotationMatrixFromPoints(
+		fromPoints: [ToObserve<Point>, ToObserve<Point>],
+		toPoints: [ToObserve<Point>, ToObserve<Point>]
+	): Matrix {
 
 		// Let it transform from C1 and C2, to C3 and C4:
 
@@ -310,7 +316,7 @@ export class Matrix implements MatrixData, MethodsObserved<
 	}
 
 	/** Whether equals to another matrix. */
-	equals(m: MatrixData): boolean {
+	equals(m: ToObserve<MatrixData>): boolean {
 		return this.a == m.a &&
 			this.b == m.b &&
 			this.c == m.c &&
@@ -417,12 +423,12 @@ export class Matrix implements MatrixData, MethodsObserved<
 	}
 
 	/** Post / Left multiply with `mr`, do `(this * mr)` and returns a new matrix. */
-	multiply(mr: MatrixData): Matrix {
+	multiply(mr: ToObserve<MatrixData>): Matrix {
 		return this.clone().multiplySelf(mr)
 	}
 
 	/** Post / Left multiply `mr`, do `(this * mr)` and apply result to self. */
-	multiplySelf(mr: MatrixData): this {
+	multiplySelf(mr: ToObserve<MatrixData>): this {
 		let ml = this
 
 		let a = ml.a * mr.a + ml.c * mr.b
@@ -460,12 +466,12 @@ export class Matrix implements MatrixData, MethodsObserved<
 	}
 
 	/** Pre / Right multiply with `ml`,  do `(ml * this)` and returns a new matrix. */
-	preMultiply(ml: MatrixData): Matrix {
+	preMultiply(ml: ToObserve<MatrixData>): Matrix {
 		return this.clone().preMultiplySelf(ml)
 	}
 
 	/** Pre / Right multiply with `ml`, do `(ml * this)` and apply result to self. */
-	preMultiplySelf(ml: MatrixData): this {
+	preMultiplySelf(ml: ToObserve<MatrixData>): this {
 		let mr = this
 
 		let a = ml.a * mr.a + ml.c * mr.b
@@ -503,12 +509,12 @@ export class Matrix implements MatrixData, MethodsObserved<
 	}
 
 	/** Merge a Translate transform to current matrix and returns a new matrix. */
-	translateBy(v: Coord): Matrix {
+	translateBy(v: ToObserve<Coord>): Matrix {
 		return this.clone().translateBySelf(v)
 	}
 
 	/** Merge a Translate transform to current matrix. */
-	translateBySelf(v: Coord): this {
+	translateBySelf(v: ToObserve<Coord>): this {
 		return this.preMultiplySelf({
 			a: 1,
 			c: 0,
@@ -626,7 +632,7 @@ export class Matrix implements MatrixData, MethodsObserved<
 	}
 
 	/** Transform a point to get a new one. */
-	transformPoint(point: Coord): Point {
+	transformPoint(point: ToObserve<Coord>): Point {
 		let {a, b, c, d, e, f} = this
 		let {x, y} = point
 
@@ -637,7 +643,7 @@ export class Matrix implements MatrixData, MethodsObserved<
 	}
 
 	/** Transform a vector to get a new one. */
-	transformVector(vector: Coord): Vector {
+	transformVector(vector: ToObserve<Coord>): Vector {
 		let {a, b, c, d} = this
 		let {x, y} = vector
 
@@ -648,7 +654,7 @@ export class Matrix implements MatrixData, MethodsObserved<
 	}
 	
 	/** Transform a box to get a new one. */
-	transformBox(box: BoxLike): Box {
+	transformBox(box: ToObserve<BoxLike>): Box {
 		let p1 = new Point(box.x, box.y).transformSelf(this)
 		let p2 = new Point(box.x + box.width, box.y).transformSelf(this)
 		let p3 = new Point(box.x, box.y + box.height).transformSelf(this)
@@ -658,7 +664,7 @@ export class Matrix implements MatrixData, MethodsObserved<
 	}
 
 	/** Transform a size to get a new one. */
-	transformSize(size: SizeLike): Size {
+	transformSize(size: ToObserve<SizeLike>): Size {
 		let {a, b, c, d} = this
 		let {width, height} = size
 
@@ -669,7 +675,7 @@ export class Matrix implements MatrixData, MethodsObserved<
 	 * Mix with another matrix and returns a new matrix.
 	 * @param rate is the mix rate of `m`.
 	 */
-	mix(m: MatrixData, rate: number): Matrix {
+	mix(m: ToObserve<MatrixData>, rate: number): Matrix {
 		return this.clone().mixSelf(m, rate)
 	}
 
@@ -677,7 +683,7 @@ export class Matrix implements MatrixData, MethodsObserved<
 	 * Mix with another matrix to self.
 	 * @param rate is the mix rate of `m`.
 	 */
-	mixSelf(m: MatrixData, rate: number): this {
+	mixSelf(m: ToObserve<MatrixData>, rate: number): this {
 		let selfRate = 1 - rate
 
 		this.a = this.a * selfRate + m.a * rate

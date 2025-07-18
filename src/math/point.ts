@@ -1,9 +1,9 @@
-import {MethodsObserved} from '@pucelle/lupos'
+import {MethodsToObserve, ToObserve} from '@pucelle/lupos'
 import * as MathUtils from './math-utils'
 
 
 /* Represent a point at 2d panel. */
-export class Point implements MethodsObserved<
+export class Point implements MethodsToObserve<
 	'clone' | 'equals' | 'isZero' | 'round' | 'ceil' | 'floor' | 'add' | 'sub' | 'translate'
 		| 'translateBy' | 'transform' | 'mix' | 'distanceTo' | 'toJSON',
 	'set' | 'reset' | 'copyFrom' | 'roundSelf' | 'ceilSelf' | 'floorSelf' | 'addSelf' | 'subSelf'
@@ -11,7 +11,7 @@ export class Point implements MethodsObserved<
 > {
 
 	/** Make a point from a coord. */
-	static from(coord: Coord): Point {
+	static from(coord: ToObserve<Coord>): Point {
 		return new Point(coord.x, coord.y)
 	}
 
@@ -47,7 +47,7 @@ export class Point implements MethodsObserved<
 	}
 
 	/** Copy values from a coord to current point. */
-	copyFrom(coord: Coord) {
+	copyFrom(coord: ToObserve<Coord>) {
 		this.x = coord.x
 		this.y = coord.y
 	}
@@ -58,7 +58,7 @@ export class Point implements MethodsObserved<
 	}
 
 	/** Whether equals to another point. */
-	equals(p: Point) {
+	equals(p: ToObserve<Point>) {
 		return this.x === p.x && this.y === p.y
 	}
 
@@ -107,12 +107,12 @@ export class Point implements MethodsObserved<
 	}
 
 	/** Add a vector to current point, returns a new point. */
-	add(v: Coord): Point {
+	add(v: ToObserve<Coord>): Point {
 		return this.clone().addSelf(v)
 	}
 
 	/** Add a vector to current point. */
-	addSelf(v: Coord): this {
+	addSelf(v: ToObserve<Coord>): this {
 		this.x += v.x
 		this.y += v.y
 
@@ -120,12 +120,12 @@ export class Point implements MethodsObserved<
 	}
 
 	/** Subtract a vector from current point, returns a new point. */
-	sub(v: Coord): Point {
+	sub(v: ToObserve<Coord>): Point {
 		return this.clone().subSelf(v)
 	}
 
 	/** Subtract a vector from current point. */
-	subSelf(v: Coord): this {
+	subSelf(v: ToObserve<Coord>): this {
 		this.x -= v.x
 		this.y -= v.y
 
@@ -146,12 +146,12 @@ export class Point implements MethodsObserved<
 	}
 
 	/** Translate current point by coord specified, returns a new point. */
-	translateBy(coord: Coord): Point {
+	translateBy(coord: ToObserve<Coord>): Point {
 		return this.clone().translateBySelf(coord)
 	}
 
 	/** Translate current point by coord specified. */
-	translateBySelf(coord: Coord): this {
+	translateBySelf(coord: ToObserve<Coord>): this {
 		this.x += coord.x
 		this.y += coord.y
 
@@ -159,12 +159,12 @@ export class Point implements MethodsObserved<
 	}
 
 	/** Transform current point to get a new one. */
-	transform(matrix: MatrixData): Point {
+	transform(matrix: ToObserve<MatrixData>): Point {
 		return this.clone().transformSelf(matrix)
 	}
 
 	/** Transform current point. */
-	transformSelf(matrix: MatrixData): this {
+	transformSelf(matrix: ToObserve<MatrixData>): this {
 		let {a, b, c, d, e, f} = matrix
 		let {x, y} = this
 
@@ -175,12 +175,12 @@ export class Point implements MethodsObserved<
 	}
 
 	/** Mix with another point to get a new point. */
-	mix(p: Point, pRate: number): Point {
+	mix(p: ToObserve<Point>, pRate: number): Point {
 		return this.clone().mixSelf(p, pRate)
 	}
 
 	/** Mix with another point to self. */
-	mixSelf(p: Point, pRate: number): this {
+	mixSelf(p: ToObserve<Point>, pRate: number): this {
 		this.x = this.x * (1 - pRate) + p.x * pRate
 		this.y = this.y * (1 - pRate) + p.y * pRate
 
@@ -188,7 +188,7 @@ export class Point implements MethodsObserved<
 	}
 
 	/** Get the distance to another point. */
-	distanceTo(p: Point): number {
+	distanceTo(p: ToObserve<Point>): number {
 		let x = this.x - p.x
 		let y = this.y - p.y
 

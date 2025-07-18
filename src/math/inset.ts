@@ -1,9 +1,9 @@
-import {MethodsObserved} from '@pucelle/lupos'
+import {MethodsToObserve, ToObserve} from '@pucelle/lupos'
 import type {Direction} from './direction'
 
 
 /** Represents a insets object, which including top, right, bottom, left values. */
-export class Inset implements MethodsObserved<
+export class Inset implements MethodsToObserve<
 	'clone' | 'getMaximumAbsoluteValue' | 'collapse' | 'collapseAt' | 'collapseValueBy' | 'collapseValueAt'
 		| 'pickBy' | 'pickAt' | 'multiplyScalar' | 'round' | 'ceil' | 'floor' | 'toJSON' | 'toArray',
 	'reset' | 'set' | 'copyFrom' | 'multiplyScalarSelf' | 'roundSelf' | 'ceilSelf' | 'floorSelf'
@@ -88,7 +88,7 @@ export class Inset implements MethodsObserved<
 	 * Collapse with several inset objects into current,
 	 * pick maximum value in all the directions.
 	 */
-	collapse(...os: Inset[]): this {
+	collapse(...os: ToObserve<Inset>[]): this {
 		for (let o of os) {
 			for (let key of Inset.Keys) {
 				this[key] = Math.max(this[key], o[key])
@@ -102,7 +102,7 @@ export class Inset implements MethodsObserved<
 	 * Collapse with a inset object,
 	 * pick maximum value at specified direction.
 	 */
-	collapseAt(o: Inset, direction: Direction) {
+	collapseAt(o: ToObserve<Inset>, direction: Direction) {
 		let keys = direction.toInsetKeys()
 
 		for (let key of keys) {

@@ -1,10 +1,9 @@
-import {MethodsObserved} from '@pucelle/lupos'
+import {MethodsToObserve, ToObserve} from '@pucelle/lupos'
 import * as MathUtils from './math-utils'
-import type {Matrix} from './matrix'
 
 
 /** A Vector represent a vector at 2d panel. */
-export class Vector implements MethodsObserved<
+export class Vector implements MethodsToObserve<
 	'clone' | 'equals' | 'isZero' | 'angleInDegree' | 'angle' | 'round' | 'ceil' | 'floor'
 		| 'getLengthSquare' | 'getLength' | 'add' | 'sub' | 'multiply' | 'complexMultiply'
 		| 'multiplyScalar' | 'divide' | 'complexDivide' | 'divideScalar' | 'negative' | 'rotate'
@@ -18,12 +17,12 @@ export class Vector implements MethodsObserved<
 > {
 
 	/** Make a vector from a coord. */
-	static from(coord: Coord): Vector {
+	static from(coord: ToObserve<Coord>): Vector {
 		return new Vector(coord.x, coord.y)
 	}
 
 	/** Minus from a point to another to get a difference vector. */
-	static fromDiff(coord1: Coord, coord2: Coord): Vector {
+	static fromDiff(coord1: ToObserve<Coord>, coord2: ToObserve<Coord>): Vector {
 		let x = coord1.x - coord2.x
 		let y = coord1.y - coord2.y
 
@@ -62,7 +61,7 @@ export class Vector implements MethodsObserved<
 	}
 
 	/** Copy values from a coord to current. */
-	copyFrom(coord: Coord) {
+	copyFrom(coord: ToObserve<Coord>) {
 		this.x = coord.x
 		this.y = coord.y
 	}
@@ -73,7 +72,7 @@ export class Vector implements MethodsObserved<
 	}
 
 	/** Whether vector values equals the coord parameters. */
-	equals(coord: Coord): boolean {
+	equals(coord: ToObserve<Coord>): boolean {
 		return this.x === coord.x && this.y === coord.y
 	}
 
@@ -142,12 +141,12 @@ export class Vector implements MethodsObserved<
 	}
 
 	/** Add another vector to current, returns a new vector. */
-	add(v: Coord): Vector {
+	add(v: ToObserve<Coord>): Vector {
 		return this.clone().addSelf(v)
 	}
 
 	/** Add another vector to current. */
-	addSelf(v: Coord): this {
+	addSelf(v: ToObserve<Coord>): this {
 		this.x += v.x
 		this.y += v.y
 
@@ -155,12 +154,12 @@ export class Vector implements MethodsObserved<
 	}
 
 	/** Subtract another vector from current, returns a new vector. */
-	sub(v: Coord): Vector {
+	sub(v: ToObserve<Coord>): Vector {
 		return this.clone().subSelf(v)
 	}
 
 	/** Subtract another vector from current. */
-	subSelf(v: Coord): this {
+	subSelf(v: ToObserve<Coord>): this {
 		this.x -= v.x
 		this.y -= v.y
 
@@ -168,12 +167,12 @@ export class Vector implements MethodsObserved<
 	}
 
 	/** Multiple with another vector per component, returns a new vector. */
-	multiply(v: Coord): Vector {
+	multiply(v: ToObserve<Coord>): Vector {
 		return this.clone().multiplySelf(v)
 	}
 
 	/** Multiple with another vector per component. */
-	multiplySelf(v: Coord): this {
+	multiplySelf(v: ToObserve<Coord>): this {
 		this.x *= v.x
 		this.y *= v.y
 
@@ -184,7 +183,7 @@ export class Vector implements MethodsObserved<
 	 * Complex multiply with another vector, returns a new vector.
 	 * Complex multiply equals the multiply of vector rotation, and the multiply of vector model length.
 	 */
-	complexMultiply(v: Coord): Vector {
+	complexMultiply(v: ToObserve<Coord>): Vector {
 		return this.clone().complexMultiplySelf(v)
 	}
 
@@ -192,7 +191,7 @@ export class Vector implements MethodsObserved<
 	 * Complex multiply with another vector.
 	 * Complex multiply equals the multiply of vector rotation, and the multiply of vector model length.
 	 */
-	complexMultiplySelf(v: Coord): this {
+	complexMultiplySelf(v: ToObserve<Coord>): this {
 		let x = this.x * v.x - this.y * v.y
 		let y = this.x * v.y + this.y * v.x
 
@@ -216,12 +215,12 @@ export class Vector implements MethodsObserved<
 	}
 
 	/** Divide by another vector per component, returns a new vector. */
-	divide(v: Coord): Vector {
+	divide(v: ToObserve<Coord>): Vector {
 		return this.clone().divideSelf(v)
 	}
 
 	/** Divide by another vector per component. */
-	divideSelf(v: Coord): this {
+	divideSelf(v: ToObserve<Coord>): this {
 		this.x /= v.x
 		this.y /= v.y
 
@@ -232,7 +231,7 @@ export class Vector implements MethodsObserved<
 	 * Complex divide by another vector, returns a new vector.
 	 * Equals rotating according to conjugate of `v`, and divide v's model length.
 	 */
-	complexDivide(v: Vector): Vector {
+	complexDivide(v: ToObserve<Vector>): Vector {
 		return this.clone().complexDivideSelf(v)
 	}
 
@@ -240,7 +239,7 @@ export class Vector implements MethodsObserved<
 	 * Complex divide by another vector.
 	 * Equals rotating according to conjugate of `v`, and divide v's model length.
 	 */
-	complexDivideSelf(v: Vector): this {
+	complexDivideSelf(v: ToObserve<Vector>): this {
 
 		// a ÷ b = a * conjugate(b) / |b|^2
 
@@ -305,12 +304,12 @@ export class Vector implements MethodsObserved<
 	}
 
 	/** Transform current vector to get a new one. */
-	transform(matrix: Matrix): Vector {
+	transform(matrix: ToObserve<MatrixData>): Vector {
 		return this.clone().transformSelf(matrix)
 	}
 
 	/** Transform current vector. */
-	transformSelf(matrix: Matrix): this {
+	transformSelf(matrix: ToObserve<MatrixData>): this {
 		let {a, b, c, d} = matrix
 		let {x, y} = this
 
@@ -336,12 +335,12 @@ export class Vector implements MethodsObserved<
 	}
 
 	/** Mix with `v` to get a new one. */
-	mix(v: Vector, vRate: number): Vector {
+	mix(v: ToObserve<Vector>, vRate: number): Vector {
 		return this.clone().mixSelf(v, vRate)
 	}
 
 	/** Mix with `v` to self. */
-	mixSelf(v: Vector, vRate: number): this {
+	mixSelf(v: ToObserve<Vector>, vRate: number): this {
 		this.x = this.x * (1 - vRate) + v.x * vRate
 		this.y = this.y * (1 - vRate) + v.y * vRate
 
@@ -349,17 +348,17 @@ export class Vector implements MethodsObserved<
 	}
 	
 	/** Get the rotate angle in radians that can rotate from `v` to current. */
-	getRotateAngleFrom(v: Vector): number {
+	getRotateAngleFrom(v: ToObserve<Vector>): number {
 		return this.complexDivide(v).angle()
 	}
 
 	/** Get the rotate angle in degree that can rotate from `v` to current. */
-	getRotateAngleInDegreeFrom(v: Vector): number {
+	getRotateAngleInDegreeFrom(v: ToObserve<Vector>): number {
 		return MathUtils.radiansToDegree(this.getRotateAngleFrom(v))
 	}
 	
 	/** Get the rotate flag that represent whether rotation from `v` is clockwise(1) or anti-clockwise(0). */
-	getRotateFlagFrom(v: Vector): 0 | 1 {
+	getRotateFlagFrom(v: ToObserve<Vector>): 0 | 1 {
 		let divided = this.complexDivide(v)
 		if (divided.y > 0) {
 			return 1
@@ -370,7 +369,7 @@ export class Vector implements MethodsObserved<
 	}
 
 	/** Dot product current vector with `v`. */
-	dot(v: Vector): number {
+	dot(v: ToObserve<Vector>): number {
 		return this.x * v.x + this.y * v.y
 	}
 
@@ -379,7 +378,7 @@ export class Vector implements MethodsObserved<
 	 * Returned value equals the area of parallelogram from these two vectors,
 	 * But be positive when the angle rotated from current vector to another less than `180°`.
 	 */
-	cross(v: Vector): number {
+	cross(v: ToObserve<Vector>): number {
 		return this.x * v.y - this.y * v.x
 	}
 
@@ -387,12 +386,12 @@ export class Vector implements MethodsObserved<
 	 * Project current vector to `v`, returns the projected result.
 	 * Returned vector will have the same direction with `v`.
 	 */
-	projectTo(v: Vector): Vector {
+	projectTo(v: ToObserve<Vector>): Vector {
 		return v.multiplyScalar(this.dot(v) / v.getLengthSquare())
 	}
 	
 	/** Get the rest value which from current vector minus the projection from current to another. */
-	restAfterProjectTo(v: Vector): Vector {
+	restAfterProjectTo(v: ToObserve<Vector>): Vector {
 		return this.sub(this.projectTo(v))
 	}
 
@@ -401,7 +400,7 @@ export class Vector implements MethodsObserved<
 	 * and knows an vector `directionV` pointed out the original direction,
 	 * restore the original vector and return it.
 	 */
-	backProjectFrom(directionV: Vector): Vector {
+	backProjectFrom(directionV: ToObserve<Vector>): Vector {
 
 		// Assume it projects from `t` to `v`, get vector `p`.
 		// cosθ = t·v / (|t|*|v|)

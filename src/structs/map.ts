@@ -1,11 +1,11 @@
-import {MethodsObserved} from '@pucelle/lupos'
+import {MethodsToObserve} from '@pucelle/lupos'
 
 
 /** 
  * `K => V[]` Map Struct.
  * Good for purely adding.
  */
-export class ListMap<K, V> implements MethodsObserved<
+export class ListMap<K, V> implements MethodsToObserve<
 	'keys' | 'valueLists' | 'values' | 'entries' | 'flatEntries' | 'has'
 		| 'hasKey' | 'countOf' | 'valueCount' | 'keyCount' | 'get' | 'clone',
 	'add' | 'addSeveral' | 'addIf' | 'addSeveralIf' | 'set' | 'delete'
@@ -218,7 +218,7 @@ export class ListMap<K, V> implements MethodsObserved<
  * `K => Set<V>` Map Struct.
  * Good for dynamically adding & deleting.
  */
-export class SetMap<K, V> implements MethodsObserved<
+export class SetMap<K, V> implements MethodsToObserve<
 	'keys' | 'valueLists' | 'values' | 'entries' | 'flatEntries' | 'has'
 		| 'hasKey' | 'countOf' | 'valueCount' | 'keyCount' | 'get' | 'clone',
 	'add' | 'addSeveral' | 'set' | 'delete'
@@ -381,7 +381,7 @@ export class SetMap<K, V> implements MethodsObserved<
  * `K1 -> K2 -> V` Map Struct.
  * Index each value by a pair of keys.
  */
-export class PairKeysMap<K1, K2, V> implements MethodsObserved<
+export class PairKeysMap<K1, K2, V> implements MethodsToObserve<
 	'firstKeys' | 'secondKeysOf' | 'secondValuesOf' | 'values' | 'entries' | 'flatEntries'
 		| 'secondEntriesOf' | 'has' | 'hasFirstKey' | 'firstKeyCount' | 'secondKeyCountOf'
 		| 'get' | 'getSecond' | 'clone',
@@ -535,7 +535,7 @@ export class PairKeysMap<K1, K2, V> implements MethodsObserved<
  * `K1 -> K2 -> V[]` Map Struct.
  * Index a value list by a pair of keys.
  */
-export class PairKeysListMap<K1, K2, V> implements MethodsObserved<
+export class PairKeysListMap<K1, K2, V> implements MethodsToObserve<
 	'firstKeys' | 'secondKeysOf' | 'secondValuesOf' | 'values' | 'entries' | 'flatEntries'
 		| 'secondEntriesOf' | 'has' | 'hasFirstKey' | 'firstKeyCount' | 'secondKeyCountOf'
 		| 'get' | 'getSecond' | 'clone',
@@ -788,7 +788,7 @@ export class PairKeysListMap<K1, K2, V> implements MethodsObserved<
  * `K1 -> K2 -> Set<V>` Map Struct.
  * Index a value set by a pair of keys.
  */
-export class PairKeysSetMap<K1, K2, V> implements MethodsObserved<
+export class PairKeysSetMap<K1, K2, V> implements MethodsToObserve<
 'firstKeys' | 'secondKeysOf' | 'secondValuesOf' | 'values' | 'entries' | 'flatEntries'
 	| 'secondEntriesOf' | 'has' | 'hasFirstKey' | 'firstKeyCount' | 'secondKeyCountOf'
 	| 'get' | 'getSecond' | 'clone',
@@ -1016,7 +1016,7 @@ export class PairKeysSetMap<K1, K2, V> implements MethodsObserved<
  * `L -> R`
  * `R -> L`
  */
-export class TwoWayMap<L, R> implements MethodsObserved<
+export class TwoWayMap<L, R> implements MethodsToObserve<
 	'leftKeys' | 'rightKeys' | 'entries' | 'hasLeft' | 'hasRight' | 'leftKeyCount'
 		| 'rightKeyCount' | 'getByLeft' | 'getByRight' | 'clone',
 	'set' | 'setUnRepeatably' | 'deleteLeft' | 'deleteRight' | 'clear'
@@ -1128,7 +1128,7 @@ export class TwoWayMap<L, R> implements MethodsObserved<
  * `L -> R[]`
  * `R -> L[]`
  */
-export class TwoWayListMap<L, R> implements MethodsObserved<
+export class TwoWayListMap<L, R> implements MethodsToObserve<
 	'leftKeyCount' | 'rightKeyCount' | 'leftKeys' | 'rightKeys' | 'leftValuesOf' | 'rightValuesOf'
 		| 'leftEntries' | 'rightEntries' | 'flatEntries' | 'has' | 'hasLeft' | 'hasRight'
 		| 'countOfLeft' | 'countOfRight' | 'leftKeyCount' | 'rightKeyCount' | 'getByLeft' | 'getByRight'
@@ -1348,7 +1348,7 @@ export class TwoWayListMap<L, R> implements MethodsObserved<
  * `L -> Set<R>`
  * `R -> Set<L>`
  */
-export class TwoWaySetMap<L, R> implements MethodsObserved<
+export class TwoWaySetMap<L, R> implements MethodsToObserve<
 	'leftKeyCount' | 'rightKeyCount' | 'leftKeys' | 'rightKeys' | 'leftValuesOf' | 'rightValuesOf'
 		| 'leftEntries' | 'rightEntries' | 'flatEntries' | 'has' | 'hasLeft' | 'hasRight'
 		| 'countOfLeft' | 'countOfRight' | 'leftKeyCount' | 'rightKeyCount' | 'getByLeft' | 'getByRight'

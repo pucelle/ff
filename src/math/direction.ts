@@ -1,3 +1,4 @@
+import {ToObserve} from '@pucelle/lupos'
 import {NumberUtils} from '../utils'
 import {Vector} from './vector'
 
@@ -55,7 +56,7 @@ export class Direction {
 	}
 
 	/** Make direction from a vector. */
-	static fromVector(vector: Vector): Direction {
+	static fromVector(vector: ToObserve<Vector>): Direction {
 
 		// Avoid 1e-13 != 0.
 		let x = NumberUtils.nearlyZero(vector.x)
@@ -121,7 +122,7 @@ export class Direction {
 	}
 
 	/** Make a straight direction from a vector, choose dominate direction when it's oblique. */
-	static straightFromVector(v: Vector): Direction {
+	static straightFromVector(v: ToObserve<Vector>): Direction {
 		let {x, y} = v
 		let absX = Math.abs(v.x)
 		let absY = Math.abs(v.y)
