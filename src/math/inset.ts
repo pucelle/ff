@@ -1,5 +1,6 @@
 import {MethodsToObserve, ToObserve} from '@pucelle/lupos'
 import type {Direction} from './direction'
+import {InsetKey} from './types'
 
 
 /** Represents a insets object, which including top, right, bottom, left values. */

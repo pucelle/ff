@@ -1,3 +1,5 @@
+import {SizeLike} from "../math"
+
 /** Type of style properties. */
 export type StylePropertyName = string & keyof CSSStyleDeclaration
 

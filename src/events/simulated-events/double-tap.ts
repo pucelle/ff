@@ -1,6 +1,7 @@
 import {Timeout} from '../../tools'
 import {EventFirer, DOMEvents} from '@pucelle/lupos'
 import {SimulatedEventsConfiguration} from './configuration'
+import {Coord} from '../../math'
 
 
 export interface DoubleTapEvents {

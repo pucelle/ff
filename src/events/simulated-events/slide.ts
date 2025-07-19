@@ -1,6 +1,7 @@
 import {EventFirer, DOMEvents} from '@pucelle/lupos'
 import {SimulatedEventsConfiguration} from './configuration'
 import {EventUtils} from '../../utils'
+import {Coord, InsetKey} from '../../math'
 
 
 export interface SlideEvents {

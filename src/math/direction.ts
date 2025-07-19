@@ -1,6 +1,7 @@
 import {ToObserve} from '@pucelle/lupos'
 import {NumberUtils} from '../utils'
 import {Vector} from './vector'
+import {HVDirection, InsetKey} from './types'
 
 
 /** All Direction enumerable values. */

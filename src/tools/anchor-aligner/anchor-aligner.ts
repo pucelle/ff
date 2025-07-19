@@ -1,4 +1,4 @@
-import {Direction} from '../../math'
+import {Direction, HVDirection} from '../../math'
 import {ObjectUtils} from '../../utils'
 import {RectWatcher, ResizeWatcher} from '../../watchers'
 import {MeasuredAlignment} from './measured-alignment'

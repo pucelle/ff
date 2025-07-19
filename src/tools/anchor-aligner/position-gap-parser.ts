@@ -1,4 +1,4 @@
-import {Direction, Vector} from '../../math'
+import {Coord, Direction, Vector} from '../../math'
 
 
 /** Align which direction of target to which direction of anchor. */

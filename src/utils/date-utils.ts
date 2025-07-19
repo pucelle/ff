@@ -1,4 +1,5 @@
 import {DurationUnits, DurationObject} from './duration-object'
+import {DurationUnit} from './types'
 
 
 /** Get one of the date values from a date object by specified `unit`. */

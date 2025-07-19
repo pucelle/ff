@@ -1,4 +1,5 @@
 import {DOMEvents} from '@pucelle/lupos'
+import {Coord} from '../math'
 
 
 export interface MouseMovementOptions {

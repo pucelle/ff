@@ -1,3 +1,6 @@
+import {DurationUnit} from './types'
+
+
 /** Duration data object. */
 type DurationData = Record<DurationUnit, number>
 

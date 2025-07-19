@@ -1,5 +1,6 @@
 import {MethodsToObserve, ToObserve} from '@pucelle/lupos'
 import * as MathUtils from './math-utils'
+import {Coord, MatrixLike} from './types'
 
 
 /* Represent a point at 2d panel. */
@@ -159,12 +160,12 @@ export class Point implements MethodsToObserve<
 	}
 
 	/** Transform current point to get a new one. */
-	transform(matrix: ToObserve<MatrixData>): Point {
+	transform(matrix: ToObserve<MatrixLike>): Point {
 		return this.clone().transformSelf(matrix)
 	}
 
 	/** Transform current point. */
-	transformSelf(matrix: ToObserve<MatrixData>): this {
+	transformSelf(matrix: ToObserve<MatrixLike>): this {
 		let {a, b, c, d, e, f} = matrix
 		let {x, y} = this
 

@@ -1,5 +1,6 @@
 import {MethodsToObserve, ToObserve} from '@pucelle/lupos'
 import * as MathUtils from './math-utils'
+import {Coord, MatrixLike} from './types'
 
 
 /** A Vector represent a vector at 2d panel. */
@@ -304,12 +305,12 @@ export class Vector implements MethodsToObserve<
 	}
 
 	/** Transform current vector to get a new one. */
-	transform(matrix: ToObserve<MatrixData>): Vector {
+	transform(matrix: ToObserve<MatrixLike>): Vector {
 		return this.clone().transformSelf(matrix)
 	}
 
 	/** Transform current vector. */
-	transformSelf(matrix: ToObserve<MatrixData>): this {
+	transformSelf(matrix: ToObserve<MatrixLike>): this {
 		let {a, b, c, d} = matrix
 		let {x, y} = this
 

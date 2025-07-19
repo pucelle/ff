@@ -1,17 +1,17 @@
 /** Coord format. */
-interface Coord {
+export interface Coord {
 	x: number
 	y: number
 }
 
 /** Size with width and height. */
-interface SizeLike {
+export interface SizeLike {
 	width: number
 	height: number
 }
 
 /** Box like format. */
-interface BoxLike {
+export interface BoxLike {
 	x: number
 	y: number
 	width: number
@@ -19,7 +19,7 @@ interface BoxLike {
 }
 
 /** Matrix abcdef. */
-interface MatrixData {
+export interface MatrixLike {
 	a: number
 	b: number
 	c: number
@@ -29,7 +29,7 @@ interface MatrixData {
 }
 
 /** 4 box edge distance keys. */
-type InsetKey = 'top' | 'right' | 'bottom' | 'left'
+export type InsetKey = 'top' | 'right' | 'bottom' | 'left'
 
 /** Horizontal or vertical. */
-type HVDirection = 'horizontal' | 'vertical'
+export type HVDirection = 'horizontal' | 'vertical'

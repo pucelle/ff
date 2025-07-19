@@ -2,6 +2,7 @@ import {EventUtils} from '../../utils'
 import {EventFirer, DOMEvents} from '@pucelle/lupos'
 import {SimulatedEventsConfiguration} from './configuration'
 import {Timeout} from '../../tools'
+import {Coord} from '../../math'
 
 
 export interface TapEvents {

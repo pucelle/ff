@@ -1,3 +1,5 @@
+import {HVDirection} from "../math"
+
 /** Cached scroll bar width. */
 let scrollBarWidth: number | null = null
 

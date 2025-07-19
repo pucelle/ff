@@ -177,4 +177,4 @@ export class LoggerTimer {
 
 
 /** Default log level logger. */
-export const logger = new Logger()
+export const logger = /*#__PURE__*/new Logger()

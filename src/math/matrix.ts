@@ -4,10 +4,11 @@ import {Box} from './box'
 import * as MathUtils from './math-utils'
 import {Size} from './size'
 import {MethodsToObserve, ToObserve} from '@pucelle/lupos'
+import {BoxLike, Coord, MatrixLike, SizeLike} from './types'
 
 
 /** Represents a 2D Transform Matrix. */
-export class Matrix implements MatrixData, MethodsToObserve<
+export class Matrix implements MatrixLike, MethodsToObserve<
 	'clone' | 'equals' | 'isI' | 'isZero' | 'isRigid' | 'isSimilar' | 'isSkewed' | 'isMirrored'
 		| 'getDeterminant' | 'getEigenValues' | 'getPrimaryScaling' | 'getSecondaryScaling' | 'multiply'
 		| 'multiplyScalar' | 'preMultiply' | 'translate' | 'translateBy' | 'scale' | 'rotateInDegree'
@@ -53,7 +54,7 @@ export class Matrix implements MatrixData, MethodsToObserve<
 	}
 
 	/** Make a matrix from a matrix like object. */
-	static fromMatrixLike(md: ToObserve<MatrixData>): Matrix {
+	static fromMatrixLike(md: ToObserve<MatrixLike>): Matrix {
 		let {a, b, c, d, e, f} = md
 		return new Matrix(a, b, c, d, e, f)
 	}
@@ -300,7 +301,7 @@ export class Matrix implements MatrixData, MethodsToObserve<
 	}
 
 	/** Copy values from a matrix to current. */
-	copyFrom(m: MatrixData) {
+	copyFrom(m: MatrixLike) {
 		this.a = m.a
 		this.b = m.b
 		this.c = m.c
@@ -316,7 +317,7 @@ export class Matrix implements MatrixData, MethodsToObserve<
 	}
 
 	/** Whether equals to another matrix. */
-	equals(m: ToObserve<MatrixData>): boolean {
+	equals(m: ToObserve<MatrixLike>): boolean {
 		return this.a == m.a &&
 			this.b == m.b &&
 			this.c == m.c &&
@@ -423,12 +424,12 @@ export class Matrix implements MatrixData, MethodsToObserve<
 	}
 
 	/** Post / Left multiply with `mr`, do `(this * mr)` and returns a new matrix. */
-	multiply(mr: ToObserve<MatrixData>): Matrix {
+	multiply(mr: ToObserve<MatrixLike>): Matrix {
 		return this.clone().multiplySelf(mr)
 	}
 
 	/** Post / Left multiply `mr`, do `(this * mr)` and apply result to self. */
-	multiplySelf(mr: ToObserve<MatrixData>): this {
+	multiplySelf(mr: ToObserve<MatrixLike>): this {
 		let ml = this
 
 		let a = ml.a * mr.a + ml.c * mr.b
@@ -466,12 +467,12 @@ export class Matrix implements MatrixData, MethodsToObserve<
 	}
 
 	/** Pre / Right multiply with `ml`,  do `(ml * this)` and returns a new matrix. */
-	preMultiply(ml: ToObserve<MatrixData>): Matrix {
+	preMultiply(ml: ToObserve<MatrixLike>): Matrix {
 		return this.clone().preMultiplySelf(ml)
 	}
 
 	/** Pre / Right multiply with `ml`, do `(ml * this)` and apply result to self. */
-	preMultiplySelf(ml: ToObserve<MatrixData>): this {
+	preMultiplySelf(ml: ToObserve<MatrixLike>): this {
 		let mr = this
 
 		let a = ml.a * mr.a + ml.c * mr.b
@@ -675,7 +676,7 @@ export class Matrix implements MatrixData, MethodsToObserve<
 	 * Mix with another matrix and returns a new matrix.
 	 * @param rate is the mix rate of `m`.
 	 */
-	mix(m: ToObserve<MatrixData>, rate: number): Matrix {
+	mix(m: ToObserve<MatrixLike>, rate: number): Matrix {
 		return this.clone().mixSelf(m, rate)
 	}
 
@@ -683,7 +684,7 @@ export class Matrix implements MatrixData, MethodsToObserve<
 	 * Mix with another matrix to self.
 	 * @param rate is the mix rate of `m`.
 	 */
-	mixSelf(m: ToObserve<MatrixData>, rate: number): this {
+	mixSelf(m: ToObserve<MatrixLike>, rate: number): this {
 		let selfRate = 1 - rate
 
 		this.a = this.a * selfRate + m.a * rate
@@ -703,7 +704,7 @@ export class Matrix implements MatrixData, MethodsToObserve<
 	}
 
 	/** Convert to JSON data. */
-	toJSON(): MatrixData {
+	toJSON(): MatrixLike {
 		let {a, b, c, d, e, f} = this
 		return {a, b, c, d, e, f}
 	}

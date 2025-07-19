@@ -1,4 +1,5 @@
 import {MethodsToObserve, ToObserve} from '@pucelle/lupos'
+import {MatrixLike, SizeLike} from './types'
 
 
 export class Size implements MethodsToObserve<
@@ -99,12 +100,12 @@ export class Size implements MethodsToObserve<
 	}
 
 	/** Transform current size to get a new one. */
-	transform(matrix: ToObserve<MatrixData>): Size {
+	transform(matrix: ToObserve<MatrixLike>): Size {
 		return this.clone().transformSelf(matrix)
 	}
 
 	/** Transform current size to get a new one. */
-	transformSelf(matrix: ToObserve<MatrixData>): this {
+	transformSelf(matrix: ToObserve<MatrixLike>): this {
 		let {a, b, c, d} = matrix
 		let {width, height} = this
 

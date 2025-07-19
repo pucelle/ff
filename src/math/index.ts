@@ -13,4 +13,4 @@ export * as IntegralLookup from './integral-lookup'
 export * as MathUtils from './math-utils'
 export * as RandomUtils	from './random'
 
-import './types'
+export * from './types'

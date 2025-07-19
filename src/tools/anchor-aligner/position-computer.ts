@@ -1,4 +1,4 @@
-import {Direction, Vector} from '../../math'
+import {Coord, Direction, Vector} from '../../math'
 import {DOMUtils} from '../../utils'
 import {barrierDOMReading, barrierDOMWriting} from '../barrier-queue'
 import {AnchorAligner} from './anchor-aligner'

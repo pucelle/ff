@@ -7,6 +7,7 @@ import {Size} from './size'
 import {Vector} from './vector'
 import type {Matrix} from './matrix'
 import {MethodsToObserve, ToObserve} from '@pucelle/lupos'
+import {BoxLike, Coord, HVDirection} from './types'
 
 
 /** Represent a rectangle bounding box. */
