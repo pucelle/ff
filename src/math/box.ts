@@ -1,6 +1,6 @@
 import {ListUtils} from '../utils'
 import {Direction} from './direction'
-import {Inset} from './inset'
+import {BoxOffsets} from './box-offsets'
 import {LineSegment} from './line-segment'
 import {Point} from './point'
 import {Size} from './size'
@@ -14,14 +14,14 @@ import {BoxLike, Coord, HVDirection} from './types'
 export class Box implements BoxLike, MethodsToObserve<
 	'isIntersectWith' | 'isIntersectWithAtHV' | 'round' | 'ceil' | 'floor' | 'equals' | 'edges' | 'size' | 'paddingTo'
 		| 'union' | 'intersect' | 'intersectAtHV' | 'difference' | 'unionAtHV' | 'unionAt' | 'expand'
-		| 'expandByInset' | 'expandToContain' | 'translate' | 'translateBy' | 'transform'
+		| 'expandByBoxOffsets' | 'expandToContain' | 'translate' | 'translateBy' | 'transform'
 		| 'anchorPointAt' | 'anchorPointByVector' | 'containsPoint' | 'containsPointAfterExpanded'
 		| 'containsBox' | 'getCornerPoints' | 'minDistancedVectorToPoint' | 'minDistancedDirectionToBox'
 		| 'minDistancedVectorToBox' | 'minBouncedVectorToPoint' | 'minBouncedDirectionToBox'
 		| 'minBouncedVectorToBox' | 'distanceToPoint' | 'distanceToBox' | 'toJSON',
 	'set' | 'reset' | 'copyFrom' | 'roundSelf' | 'ceilSelf' | 'floorSelf' | 'unionSelf'
 		| 'intersectSelf' | 'intersectAtHVSelf' | 'differenceSelf' | 'unionAtHVSelf' | 'unionAtSelf' | 'expandSelf'
-		| 'expandByInsetSelf' | 'expandToContainSelf' | 'translateSelf' | 'translateBySelf'
+		| 'expandByBoxOffsetsSelf' | 'expandToContainSelf' | 'translateSelf' | 'translateBySelf'
 		| 'transformSelf'
 >  {
 
@@ -294,8 +294,8 @@ export class Box implements BoxLike, MethodsToObserve<
 	 * If self is much bigger and fully contains targeted box,
 	 * all values of returned object are positive.
 	 */
-	paddingTo(b: ToObserve<Box>): Inset {
-		return new Inset(
+	paddingTo(b: ToObserve<Box>): BoxOffsets {
+		return new BoxOffsets(
 			b.y - this.y,
 			this.right - b.right,
 			this.bottom - b.bottom,
@@ -496,12 +496,12 @@ export class Box implements BoxLike, MethodsToObserve<
 	}
 
 	/** Expand by a box edge distances object, returns a new box. */
-	expandByInset(o: ToObserve<Inset>): Box {
-		return this.clone().expandByInsetSelf(o)
+	expandByBoxOffsets(o: ToObserve<BoxOffsets>): Box {
+		return this.clone().expandByBoxOffsetsSelf(o)
 	}
 
 	/** Expand by a box edge distances object. */
-	expandByInsetSelf(o: ToObserve<Inset>): Box {
+	expandByBoxOffsetsSelf(o: ToObserve<BoxOffsets>): Box {
 		let {top, right, bottom, left} = o
 		this.x = this.x - left
 		this.y = this.y - top

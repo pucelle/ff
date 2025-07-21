@@ -1,21 +1,21 @@
 import {MethodsToObserve, ToObserve} from '@pucelle/lupos'
 import type {Direction} from './direction'
-import {InsetKey} from './types'
+import {BoxOffsetKey} from './types'
 
 
-/** Represents a insets object, which including top, right, bottom, left values. */
-export class Inset implements MethodsToObserve<
+/** Represents a box offset object, which including top, right, bottom, left values. */
+export class BoxOffsets implements MethodsToObserve<
 	'clone' | 'getMaximumAbsoluteValue' | 'collapse' | 'collapseAt' | 'collapseValueBy' | 'collapseValueAt'
 		| 'pickBy' | 'pickAt' | 'multiplyScalar' | 'round' | 'ceil' | 'floor' | 'toJSON' | 'toArray',
 	'reset' | 'set' | 'copyFrom' | 'multiplyScalarSelf' | 'roundSelf' | 'ceilSelf' | 'floorSelf'
 > {
 
-	/** All 4 inset keys. */
-	static Keys: InsetKey[] = ['top', 'right', 'bottom', 'left']
+	/** All 4 box offset keys. */
+	static Keys: BoxOffsetKey[] = ['top', 'right', 'bottom', 'left']
 
 	/** Parse from a string to get an edge distance object. */
 	static fromString(string: string) {
-		return new Inset(...string.split(/\s+/).map(s => Number(s)))
+		return new BoxOffsets(...string.split(/\s+/).map(s => Number(s)))
 	}
 
 
@@ -57,8 +57,8 @@ export class Inset implements MethodsToObserve<
 		this.left = left
 	}
 
-	/** Copy values from another inset object. */
-	copyFrom(o: Inset) {
+	/** Copy values from another box offsets object. */
+	copyFrom(o: BoxOffsets) {
 		this.top = o.top
 		this.right = o.right
 		this.bottom = o.bottom
@@ -67,7 +67,7 @@ export class Inset implements MethodsToObserve<
 
 	/** Clone current object. */
 	clone() {
-		return new Inset(
+		return new BoxOffsets(
 			this.top,
 			this.right,
 			this.bottom,
@@ -86,12 +86,12 @@ export class Inset implements MethodsToObserve<
 	}
 
 	/** 
-	 * Collapse with several inset objects into current,
+	 * Collapse with several box offsets objects into current,
 	 * pick maximum value in all the directions.
 	 */
-	collapse(...os: ToObserve<Inset>[]): this {
+	collapse(...os: ToObserve<BoxOffsets>[]): this {
 		for (let o of os) {
-			for (let key of Inset.Keys) {
+			for (let key of BoxOffsets.Keys) {
 				this[key] = Math.max(this[key], o[key])
 			}
 		}
@@ -100,33 +100,33 @@ export class Inset implements MethodsToObserve<
 	}
 
 	/** 
-	 * Collapse with a inset object,
+	 * Collapse with a box offsets object,
 	 * pick maximum value at specified direction.
 	 */
-	collapseAt(o: ToObserve<Inset>, direction: Direction) {
-		let keys = direction.toInsetKeys()
+	collapseAt(o: ToObserve<BoxOffsets>, direction: Direction) {
+		let keys = direction.toBoxOffsetKeys()
 
 		for (let key of keys) {
 			this[key] = Math.max(this[key], o[key])
 		}
 	}
 
-	/** Collapse inset value by inset key. */
-	collapseValueBy(key: InsetKey, value: number) {
+	/** Collapse box offsets value by box offsets key. */
+	collapseValueBy(key: BoxOffsetKey, value: number) {
 		this[key] = Math.max(this[key], value)
 	}
 
-	/** Collapse inset value at direction. */
+	/** Collapse box offsets value at direction. */
 	collapseValueAt(direction: Direction, value: number) {
-		let keys = direction.toInsetKeys()
+		let keys = direction.toBoxOffsetKeys()
 
 		for (let key of keys) {
 			this[key] = Math.max(this[key], value)
 		}
 	}
 
-	/** Pick values by specified inset keys, values at other directions will become `0`. */
-	pickBy(keys: InsetKey[]): Inset {
+	/** Pick values by specified box offsets keys, values at other directions will become `0`. */
+	pickBy(keys: BoxOffsetKey[]): BoxOffsets {
 		let {top, right, bottom, left} = this
 
 		top = keys.includes('top') ? top : 0
@@ -134,7 +134,7 @@ export class Inset implements MethodsToObserve<
 		bottom = keys.includes('bottom') ? bottom : 0
 		left = keys.includes('left') ? left : 0
 
-		return new Inset(
+		return new BoxOffsets(
 			top,
 			right,
 			bottom,
@@ -143,13 +143,13 @@ export class Inset implements MethodsToObserve<
 	}
 
 	/** Pick values at specified direction, values at other directions will become `0`. */
-	pickAt(direction: Direction): Inset {
-		let keys = direction.toInsetKeys()
+	pickAt(direction: Direction): BoxOffsets {
+		let keys = direction.toBoxOffsetKeys()
 		return this.pickBy(keys)
 	}
 
 	/** Multiply scalar value, returns a new object. */
-	multiplyScalar(factor: number): Inset {
+	multiplyScalar(factor: number): BoxOffsets {
 		return this.clone().multiplyScalarSelf(factor)
 	}
 
@@ -165,7 +165,7 @@ export class Inset implements MethodsToObserve<
 
 
 	/** Round all values, returns a new object. */
-	round(): Inset {
+	round(): BoxOffsets {
 		return this.clone().roundSelf()
 	}
 
@@ -180,7 +180,7 @@ export class Inset implements MethodsToObserve<
 	}
 
 	/** Do Math Ceil for all values, returns a new object. */
-	ceil(): Inset {
+	ceil(): BoxOffsets {
 		return this.clone().ceilSelf()
 	}
 
@@ -195,7 +195,7 @@ export class Inset implements MethodsToObserve<
 	}
 
 	/** Do Math Floor for all values, returns a new object. */
-	floor(): Inset {
+	floor(): BoxOffsets {
 		return this.clone().floorSelf()
 	}
 
@@ -210,7 +210,7 @@ export class Inset implements MethodsToObserve<
 	}
 	
 	/** Convert to JSON data. */
-	toJSON(): Record<InsetKey, number> {
+	toJSON(): Record<BoxOffsetKey, number> {
 		return {
 			top: this.top,
 			right: this.right,

@@ -1,4 +1,4 @@
-import {Direction, Inset, Vector} from '../../math'
+import {Direction, BoxOffsets, Vector} from '../../math'
 import {WeakListMap} from '../../structs'
 import {AnchorAligner} from './anchor-aligner'
 import {AnchorAlignmentType} from './types'
@@ -85,7 +85,7 @@ export class PureCSSAnchorAlignment {
 	 * Ensure barrier DOM Writing before calling it.
 	 */
 	reset() {
-		for (let key of Inset.Keys) {
+		for (let key of BoxOffsets.Keys) {
 			this.target.style[key] = ''
 		}
 
@@ -123,14 +123,14 @@ export class PureCSSAnchorAlignment {
 			}
 			else if (anchorD.beHorizontal) {
 				areaV = 'center'
-				areaH = anchorD.toInsetKey()!
+				areaH = anchorD.toBoxOffsetKey()!
 			}
 			else if (anchorD.beVertical) {
-				areaV = anchorD.toInsetKey()!
+				areaV = anchorD.toBoxOffsetKey()!
 				areaH = 'center'
 			}
 			else {
-				[areaV, areaH] = anchorD.toInsetKeys()
+				[areaV, areaH] = anchorD.toBoxOffsetKeys()
 			}
 		}
 
@@ -139,26 +139,26 @@ export class PureCSSAnchorAlignment {
 
 			// `top span-left`
 			if (primaryD.beVertical && anchorSecondaryD !== Direction.Center) {
-				areaV = primaryD.toInsetKey()!
-				areaH = 'span-' + anchorSecondaryD.opposite.toInsetKey()!
+				areaV = primaryD.toBoxOffsetKey()!
+				areaH = 'span-' + anchorSecondaryD.opposite.toBoxOffsetKey()!
 			}
 
 			// `span-top left`
 			else if (primaryD.beHorizontal && anchorSecondaryD !== Direction.Center) {
-				areaV = 'span-' + anchorSecondaryD.opposite.toInsetKey()!
-				areaH = primaryD.toInsetKey()!
+				areaV = 'span-' + anchorSecondaryD.opposite.toBoxOffsetKey()!
+				areaH = primaryD.toBoxOffsetKey()!
 			}
 
 			// `span-top center`
 			else if (anchorD.beStraight) {
-				areaV = 'span-' + anchorD.opposite.toInsetKey()!
+				areaV = 'span-' + anchorD.opposite.toBoxOffsetKey()!
 				areaH = 'center'
 			}
 
 			// `span-top span-left`
 			else {
-				areaV = 'span-' + anchorD.vertical.opposite.toInsetKey()!
-				areaH = 'span-' + anchorD.horizontal.opposite.toInsetKey()!
+				areaV = 'span-' + anchorD.vertical.opposite.toBoxOffsetKey()!
+				areaH = 'span-' + anchorD.horizontal.opposite.toBoxOffsetKey()!
 			}
 
 			if (anchorSecondaryD !== targetSecondaryD) {

@@ -1,7 +1,7 @@
 import {ToObserve} from '@pucelle/lupos'
 import {NumberUtils} from '../utils'
 import {Vector} from './vector'
-import {HVDirection, InsetKey} from './types'
+import {HVDirection, BoxOffsetKey} from './types'
 
 
 /** All Direction enumerable values. */
@@ -103,8 +103,8 @@ export class Direction {
 		return ValueToDirection[value]
 	}
 
-	/** Make direction from a inset key. */
-	static fromInsetKey(key: InsetKey): Direction {
+	/** Make direction from a box offset key. */
+	static fromBoxOffsetKey(key: BoxOffsetKey): Direction {
 		if (key === 'left') {
 			return Direction.Left
 		}
@@ -603,10 +603,10 @@ export class Direction {
 	}
 
 	/** 
-	 * Convert to a inset key.
+	 * Convert to a box offset key.
 	 * Returns `null` if not be straight.
 	 */
-	toInsetKey(): InsetKey | null {
+	toBoxOffsetKey(): BoxOffsetKey | null {
 		if (this === Direction.Left) {
 			return 'left'
 		}
@@ -628,7 +628,7 @@ export class Direction {
 	 * Convert to one or two directional keys.
 	 * Returns empty array for Center or None direction.
 	 */
-	toInsetKeys(): InsetKey[] {
+	toBoxOffsetKeys(): BoxOffsetKey[] {
 		if (this === Direction.Left) {
 			return ['left']
 		}

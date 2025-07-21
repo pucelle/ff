@@ -1,13 +1,13 @@
 import {EventFirer, DOMEvents} from '@pucelle/lupos'
 import {SimulatedEventsConfiguration} from './configuration'
 import {EventUtils} from '../../utils'
-import {Coord, InsetKey} from '../../math'
+import {Coord, BoxOffsetKey} from '../../math'
 
 
 export interface SlideEvents {
 
 	/** After sliding enough pixels at a direction on a touch screen. */
-	'slide': (e: TouchEvent, direction: InsetKey) => void
+	'slide': (e: TouchEvent, direction: BoxOffsetKey) => void
 }
 
 
@@ -61,7 +61,7 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 	}
 
 	/** Get slide direction. */
-	private getSlideDirection(moves: Coord): InsetKey | null {
+	private getSlideDirection(moves: Coord): BoxOffsetKey | null {
 		let direction = straightFromVector(moves)
 		if (direction === null) {
 			return null
@@ -93,7 +93,7 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 
 
 /** Make a straight direction from a vector, choose dominate direction when it's oblique. */
-function straightFromVector(v: Coord): InsetKey | null {
+function straightFromVector(v: Coord): BoxOffsetKey | null {
 	let {x, y} = v
 	let absX = Math.abs(v.x)
 	let absY = Math.abs(v.y)
@@ -115,7 +115,7 @@ function straightFromVector(v: Coord): InsetKey | null {
 	}
 }
 
-function directionToVector(d: InsetKey) {
+function directionToVector(d: BoxOffsetKey) {
 	if (d === 'left') {
 		return {x: -1, y: 0}
 	}

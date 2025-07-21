@@ -1,5 +1,5 @@
 export * from './box'
-export * from './inset'
+export * from './box-offsets'
 export * from './direction'
 export * from './line-segment'
 export * from './matrix'

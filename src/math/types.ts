@@ -28,8 +28,8 @@ export interface MatrixLike {
 	f: number
 }
 
-/** 4 box edge distance keys. */
-export type InsetKey = 'top' | 'right' | 'bottom' | 'left'
+/** 4 box offset keys. */
+export type BoxOffsetKey = 'top' | 'right' | 'bottom' | 'left'
 
 /** Horizontal or vertical. */
 export type HVDirection = 'horizontal' | 'vertical'

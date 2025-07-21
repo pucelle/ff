@@ -124,13 +124,13 @@ export function getGapTranslate(anchorDirection: Direction, targetDirection: Dir
 	if (anchorDirection.horizontal !== Direction.Center
 		&& targetDirection.horizontal !== Direction.Center
 	) {
-		translate.x += anchorV.x * gaps[anchorDirection.horizontal.toInsetKey()!]
+		translate.x += anchorV.x * gaps[anchorDirection.horizontal.toBoxOffsetKey()!]
 	}
 
 	if (anchorDirection.vertical !== Direction.Center
 		&& targetDirection.vertical !== Direction.Center
 	) {
-		translate.y += anchorV.y * gaps[anchorDirection.vertical.toInsetKey()!]
+		translate.y += anchorV.y * gaps[anchorDirection.vertical.toBoxOffsetKey()!]
 	}
 
 	return translate
