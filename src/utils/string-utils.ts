@@ -14,24 +14,6 @@ export function format(template: string, params: Record<string, string | number>
 
 
 
-/** Encode `<>` to `&...` to make sure HTML codes are safely to be appended into document. */
-export function encodeHTML(code: string): string {
-	return code.replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}
-
-/**
- * Decode HTML codes which includes `&...` to be content characters.
- * Otherwise it will remove all the html tags.
- * Note this is a very slow method.
- */
-export function decodeHTML(code: string): string {
-	let parser = new DOMParser()
-	let dom = parser.parseFromString(`<!DOCTYPE html><body>${code}</body></html>`, 'text/html')
-	return dom.body.textContent!
-}
-
-
-
 /** Uppercase the first character of `string`: `abc` -> `Abc` */
 export function toCapitalize(string: string): string {
 	return string.slice(0, 1).toUpperCase() + string.slice(1)

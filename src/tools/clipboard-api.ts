@@ -171,7 +171,7 @@ export class MixedClipboardStore<D extends Record<string, string> = any> {
 		this.name = name
 	}
 
-	/** Write clipboard data to mixed store. */
+	/** Write clipboard data to mixed store, and may write to a clipboard event if it exists. */
 	async write(data: D, e?: ClipboardEvent) {
 		if (e) {
 			writeToEvent(e, data)
@@ -189,7 +189,7 @@ export class MixedClipboardStore<D extends Record<string, string> = any> {
 		biggerStorage.set('flit-clipboard', data, '7d')
 	}
 
-	/** Read clipboard data from mixed store. */
+	/** Read clipboard data from mixed store, and may read from a clipboard event if it exists. */
 	async read(limitType: 'text' | 'file' | 'all' = 'text', e?: ClipboardEvent): Promise<D | null> {
 		let data: D | null = null
 

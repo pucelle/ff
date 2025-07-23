@@ -176,5 +176,8 @@ export class LoggerTimer {
 }
 
 
-/** Default log level logger. */
+/** 
+ * Default log level logger.
+ * You may reset it's log level.
+ */
 export const logger = /*#__PURE__*/new Logger()

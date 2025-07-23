@@ -14,13 +14,15 @@ const DynamicHTMLDecodingMap: Record<string, string>
 	)
 
 
-/** Encode characters like `<>&"'` to `&...;`. */
+/** 
+ * Encode characters like `<>&"'` to `&...;`
+ * to make HTML codes are safely to be appended into document as text content.
+ */
 export function encodeToHTML(code: string): string {
 	return code.replace(/[&<>"']/g, (a) => {
 		return HTMLEncodingMap[a]
 	})
 }
-
 
 /** 
  * Decode all HTML encoded characters like `$apos;`, `$xabcd;`, `$#1234;` to decoded characters.
@@ -58,6 +60,7 @@ function decodeEntity(entity: string) {
 }
 
 
+
 /** 
  * Convert text to HTML codes.
  * Each line will be wrapped with `<p>...</p>`.
@@ -68,7 +71,6 @@ export function textToHTML(text: string): string {
 		.map(line => `<p>${line}</p>`)
 		.join('')
 }
-
 
 /** 
  * Convert HTML codes to text by removing all html tags,
@@ -84,6 +86,7 @@ export function htmlToText(html: string): string {
 }
 
 
+
 /** Clean all unsafe html tags and events, like `<script>`, `onerror=...` */
 export function cleanUnsafeHTML(html: string): string {
 	return html.replace(/<script[\s\S]*?>[\s\S]*?<\/script\s*>/gi, '')
@@ -91,3 +94,4 @@ export function cleanUnsafeHTML(html: string): string {
 		return m0.replace(/\s*on\w+\s*=\s*(['"])?.*?\1/g, '')
 	})
 }
+

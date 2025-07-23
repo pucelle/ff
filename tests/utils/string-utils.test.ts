@@ -9,11 +9,6 @@ describe('Test StringUtils', () => {
 		expect(StringUtils.format('a{x}{y}d', {x:'b'})).toEqual('ab{y}d')
 	})
 
-	test('encode & decode html', () => {
-		expect(StringUtils.encodeHTML('<abc>')).toEqual('&lt;abc&gt;')
-		//expect(StringUtils.decodeHTML('&lt;abc&gt;')).toEqual('<abc>')
-	})
-
 	test('other string methods', () => {
 		expect(StringUtils.toCapitalize('abc')).toEqual('Abc')
 
