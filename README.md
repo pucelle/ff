@@ -10,15 +10,15 @@ Most modules have none or few dependencies, which means you can easily **tree-sh
 
 ## Features
 
-- Events
-	- SimulatedEvents: bind events like
+- **Events**
+	- **SimulatedEvents**: bind events like:
 		- `tap`
 		- `double-tap`
 		- `hold`
 		- `pinch`
 		- `slide`
 
-	- Math: Do math calculations, includes 
+	- **Math**: Do math calculations, especially geometry calculations, includes:
 		- `Point`
 		- `Vector`
 		- `LineSegment`
@@ -32,8 +32,8 @@ Most modules have none or few dependencies, which means you can easily **tree-sh
 		- `IntegralLookup`
 		- `RecursiveAverage` and `RecursiveVariance`
 
-	- Structs: map and weak map structs, includes 
-		- Map:
+	- **Structs**: map and weak map structs, includes:
+		- **Map**:
 			- `ListMap`: `K => V[]`
 			- `SetMap`: `K => Set<V>`
 			- `PairKeysMap`: `K1 -> K2 -> V`
@@ -43,7 +43,7 @@ Most modules have none or few dependencies, which means you can easily **tree-sh
 			- `TwoWayListMap`: `L -> R[]` and `R -> L[]`
 			- `TwoWaySetMap`: `L -> Set<R>` and `R -> Set<L>`
 
-		- WeakMap: Add weak versions of previous map.
+		- **WeakMap**:
 			- `WeakListMap`: `K => V[]`
 			- `WeakSetMap`: `K => Set<V>`
 			- `WeakPairKeysMap`: `K1 -> K2 -> V`
@@ -53,7 +53,7 @@ Most modules have none or few dependencies, which means you can easily **tree-sh
 			- `WeakTwoWayListMap`: `L -> R[]` and `R -> L[]`
 			- `WeakTwoWaySetMap`: `L -> Set<R>` and `R -> Set<L>
 
-	- Tools:
+	- **Tools**: includes normally tool classes:
 		- `AnchorAligner`: do anchor like positioning.
 		- `Color`: color parse, formatting and converting.
 		- `WebStorage & BiggerStorage`: store json data items into localStorage and indexedDB. 
@@ -70,7 +70,7 @@ Most modules have none or few dependencies, which means you can easily **tree-sh
 		- `Timeout & Interval & Throttle & Debounce`: time control classes and functions as their names.
 		- `Translations & t`: handle transitions.
 
-	- Utils:
+	- **Utils**: utility functions:
 		- `applyMixins`: supports multiple extends.
 		- `range & sleep & noop`: utility functions.
 		- `bindCallback`: bind callback with scope and cache it.
