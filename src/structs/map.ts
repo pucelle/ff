@@ -1306,7 +1306,14 @@ export class TwoWayListMap<L, R> implements MethodsToObserve<
 			}
 		}
 
-		this.lm.set(l, rs)
+		if (rs.length === 0) {
+			if (oldRs) {
+				this.lm.deleteOf(l)
+			}
+		}
+		else {
+			this.lm.set(l, rs)
+		}
 	}
 
 	/** Replace right and all it's associated left keys. */
@@ -1332,7 +1339,14 @@ export class TwoWayListMap<L, R> implements MethodsToObserve<
 			}
 		}
 
-		this.rm.set(r, ls)
+		if (ls.length === 0) {
+			if (oldLs) {
+				this.rm.deleteOf(r)
+			}
+		}
+		else {
+			this.rm.set(r, ls)
+		}
 	}
 
 	/** Clear all the data. */
@@ -1517,7 +1531,14 @@ export class TwoWaySetMap<L, R> implements MethodsToObserve<
 			}
 		}
 
-		this.lm.set(l, rs)
+		if (rs.size === 0) {
+			if (oldRs) {
+				this.lm.deleteOf(l)
+			}
+		}
+		else {
+			this.lm.set(l, rs)
+		}
 	}
 
 	/** Replace right and all it's associated left keys. */
@@ -1543,7 +1564,14 @@ export class TwoWaySetMap<L, R> implements MethodsToObserve<
 			}
 		}
 
-		this.rm.set(r, ls)
+		if (ls.size === 0) {
+			if (oldLs) {
+				this.rm.deleteOf(r)
+			}
+		}
+		else {
+			this.rm.set(r, ls)
+		}
 	}
 
 	/** Clear all the data. */
