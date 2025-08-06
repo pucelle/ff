@@ -65,17 +65,6 @@ export class Timeout<F extends Function = Function> {
 	}
 }
 
-/**
- * Just like `setTimeout`, call `fn` after `ms` milliseconds.
- * Returns a cancel function.
- */
-export function timeout(fn: Function, ms: number = 0): () => void {
-	let t = new Timeout(fn, ms)
-	t.start()
-	
-	return t.cancel.bind(t)
-}
-
 
 
 /** 
@@ -142,15 +131,6 @@ export class Interval<F extends Function = Function> {
 			this.canceled = true
 		}
 	}
-}
-
-
-/** Just like `setInterval`, call `fn` every `ms` milliseconds. */
-export function interval(fn: Function, ms: number): () => void {
-	let i = new Interval(fn, ms)
-	i.start()
-
-	return i.cancel.bind(i)
 }
 
 
@@ -284,15 +264,6 @@ export class Throttle<F extends Function> {
 	}
 }
 
-/** 
- * Throttle `fn` calling frequency, call original at most once every `intervalMs`.
- * If `immediateMode` is `true`, will call original function immediately.
- * Otherwise will call original function deferred and smoothly.
- */
-export function throttle<F extends Function>(fn: F, ms: number = 200, immediateMode: boolean = false): F {
-	return new Throttle(fn, ms, immediateMode).wrapped
-}
-
 
 
 /** 
@@ -398,12 +369,4 @@ export class Debounce<F extends Function> {
 	cancel() {
 		this.canceled = true
 	}
-}
-
-/** 
- * Debounce `fn` calling frequency,
- * call `fn` after called before and not calling returned function for at least `intervalMs` duration.
- */
-export function debounce<F extends Function> (fn: F, ms: number): F {
-	return new Debounce(fn, ms).wrapped
 }

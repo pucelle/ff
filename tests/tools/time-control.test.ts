@@ -1,4 +1,4 @@
-import {Debounce, Interval, Throttle, timeout, Timeout, sleep} from '../../src'
+import {Debounce, Interval, Throttle, Timeout, sleep} from '../../src'
 import {jest} from '@jest/globals'
 
 
@@ -6,22 +6,22 @@ describe('Test time-control', () => {
 	describe('Test timeout', () => {
 		test('Will call fn', async () => {
 			let fn = jest.fn()
-			timeout(fn)
+			new Timeout(fn, 0).start()
 			await sleep(1)
 			expect(fn).toHaveBeenCalledTimes(1)
 		})
 
 		test('Will call fn later', async () => {
 			let fn = jest.fn()
-			timeout(fn, 40)
+			new Timeout(fn, 40).start()
 			await sleep(41)
 			expect(fn).toHaveBeenCalledTimes(1)
 		})
 
 		test('Will not call fn after been canceled', async () => {
 			let fn = jest.fn()
-			let cancel = timeout(fn, 40)
-			cancel()
+			let timeout = new Timeout(fn, 40)
+			timeout.cancel()
 			await sleep(41)
 			expect(fn).toHaveBeenCalledTimes(0)
 		})
