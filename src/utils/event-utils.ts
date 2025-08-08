@@ -120,7 +120,7 @@ let documentCompleteCallbacks: (() => void)[] | null = []
 
 function callDocumentCompleteCallbacks() {
 
-	// May add more when call a previous callback.
+	// May add more when emptying callbacks.
 	for (let i = 0; i < documentCompleteCallbacks!.length; i++) {
 		let callback = documentCompleteCallbacks![i]
 		callback()
