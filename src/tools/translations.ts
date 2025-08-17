@@ -1,5 +1,5 @@
 import {Observed} from '@pucelle/lupos'
-import {StringUtils} from '../utils'
+import {HTMLUtils, StringUtils} from '../utils'
 
 
 export class Translations implements Observed {
@@ -44,7 +44,7 @@ export class Translations implements Observed {
 	
 	/** Translate, and replace quotes to `<b>`: `"xxx"` -> `<b>xxx</b>`. */
 	getBolded(key: string, ...args: (string | number)[]): string {
-		let value = this.get(key, ...args.map(arg => StringUtils.encodeHTML(String(arg))))
+		let value = this.get(key, ...args.map(arg => HTMLUtils.encodeToHTML(String(arg))))
 		return value.replace(/"(.+?)"/g, '<b>$1</b>')
 	}
 }
