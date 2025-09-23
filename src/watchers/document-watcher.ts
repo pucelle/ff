@@ -2,8 +2,8 @@ import {untilUpdateComplete} from '@pucelle/lupos'
 import {bindCallback} from '../utils'
 
 
-const Observer = /*#__PURE__*/new MutationObserver(fireDocumentChangeLater)
 const MutationCallbacks: Array<Function> = []
+let observer: MutationObserver | null = null
 let willEmitDocumentChange: boolean = false
 
 
@@ -12,10 +12,14 @@ let willEmitDocumentChange: boolean = false
  * or resize/scroll event fired, and also after update complete.
  */
 export function bind(callback: Function, scope: any = null) {
+	if (!observer) {
+		observer = new MutationObserver(fireDocumentChangeLater)
+	}
+
 	let boundCallback = bindCallback(callback, scope)
 
 	if (MutationCallbacks.length === 0) {
-		Observer.observe(document.documentElement, {subtree: true, childList: true, attributes: true})
+		observer.observe(document.documentElement, {subtree: true, childList: true, attributes: true})
 
 		window.addEventListener('resize', fireDocumentChangeLater)
 		window.addEventListener('wheel', fireDocumentChangeLater)
@@ -35,7 +39,7 @@ export function unbind(callback: Function, scope: any = null) {
 	}
 
 	if (MutationCallbacks.length === 0) {
-		Observer.disconnect()
+		observer!.disconnect()
 		window.removeEventListener('resize', fireDocumentChangeLater)
 		window.removeEventListener('wheel', fireDocumentChangeLater)
 

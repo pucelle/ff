@@ -1,4 +1,4 @@
-import {Direction, Inset, Size, Box, LineSegment, Point} from '../../src'
+import {Direction, BoxOffsets, Size, Box, LineSegment, Point} from '../../src'
 
 
 describe('Test Box', () => {
@@ -33,7 +33,7 @@ describe('Test Box', () => {
 		])
 
 		expect(b.size()).toEqual(new Size(10, 10))
-		expect(b.paddingTo(new Box(1, 1, 8, 8))).toEqual(new Inset(1))
+		expect(b.paddingTo(new Box(1, 1, 8, 8))).toEqual(new BoxOffsets(1))
 		expect(b.union(new Box(1, 1, 10, 10))).toEqual(new Box(0, 0, 11, 11))
 		expect(b.intersect(new Box(1, 1, 10, 10))).toEqual(new Box(1, 1, 9, 9))
 		expect(b.difference(new Box(0, 1, 10, 10))).toEqual(new Box(0, 0, 10, 1))
@@ -42,7 +42,7 @@ describe('Test Box', () => {
 		expect(b.unionAt(new Box(-1, -1, 12, 12), Direction.Top)).toEqual(new Box(0, -1, 10, 11))
 		expect(b.unionAt(new Box(-1, -1, 12, 12), Direction.Left)).toEqual(new Box(-1, 0, 11, 10))
 		expect(b.expand(1)).toEqual(new Box(-1, -1, 12, 12))
-		expect(b.expandByInset(new Inset(1))).toEqual(new Box(-1, -1, 12, 12))
+		expect(b.expandByBoxOffsets(new BoxOffsets(1))).toEqual(new Box(-1, -1, 12, 12))
 
 		b.set(0, 0, 20, 20)
 		expect(b.area).toEqual(400)

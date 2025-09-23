@@ -14,3 +14,4 @@ export * as MathUtils from './math-utils'
 export * as RandomUtils	from './random'
 
 export * from './types'
+export {LineIntersection} from './helpers/line-intersect'
