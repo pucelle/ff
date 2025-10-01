@@ -372,7 +372,7 @@ export class Matrix implements MatrixLike, MethodsToObserve<
 
 	/** 
 	 * Whether transform cause mirrored.
-	 * Means it will cause the backward to be in the front.
+	 * Means it will turn the backward to the front.
 	 */
 	isMirrored(): boolean {
 		return this.getDeterminant() < 0
@@ -501,10 +501,10 @@ export class Matrix implements MatrixLike, MethodsToObserve<
 	translateSelf(x: number, y: number): this {
 		return this.preMultiplySelf({
 			a: 1,
-			c: 0,
-			e: x,
 			b: 0,
+			c: 0,
 			d: 1,
+			e: x,
 			f: y,
 		})
 	}
@@ -518,10 +518,10 @@ export class Matrix implements MatrixLike, MethodsToObserve<
 	translateBySelf(v: ToObserve<Coord>): this {
 		return this.preMultiplySelf({
 			a: 1,
-			c: 0,
-			e: v.x,
 			b: 0,
+			c: 0,
 			d: 1,
+			e: v.x,
 			f: v.y,
 		})
 	}
@@ -535,10 +535,10 @@ export class Matrix implements MatrixLike, MethodsToObserve<
 	scaleSelf(sx: number, sy: number = sx): this {
 		return this.preMultiplySelf({
 			a: sx,
-			c: 0,
-			e: 0,
 			b: 0,
+			c: 0,
 			d: sy,
+			e: 0,
 			f: 0,
 		})
 	}
@@ -565,40 +565,56 @@ export class Matrix implements MatrixLike, MethodsToObserve<
 
 		return this.preMultiplySelf({
 			a: cos,
-			c: -sin,
-			e: 0,
 			b: sin,
+			c: -sin,
 			d: cos,
+			e: 0,
 			f: 0,
 		})
 	}
 
-	/** Skew by angle in degree, in clock-wise direction, returns a new matrix. */
+	/** 
+	 * Skew by angle in degree, in clock-wise direction, returns a new matrix.
+	 * `degreeX` determines how much rate of y will be added to x.
+	 * `degreeY` determines how much rate of x will be added to y.
+	 */
 	skewInDegree(degreeX: number, degreeY: number = degreeX): Matrix {
 		return this.skew(MathUtils.degreeToRadians(degreeX), MathUtils.degreeToRadians(degreeY))
 	}
 
-	/** Skew by angle in degree, in clock-wise direction. */
+	/** 
+	 * Skew by angle in degree, in clock-wise direction.
+	 * `degreeX` determines how much rate of y will be added to x.
+	 * `degreeY` determines how much rate of x will be added to y.
+	 */
 	skewInDegreeSelf(degreeX: number, degreeY: number = degreeX): Matrix {
 		return this.skewSelf(MathUtils.degreeToRadians(degreeX), MathUtils.degreeToRadians(degreeY))
 	}
 
-	/** Skew by angle in radians, in clock-wise direction, returns a new matrix. */
+	/** 
+	 * Skew by angle in radians, in clock-wise direction, returns a new matrix.
+	 * `radiansX` determines how much rate of y will be added to x.
+	 * `radiansY` determines how much rate of x will be added to y.
+	 */
 	skew(radiansX: number, radiansY: number = radiansX): Matrix {
 		return this.clone().skewSelf(radiansX, radiansY)
 	}
 
-	/** Skew by angle in radians, in clock-wise direction. */
+	/** 
+	 * Skew by angle in radians, in clock-wise direction.
+	 * `radiansX` determines how much rate of y will be added to x.
+	 * `radiansY` determines how much rate of x will be added to y.
+	 */
 	skewSelf(radiansX: number, radiansY: number = radiansX): Matrix {
 		let tx = Math.tan(radiansX)
 		let ty = Math.tan(radiansY)
 
 		return this.preMultiplySelf({
 			a: 1,
-			c: tx,
-			e: 0,
 			b: ty,
+			c: tx,
 			d: 1,
+			e: 0,
 			f: 0,
 		})
 	}
