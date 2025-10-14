@@ -31,6 +31,10 @@ export function bind(callback: Function, scope: any = null) {
 
 /** Unbind previously bound callback. */
 export function unbind(callback: Function, scope: any = null) {
+	if (!observer) {
+		return
+	}
+	
 	let boundCallback = bindCallback(callback, scope)
 	let index = MutationCallbacks.indexOf(boundCallback)
 
