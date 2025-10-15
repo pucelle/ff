@@ -1,17 +1,17 @@
 import {Vector} from './vector'
 import {Point} from './point'
-import {MethodsToObserve, ToObserve} from '@pucelle/lupos'
+import {MethodsObserved, GetObserved} from '@pucelle/lupos'
 import {LineIntersection, normalIntersect} from './helpers/line-intersect'
 
 
 /** Represent a line segment. */
-export class LineSegment implements MethodsToObserve<
+export class LineSegment implements MethodsObserved<
 	never,
 	'intersect'
 > {
 
 	/** Make line segment from start and end points. */
-	static fromPoints(point1: ToObserve<Point>, point2: ToObserve<Point>) {
+	static fromPoints(point1: GetObserved<Point>, point2: GetObserved<Point>) {
 		return new LineSegment(point1, Vector.fromDiff(point2, point1))
 	}
 
@@ -19,7 +19,7 @@ export class LineSegment implements MethodsToObserve<
 	readonly point: Point
 	readonly vector: Vector
 
-	constructor(point: ToObserve<Point>, vector: ToObserve<Vector>) {
+	constructor(point: GetObserved<Point>, vector: GetObserved<Vector>) {
 		this.point = point
 		this.vector = vector
 	}
@@ -28,7 +28,7 @@ export class LineSegment implements MethodsToObserve<
 	 * Do intersection test with another line segment,
 	 * returns the intersection info.
 	 */
-	intersect(ls: ToObserve<LineSegment>): LineIntersection | null {
+	intersect(ls: GetObserved<LineSegment>): LineIntersection | null {
 		let result = normalIntersect(this, ls)
 		if (!result) {
 			return null

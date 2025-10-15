@@ -5,29 +5,29 @@ import {Box} from './box'
 import {LineSegment} from './line-segment'
 import {ListUtils} from '../utils'
 import {LineIntersection, normalIntersect} from './helpers/line-intersect'
-import {ToObserve} from '@pucelle/lupos'
+import {GetObserved} from '@pucelle/lupos'
 
 
 /** Represent a radial line. */
 export class RadialLine {
 
 	/** Make radial line from point and direction. */
-	static fromPointAndDirection(point: ToObserve<Point>, direction: Direction) {
+	static fromPointAndDirection(point: GetObserved<Point>, direction: Direction) {
 		return new RadialLine(point, direction.toVector())
 	}
 
 	/** Make radial line from point and angle in degree. */
-	static fromPointAndDegree(point: ToObserve<Point>, degree: number) {
+	static fromPointAndDegree(point: GetObserved<Point>, degree: number) {
 		return new RadialLine(point, Vector.fromDegree(degree))
 	}
 
 	/** Make radial line from point and angle in radians. */
-	static fromPointAndRadians(point: ToObserve<Point>, radians: number) {
+	static fromPointAndRadians(point: GetObserved<Point>, radians: number) {
 		return new RadialLine(point, Vector.fromRadians(radians))
 	}
 
 	/** Make radial line from start and end points. */
-	static fromPoints(point1: ToObserve<Point>, point2: ToObserve<Point>) {
+	static fromPoints(point1: GetObserved<Point>, point2: GetObserved<Point>) {
 		return new RadialLine(point1, Vector.fromDiff(point2, point1))
 	}
 
@@ -35,13 +35,13 @@ export class RadialLine {
 	readonly point: Point
 	readonly vector: Vector
 
-	constructor(point: ToObserve<Point>, vector: ToObserve<Vector>) {
+	constructor(point: GetObserved<Point>, vector: GetObserved<Vector>) {
 		this.point = point
 		this.vector = vector
 	}
 
 	/** Do intersection test with a line segment. */
-	interactWithLineSegment(ls: ToObserve<LineSegment>): LineIntersection | null {
+	interactWithLineSegment(ls: GetObserved<LineSegment>): LineIntersection | null {
 		let result = normalIntersect(this, ls)
 		if (!result) {
 			return null
@@ -54,7 +54,7 @@ export class RadialLine {
 	}
 
 	/** Do intersection test with another radial line . */
-	intersect(radialLine: ToObserve<RadialLine>): LineIntersection | null {
+	intersect(radialLine: GetObserved<RadialLine>): LineIntersection | null {
 		let result = normalIntersect(this, radialLine)
 		if (!result) {
 			return null
@@ -67,7 +67,7 @@ export class RadialLine {
 	}
 	
 	/** Get the closest intersection point with all edges of a box. */
-	getClosestIntersectPointWithBox(box: ToObserve<Box>): Point | null {
+	getClosestIntersectPointWithBox(box: GetObserved<Box>): Point | null {
 
 		// Do 4 box edge distances intersection test.
 		let intersects = box.edges().map(ls => this.interactWithLineSegment(ls))
@@ -84,7 +84,7 @@ export class RadialLine {
 	 * If is not intersected, extend the box edge to lines and do again.
 	 * If is still not intersected, extend the radial line to it's back side.
 	 */
-	getExtendedClosestIntersectPointWithBox(box: ToObserve<Box>): Point {
+	getExtendedClosestIntersectPointWithBox(box: GetObserved<Box>): Point {
 
 		// Box must not empty.
 		if (box.empty) {

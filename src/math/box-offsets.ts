@@ -1,10 +1,10 @@
-import {MethodsToObserve, ToObserve} from '@pucelle/lupos'
+import {MethodsObserved, GetObserved} from '@pucelle/lupos'
 import type {Direction} from './direction'
 import {BoxOffsetKey} from './types'
 
 
 /** Represents a box offset object, which including top, right, bottom, left values. */
-export class BoxOffsets implements MethodsToObserve<
+export class BoxOffsets implements MethodsObserved<
 	'clone' | 'getMaximumAbsoluteValue' | 'collapse' | 'collapseAt' | 'collapseValueBy' | 'collapseValueAt'
 		| 'pickBy' | 'pickAt' | 'multiplyScalar' | 'round' | 'ceil' | 'floor' | 'toJSON' | 'toArray',
 	'reset' | 'set' | 'copyFrom' | 'multiplyScalarSelf' | 'roundSelf' | 'ceilSelf' | 'floorSelf'
@@ -89,7 +89,7 @@ export class BoxOffsets implements MethodsToObserve<
 	 * Collapse with several box offsets objects into current,
 	 * pick maximum value in all the directions.
 	 */
-	collapse(...os: ToObserve<BoxOffsets>[]): this {
+	collapse(...os: GetObserved<BoxOffsets>[]): this {
 		for (let o of os) {
 			for (let key of BoxOffsets.Keys) {
 				this[key] = Math.max(this[key], o[key])
@@ -103,7 +103,7 @@ export class BoxOffsets implements MethodsToObserve<
 	 * Collapse with a box offsets object,
 	 * pick maximum value at specified direction.
 	 */
-	collapseAt(o: ToObserve<BoxOffsets>, direction: Direction) {
+	collapseAt(o: GetObserved<BoxOffsets>, direction: Direction) {
 		let keys = direction.toBoxOffsetKeys()
 
 		for (let key of keys) {

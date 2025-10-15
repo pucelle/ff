@@ -6,12 +6,12 @@ import {Point} from './point'
 import {Size} from './size'
 import {Vector} from './vector'
 import type {Matrix} from './matrix'
-import {MethodsToObserve, ToObserve} from '@pucelle/lupos'
+import {MethodsObserved, GetObserved} from '@pucelle/lupos'
 import {BoxLike, Coord, HVDirection} from './types'
 
 
 /** Represent a rectangle bounding box. */
-export class Box implements BoxLike, MethodsToObserve<
+export class Box implements BoxLike, MethodsObserved<
 	'isIntersectWith' | 'isIntersectWithAtHV' | 'round' | 'ceil' | 'floor' | 'equals' | 'edges' | 'size' | 'paddingTo'
 		| 'union' | 'intersect' | 'intersectAtHV' | 'difference' | 'unionAtHV' | 'unionAt' | 'expand'
 		| 'expandByBoxOffsets' | 'expandToContain' | 'translate' | 'translateBy' | 'transform'
@@ -31,12 +31,12 @@ export class Box implements BoxLike, MethodsToObserve<
 	}
 
 	/** Make box from `BoxLike`, such as `DOMRect`. */
-	static fromLike(like: ToObserve<BoxLike>) {
+	static fromLike(like: GetObserved<BoxLike>) {
 		return new Box(like.x, like.y, like.width, like.height)
 	}
 
 	/** Make box from a point array. */
-	static fromCoords(...coords: ToObserve<Coord>[]): Box | null{
+	static fromCoords(...coords: GetObserved<Coord>[]): Box | null{
 		if (coords.length === 0) {
 			return null
 		}
@@ -59,7 +59,7 @@ export class Box implements BoxLike, MethodsToObserve<
 	}
 
 	/** Make a box from a list of boxes. */
-	static fromUnion(...boxes: ToObserve<Box>[]): Box | null {
+	static fromUnion(...boxes: GetObserved<Box>[]): Box | null {
 		if (boxes.length === 0) {
 			return null
 		}
@@ -177,7 +177,7 @@ export class Box implements BoxLike, MethodsToObserve<
 	}
 
 	/** Whether intersect with another box. */
-	isIntersectWith(b: ToObserve<Box>): boolean {
+	isIntersectWith(b: GetObserved<Box>): boolean {
 		let left = Math.max(this.left, b.left)
 		let top = Math.max(this.top, b.top)
 		let right = Math.min(this.right, b.right)
@@ -187,7 +187,7 @@ export class Box implements BoxLike, MethodsToObserve<
 	}
 
 	/** Whether intersect with another box at HV direction. */
-	isIntersectWithAtHV(b: ToObserve<Box>, hv: HVDirection): boolean {
+	isIntersectWithAtHV(b: GetObserved<Box>, hv: HVDirection): boolean {
 		if (hv === 'horizontal') {
 			let left = Math.max(this.left, b.left)
 			let right = Math.min(this.right, b.right)
@@ -266,7 +266,7 @@ export class Box implements BoxLike, MethodsToObserve<
 	}
 
 	/** Whether equals another box. */
-	equals(b: ToObserve<Box>): boolean {
+	equals(b: GetObserved<Box>): boolean {
 		return this.x === b.x
 			&& this.y === b.y
 			&& this.width === b.width
@@ -294,7 +294,7 @@ export class Box implements BoxLike, MethodsToObserve<
 	 * If self is much bigger and fully contains targeted box,
 	 * all values of returned object are positive.
 	 */
-	paddingTo(b: ToObserve<Box>): BoxOffsets {
+	paddingTo(b: GetObserved<Box>): BoxOffsets {
 		return new BoxOffsets(
 			b.y - this.y,
 			this.right - b.right,
@@ -307,7 +307,7 @@ export class Box implements BoxLike, MethodsToObserve<
 	 * Union with another box, returns a new box.
 	 * Note only box has any space will be union with.
 	 */
-	union(b: ToObserve<Box>): Box {
+	union(b: GetObserved<Box>): Box {
 		return this.clone().unionSelf(b)
 	}
 
@@ -315,7 +315,7 @@ export class Box implements BoxLike, MethodsToObserve<
 	 * Union with another box.
 	 * Note only box has any space will be union with.
 	 */
-	unionSelf(b: ToObserve<Box>): this {
+	unionSelf(b: GetObserved<Box>): this {
 		if (this.empty) {
 			this.copyFrom(b)
 		}
@@ -335,12 +335,12 @@ export class Box implements BoxLike, MethodsToObserve<
 	}
 
 	/** Intersect with another box, returns a new box. */
-	intersect(b: ToObserve<Box>): Box {
+	intersect(b: GetObserved<Box>): Box {
 		return this.clone().intersectSelf(b)
 	}
 
 	/** Intersect with another box. */
-	intersectSelf(b: ToObserve<Box>): this {
+	intersectSelf(b: GetObserved<Box>): this {
 		let left = Math.max(this.x, b.x)
 		let top = Math.max(this.y, b.y)
 		let right = Math.min(this.right, b.right)
@@ -355,12 +355,12 @@ export class Box implements BoxLike, MethodsToObserve<
 	}
 
 	/** Difference to another box, exclude the part belong to `b`, returns a new box. */
-	difference(b: ToObserve<Box>): Box {
+	difference(b: GetObserved<Box>): Box {
 		return this.clone().differenceSelf(b)
 	}
 
 	/** Difference to another box, exclude the part belong to `b`. */
-	differenceSelf(b: ToObserve<Box>): this {
+	differenceSelf(b: GetObserved<Box>): this {
 		let intersected = this.intersect(b)
 
 		if (intersected.empty) {
@@ -400,12 +400,12 @@ export class Box implements BoxLike, MethodsToObserve<
 	}
 
 	/** Intersect with another box at horizontal or vertical direction, returns a new box. */
-	intersectAtHV(b: ToObserve<Box>, hvDirection: HVDirection): Box {
+	intersectAtHV(b: GetObserved<Box>, hvDirection: HVDirection): Box {
 		return this.clone().intersectAtHVSelf(b, hvDirection)
 	}
 
 	/** Intersect with another box at horizontal or vertical direction. */
-	intersectAtHVSelf(b: ToObserve<Box>, hvDirection: HVDirection): this {
+	intersectAtHVSelf(b: GetObserved<Box>, hvDirection: HVDirection): this {
 		if (hvDirection === 'horizontal') {
 			let left = Math.max(this.x, b.x)
 			let right = Math.min(this.right, b.right)
@@ -425,12 +425,12 @@ export class Box implements BoxLike, MethodsToObserve<
 	}
 
 	/** Union with another box at horizontal or vertical direction, returns a new box. */
-	unionAtHV(b: ToObserve<Box>, hvDirection: HVDirection): Box {
+	unionAtHV(b: GetObserved<Box>, hvDirection: HVDirection): Box {
 		return this.clone().unionAtHVSelf(b, hvDirection)
 	}
 
 	/** Union with another box at horizontal or vertical direction. */
-	unionAtHVSelf(b: ToObserve<Box>, hvDirection: HVDirection): this {
+	unionAtHVSelf(b: GetObserved<Box>, hvDirection: HVDirection): this {
 		if (hvDirection === 'horizontal') {
 			let left = Math.min(this.x, b.x)
 			let right = Math.max(this.right, b.right)
@@ -450,12 +450,12 @@ export class Box implements BoxLike, MethodsToObserve<
 	}
 
 	/** Intersect with another box, returns a new box. */
-	unionAt(b: ToObserve<Box>, direction: Direction): Box {
+	unionAt(b: GetObserved<Box>, direction: Direction): Box {
 		return this.clone().unionAtSelf(b, direction)
 	}
 
 	/** Union with another box, at horizontal or vertical direction. */
-	unionAtSelf(b: ToObserve<Box>, direction: Direction): this {
+	unionAtSelf(b: GetObserved<Box>, direction: Direction): this {
 		let {x: left, y: top, right, bottom} = this
 
 		if (direction.isCloseTo(Direction.Left)) {
@@ -496,12 +496,12 @@ export class Box implements BoxLike, MethodsToObserve<
 	}
 
 	/** Expand by a box edge distances object, returns a new box. */
-	expandByBoxOffsets(o: ToObserve<BoxOffsets>): Box {
+	expandByBoxOffsets(o: GetObserved<BoxOffsets>): Box {
 		return this.clone().expandByBoxOffsetsSelf(o)
 	}
 
 	/** Expand by a box edge distances object. */
-	expandByBoxOffsetsSelf(o: ToObserve<BoxOffsets>): Box {
+	expandByBoxOffsetsSelf(o: GetObserved<BoxOffsets>): Box {
 		let {top, right, bottom, left} = o
 		this.x = this.x - left
 		this.y = this.y - top
@@ -512,12 +512,12 @@ export class Box implements BoxLike, MethodsToObserve<
 	}
 
 	/** Expand to contain a point, returns a new box. */
-	expandToContain(p: ToObserve<Point>): Box {
+	expandToContain(p: GetObserved<Point>): Box {
 		return this.clone().expandToContainSelf(p)
 	}
 
 	/** Expand to contain a point. */
-	expandToContainSelf(p: ToObserve<Point>): this {
+	expandToContainSelf(p: GetObserved<Point>): this {
 		let x = Math.min(this.x, p.x)
 		let y = Math.min(this.y, p.y)
 		let right = Math.max(this.right, p.x)
@@ -558,12 +558,12 @@ export class Box implements BoxLike, MethodsToObserve<
 	}
 
 	/** Transform current box to get a new one. */
-	transform(matrix: ToObserve<Matrix>): Box {
+	transform(matrix: GetObserved<Matrix>): Box {
 		return this.clone().transformSelf(matrix)
 	}
 
 	/** Transform current box. */
-	transformSelf(matrix: ToObserve<Matrix>): this {
+	transformSelf(matrix: GetObserved<Matrix>): this {
 		let p1 = new Point(this.x, this.y).transformSelf(matrix)
 		let p2 = new Point(this.right, this.y).transformSelf(matrix)
 		let p3 = new Point(this.x, this.bottom).transformSelf(matrix)
@@ -596,24 +596,24 @@ export class Box implements BoxLike, MethodsToObserve<
 	}
 
 	/** Get the anchor point from an anchor vector, at which the x,y value betweens `0~1`. */
-	anchorPointByVector(v: ToObserve<Vector>): Point {
+	anchorPointByVector(v: GetObserved<Vector>): Point {
 		return new Point(this.x + v.x * this.width, this.y + v.y * this.height)
 	}
 
 	/** Whether contains a point. */
-	containsPoint(p: ToObserve<Point>): boolean {
+	containsPoint(p: GetObserved<Point>): boolean {
 		return this.x <= p.x && this.right >= p.x
 			&& this.y <= p.y && this.bottom >= p.y
 	}
 
 	/** Whether contains a point after expanded. */
-	containsPointAfterExpanded(p: ToObserve<Point>, expand: number): boolean {
+	containsPointAfterExpanded(p: GetObserved<Point>, expand: number): boolean {
 		return this.x - expand <= p.x && this.right + expand >= p.x
 			&& this.y - expand <= p.y && this.bottom + expand >= p.y
 	}
 
 	/** Whether totally contains a box. */
-	containsBox(b: ToObserve<Box>): boolean {
+	containsBox(b: GetObserved<Box>): boolean {
 		return this.x <= b.x && this.right >= b.right
 			&& this.y <= b.y && this.bottom >= b.bottom
 	}
@@ -636,7 +636,7 @@ export class Box implements BoxLike, MethodsToObserve<
 	 * and follow which to move current box can make the point intersect with current box.
 	 * If point is contained by current box, returns zero vector.
 	 */
-	minDistancedVectorToPoint(p: ToObserve<Point>): Vector {
+	minDistancedVectorToPoint(p: GetObserved<Point>): Vector {
 		let isXIntersected = p.x >= this.left && p.x <= this.right
 		let isYIntersected = p.y >= this.top && p.y <= this.bottom
 		let xDistance = 0
@@ -659,7 +659,7 @@ export class Box implements BoxLike, MethodsToObserve<
 	 * and follow which to move current box can make two boxes intersect with each other.
 	 * If boxes are intersected in both directions, returns `Direction.Center`.
 	 */
-	minDistancedDirectionToBox(b: ToObserve<Box>): Direction {
+	minDistancedDirectionToBox(b: GetObserved<Box>): Direction {
 		let v = this.minDistancedVectorToBox(b)
 		return Direction.fromVector(v)
 	}
@@ -670,7 +670,7 @@ export class Box implements BoxLike, MethodsToObserve<
 	 * and follow which to move current box can make two boxes intersect with each other.
 	 * If boxes intersected in x/y direction, vector value of this direction is zero.
 	 */
-	minDistancedVectorToBox(b: ToObserve<Box>): Vector {
+	minDistancedVectorToBox(b: GetObserved<Box>): Vector {
 		if (this.isIntersectWith(b)) {
 			return new Vector(0, 0)
 		}
@@ -689,7 +689,7 @@ export class Box implements BoxLike, MethodsToObserve<
 	 * follow which to move current box can make the point not in box any more.
 	 * If point is not contained by box, returns zero vector.
 	 */
-	minBouncedVectorToPoint(p: ToObserve<Point>): Vector {
+	minBouncedVectorToPoint(p: GetObserved<Point>): Vector {
 		let isXIntersected = p.x >= this.left && p.x <= this.right
 		let isYIntersected = p.y >= this.top && p.y <= this.bottom
 		let xDistance = 0
@@ -712,7 +712,7 @@ export class Box implements BoxLike, MethodsToObserve<
 	 * follow which to move current box can make the point not in box any more.
 	 * If boxes are intersected in both directions, returns `Direction.Center`.
 	 */
-	minBouncedDirectionToBox(b: ToObserve<Box>): Direction {
+	minBouncedDirectionToBox(b: GetObserved<Box>): Direction {
 		let v = this.minBouncedVectorToBox(b)
 		return Direction.fromVector(v)
 	}
@@ -723,7 +723,7 @@ export class Box implements BoxLike, MethodsToObserve<
 	 * follow which to move current box can make current box not intersected with another.
 	 * If boxes are not intersected in x/y direction, vector value of this direction is zero.
 	 */
-	minBouncedVectorToBox(b: ToObserve<Box>): Vector {
+	minBouncedVectorToBox(b: GetObserved<Box>): Vector {
 		if (!this.isIntersectWith(b)) {
 			return new Vector(0, 0)
 		}
@@ -741,7 +741,7 @@ export class Box implements BoxLike, MethodsToObserve<
 	 * respect the length of the vector which starts from current box and ends at targeted point.
 	 * Can be negative, box can move by this distance to make point out-of box.
 	 */
-	distanceToPoint(p: ToObserve<Point>): number {
+	distanceToPoint(p: GetObserved<Point>): number {
 		let isXIntersected = p.x >= this.left && p.x <= this.right
 		let isYIntersected = p.y >= this.top && p.y <= this.bottom
 		let xDistance = 0
@@ -771,7 +771,7 @@ export class Box implements BoxLike, MethodsToObserve<
 	 * respect the length of the vector which starts from current box and ends at another box.
 	 * Can be negative, current box can move by this distance to make boxes not intersected any more.
 	 */
-	distanceToBox(b: ToObserve<Box>): number {
+	distanceToBox(b: GetObserved<Box>): number {
 		let {left: left1, right: right1, top: top1, bottom: bottom1} = this
 		let {left: left2, right: right2, top: top2, bottom: bottom2} = b
 		let x = ListUtils.minOf([right2 - left1, left2 - right1], Math.abs)!

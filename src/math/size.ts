@@ -1,14 +1,14 @@
-import {MethodsToObserve, ToObserve} from '@pucelle/lupos'
+import {MethodsObserved, GetObserved} from '@pucelle/lupos'
 import {MatrixLike, SizeLike} from './types'
 
 
-export class Size implements MethodsToObserve<
+export class Size implements MethodsObserved<
 	'clone' | 'round' | 'ceil' | 'floor' | 'equals' | 'transform' | 'toJSON',
 	'set' | 'reset' | 'copyFrom' | 'roundSelf' | 'ceilSelf' | 'floorSelf' | 'transformSelf'
 > {
 
 	/** Make a size object, from a size-like object, such as `Box`. */
-	static fromLike(sizeLike: ToObserve<SizeLike>): Size {
+	static fromLike(sizeLike: GetObserved<SizeLike>): Size {
 		return new Size(sizeLike.width, sizeLike.height)
 	}
 
@@ -44,7 +44,7 @@ export class Size implements MethodsToObserve<
 	}
 
 	/** Copy values from a size to current. */
-	copyFrom(s: ToObserve<SizeLike>) {
+	copyFrom(s: GetObserved<SizeLike>) {
 		this.width = s.width
 		this.height = s.height
 	}
@@ -94,18 +94,18 @@ export class Size implements MethodsToObserve<
 	}
 
 	/** Whether equals another box. */
-	equals(s: ToObserve<SizeLike>): boolean {
+	equals(s: GetObserved<SizeLike>): boolean {
 		return this.width === s.width
 			&& this.height === s.height
 	}
 
 	/** Transform current size to get a new one. */
-	transform(matrix: ToObserve<MatrixLike>): Size {
+	transform(matrix: GetObserved<MatrixLike>): Size {
 		return this.clone().transformSelf(matrix)
 	}
 
 	/** Transform current size to get a new one. */
-	transformSelf(matrix: ToObserve<MatrixLike>): this {
+	transformSelf(matrix: GetObserved<MatrixLike>): this {
 		let {a, b, c, d} = matrix
 		let {width, height} = this
 

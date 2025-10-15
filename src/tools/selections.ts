@@ -1,8 +1,8 @@
-import {MethodsToObserve} from '@pucelle/lupos'
+import {MethodsObserved} from '@pucelle/lupos'
 
 
 /** Manage selections. */
-export class Selections<T = any> implements MethodsToObserve<
+export class Selections<T = any> implements MethodsObserved<
 	'hasSelected' | 'hasAnySelected' | 'getSelectedCount' | 'getSelected' | 'getLatestSelected'	| 'getLatestTouched',
 	'select' | 'selectOnly' | 'selectByMouseEvent' | 'limitSelectionAt' | 'deselect' | 'toggleSelect' | 'clear'
 > {

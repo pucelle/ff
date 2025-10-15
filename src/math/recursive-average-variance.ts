@@ -1,10 +1,10 @@
 // Reference to https://math.stackexchange.com/questions/374881/recursive-formula-for-variance
 
-import {MethodsToObserve} from '@pucelle/lupos'
+import {MethodsObserved} from '@pucelle/lupos'
 
 
 /** Do statistic for average and variance, every time update a value, output new average value and variance. */
-export class RecursiveVariance implements MethodsToObserve<
+export class RecursiveVariance implements MethodsObserved<
 	never,
 	'update'
 >{
@@ -27,7 +27,7 @@ export class RecursiveVariance implements MethodsToObserve<
 
 
 /** Do statistic for average value, every time update a value, output new average value. */
-export class RecursiveAverage implements MethodsToObserve<
+export class RecursiveAverage implements MethodsObserved<
 	never,
 	'update'
 > {
