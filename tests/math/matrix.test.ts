@@ -6,8 +6,6 @@ describe('Test Matrix', () => {
 	test('Matrix Static', () => {
 		expect(Matrix.fromString('matrix(1, 0, 0, 1, 1, 1)')).toEqual(new Matrix(1, 0, 0, 1, 1, 1))
 		expect(Matrix.fromBoxPair(new Box(-1, -1, 2, 2), new Box(-1, -1, 4, 4))).toEqual(new Matrix(2, 0, 0, 2, 1, 1))
-		expect(Matrix.fitBoxPair(new Box(-1, -1, 2, 2), new Box(-1, -3, 4, 8), 'contain')).toEqual(new Matrix(2, 0, 0, 2, 1, 1))
-		expect(Matrix.fitBoxPair(new Box(-1, -1, 2, 2), new Box(-1, -3, 4, 8), 'cover')).toEqual(new Matrix(4, 0, 0, 4, 1, 1))
 		expect(Matrix.zero()).toEqual(new Matrix(0, 0, 0, 0, 0, 0))
 		expect(Matrix.i()).toEqual(new Matrix(1, 0, 0, 1, 0, 0))
 

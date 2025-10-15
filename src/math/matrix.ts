@@ -71,10 +71,10 @@ export class Matrix implements MatrixLike, MethodsToObserve<
 	/** 
 	 * Make a transform matrix, which will convert `fromBox` to `toBox`.
 	 * 
-	 * `fitMode` decides how to fit transition element with it's pair element.
-	 *  - `contain`: be contained by pair element.
-	 *  - `cover`: covers pair element.
-	 *  - `stretch`: stretch to fit pair element's width and height.
+	 * `fitMode` decides how to fit from element with to element.
+	 *  - `contain`: from element to be contained by to element.
+	 *  - `cover`: from element covers to element.
+	 *  - `stretch`: stretch from element to fit to element's width and height.
 	 * Default value is `stretch`.
 	 */
 	static fromBoxPair(fromBox: ToObserve<BoxLike>, toBox: ToObserve<BoxLike>, fitMode: 'contain' | 'cover' | 'stretch' = 'stretch'): Matrix {
@@ -96,29 +96,6 @@ export class Matrix implements MatrixLike, MethodsToObserve<
 		let matrix = Matrix.i()
 			.translateSelf(-fromX, -fromY)
 			.scaleSelf(scaleX, scaleY)
-			.translateSelf(toX, toY)
-
-		return matrix
-	}
-
-	/** 
-	 * Make a transform matrix, which will convert `fromBox` to a box like `toBox` via `mode`:
-	 * @param contain after converted, `fromBox` will be exactly contained by `toBox`.
-	 * @param cover after converted, `fromBox` will exactly cover `toBox`.
-	 */
-	static fitBoxPair(fromBox: ToObserve<BoxLike>, toBox: ToObserve<BoxLike>, mode: 'contain' | 'cover' = 'contain'): Matrix {
-		let scaling = mode === 'contain'
-			? Math.min(toBox.width / fromBox.width, toBox.height / fromBox.height)
-			: Math.max(toBox.width / fromBox.width, toBox.height / fromBox.height)
-
-		let fromX = fromBox.x + fromBox.width / 2
-		let fromY = fromBox.y + fromBox.height / 2
-		let toX = toBox.x + toBox.width / 2
-		let toY = toBox.y + toBox.height / 2
-
-		let matrix = Matrix.i()
-			.translateSelf(-fromX, -fromY)
-			.scaleSelf(scaling)
 			.translateSelf(toX, toY)
 
 		return matrix
