@@ -17,22 +17,23 @@
  *  - Mouse leave `content2`, deliver event to `content1`, cause `content1` also hide.
  */
 
-interface TriggerContentGroup {
+
+interface DeliveryGroup {
 	trigger: Element
 	content: Element
 	callbacks: (() => void)[]
 }
 
 
-/** Set of all existing TriggerContentGroup. */
-const DeliveryMap: Set<TriggerContentGroup> = /*#__PURE__*/new Set()
+/** Set of all existing DeliveryGroup. */
+const DeliveryMap: Set<DeliveryGroup> = /*#__PURE__*/new Set()
 
-/** Map of `a TriggerContentGroup -> delivering to TriggerContentGroup`. */
-const DeliverToMap: Map<TriggerContentGroup, TriggerContentGroup> = /*#__PURE__*/new Map()
+/** Map of `a DeliveryGroup -> delivering to DeliveryGroup`. */
+const DeliverToMap: Map<DeliveryGroup, DeliveryGroup> = /*#__PURE__*/new Map()
 
 
 /** Get group by trigger element. */
-function getGroupByTrigger(trigger: Element): TriggerContentGroup | null {
+function getGroupByTrigger(trigger: Element): DeliveryGroup | null {
 	for (let existing of DeliveryMap) {
 		if (existing.trigger === trigger) {
 			return existing
@@ -43,7 +44,7 @@ function getGroupByTrigger(trigger: Element): TriggerContentGroup | null {
 }
 
 
-/** Add an event delivery. */
+/** Add an delivery group. */
 export function add(trigger: Element, content: Element) {
 
 	// Avoid adding for twice.
@@ -52,7 +53,7 @@ export function add(trigger: Element, content: Element) {
 		return
 	}
 	
-	let group: TriggerContentGroup = {
+	let group: DeliveryGroup = {
 		trigger,
 		content,
 		callbacks: [],
@@ -72,25 +73,13 @@ export function add(trigger: Element, content: Element) {
 	DeliveryMap.add(group)
 }
 
-/** Delete an event delivery. */
-export function remove(trigger: Element) {
-	let existing = getGroupByTrigger(trigger)
-	if (existing) {
-		release(existing)
-	}
-}
 
-/** Release a group. */
-function release(group: TriggerContentGroup) {
-	DeliveryMap.delete(group)
-
-	for (let callback of group.callbacks) {
-		callback()
-	}
+/** Walk delivery from source to target in chain to get groups. */
+function* walkInChain(group: DeliveryGroup): Iterable<DeliveryGroup> {
+	yield group
 
 	let deliveringTo = DeliverToMap.get(group)
 	if (deliveringTo) {
-		DeliverToMap.delete(group)
 		let hasNoOthersDeliveringTo = true
 
 		for (let value of DeliverToMap.values()) {
@@ -101,14 +90,46 @@ function release(group: TriggerContentGroup) {
 		}
 
 		if (hasNoOthersDeliveringTo) {
-			release(deliveringTo)
+			yield* walkInChain(deliveringTo)
 		}
 	}
 }
 
 
-/** Test whether container contains any content which has been delivered to. */
-export function containsAnyDelivered(container: Element): boolean {
+/** 
+ * Release a delivery source by it's trigger, and also walk for
+ * it's delivery targets in chain, and release them.
+ */
+export function release(trigger: Element) {
+	let existing = getGroupByTrigger(trigger)
+	if (existing) {
+		for (let group of walkInChain(existing)) {
+			DeliveryMap.delete(group)
+
+			for (let callback of group.callbacks) {
+				callback()
+			}
+		}
+	}
+}
+
+
+/** Listen for a delivery source by it's trigger to get callback after it get released. */
+export function listenReleasing(trigger: Element, callback: () => void) {
+	for (let existing of DeliveryMap) {
+		if (existing.trigger === trigger) {
+			existing.callbacks.push(callback)
+			break
+		}
+	}
+}
+
+
+/** 
+ * Test whether container contains any content which has been delivered to.
+ * Normally if is true, means container should not be hidden until sources released.
+ */
+export function hasAnyDeliveredTo(container: Element): boolean {
 	for (let group of DeliveryMap.keys()) {
 		if (container.contains(group.trigger)) {
 			return true
@@ -122,13 +143,14 @@ export function containsAnyDelivered(container: Element): boolean {
 /** 
  * Test whether container contains content, or contains an element,
  * which's itself or ancestor get delivered to any child or ancestor of container.
+ * Means whether event will broadcast from content to container.
  */
-export function containsDelivered(container: Element, content: Element): boolean {
+export function hasDeliveredFrom(container: Element, content: Element): boolean {
 	if (container.contains(content)) {
 		return true
 	}
 
-	let group: TriggerContentGroup | null = null
+	let group: DeliveryGroup | null = null
 
 	for (let g of DeliveryMap) {
 		if (g.content.contains(content)) {
@@ -137,24 +159,14 @@ export function containsDelivered(container: Element, content: Element): boolean
 		}
 	}
 
-	while (group) {
-		if (container.contains(group.trigger)) {
-			return true
+	if (group) {
+		for (let g of walkInChain(group)) {
+			if (container.contains(g.trigger)) {
+				return true
+			}
 		}
-
-		group = DeliverToMap.get(group) ?? null
 	}
 
 	return false
 }
 
-
-/** Listen for if all event deliveries released which attaching on container. */
-export function listenReleasing(trigger: Element, callback: () => void) {
-	for (let existing of DeliveryMap) {
-		if (existing.trigger === trigger) {
-			existing.callbacks.push(callback)
-			break
-		}
-	}
-}
