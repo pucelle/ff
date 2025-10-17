@@ -1,6 +1,6 @@
 import {DOMEvents} from '@pucelle/lupos'
-import {TwoWayMap} from '../structs'
 import {Timeout} from '../tools'
+import * as EventDelivery from './event-delivery'
 
 
 /** Options for mouse leave control. */
@@ -41,115 +41,6 @@ export interface MouseLeaveControlOptions {
  *  - `trigger3` cause `popup3` popped-up, `lockBy(trigger3)`, create locks: `controller2 <=> trigger3` and `controller1 <=> trigger2`.
  *  - Mouse leave `trigger2`, release locks `controller2 <=> trigger3` and `controller1 <=> trigger2`.
  */
-
-
-/** All controllers that begin to enter and not fully leave. */
-const LiveControllers: Set<MouseLeaveController> = /*#__PURE__*/new Set()
-
-/** All locked controllers, and the mapped trigger elements that lock them. */
-const Locks: TwoWayMap<MouseLeaveController, Element> = /*#__PURE__*/new TwoWayMap()
-
-/** Timeout counter to check and delete disconnected elements. */
-const clearDisconnectedTimeout = /*#__PURE__*/new Timeout(clearDisconnectedOnIdle, 3000)
-
-/** After idle, clear disconnected elements, and their locked controllers. */
-async function clearDisconnectedOnIdle() {
-	requestIdleCallback(clearDisconnected)
-}
-
-/** Clear all disconnected elements and their locked controllers. */
-function clearDisconnected() {
-	for (let [controller, element] of Locks.entries()) {
-
-		// Element may be removed unexpectedly, which cause locks cant be removed.
-		if (document.contains(element)) {
-			continue
-		}
-
-		Locks.deleteRight(element)
-
-		// `controller` has no lock associated now, finish it.
-		controller.finish()
-	}
-
-	// Continue to clear later if still has locks existed.
-	if (Locks.leftKeyCount() > 0) {
-		clearDisconnectedTimeout.reset()
-	}
-}
-
-
-/** 
- * Lock by a trigger element, make sure related mouse-leave controllers
- * not trigger leave action to make it can't be hidden.
- */
-export function lock(trigger: Element) {
-	let lockChanged = false
-
-	for (let controller of walkControllerChainContains(trigger)) {
-		Locks.setUnRepeatably(controller, trigger)
-		lockChanged = true
-	}
-
-	if (lockChanged) {
-		clearDisconnectedTimeout.reset()
-	}
-}
-
-
-/** Walk controller chain which's popup element containers trigger. */
-function* walkControllerChainContains(trigger: Element): Iterable<MouseLeaveController> {
-	let controllers = [...LiveControllers.values()]
-
-	for (let c of controllers) {
-		if (c.popup.contains(trigger)) {
-			yield c
-		}
-	}
-}
-
-
-/** 
- * Release the locks of mouse-leave controllers related with a trigger element,
- * make these controllers can trigger leave action, and trigger immediately if should.
- * And specified trigger element can be hidden now.
- */
-export function unlock(trigger: Element) {
-	for (let controller of walkLockChain(trigger)) {
-		controller.onLockReleased()
-		Locks.deleteLeft(controller)
-	}
-}
-
-
-function* walkLockChain(trigger: Element): Iterable<MouseLeaveController> {
-	while (true) {
-		let controller = Locks.getByRight(trigger)
-		if (!controller) {
-			break
-		}
-
-		yield controller
-
-		// Unlock next in sequence.
-		trigger = controller.trigger
-	}
-}
-
-
-/**
- * Checks whether element or any of it's ancestral elements are inside a popup of any locked controller.
- * If it hasn't been locked, you can destroy or reuse it immediately.
- */
-export function checkLocked(el: Element): boolean {
-	for (let controller of Locks.leftKeys()) {
-		if (controller.popup.contains(el)) {
-			return true
-		}
-	}
-
-	return false
-}
 
 
 /**
@@ -193,7 +84,7 @@ class MouseLeaveController {
 	readonly trigger: Element
 
 	/** Popup element. */
-	readonly popup: Element
+	readonly content: Element
 
 	/** `callback` after mouse leaves all of `els`. */
 	private callback: () => void
@@ -201,9 +92,9 @@ class MouseLeaveController {
 	/** Timeout to countdown time delay for calling `callback` */
 	private timeout: Timeout
 
-	constructor(trigger: Element, popup: Element, callback: () => void, options: MouseLeaveControlOptions = {}) {
+	constructor(trigger: Element, content: Element, callback: () => void, options: MouseLeaveControlOptions = {}) {
 		this.trigger = trigger
-		this.popup = popup
+		this.content = content
 		this.callback = callback
 
 		let delay = options.delay ?? 200
@@ -213,7 +104,7 @@ class MouseLeaveController {
 			this.onMouseEnter()
 		}
 
-		for (let el of [trigger, popup]) {
+		for (let el of [trigger, content]) {
 			DOMEvents.on(el, 'mouseenter', this.onMouseEnter, this)
 			DOMEvents.on(el, 'mouseleave', this.onMouseLeave, this)
 		}
@@ -226,10 +117,9 @@ class MouseLeaveController {
 
 		this.entered = true
 
-		// Lock by current trigger element.
-		lock(this.trigger)
+		// Add a event delivery relation.
+		EventDelivery.add(this.trigger, this.content)
 
-		LiveControllers.add(this)
 		this.timeout.cancel()
 	}
 
@@ -239,45 +129,41 @@ class MouseLeaveController {
 		}
 
 		this.entered = false
-
-		// Not been locked.
-		if (!Locks.hasLeft(this)) {
-			this.timeout.reset()
-		}
+		this.timeout.reset()
 	}
 
 	private onTimeout() {
 
-		// May locks get changed, so should validate again.
-		if (!Locks.hasLeft(this)) {
+		// Can't hide if event delivery still attaching at.
+		if (EventDelivery.containsAnyDelivered(this.content)) {
+			EventDelivery.listenReleasing(this.trigger, this.onDeliveryReleased.bind(this))
+		}
+		else {
 			this.finish()
 		}
 	}
 
-	/** After released locks. */
-	onLockReleased() {
+	/** After released delivering lock. */
+	private onDeliveryReleased() {
 		if (!this.entered) {
-			this.timeout.reset()
+			this.finish()
 		}
 	}
 
 	/** Finish leave by calling leave callback. */
 	finish() {
+		EventDelivery.remove(this.trigger)
 		this.callback()
-		
-		unlock(this.trigger)
-		LiveControllers.delete(this)
 	}
 
 	cancel() {
 		this.timeout.cancel()
 
-		for (let el of [this.trigger, this.popup]) {
+		for (let el of [this.trigger, this.content]) {
 			DOMEvents.off(el, 'mouseenter', this.onMouseEnter, this)
 			DOMEvents.off(el, 'mouseleave', this.onMouseLeave, this)
 		}
 
-		unlock(this.trigger)
-		LiveControllers.delete(this)
+		EventDelivery.remove(this.trigger)
 	}
 }
