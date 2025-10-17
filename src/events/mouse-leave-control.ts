@@ -1,6 +1,6 @@
 import {DOMEvents} from '@pucelle/lupos'
 import {Timeout} from '../tools'
-import * as EventDelivery from './event-delivery'
+import * as MouseEventDelivery from './mouse-event-delivery'
 
 
 /** Options for mouse leave control. */
@@ -118,7 +118,7 @@ class MouseLeaveController {
 		this.entered = true
 
 		// Add a event delivery relation.
-		EventDelivery.add(this.trigger, this.content)
+		MouseEventDelivery.add(this.trigger, this.content)
 
 		this.timeout.cancel()
 	}
@@ -135,8 +135,8 @@ class MouseLeaveController {
 	private onTimeout() {
 
 		// Can't hide if event delivery still attaching at.
-		if (EventDelivery.containsAnyDelivered(this.content)) {
-			EventDelivery.listenReleasing(this.trigger, this.onDeliveryReleased.bind(this))
+		if (MouseEventDelivery.containsAnyDelivered(this.content)) {
+			MouseEventDelivery.listenReleasing(this.trigger, this.onDeliveryReleased.bind(this))
 		}
 		else {
 			this.finish()
@@ -152,7 +152,7 @@ class MouseLeaveController {
 
 	/** Finish leave by calling leave callback. */
 	finish() {
-		EventDelivery.remove(this.trigger)
+		MouseEventDelivery.remove(this.trigger)
 		this.callback()
 	}
 
@@ -164,6 +164,6 @@ class MouseLeaveController {
 			DOMEvents.off(el, 'mouseleave', this.onMouseLeave, this)
 		}
 
-		EventDelivery.remove(this.trigger)
+		MouseEventDelivery.remove(this.trigger)
 	}
 }
