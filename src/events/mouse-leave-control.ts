@@ -18,12 +18,6 @@ export interface MouseLeaveControlOptions {
 	 * E.g., when need to show popup immediately, only need to hide popup after mouse leave.
 	 */
 	mouseIn?: boolean
-
-	/** Event time mouse enters one of the elements. */
-	onEntered?: () => void
-
-	/** Event time mouse leaves one of the elements. */
-	onLeaved?: () => void
 }
 
 
@@ -74,6 +68,7 @@ export function once(trigger: Element, popup: Element, callback: () => void, opt
 	}
 
 	let cancel = on(trigger, popup, wrappedCallback, options)
+
 	return cancel
 }
 
@@ -94,9 +89,6 @@ class MouseLeaveController {
 	/** `callback` after mouse leaves all of `els`. */
 	private callback: () => void
 
-	/** Mouse leave options. */
-	private options: MouseLeaveControlOptions
-
 	/** Timeout to countdown time delay for calling `callback` */
 	private timeout: Timeout
 
@@ -104,14 +96,12 @@ class MouseLeaveController {
 		this.trigger = trigger
 		this.content = content
 		this.callback = callback
-		this.options = options
 
 		let delay = options.delay ?? 200
 		this.timeout = new Timeout(this.onTimeout.bind(this), delay)
 				
 		if (options.mouseIn) {
-			this.entered = true
-			MouseEventDelivery.add(this.trigger, this.content)
+			this.onMouseEnter()
 		}
 
 		for (let el of [trigger, content]) {
@@ -126,11 +116,11 @@ class MouseLeaveController {
 		}
 
 		this.entered = true
-		this.options.onEntered?.()
-		this.timeout.cancel()
 
 		// Add a event delivery relation.
 		MouseEventDelivery.add(this.trigger, this.content)
+
+		this.timeout.cancel()
 	}
 
 	private onMouseLeave() {
@@ -138,8 +128,8 @@ class MouseLeaveController {
 			return
 		}
 
+		MouseEventDelivery.halfRelease(this.trigger)
 		this.entered = false
-		this.options.onLeaved?.()
 		this.timeout.reset()
 	}
 

@@ -17,8 +17,20 @@
  *  - Mouse leave `content2`, deliver event to `content1`, cause `content1` also hide.
  */
 
+enum DeliveryActiveState{
+
+	/** 
+	 * Means will be released soon, so can be reused.
+	 * Normally also means mouse leaves trigger and content.
+	 */
+	Half,
+
+	/** Means fully activated. */
+	Full,
+}
 
 interface DeliveryGroup {
+	state: DeliveryActiveState
 	trigger: Element
 	content: Element
 	callbacks: (() => void)[]
@@ -50,10 +62,12 @@ export function add(trigger: Element, content: Element) {
 	// Avoid adding for twice.
 	let existing = getGroupByTrigger(trigger)
 	if (existing) {
+		cancelHalfRelease(trigger)
 		return
 	}
 	
 	let group: DeliveryGroup = {
+		state: DeliveryActiveState.Full,
 		trigger,
 		content,
 		callbacks: [],
@@ -97,6 +111,31 @@ function* walkInChain(group: DeliveryGroup): Iterable<DeliveryGroup> {
 
 
 /** 
+ * Will soon release a delivery source by it's trigger, and also all the targets in chain.
+ * But right now they enters to a half activated state, means mouse leaves, and can be reused.
+ */
+export function halfRelease(trigger: Element) {
+	let existing = getGroupByTrigger(trigger)
+	if (existing) {
+		for (let group of walkInChain(existing)) {
+			group.state = DeliveryActiveState.Half
+		}
+	}
+}
+
+
+/** Cancel half release set by `halfRelease`. */
+function cancelHalfRelease(trigger: Element) {
+	let existing = getGroupByTrigger(trigger)
+	if (existing) {
+		for (let group of walkInChain(existing)) {
+			group.state = DeliveryActiveState.Full
+		}
+	}
+}
+
+
+/** 
  * Release a delivery source by it's trigger, and also walk for
  * it's delivery targets in chain, and release them.
  */
@@ -116,18 +155,31 @@ export function release(trigger: Element) {
 
 /** Listen for a delivery source by it's trigger to get callback after it get released. */
 export function listenReleasing(trigger: Element, callback: () => void) {
-	for (let existing of DeliveryMap) {
-		if (existing.trigger === trigger) {
-			existing.callbacks.push(callback)
-			break
-		}
+	let existing = getGroupByTrigger(trigger)
+	if (existing) {
+		existing.callbacks.push(callback)
+	}
+}
+
+
+/** 
+ * Test whether a group is fully activated.
+ * Normally if is `true`, means mouse still in trigger or content of this group.
+ */
+export function isFullyActivated(trigger: Element): boolean {
+	let existing = getGroupByTrigger(trigger)
+	if (existing) {
+		return existing.state === DeliveryActiveState.Full
+	}
+	else {
+		return false
 	}
 }
 
 
 /** 
  * Test whether container contains any content which has been delivered to.
- * Normally if is true, means container should not be hidden until sources released.
+ * Normally if is `true`, means container should not be hidden until sources released.
  */
 export function hasAnyDeliveredTo(container: Element): boolean {
 	for (let group of DeliveryMap.keys()) {
