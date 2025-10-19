@@ -229,8 +229,9 @@ export class AnchorAligner {
 	}
 
 	/** 
-	 * Stop sync aligning.
-	 * Note target element will not be hidden.
+	 * Stop sync aligning, and clear all alignment related properties.
+	 * Note that if still have leave transition playing,
+	 * you should want it the transition played then stop.
 	 */
 	stop() {
 		if (this.alignment) {
@@ -240,6 +241,7 @@ export class AnchorAligner {
 				RectWatcher.unwatch(this.anchor!, this.update, this)
 			}
 
+			this.alignment.reset()
 			this.alignment = null
 		}
 	}

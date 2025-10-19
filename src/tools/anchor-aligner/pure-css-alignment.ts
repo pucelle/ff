@@ -22,7 +22,7 @@ interface PositionAreaAndTranslate {
 
 let ElementAnchorNameSeed = 1
 const ElementAnchorNameMap: WeakMap<HTMLElement, string> = /*#__PURE__*/new WeakMap()
-const ElementAnchorReferenceBy: WeakListMap<HTMLElement, any> = /*#__PURE__*/new WeakListMap()
+const ElementAnchorReferenceBy: WeakListMap<HTMLElement, PureCSSAnchorAlignment> = /*#__PURE__*/new WeakListMap()
 
 function getElementAnchorName(el: HTMLElement): string | undefined {
 	return ElementAnchorNameMap.get(el)
@@ -32,13 +32,13 @@ function getNewElementAnchorName(): string {
 	return '--anchor-' + (ElementAnchorNameSeed++)
 }
 
-function setElementAnchorName(el: HTMLElement, name: string, refBy: any) {
+function setElementAnchorName(el: HTMLElement, name: string, refBy: PureCSSAnchorAlignment) {
 	el.style.setProperty('anchor-name', name)
 	ElementAnchorNameMap.set(el, name)
 	ElementAnchorReferenceBy.add(el, refBy)
 }
 
-function deleteElementAnchorName(el: HTMLElement, refBy: any) {
+function deleteElementAnchorName(el: HTMLElement, refBy: PureCSSAnchorAlignment) {
 	ElementAnchorReferenceBy.delete(el, refBy)
 
 	// Has no reference at all.
