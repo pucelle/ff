@@ -99,9 +99,9 @@ class MouseLeaveController {
 
 		let delay = options.delay ?? 200
 		this.timeout = new Timeout(this.onTimeout.bind(this), delay)
-				
+
 		if (options.mouseIn) {
-			this.onMouseEnter()
+			this.onMouseAlreadyIn()
 		}
 
 		for (let el of [trigger, content]) {
@@ -110,27 +110,21 @@ class MouseLeaveController {
 		}
 	}
 
-	private onMouseEnter() {
-		if (this.entered) {
-			return
-		}
-
+	private onMouseAlreadyIn() {
 		this.entered = true
+		MouseEventDelivery.attach(this.trigger, this.content)
+	}
 
-		// Add a event delivery relation.
-		MouseEventDelivery.add(this.trigger, this.content)
-
+	private onMouseEnter() {
+		this.entered = true
 		this.timeout.cancel()
+		MouseEventDelivery.attach(this.trigger, this.content)
 	}
 
 	private onMouseLeave() {
-		if (!this.entered) {
-			return
-		}
-
-		MouseEventDelivery.halfRelease(this.trigger)
 		this.entered = false
 		this.timeout.reset()
+		MouseEventDelivery.halfRelease(this.trigger)
 	}
 
 	private onTimeout() {

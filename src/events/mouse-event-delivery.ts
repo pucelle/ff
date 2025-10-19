@@ -56,8 +56,11 @@ function getGroupByTrigger(trigger: Element): DeliveryGroup | null {
 }
 
 
-/** Add an delivery group. */
-export function add(trigger: Element, content: Element) {
+/** 
+ * Add an delivery group.
+ * Will also clear half releasing.
+ */
+export function attach(trigger: Element, content: Element) {
 
 	// Avoid adding for twice.
 	let existing = getGroupByTrigger(trigger)
