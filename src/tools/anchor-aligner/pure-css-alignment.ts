@@ -85,13 +85,16 @@ export class PureCSSAnchorAlignment {
 	 * Ensure barrier DOM Writing before calling it.
 	 */
 	reset() {
-		for (let key of BoxOffsets.Keys) {
-			this.target.style[key] = ''
-		}
+		let targetInUse = this.target.style.getPropertyValue('position-anchor') === this.anchorName
+		if (targetInUse) {
+			for (let key of BoxOffsets.Keys) {
+				this.target.style[key] = ''
+			}
 
-		this.target.style.setProperty('position-anchor', '')
-		this.target.style.setProperty('position-area', '')
-		//this.target.style.setProperty('position-visibility', '')
+			this.target.style.setProperty('position-anchor', '')
+			this.target.style.setProperty('position-area', '')
+			//this.target.style.setProperty('position-visibility', '')
+		}
 
 		deleteElementAnchorName(this.anchor, this)
 	}
