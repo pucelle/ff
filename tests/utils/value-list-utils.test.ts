@@ -1,41 +1,42 @@
 import {ValueListUtils} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('Test ValueListUtils', () => {
 
-	test('sum', () => {
+	it('sum', () => {
 		expect(ValueListUtils.sum([1,2,3])).toEqual(6)
 	})
 
-	test('average', () => {
+	it('average', () => {
 		expect(ValueListUtils.average([1,2,3])).toEqual(2)
 	})
 
-	test('minIndex', () => {
+	it('minIndex', () => {
 		expect(ValueListUtils.minIndex([1,1,2])).toEqual(0)
 		expect(ValueListUtils.minIndex([])).toEqual(-1)
 		expect(ValueListUtils.minIndex([Infinity])).toEqual(-1)
 	})
 
-	test('maxIndex', () => {
+	it('maxIndex', () => {
 		expect(ValueListUtils.maxIndex([1,2,2])).toEqual(1)
 		expect(ValueListUtils.maxIndex([])).toEqual(-1)
 		expect(ValueListUtils.maxIndex([-Infinity])).toEqual(-1)
 	})
 
-	test('minOf', () => {
+	it('minOf', () => {
 		expect(ValueListUtils.minOf([1,1,2])).toEqual(1)
 		expect(ValueListUtils.minOf([])).toEqual(null)
 		expect(ValueListUtils.minOf([Infinity])).toEqual(null)
 	})
 
-	test('maxOf', () => {
+	it('maxOf', () => {
 		expect(ValueListUtils.maxOf([1,2,2])).toEqual(2)
 		expect(ValueListUtils.maxOf([])).toEqual(null)
 		expect(ValueListUtils.maxOf([-Infinity])).toEqual(null)
 	})
 
-	test('binaryFindInsertIndex', () => {
+	it('binaryFindInsertIndex', () => {
 		expect(ValueListUtils.binaryFindInsertIndex([1,2,3], 0)).toEqual(0)
 		expect(ValueListUtils.binaryFindInsertIndex([1,2,3], 1)).toEqual(1)
 		expect(ValueListUtils.binaryFindInsertIndex([1,2,3], 2)).toEqual(2)
@@ -43,7 +44,7 @@ describe('Test ValueListUtils', () => {
 		expect(ValueListUtils.binaryFindInsertIndex([1,2,3], 4)).toEqual(3)
 	})
 
-	test('binaryFindLowerInsertIndex', () => {
+	it('binaryFindLowerInsertIndex', () => {
 		expect(ValueListUtils.binaryFindLowerInsertIndex([1,2,3], 0)).toEqual(0)
 		expect(ValueListUtils.binaryFindLowerInsertIndex([1,2,3], 1)).toEqual(0)
 		expect(ValueListUtils.binaryFindLowerInsertIndex([1,2,3], 2)).toEqual(1)
@@ -51,7 +52,7 @@ describe('Test ValueListUtils', () => {
 		expect(ValueListUtils.binaryFindLowerInsertIndex([1,2,3], 4)).toEqual(3)
 	})
 
-	test('binaryFind', () => {
+	it('binaryFind', () => {
 		expect(ValueListUtils.binaryFind([1,2,3], 0)).toEqual(undefined)
 		expect(ValueListUtils.binaryFind([1,2,3], 1)).toEqual(1)
 		expect(ValueListUtils.binaryFind([1,2,3], 2)).toEqual(2)
@@ -59,7 +60,7 @@ describe('Test ValueListUtils', () => {
 		expect(ValueListUtils.binaryFind([1,2,3], 4)).toEqual(undefined)
 	})
 
-	test('binaryInsert', () => {
+	it('binaryInsert', () => {
 		expect(ValueListUtils.binaryInsert([1,2,3], 0)).toEqual(0)
 		expect(ValueListUtils.binaryInsert([1,2,3], 1)).toEqual(1)
 		expect(ValueListUtils.binaryInsert([1,2,3], 2)).toEqual(2)

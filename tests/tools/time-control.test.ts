@@ -1,33 +1,33 @@
 import {Debounce, Interval, Throttle, Timeout, sleep} from '../../src'
-import {jest} from '@jest/globals'
+import {describe, expect, vi, it} from 'vitest'
 
 
 describe('Test time-control', () => {
 	describe('Test timeout', () => {
-		test('Will call fn', async () => {
-			let fn = jest.fn()
+		it('Will call fn', async () => {
+			let fn = vi.fn()
 			new Timeout(fn, 0).start()
 			await sleep(1)
 			expect(fn).toHaveBeenCalledTimes(1)
 		})
 
-		test('Will call fn later', async () => {
-			let fn = jest.fn()
+		it('Will call fn later', async () => {
+			let fn = vi.fn()
 			new Timeout(fn, 40).start()
 			await sleep(41)
 			expect(fn).toHaveBeenCalledTimes(1)
 		})
 
-		test('Will not call fn after been canceled', async () => {
-			let fn = jest.fn()
+		it('Will not call fn after been canceled', async () => {
+			let fn = vi.fn()
 			let timeout = new Timeout(fn, 40)
 			timeout.cancel()
 			await sleep(41)
 			expect(fn).toHaveBeenCalledTimes(0)
 		})
 
-		test('Will reset timeout after been reset', async () => {
-			let fn = jest.fn()
+		it('Will reset timeout after been reset', async () => {
+			let fn = vi.fn()
 			let timeout = new Timeout(fn, 40)
 			await sleep(20)
 			timeout.start()
@@ -40,8 +40,8 @@ describe('Test time-control', () => {
 			expect(fn).toHaveBeenCalledTimes(2)
 		})
 
-		test('Will call fn immediately after been flush', async () => {
-			let fn = jest.fn()
+		it('Will call fn immediately after been flush', async () => {
+			let fn = vi.fn()
 			let timeout = new Timeout(fn, 40)
 			timeout.flush()
 			expect(fn).toHaveBeenCalledTimes(1)
@@ -70,8 +70,8 @@ describe('Test time-control', () => {
 
 
 	describe('Test interval', () => {
-		test('Will call fn in expected time points', async () => {
-			let fn = jest.fn()
+		it('Will call fn in expected time points', async () => {
+			let fn = vi.fn()
 			let interval = willAlwaysEndInterval(fn, 40)
 			await sleep(41)
 			expect(fn).toHaveBeenCalledTimes(1)
@@ -80,16 +80,16 @@ describe('Test time-control', () => {
 			interval.cancel()
 		})
 
-		test('Will not call fn after been canceled', async () => {
-			let fn = jest.fn()
+		it('Will not call fn after been canceled', async () => {
+			let fn = vi.fn()
 			let interval = willAlwaysEndInterval(fn, 40)
 			interval.cancel()
 			await sleep(41)
 			expect(fn).toHaveBeenCalledTimes(0)
 		})
 
-		test('Will reset interval time after been reset', async () => {
-			let fn = jest.fn()
+		it('Will reset interval time after been reset', async () => {
+			let fn = vi.fn()
 			let interval = willAlwaysEndInterval(fn, 40)
 			await sleep(20)
 			interval.start()
@@ -103,8 +103,8 @@ describe('Test time-control', () => {
 			interval.cancel()
 		})
 
-		test('Will call fn immediately after been flush', async () => {
-			let fn = jest.fn()
+		it('Will call fn immediately after been flush', async () => {
+			let fn = vi.fn()
 			let interval = willAlwaysEndInterval(fn, 40)
 			interval.flush()
 			expect(fn).toHaveBeenCalledTimes(1)
@@ -116,8 +116,8 @@ describe('Test time-control', () => {
 
 
 	describe('Test immediate throttle', () => {
-		test('Will call fn in expected time points', async () => {
-			let fn = jest.fn()
+		it('Will call fn in expected time points', async () => {
+			let fn = vi.fn()
 			let throttle = new Throttle(fn, 100, true)
 			let throttled = throttle.wrapped
 			let interval = willAlwaysEndInterval(throttled, 40)
@@ -130,8 +130,8 @@ describe('Test time-control', () => {
 			interval.cancel()
 		})
 
-		test('Will call fn frequently after been canceled', async () => {
-			let fn = jest.fn()
+		it('Will call fn frequently after been canceled', async () => {
+			let fn = vi.fn()
 			let throttle = new Throttle(fn, 100, true)
 			let throttled = throttle.wrapped
 			let interval = willAlwaysEndInterval(throttled, 40)
@@ -143,8 +143,8 @@ describe('Test time-control', () => {
 			interval.cancel()
 		})
 
-		test('Will reset timeout after been reset', async () => {
-			let fn = jest.fn()
+		it('Will reset timeout after been reset', async () => {
+			let fn = vi.fn()
 			let throttle = new Throttle(fn, 100, true)
 			let throttled = throttle.wrapped
 			let interval = willAlwaysEndInterval(throttled, 40)
@@ -161,8 +161,8 @@ describe('Test time-control', () => {
 
 
 	describe('Test not immediate throttle', () => {
-		test('Will call fn in expected time points', async () => {
-			let fn = jest.fn()
+		it('Will call fn in expected time points', async () => {
+			let fn = vi.fn()
 			let throttle = new Throttle(fn, 100)
 			let throttled = throttle.wrapped
 			let interval = willAlwaysEndInterval(throttled, 40)
@@ -175,8 +175,8 @@ describe('Test time-control', () => {
 			interval.cancel()
 		})
 
-		test('Will call fn frequently after been canceled', async () => {
-			let fn = jest.fn()
+		it('Will call fn frequently after been canceled', async () => {
+			let fn = vi.fn()
 			let throttle = new Throttle(fn, 100)
 			let throttled = throttle.wrapped
 			let interval = willAlwaysEndInterval(throttled, 40)
@@ -188,8 +188,8 @@ describe('Test time-control', () => {
 			interval.cancel()
 		})
 
-		test('Will reset timeout after been reset', async () => {
-			let fn = jest.fn()
+		it('Will reset timeout after been reset', async () => {
+			let fn = vi.fn()
 			let throttle = new Throttle(fn, 100)
 			let throttled = throttle.wrapped
 			let interval = willAlwaysEndInterval(throttled, 40)
@@ -204,8 +204,8 @@ describe('Test time-control', () => {
 			interval.cancel()
 		})
 
-		test('Can flush', async () => {
-			let fn = jest.fn()
+		it('Can flush', async () => {
+			let fn = vi.fn()
 			let throttle = new Throttle(fn, 100)
 			let throttled = throttle.wrapped
 			let interval = willAlwaysEndInterval(throttled, 40)
@@ -219,8 +219,8 @@ describe('Test time-control', () => {
 
 
 	describe('Test debounce', () => {
-		test('Will call fn in expected time points', async () => {
-			let fn = jest.fn()
+		it('Will call fn in expected time points', async () => {
+			let fn = vi.fn()
 			let debounce = new Debounce(fn, 100)
 			let debounced = debounce.wrapped
 			let interval = willAlwaysEndInterval(debounced, 40)
@@ -231,8 +231,8 @@ describe('Test time-control', () => {
 			expect(fn).toHaveBeenCalledTimes(1)
 		})
 
-		test('Will call fn frequently after been canceled', async () => {
-			let fn = jest.fn()
+		it('Will call fn frequently after been canceled', async () => {
+			let fn = vi.fn()
 			let debounce = new Debounce(fn, 100)
 			let debounced = debounce.wrapped
 			let interval = willAlwaysEndInterval(debounced, 40)
@@ -244,8 +244,8 @@ describe('Test time-control', () => {
 			interval.cancel()
 		})
 
-		test('Will reset timeout after been reset', async () => {
-			let fn = jest.fn()
+		it('Will reset timeout after been reset', async () => {
+			let fn = vi.fn()
 			let debounce = new Debounce(fn, 100)
 			let debounced = debounce.wrapped
 			let interval = willAlwaysEndInterval(debounced, 40)
@@ -261,8 +261,8 @@ describe('Test time-control', () => {
 			expect(fn).toHaveBeenCalledTimes(1)
 		})
 
-		test('Can flush', async () => {
-			let fn = jest.fn()
+		it('Can flush', async () => {
+			let fn = vi.fn()
 			let debounce = new Debounce(fn, 100)
 			let debounced = debounce.wrapped
 			let interval = willAlwaysEndInterval(debounced, 40)

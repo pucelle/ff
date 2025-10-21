@@ -1,9 +1,10 @@
 import {MathUtils, NumberUtils} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('Test MathUtils', () => {
 
-	test('MathUtils', () => {
+	it('MathUtils', () => {
 		expect(MathUtils.degreeToRadians(90)).toEqual(Math.PI / 2)
 		expect(MathUtils.radiansToDegree(Math.PI / 2)).toEqual(90)
 		expect(NumberUtils.toDecimal(MathUtils.mix(1, 2, 0.2), 8)).toEqual(1.2)

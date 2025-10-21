@@ -1,9 +1,10 @@
 import {IntegralLookup} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('Test IntegralLookUp', () => {
 
-	test('IntegralLookUp', () => {
+	it('IntegralLookUp', () => {
 		expect(IntegralLookup.lookupXRateByYRate(0, [3, 5, 6])).toEqual(0)
 		expect(IntegralLookup.lookupXRateByYRate(1, [3, 5, 6])).toEqual(1)
 		expect(IntegralLookup.lookupXRateByYRate(0.5, [3, 5, 6])).toEqual(1/3)

@@ -1,10 +1,11 @@
 import {DateUtils} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('Test DateUtils', () => {
 	let d = new Date()
 
-	test('getValue', () => {
+	it('getValue', () => {
 		expect(DateUtils.getValue(d, 'y')).toEqual(d.getFullYear())
 		expect(DateUtils.getValue(d, 'M')).toEqual(d.getMonth())
 		expect(DateUtils.getValue(d, 'd')).toEqual(d.getDate())
@@ -14,7 +15,7 @@ describe('Test DateUtils', () => {
 		expect(() => DateUtils.getValue(d, <any>'x')).toThrow()
 	})
 
-	test('setValue', () => {
+	it('setValue', () => {
 		let n = new Date()
 		expect(DateUtils.setValue(n, 2000, 'y')).toEqual(n.setFullYear(2000))
 		expect(DateUtils.setValue(n, 0, 'M')).toEqual(n.setMonth(0))
@@ -25,7 +26,7 @@ describe('Test DateUtils', () => {
 		expect(() => DateUtils.setValue(n, 0, <any>'x')).toThrow()
 	})
 
-	test('isValid', () => {
+	it('isValid', () => {
 		expect(DateUtils.isValid(2020, 0, 1, 0, 0, 0)).toEqual(true)
 		expect(DateUtils.isValid(2020, 0, 1, 0, 0)).toEqual(true)
 		expect(DateUtils.isValid(2020, 0, 1, 0)).toEqual(true)
@@ -39,50 +40,50 @@ describe('Test DateUtils', () => {
 		expect(DateUtils.isValid(2020, 0, 1, 1, 1, 61)).toEqual(false)
 	})
 
-	test('isLeapYear', () => {
+	it('isLeapYear', () => {
 		expect(DateUtils.isLeapYear(new Date(2020, 0))).toEqual(true)
 		expect(DateUtils.isLeapYear(new Date(2021, 0))).toEqual(false)
 		expect(DateUtils.isLeapYear(new Date(2100, 0))).toEqual(false)
 		expect(DateUtils.isLeapYear(new Date(2000, 0))).toEqual(true)
 	})
 
-	test('getDaysOfYear', () => {
+	it('getDaysOfYear', () => {
 		expect(DateUtils.getDaysOfYear(new Date(2020, 0))).toEqual(366)
 		expect(DateUtils.getDaysOfYear(new Date(2021, 0))).toEqual(365)
 		expect(DateUtils.getDaysOfYear(new Date(2100, 0))).toEqual(365)
 		expect(DateUtils.getDaysOfYear(new Date(2000, 0))).toEqual(366)
 	})
 
-	test('getDaysOfMonth', () => {
+	it('getDaysOfMonth', () => {
 		expect(DateUtils.getDaysOfMonth(new Date(2020, 0))).toEqual(31)
 		expect(DateUtils.getDaysOfMonth(new Date(2020, 1))).toEqual(29)
 		expect(DateUtils.getDaysOfMonth(new Date(2021, 1))).toEqual(28)
 	})
 
-	test('clone', () => {
+	it('clone', () => {
 		expect(DateUtils.format(DateUtils.clone())).toEqual(DateUtils.format(new Date()))
 		expect(DateUtils.format(DateUtils.clone(d))).toEqual(DateUtils.format(d))
 		expect(DateUtils.clone(d, 'yMd')).toEqual(new Date(d.getFullYear(), d.getMonth(), d.getDate()))
 		expect(DateUtils.clone(d, 'yM')).toEqual(new Date(d.getFullYear(), d.getMonth()))
 	})
 
-	test('addDuration', () => {
+	it('addDuration', () => {
 		expect(DateUtils.addDuration(d, '1d').getTime() - d.getTime()).toEqual(24 * 60 * 60 * 1000)
 		expect(DateUtils.addDuration(d, '-1d').getTime() - d.getTime()).toEqual(-24 * 60 * 60 * 1000)
 		expect(DateUtils.addDuration(new Date(2020, 0, 1), '1M')).toEqual(new Date(2020, 1, 1))
 		expect(DateUtils.addDuration(new Date(2020, 1, 1), '-1M')).toEqual(new Date(2020, 0, 1))
 	})
 
-	test('addSeconds', () => {
+	it('addSeconds', () => {
 		expect(DateUtils.addSeconds(d, 24 * 60 * 60).getTime() - d.getTime()).toEqual(24 * 60 * 60 * 1000)
 	})
 
-	test('format', () => {
+	it('format', () => {
 		expect(DateUtils.format(new Date(2020, 0, 1))).toEqual('2020-01-01 00:00:00')
 		expect(DateUtils.format(new Date(2020, 0, 1), 'yyMMddhhmmss')).toEqual('20200101000000')
 	})
 
-	test('formatToShort', () => {
+	it('formatToShort', () => {
 		let n = DateUtils.addDuration(d, '1y')
 		expect(DateUtils.formatToShort(n)).toEqual(DateUtils.format(n, 'yyyy-MM-dd'))
 

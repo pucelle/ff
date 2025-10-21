@@ -1,10 +1,11 @@
 import {Direction} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('Test Direction', () => {
 
 	// Most APIs of `Direction` are very simple, no need to test.
-	test('opposite', () => {
+	it('opposite', () => {
 		expect(Direction.Left.opposite).toEqual(Direction.Right)
 		expect(Direction.Right.opposite).toEqual(Direction.Left)
 		expect(Direction.Top.opposite).toEqual(Direction.Bottom)

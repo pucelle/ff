@@ -1,9 +1,10 @@
 import {Color} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('Test transition', () => {
 	
-	test('fromString', () => {
+	it('fromString', () => {
 		expect(Color.fromString('#368')!.toString()).toEqual('#336688')
 		expect(Color.fromString('#123456')!.toString()).toEqual('#123456')
 		expect(Color.fromString('#80808080')!.toString()).toEqual('rgba(128, 128, 128, 0.5)')
@@ -12,7 +13,7 @@ describe('Test transition', () => {
 		expect(Color.fromString('RGBA(#808080, 0.5)')!.toString()).toEqual('rgba(128, 128, 128, 0.5)')
 	})
 
-	test('fromHSL & fromHSLA', () => {
+	it('fromHSL & fromHSLA', () => {
 		expect(Color.fromHSL(0, 1, 1)!.toString()).toEqual('#ffffff')
 		expect(Color.fromHSL(0, 1, 0.5)!.toString()).toEqual('#ff0000')
 		expect(Color.fromHSL(1, 1, 0.5)!.toString()).toEqual('#ffff00')
@@ -24,7 +25,7 @@ describe('Test transition', () => {
 		expect(Color.fromHSLA(0, 1, 0.5, 0.5)!.toString()).toEqual('rgba(255, 0, 0, 0.5)')
 	})
 
-	test('Color properties', () => {
+	it('Color properties', () => {
 		let c = Color.fromString('#ff0000')!
 		expect(c.clone().equals(c)).toEqual(true)
 		expect(c.toRGB()).toEqual('rgb(255, 0, 0)')

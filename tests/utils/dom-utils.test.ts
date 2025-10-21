@@ -1,8 +1,9 @@
 import {DOMUtils} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('DOMUtils', () => {
-	test('isNodeBefore', async () => {
+	it('isNodeBefore', async () => {
 		let p = document.createElement('div')
 		let c1 = document.createElement('div')
 		let c2 = document.createElement('div')
@@ -16,7 +17,7 @@ describe('DOMUtils', () => {
 	})
 
 
-	test('isNodeAfter', async () => {
+	it('isNodeAfter', async () => {
 		let p = document.createElement('div')
 		let c1 = document.createElement('div')
 		let c2 = document.createElement('div')
@@ -30,7 +31,7 @@ describe('DOMUtils', () => {
 	})
 
 
-	test('nodeIndexOf', async () => {
+	it('nodeIndexOf', async () => {
 		let p = document.createElement('div')
 		let c1 = document.createTextNode('')
 		let c2 = document.createElement('div')
@@ -42,7 +43,7 @@ describe('DOMUtils', () => {
 	})
 
 
-	test('elementIndexOf', async () => {
+	it('elementIndexOf', async () => {
 		let p = document.createElement('div')
 		let c1 = document.createTextNode('')
 		let c2 = document.createElement('div')
@@ -53,14 +54,14 @@ describe('DOMUtils', () => {
 	})
 
 
-	test('getStyleValue & setStyleValue', async () => {
+	it('getStyleValue & setStyleValue', async () => {
 		let p = document.createElement('div')
 		DOMUtils.setStyleValue(p, 'position', 'absolute')
 		expect(DOMUtils.getStyleValue(p, 'position')).toEqual('absolute')
 	})
 
 
-	test('getNumericStyleValue & setNumericStyleValue', async () => {
+	it('getNumericStyleValue & setNumericStyleValue', async () => {
 		let p = document.createElement('div')
 		DOMUtils.setNumericStyleValue(p, 'left', 100)
 		expect(DOMUtils.getNumericStyleValue(p, 'left')).toEqual(100)

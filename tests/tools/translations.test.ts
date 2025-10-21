@@ -1,9 +1,10 @@
 import {translations} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('Test translations', () => {
 	
-	test('GlobalTranslations', () => {
+	it('GlobalTranslations', () => {
 		translations.add('en', {
 			key1: 'Translate of {0}',
 			key2: '"What"',

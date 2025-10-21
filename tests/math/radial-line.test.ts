@@ -1,9 +1,10 @@
 import {LineSegment, Direction, Point, RadialLine, Vector, Box, NumberUtils} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('Test RadialLine', () => {
 
-	test('RadialLine Static', () => {
+	it('RadialLine Static', () => {
 		expect(RadialLine.fromPointAndDirection(new Point(0, 0), Direction.Right)).toEqual(new RadialLine(new Point(0, 0), new Vector(1, 0)))
 
 		let l = RadialLine.fromPointAndDegree(new Point(0, 0), 90)
@@ -18,7 +19,7 @@ describe('Test RadialLine', () => {
 	})
 
 
-	test('interactWithLineSegment', () => {
+	it('interactWithLineSegment', () => {
 		let l = new RadialLine(new Point(0, 0), new Vector(1, 0))
 
 		let s = new LineSegment(new Point(0, 0), new Vector(1, 0))
@@ -32,7 +33,7 @@ describe('Test RadialLine', () => {
 	})
 
 
-	test('intersect', () => {
+	it('intersect', () => {
 		let l = new RadialLine(new Point(0, 0), new Vector(1, 0))
 
 		let l2 = new RadialLine(new Point(0, 0), new Vector(1, 0))
@@ -45,7 +46,7 @@ describe('Test RadialLine', () => {
 		expect(l.intersect(l2)).toEqual({point: new Point(0.5, 0), miu: 0.5, niu:-0.5, intersected: false})
 	})
 
-	test('getClosestIntersectPointWithBox', () => {
+	it('getClosestIntersectPointWithBox', () => {
 		let l = new RadialLine(new Point(0, 0), new Vector(1, 0))
 
 		let b = new Box(0, 0, 10, 10)
@@ -58,7 +59,7 @@ describe('Test RadialLine', () => {
 		expect(l.getClosestIntersectPointWithBox(b)).toEqual(null)
 	})
 
-	test('getExtendedClosestIntersectPointWithBox', () => {
+	it('getExtendedClosestIntersectPointWithBox', () => {
 		let l = new RadialLine(new Point(0, 0), new Vector(1, 0))
 
 		let b = new Box(0, 0, 10, 10)

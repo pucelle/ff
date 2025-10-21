@@ -1,9 +1,10 @@
 import {PairKeysListMap, PairKeysMap, PairKeysSetMap, ListMap, SetMap, TwoWayListMap, TwoWayMap, TwoWaySetMap} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('Test Map Structs', () => {
 	
-	test('ListMap', () => {
+	it('ListMap', () => {
 		let m = new ListMap<string, string>()
 		
 		m.add('a', 'b')
@@ -37,7 +38,7 @@ describe('Test Map Structs', () => {
 		expect([...m.entries()]).toEqual([['a', ['b', 'c']]])
 	})
 
-	test('SetMap', () => {
+	it('SetMap', () => {
 		let m = new SetMap<string, string>()
 		
 		m.add('a', 'b')
@@ -66,7 +67,7 @@ describe('Test Map Structs', () => {
 		expect(m.hasKey('a')).toEqual(false)
 	})
 
-	test('TwoWayMap', () => {
+	it('TwoWayMap', () => {
 		let m = new TwoWayMap<string, string>()
 		
 		m.set('a', 'b')
@@ -106,7 +107,7 @@ describe('Test Map Structs', () => {
 		expect(m.hasRight('c')).toEqual(true)
 	})
 
-	test('TwoWayListMap', () => {
+	it('TwoWayListMap', () => {
 		let m = new TwoWayListMap<string, string>()
 		
 		m.add('a', 'b')
@@ -147,7 +148,7 @@ describe('Test Map Structs', () => {
 		expect(m.hasRight('b')).toEqual(false)
 	})
 
-	test('TwoWaySetMap', () => {
+	it('TwoWaySetMap', () => {
 		let m = new TwoWaySetMap<string, string>()
 		
 		m.add('a', 'b')
@@ -187,7 +188,7 @@ describe('Test Map Structs', () => {
 		expect(m.hasRight('b')).toEqual(false)
 	})
 
-	test('PairKeysMap', () => {
+	it('PairKeysMap', () => {
 		let m = new PairKeysMap<string, string, string>()
 
 		m.set('a', 'b', 'c')
@@ -216,7 +217,7 @@ describe('Test Map Structs', () => {
 		expect(m.hasFirstKey('a')).toEqual(false)
 	})
 
-	test('PairKeysListMap', () => {
+	it('PairKeysListMap', () => {
 		let m = new PairKeysListMap<string, string, string>()
 
 		m.add('a', 'b', 'c')
@@ -249,7 +250,7 @@ describe('Test Map Structs', () => {
 		expect(m.hasFirstKey('a')).toEqual(false)
 	})
 
-	test('PairKeysSetMap', () => {
+	it('PairKeysSetMap', () => {
 		let m = new PairKeysSetMap<string, string, string>()
 
 		m.add('a', 'b', 'c')

@@ -1,8 +1,9 @@
 import {applyMixins} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('Test MixinUtils', () => {
-	test('applyMixins', () => {
+	it('applyMixins', () => {
 		class B {
 			b() {
 				return 'b'

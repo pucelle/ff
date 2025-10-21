@@ -1,9 +1,10 @@
 import {Vector, NumberUtils} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('Test Vector', () => {
 
-	test('Vector Static', () => {
+	it('Vector Static', () => {
 		expect(Vector.from({x: 1, y: 1})).toEqual(new Vector(1, 1))
 
 		let p = Vector.fromDegree(90)
@@ -18,7 +19,7 @@ describe('Test Vector', () => {
 	})
 
 
-	test('Vector', () => {
+	it('Vector', () => {
 		let v = new Vector()
 
 		v.set(1, 1)

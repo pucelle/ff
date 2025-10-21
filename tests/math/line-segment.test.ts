@@ -1,9 +1,10 @@
 import {Point, LineSegment} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('Test LineSegment', () => {
 
-	test('LineSegment', () => {
+	it('LineSegment', () => {
 		let s1 = LineSegment.fromPoints(new Point(0, 0), new Point(1, 0))
 		let s2 = LineSegment.fromPoints(new Point(0, 0), new Point(1, 0))
 		let s3 = LineSegment.fromPoints(new Point(10, 0), new Point(11, 0))

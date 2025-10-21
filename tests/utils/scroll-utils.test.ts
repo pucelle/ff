@@ -1,8 +1,9 @@
 import {ScrollUtils} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('ScrollUtils', () => {
-	test('findClosestCSSScrollWrapper', async () => {
+	it('findClosestCSSScrollWrapper', async () => {
 		let p = document.createElement('div')
 		p.style.cssText = 'overflow-y: auto'
 
@@ -14,21 +15,16 @@ describe('ScrollUtils', () => {
 	})
 
 
-	test('getCSSOverflowDirection', async () => {
-		let p = document.createElement('div')
-		p.style.cssText = 'overflow-y: auto'
+	it('getCSSOverflowDirection', async () => {
+		let p1 = document.createElement('div')
+		p1.style.cssText = 'overflow-y: auto'
+		expect(ScrollUtils.getCSSOverflowDirection(p1)).toEqual('vertical')
 
-		let c = document.createElement('div')
-		p.append(c)
+		let p2 = document.createElement('div')
+		p2.style.cssText = 'overflow-x: auto'
+		expect(ScrollUtils.getCSSOverflowDirection(p2)).toEqual('horizontal')
 
-		expect(ScrollUtils.getCSSOverflowDirection(p)).toEqual('vertical')
-		expect(ScrollUtils.getCSSOverflowDirection(c)).toEqual(null)
-
-		p.style.cssText = 'overflow-x: auto'
-		expect(ScrollUtils.getCSSOverflowDirection(p)).toEqual('horizontal')
-
-		// Jest cant spread this property to both directions.
-		// p.style.cssText = 'overflow: auto'
-		// expect(ScrollUtils.getCSSOverflowDirection(p)).toEqual('vertical')
+		let p3 = document.createElement('div')
+		expect(ScrollUtils.getCSSOverflowDirection(p3)).toEqual(null)
 	})
 })

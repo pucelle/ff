@@ -1,24 +1,25 @@
 import {HTMLUtils} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('Test HTMLUtils', () => {
-	test('encodeToHTML', () => {
+	it('encodeToHTML', () => {
 		expect(HTMLUtils.encodeToHTML('<a>')).toEqual('&lt;a&gt;')
 	})
 
-	test('decodeFromHTML', () => {
+	it('decodeFromHTML', () => {
 		expect(HTMLUtils.decodeFromHTML('&lt;a&gt;')).toEqual('<a>')
 	})
 
-	test('htmlToText', () => {
+	it('htmlToText', () => {
 		expect(HTMLUtils.htmlToText('<a>12345</a>')).toEqual('12345')
 	})
 
-	test('textToHTML', () => {
+	it('textToHTML', () => {
 		expect(HTMLUtils.textToHTML('12345')).toEqual('<p>12345</p>')
 	})
 
-	test('cleanUnsafeHTML', () => {
+	it('cleanUnsafeHTML', () => {
 		expect(HTMLUtils.cleanUnsafeHTML('abc<script></script>')).toEqual('abc')
 		expect(HTMLUtils.cleanUnsafeHTML('abc<script a=b></script>')).toEqual('abc')
 		expect(HTMLUtils.cleanUnsafeHTML('<div onerror="..."></div>')).toEqual('<div></div>')

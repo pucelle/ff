@@ -1,15 +1,16 @@
 import {StringUtils} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('Test StringUtils', () => {
 	
-	test('format', () => {
+	it('format', () => {
 		expect(StringUtils.format('a{0}{1}d', ['b','c'])).toEqual('abcd')
 		expect(StringUtils.format('a{x}{y}d', {x:'b',y:'c'})).toEqual('abcd')
 		expect(StringUtils.format('a{x}{y}d', {x:'b'})).toEqual('ab{y}d')
 	})
 
-	test('other string methods', () => {
+	it('other string methods', () => {
 		expect(StringUtils.toCapitalize('abc')).toEqual('Abc')
 
 		expect(StringUtils.toCamelCase('ab_c')).toEqual('abC')

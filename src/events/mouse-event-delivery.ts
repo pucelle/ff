@@ -99,8 +99,12 @@ function* walkInChain(group: DeliveryGroup): Iterable<DeliveryGroup> {
 	if (deliveringTo) {
 		let hasNoOthersDeliveringTo = true
 
-		for (let value of DeliverToMap.values()) {
-			if (value === deliveringTo) {
+		for (let [from, to] of DeliverToMap) {
+			if (from === group) {
+				continue
+			}
+
+			if (to === deliveringTo) {
 				hasNoOthersDeliveringTo = false
 				break
 			}
@@ -145,8 +149,11 @@ function cancelHalfRelease(trigger: Element) {
 export function release(trigger: Element) {
 	let existing = getGroupByTrigger(trigger)
 	if (existing) {
-		for (let group of walkInChain(existing)) {
+
+		// Will modify the chain, so must clone it.
+		for (let group of [...walkInChain(existing)]) {
 			DeliveryMap.delete(group)
+			DeliverToMap.delete(group)
 
 			for (let callback of group.callbacks) {
 				callback()

@@ -1,10 +1,10 @@
 import {ListBundler, SetBundler, EmptyBundler} from '../../src'
-import {jest} from '@jest/globals'
+import {describe, expect, vi, it} from 'vitest'
 
 
 describe('Test Bundler', () => {
-	test('ListBundler', async () => {
-		let f = jest.fn() as any
+	it('ListBundler', async () => {
+		let f = vi.fn() as any
 		let b = new ListBundler(f)
 		b.add(1)
 		b.add(2)
@@ -14,7 +14,7 @@ describe('Test Bundler', () => {
 	})
 
 
-	test('SetBundler', async () => {
+	it('SetBundler', async () => {
 		let f = (arg: any) => {
 			expect(arg instanceof Set)
 			expect([...arg]).toEqual([1, 2])
@@ -27,8 +27,8 @@ describe('Test Bundler', () => {
 	})
 
 
-	test('EmptyBundler', async () => {
-		let f = jest.fn() as any
+	it('EmptyBundler', async () => {
+		let f = vi.fn() as any
 		let b = new EmptyBundler(f)
 		b.call()
 		await Promise.resolve()

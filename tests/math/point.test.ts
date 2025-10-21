@@ -1,9 +1,10 @@
 import {Point, Vector, NumberUtils} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('Test Point', () => {
 
-	test('Point Static', () => {
+	it('Point Static', () => {
 		expect(Point.from({x: 1, y: 1})).toEqual(new Point(1, 1))
 
 		let p = Point.fromDegree(90)
@@ -16,7 +17,7 @@ describe('Test Point', () => {
 	})
 
 
-	test('Point', () => {
+	it('Point', () => {
 		let p = new Point()
 
 		p.set(1, 1)

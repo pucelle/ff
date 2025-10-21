@@ -1,9 +1,10 @@
 import {RecursiveVariance} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('Test RecursiveVariance', () => {
 
-	test('Size RecursiveVariance', () => {
+	it('Size RecursiveVariance', () => {
 		let rv = new RecursiveVariance()
 
 		rv.update(1)

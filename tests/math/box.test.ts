@@ -1,15 +1,16 @@
 import {Direction, BoxOffsets, Size, Box, LineSegment, Point} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('Test Box', () => {
 	
-	test('Box Static', () => {
+	it('Box Static', () => {
 		expect(Box.fromCoords({x: 0, y: 0}, {x: 10, y: 10})).toEqual(new Box(0, 0, 10, 10))
 		expect(Box.fromUnion(new Box(0, 0, 10, 10), new Box(10, 10, 10, 10))).toEqual(new Box(0, 0, 20, 20))
 	})
 
 	
-	test('Box properties', () => {
+	it('Box properties', () => {
 		let b = new Box(0, 0, 10, 10)
 		expect(b.left).toEqual(0)
 		expect(b.top).toEqual(0)

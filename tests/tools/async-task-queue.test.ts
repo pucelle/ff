@@ -1,13 +1,13 @@
 import {AsyncTaskQueue, sleep} from '../../src'
-import {jest} from '@jest/globals'
+import {describe, expect, vi, it} from 'vitest'
 
 
 describe('Test AsyncTaskQueue', () => {
 	
-	test('AsyncTaskQueue', async () => {
+	it('AsyncTaskQueue', async () => {
 		let q = new AsyncTaskQueue()
-		let f1 = jest.fn()
-		let f2 = jest.fn()
+		let f1 = vi.fn()
+		let f2 = vi.fn()
 
 		q.enqueue(async () => {
 			await sleep(10)

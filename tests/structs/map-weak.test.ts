@@ -1,4 +1,5 @@
 import {WeakPairKeysListMap, WeakPairKeysMap, WeakPairKeysSetMap, WeakListMap, WeakSetMap, WeakTwoWayListMap, WeakTwoWayMap, WeakTwoWaySetMap, WeakerPairKeysMap} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('Test Weak Map Structs', () => {
@@ -7,7 +8,7 @@ describe('Test Weak Map Structs', () => {
 	let c = {}
 	let d = {}
 	
-	test('WeakListMap', () => {
+	it('WeakListMap', () => {
 		let m = new WeakListMap<object, string>()
 		
 		m.add(a, 'b')
@@ -35,7 +36,7 @@ describe('Test Weak Map Structs', () => {
 		expect(m.get(a)).toEqual(['b', 'c'])
 	})
 
-	test('WeakSetMap', () => {
+	it('WeakSetMap', () => {
 		let m = new WeakSetMap<object, string>()
 		
 		m.add(a, 'b')
@@ -58,7 +59,7 @@ describe('Test Weak Map Structs', () => {
 		expect(m.hasKey(a)).toEqual(false)
 	})
 
-	test('WeakTwoWayMap', () => {
+	it('WeakTwoWayMap', () => {
 		let m = new WeakTwoWayMap<object, object>()
 		
 		m.set(a, b)
@@ -78,7 +79,7 @@ describe('Test Weak Map Structs', () => {
 		expect(m.hasRight(b)).toEqual(false)
 	})
 
-	test('WeakTwoWayListMap', () => {
+	it('WeakTwoWayListMap', () => {
 		let m = new WeakTwoWayListMap<object, object>()
 		
 		m.add(a, b)
@@ -108,7 +109,7 @@ describe('Test Weak Map Structs', () => {
 		expect(m.hasRight(b)).toEqual(false)
 	})
 
-	test('WeakTwoWaySetMap', () => {
+	it('WeakTwoWaySetMap', () => {
 		let m = new WeakTwoWaySetMap<object, object>()
 		
 		m.add(a, b)
@@ -138,7 +139,7 @@ describe('Test Weak Map Structs', () => {
 		expect(m.hasRight(b)).toEqual(false)
 	})
 
-	test('WeakerPairKeysMap', () => {
+	it('WeakerPairKeysMap', () => {
 		let m = new WeakerPairKeysMap<object, object, string>()
 
 		m.set(a, b, 'c')
@@ -158,7 +159,7 @@ describe('Test Weak Map Structs', () => {
 		expect(m.hasKey(a)).toEqual(false)
 	})
 
-	test('WeakPairKeysMap', () => {
+	it('WeakPairKeysMap', () => {
 		let m = new WeakPairKeysMap<object, string, string>()
 
 		m.set(a, 'b', 'c')
@@ -182,7 +183,7 @@ describe('Test Weak Map Structs', () => {
 		expect(m.hasKey(a)).toEqual(false)
 	})
 
-	test('WeakPairKeysListMap', () => {
+	it('WeakPairKeysListMap', () => {
 		let m = new WeakPairKeysListMap<object, string, string>()
 
 		m.add(a, 'b', 'c')
@@ -212,7 +213,7 @@ describe('Test Weak Map Structs', () => {
 		expect(m.hasKey(a)).toEqual(false)
 	})
 
-	test('WeakPairKeysSetMap', () => {
+	it('WeakPairKeysSetMap', () => {
 		let m = new WeakPairKeysSetMap<object, string, string>()
 
 		m.add(a, 'b', 'c')

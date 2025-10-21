@@ -1,9 +1,10 @@
 import {Direction, BoxOffsets} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('Test BoxOffsets', () => {
 
-	test('BoxOffsets', () => {
+	it('BoxOffsets', () => {
 		let d = new BoxOffsets(10)
 		
 		expect(d.horizontal).toEqual(20)

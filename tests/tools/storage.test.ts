@@ -1,9 +1,10 @@
 import {webStorage} from '../../src'
 import {sleep} from '../../src'
+import {describe, expect, it} from 'vitest'
 
 
 describe('Test storage', () => {
-	test('webStorage', async () => {
+	it('webStorage', async () => {
 		expect(webStorage.isSupported()).toEqual(true)
 		expect(webStorage.set('a', 'b')).toEqual(true)
 		expect(webStorage.get('a')).toEqual('b')
@@ -21,7 +22,7 @@ describe('Test storage', () => {
 
 
 	// Jest environment doesn't support indexedDB.
-	// test('biggerStorage', async () => {
+	// it('biggerStorage', async () => {
 	// 	expect(await biggerStorage.isSupported()).toEqual(true)
 	// 	expect(await biggerStorage.set('a', 'b')).toEqual(true)
 	// 	expect(await biggerStorage.get('a')).toEqual('b')

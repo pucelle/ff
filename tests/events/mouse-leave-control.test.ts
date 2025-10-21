@@ -1,5 +1,5 @@
 import {MouseLeaveControl, sleep} from '../../src'
-import {jest} from '@jest/globals'
+import {describe, expect, vi, it} from 'vitest'
 
 
 describe('Test MouseLeaveControl', () => {
@@ -15,10 +15,10 @@ describe('Test MouseLeaveControl', () => {
 	}
 
 
-	test('callback', async () => {
+	it('callback', async () => {
 		let t1 = document.createElement('div')
 		let p1 = document.createElement('div')
-		let f1 = jest.fn()
+		let f1 = vi.fn()
 	
 		MouseLeaveControl.on(t1, p1, f1, {delay: 100})
 		enter(t1)
@@ -30,10 +30,10 @@ describe('Test MouseLeaveControl', () => {
 	})
 
 
-	test('cancel', async () => {
+	it('cancel', async () => {
 		let t1 = document.createElement('div')
 		let p1 = document.createElement('div')
-		let f1 = jest.fn()
+		let f1 = vi.fn()
 	
 		let cancel = MouseLeaveControl.on(t1, p1, f1, {delay: 100})
 
@@ -46,10 +46,10 @@ describe('Test MouseLeaveControl', () => {
 	})
 
 
-	test('leave and soon enter', async () => {
+	it('leave and soon enter', async () => {
 		let t1 = document.createElement('div')
 		let p1 = document.createElement('div')
-		let f1 = jest.fn()
+		let f1 = vi.fn()
 	
 		MouseLeaveControl.on(t1, p1, f1, {delay: 100})
 
@@ -66,18 +66,18 @@ describe('Test MouseLeaveControl', () => {
 	})
 
 
-	test('leave locks', async () => {
+	it('leave locks', async () => {
 		let t1 = document.createElement('div')
 		let p1 = document.createElement('div')
-		let f1 = jest.fn()
+		let f1 = vi.fn()
 
 		let t2 = document.createElement('div')
 		let p2 = document.createElement('div')
-		let f2 = jest.fn()
+		let f2 = vi.fn()
 
 		let t3 = document.createElement('div')
 		let p3 = document.createElement('div')
-		let f3 = jest.fn()
+		let f3 = vi.fn()
 
 		t1.id = 't1'
 		t2.id = 't2'
@@ -116,18 +116,18 @@ describe('Test MouseLeaveControl', () => {
 	})
 
 
-	test('several leave locks', async () => {
+	it('several leave locks', async () => {
 		let t1 = document.createElement('div')
 		let p1 = document.createElement('div')
-		let f1 = jest.fn()
+		let f1 = vi.fn()
 
 		let t2 = document.createElement('div')
 		let p2 = document.createElement('div')
-		let f2 = jest.fn()
+		let f2 = vi.fn()
 
 		let t3 = document.createElement('div')
 		let p3 = document.createElement('div')
-		let f3 = jest.fn()
+		let f3 = vi.fn()
 
 		p1.append(t2)
 		p1.append(t3)
@@ -152,7 +152,7 @@ describe('Test MouseLeaveControl', () => {
 		expect(f3).toHaveBeenCalledTimes(0)
 
 		leave(p3)
-		await sleep(220)
+		await sleep(110)
 		expect(f1).toHaveBeenCalledTimes(1)
 		expect(f2).toHaveBeenCalledTimes(1)
 		expect(f3).toHaveBeenCalledTimes(1)

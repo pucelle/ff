@@ -1,27 +1,27 @@
 import {TaskQueue, TaskQueueState, sleep} from '../../src'
-import {jest} from '@jest/globals'
+import {describe, expect, vi, it} from 'vitest'
 
 
 describe('Test TaskQueue', () => {
 	let a = [0,1,2,3,4,5,6,7,8,9]
 	
-	test('each', async () => {
-		let fn = jest.fn() as any
+	it('each', async () => {
+		let fn = vi.fn() as any
 		await TaskQueue.each(a, fn, 2)
 		expect(fn).toHaveBeenCalledTimes(a.length)
 		expect(fn.mock.calls).toEqual(a.map(i => [i]))
 	})
 
-	test('map', async () => {
-		let fn = jest.fn(async (i) => {await sleep(); return i})
+	it('map', async () => {
+		let fn = vi.fn(async (i) => {await sleep(); return i})
 		let values = await TaskQueue.map(a, fn, 2)
 		expect(fn).toHaveBeenCalledTimes(a.length)
 		expect(fn.mock.calls).toEqual(a.map(i => [i]))
 		expect(values).toEqual(a)
 	})
 
-	test('some', async () => {
-		let fn = jest.fn((i: number) => i >= 5)
+	it('some', async () => {
+		let fn = vi.fn((i: number) => i >= 5)
 		expect(await TaskQueue.some(a, fn, 2)).toEqual(true)
 		expect(fn.mock.calls.length).toBeGreaterThan(5)
 		expect(fn.mock.calls.length).toBeLessThan(a.length)
@@ -33,8 +33,8 @@ describe('Test TaskQueue', () => {
 		}
 	})
 
-	test('every', async () => {
-		let fn = jest.fn((i: number) => i <= 9)
+	it('every', async () => {
+		let fn = vi.fn((i: number) => i <= 9)
 		expect(await TaskQueue.every(a, fn, 2)).toEqual(true)
 		expect(fn.mock.calls.length).toEqual(a.length)
 		for (let i = 0; i < fn.mock.calls.length; i++) {
@@ -45,7 +45,7 @@ describe('Test TaskQueue', () => {
 		}
 	})
 
-	test('start and finish', async () => {
+	it('start and finish', async () => {
 		let q = new TaskQueue({
 			concurrency: 2,
 			data: a,
@@ -60,7 +60,7 @@ describe('Test TaskQueue', () => {
 		expect(q.state).toEqual(TaskQueueState.Finished)
 	})
 
-	test('Empty queue will finish immediately', async () => {
+	it('Empty queue will finish immediately', async () => {
 		let q = new TaskQueue({
 			concurrency: 2,
 			data: [],
@@ -72,7 +72,7 @@ describe('Test TaskQueue', () => {
 		expect(q.state).toEqual(TaskQueueState.Finished)
 	})
 
-	test('pause and resume', async () => {
+	it('pause and resume', async () => {
 		let q = new TaskQueue({
 			concurrency: 2,
 			data: a,
@@ -90,7 +90,7 @@ describe('Test TaskQueue', () => {
 		expect(q.start()).toEqual(true)
 	})
 
-	test('abort', async () => {
+	it('abort', async () => {
 		let q = new TaskQueue({
 			concurrency: 2,
 			data: a,
@@ -107,8 +107,8 @@ describe('Test TaskQueue', () => {
 		expect(q.abort()).toEqual(true)
 	})
 
-	test('Tasks can be abort', async () => {
-		let abort = jest.fn()
+	it('Tasks can be abort', async () => {
+		let abort = vi.fn()
 
 		let q = new TaskQueue({
 			concurrency: 2,
@@ -124,7 +124,7 @@ describe('Test TaskQueue', () => {
 		expect(abort).toHaveBeenCalledTimes(2)
 	})
 
-	test('retry', async () => {
+	it('retry', async () => {
 		let q = new TaskQueue({
 			concurrency: 2,
 			data: a,
@@ -140,7 +140,7 @@ describe('Test TaskQueue', () => {
 		expect(q.state).toEqual(TaskQueueState.Finished)
 	})
 
-	test('clear', async () => {
+	it('clear', async () => {
 		let q = new TaskQueue({
 			concurrency: 2,
 			data: a,
@@ -159,7 +159,7 @@ describe('Test TaskQueue', () => {
 		expect(q.totalCount).toEqual(0)
 	})
 
-	test('push and unshift', async () => {
+	it('push and unshift', async () => {
 		let q = new TaskQueue({
 			concurrency: 2,
 			data: a,
@@ -181,7 +181,7 @@ describe('Test TaskQueue', () => {
 		expect(q.state).toEqual(TaskQueueState.Running)
 	})
 
-	test('find and remove', async () => {
+	it('find and remove', async () => {
 		let q = new TaskQueue({
 			concurrency: 2,
 			data: a,
@@ -204,7 +204,7 @@ describe('Test TaskQueue', () => {
 		expect(q.remove(6)).toEqual([6])
 	})
 
-	test('removeWhere', async () => {
+	it('removeWhere', async () => {
 		let q = new TaskQueue({
 			concurrency: 2,
 			data: a,
@@ -224,7 +224,7 @@ describe('Test TaskQueue', () => {
 		expect(q.removeWhere(n => n === 6)).toEqual([6])
 	})
 
-	test('Can get right count', async () => {
+	it('Can get right count', async () => {
 		let q = new TaskQueue({
 			concurrency: 1,
 			data: a,
@@ -262,7 +262,7 @@ describe('Test TaskQueue', () => {
 		expect(q.processedCount).toEqual(a.length - 1)
 	})
 
-	test('Failed queue', async () => {
+	it('Failed queue', async () => {
 		let q = new TaskQueue({
 			concurrency: 2,
 			data: a,
@@ -280,7 +280,7 @@ describe('Test TaskQueue', () => {
 		expect(q.start()).toEqual(true)
 	})
 
-	test('maxRetryTimes > 0', async () => {
+	it('maxRetryTimes > 0', async () => {
 		let retried = 0
 
 		let q = new TaskQueue({
