@@ -296,15 +296,16 @@ export class Order<T> {
 	 */
 	sort(list: T[], direction: OrderDirection = 1) {
 		let normalizedDirection = direction === 'asc' ? 1 : direction === 'desc' ? -1 : direction
+		let collators = this.makeCollators()
 
 		if (normalizedDirection === 1) {
 			list.sort((a, b) => {
-				return this.compare(a, b)
+				return this.compare(a, b, collators)
 			})
 		}
 		else {
 			list.sort((a, b) => {
-				return -this.compare(a, b)
+				return -this.compare(a, b, collators)
 			})
 		}
 	}
@@ -315,24 +316,21 @@ export class Order<T> {
 	 */
 	toSorted(list: T[], direction: OrderDirection = 1): T[] {
 		let normalizedDirection = direction === 'asc' ? 1 : direction === 'desc' ? -1 : direction
+		let collators = this.makeCollators()
 
 		if (normalizedDirection === 1) {
 			return list.toSorted((a, b) => {
-				return this.compare(a, b)
+				return this.compare(a, b, collators)
 			})
 		}
 		else {
 			return list.toSorted((a, b) => {
-				return -this.compare(a, b)
+				return -this.compare(a, b, collators)
 			})
 		}
 	}
 
-	/**
-	 * Compare two items by current order.
-	 * Returns one of `0, -1, 1`.
-	 */
-	compare(a: T, b: T): 0 | -1 | 1 {
+	private makeCollators(): (Intl.Collator | null)[] {
 		let collators: (Intl.Collator | null)[] = []
 
 		for (let {numeric, ignoreCase} of this.orders) {
@@ -349,6 +347,14 @@ export class Order<T> {
 			}
 		}
 
+		return collators
+	}
+
+	/**
+	 * Compare two items by current order.
+	 * Returns one of `0, -1, 1`.
+	 */
+	private compare(a: T, b: T, collators: (Intl.Collator | null)[]): 0 | -1 | 1 {
 		for (let i = 0; i < this.orders.length; i++) {
 			let collator = collators[i]
 			let {fn, direction} = this.orders[i]
@@ -382,7 +388,8 @@ export class Order<T> {
 	 * Note when some equal values exist, the returned index prefers upper.
 	 */
 	binaryFindInsertIndex(list: T[], item: T): number {
-		return binaryFindInsertIndex(list, item, i => this.compare(item, i))
+		let collators = this.makeCollators()
+		return binaryFindInsertIndex(list, item, i => this.compare(item, i, collators))
 	}
 
 	/** 
@@ -392,7 +399,8 @@ export class Order<T> {
 	 * Note when some equal values exist, the returned index prefers lower.
 	 */
 	binaryFindLowerInsertIndex(list: T[], item: T): number {
-		return binaryFindLowerInsertIndex(list, item, i => this.compare(item, i))
+		let collators = this.makeCollators()
+		return binaryFindLowerInsertIndex(list, item, i => this.compare(item, i, collators))
 	}
 
 	/** 
@@ -400,7 +408,8 @@ export class Order<T> {
 	 * Returns the found item, or `undefined` if nothing found.
 	 */
 	binaryFind(list: T[], item: T): T | undefined {
-		return binaryFind(list, item, i => this.compare(item, i))
+		let collators = this.makeCollators()
+		return binaryFind(list, item, i => this.compare(item, i, collators))
 	}
 	
 	/** 
@@ -410,7 +419,8 @@ export class Order<T> {
 	 * Uses `array.splice` to do inserting so watch the performance.
 	 */
 	binaryInsert(list: T[], item: T): number {
-		return binaryInsert(list, item, i => this.compare(item, i))
+		let collators = this.makeCollators()
+		return binaryInsert(list, item, i => this.compare(item, i, collators))
 	}
 }
 
