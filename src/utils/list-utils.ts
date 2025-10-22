@@ -330,6 +330,7 @@ export class Order<T> {
 		}
 	}
 
+	/** Pre-make collators to later sorting. */
 	private makeCollators(): (Intl.Collator | null)[] {
 		let collators: (Intl.Collator | null)[] = []
 
