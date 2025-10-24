@@ -1,4 +1,4 @@
-import {ListBundler, SetBundler, EmptyBundler} from '../../src'
+import {ListBundler, SetBundler, EmptyBundler, sleep} from '../../src'
 import {describe, expect, vi, it} from 'vitest'
 
 
@@ -8,7 +8,7 @@ describe('Test Bundler', () => {
 		let b = new ListBundler(f)
 		b.add(1)
 		b.add(2)
-		await Promise.resolve()
+		await sleep(10)
 		expect(f).toHaveBeenCalledTimes(1)
 		expect(f).toHaveBeenCalledWith([1, 2])
 	})
@@ -23,7 +23,7 @@ describe('Test Bundler', () => {
 		let b = new SetBundler(f)
 		b.add(1)
 		b.add(2)
-		await Promise.resolve()
+		await sleep(10)
 	})
 
 
@@ -31,6 +31,6 @@ describe('Test Bundler', () => {
 		let f = vi.fn() as any
 		let b = new EmptyBundler(f)
 		b.call()
-		await Promise.resolve()
+		await sleep(10)
 	})
 })

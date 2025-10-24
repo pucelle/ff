@@ -1,3 +1,6 @@
+import {Timeout} from './time-control'
+
+
 /** 
  * Bundle all added data items into one during a micro task.
  * Can be used to bundle callback parameter to a group,
@@ -9,41 +12,60 @@ abstract class Bundler<T, I extends Iterable<T>> {
 
 	protected abstract bundled: I
 	protected callback: (list: I) => Promise<void> | void
-	protected started: boolean = false
+	protected timeout: Timeout
+	protected paused: boolean = false
 
 	/** Delay in milliseconds to trigger callback. */
 	delay: number = 0
 
 	constructor(callback: (list: I) => Promise<void> | void) {
 		this.callback = callback
+		this.timeout = new Timeout(this.fireBundled.bind(this), this.delay)
 	}
 
 	/** Add one parameter to bundler parameters. */
 	add(...items: T[]) {
-		this.addItemOnly(...items)
-
-		if (this.started) {
+		if (items.length === 0) {
 			return
 		}
 
-		if (this.delay > 0) {
-			setTimeout(this.fireBundled.bind(this), this.delay)
-		}
-		else {
-			Promise.resolve().then(() => {
-				this.fireBundled()
-			})
-		}
+		this.addItems(...items)
 
-		this.started = true
+		if (!this.paused) {
+			this.resetTimeoutIfNot()
+		}
 	}
 
-	protected abstract addItemOnly(...items: T[]): void
+	protected resetTimeoutIfNot() {
+		if (!this.timeout.running) {
+			this.timeout.ms = this.delay
+			this.timeout.start()
+		}
+	}
+
+	/** Pause bundled firing. */
+	pause() {
+		this.timeout?.cancel()
+		this.paused = true
+	}
+
+	/** Resume bundled firing. */
+	resume() {
+		if (this.hasItems()) {
+			this.resetTimeoutIfNot()
+		}
+		this.paused = false
+	}
+
+	/** Add some items. */
+	protected abstract addItems(...items: T[]): void
+
+	/** Whether has any item. */
+	protected abstract hasItems(): boolean
 
 	protected async fireBundled() {
 		await this.callback(this.bundled)
 		this.clear()
-		this.started = false
 	}
 
 	/** Clear collected bundled. */
@@ -59,9 +81,12 @@ export class ListBundler<T = any> extends Bundler<T, T[]> {
 
 	protected bundled: T[] = []
 
-	/** Add one item. */
-	protected addItemOnly(...items: T[]) {
+	protected addItems(...items: T[]) {
 		this.bundled.push(...items)
+	}
+
+	protected hasItems(): boolean {
+		return this.bundled.length > 0
 	}
 
 	clear() {
@@ -78,11 +103,14 @@ export class SetBundler<T = any> extends Bundler<T, Set<T>> {
 
 	protected bundled: Set<T> = new Set()
 
-	/** Add one item. */
-	protected addItemOnly(...items: T[]) {
+	protected addItems(...items: T[]) {
 		for (let item of items) {
 			this.bundled.add(item)
 		}
+	}
+
+	protected hasItems(): boolean {
+		return this.bundled.size > 0
 	}
 
 	clear() {
@@ -98,35 +126,50 @@ export class SetBundler<T = any> extends Bundler<T, Set<T>> {
 export class EmptyBundler {
 
 	protected callback: () => Promise<void> | void
-	protected started: boolean = false
+	protected timeout: Timeout
+	protected needToCall: boolean = false
+	protected paused: boolean = false
 
 	/** Delay in milliseconds to trigger callback. */
 	delay: number = 0
 
 	constructor(callback: () => Promise<void> | void) {
 		this.callback = callback
+		this.timeout = new Timeout(this.fireBundled.bind(this), this.delay)
 	}
 
 	/** Start a delayed callback if not yet. */
 	call() {
-		if (this.started) {
-			return
-		}
+		this.needToCall = true
 
-		if (this.delay > 0) {
-			setTimeout(this.fireBundled.bind(this), this.delay)
+		if (!this.paused) {
+			this.resetTimeoutIfNot()
 		}
-		else {
-			Promise.resolve().then(() => {
-				this.fireBundled()
-			})
-		}
+	}
 
-		this.started = true
+	protected resetTimeoutIfNot() {
+		if (!this.timeout.running) {
+			this.timeout.ms = this.delay
+			this.timeout.start()
+		}
+	}
+
+	/** Pause bundled firing. */
+	pause() {
+		this.timeout?.cancel()
+		this.paused = true
+	}
+
+	/** Resume bundled firing. */
+	resume() {
+		if (this.needToCall) {
+			this.resetTimeoutIfNot()
+		}
+		this.paused = true
 	}
 
 	protected async fireBundled() {
 		await this.callback()
-		this.started = false
+		this.needToCall = false
 	}
 }
