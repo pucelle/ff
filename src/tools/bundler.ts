@@ -57,6 +57,13 @@ abstract class Bundler<T, I extends Iterable<T>> {
 		this.paused = false
 	}
 
+	/** Flush all items immediately. */
+	flush() {
+		if (this.hasItems()) {
+			this.fireBundled()
+		}
+	}
+
 	/** Add some items. */
 	protected abstract addItems(...items: T[]): void
 
@@ -82,7 +89,9 @@ export class ListBundler<T = any> extends Bundler<T, T[]> {
 	protected bundled: T[] = []
 
 	protected addItems(...items: T[]) {
-		this.bundled.push(...items)
+		for (let item of items) {
+			this.bundled.push(item)
+		}
 	}
 
 	protected hasItems(): boolean {
@@ -166,6 +175,13 @@ export class EmptyBundler {
 			this.resetTimeoutIfNot()
 		}
 		this.paused = true
+	}
+
+	/** Flush all items immediately. */
+	flush() {
+		if (this.needToCall) {
+			this.fireBundled()
+		}
 	}
 
 	protected async fireBundled() {
