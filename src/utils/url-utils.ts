@@ -33,3 +33,9 @@ export function useQuery(url: string, params: Record<string, string>): string {
 
 	return url
 }
+
+
+/** Quickly remove url query part. */
+export function removeQuery(url: string): string {
+	return url.replace(/\?.+/, '')
+}
