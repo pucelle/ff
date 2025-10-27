@@ -5,6 +5,13 @@ const TargetAlignerMap: WeakMap<Element, AnchorAligner> = /*#__PURE__*/new WeakM
 
 
 export function setTargetAlignerMap(target: Element, aligner: AnchorAligner) {
+	let existingAligner = TargetAlignerMap.get(target)
+
+	// Stop previous aligner using target if it's existing.
+	if (existingAligner) {
+		existingAligner.stop()
+	}
+
 	TargetAlignerMap.set(target, aligner)
 }
 
