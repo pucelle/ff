@@ -1,8 +1,9 @@
 import {Direction, Vector} from '../../math'
 import {barrierDOMWriting} from '../barrier-queue'
 import {AnchorAligner} from './anchor-aligner'
-import {PositionComputed} from './position-computer'
-import {getAnchorPointAt, getRelativeAnchorPointAt} from './position-gap-parser'
+import {PositionComputed} from './helpers/position-computer'
+import {getAnchorPointAt, getRelativeAnchorPointAt} from './helpers/position-gap-parser'
+import {isTargetUsingByAligner} from './helpers/target-aligner'
 import {PureCSSComputed, PureCSSAnchorAlignment} from './pure-css-alignment'
 import {AnchorAlignmentType} from './types'
 
@@ -24,8 +25,9 @@ export class MeasuredAlignment {
 	/** To do css alignment. */
 	private cssAlignment: PureCSSAnchorAlignment | null = null
 	
-	constructor(aligner: AnchorAligner) {
+	constructor(aligner: AnchorAligner, useCSSAnchorPositioning: boolean) {
 		this.aligner = aligner
+		this.useCSSAnchorPositioning = useCSSAnchorPositioning
 		this.target = aligner.target
 		this.triangle = aligner.options.triangle
 	}
@@ -44,19 +46,21 @@ export class MeasuredAlignment {
 
 		this.resetBeforeAlign()
 
+		let targetInUsing = isTargetUsingByAligner(this.target, this.aligner)
+
 		if (this.useCSSAnchorPositioning) {
 			this.cssAlignment!.reset()
 		}
 
 		// Absolute element's layout will be affected by parent container.
-		else {
+		else if (targetInUsing) {
 			this.target.style.top = ''
 			this.target.style.right = ''
 			this.target.style.left = ''
 		}
 
 		// Restore triangle transform.
-		if (this.lastComputed.triangle) {
+		if (targetInUsing && this.lastComputed.triangle) {
 			let triangle = this.triangle!
 
 			triangle.style.top = ''
@@ -83,8 +87,6 @@ export class MeasuredAlignment {
 	 * Ensure to barrier DOM Writing before calling it.
 	 */
 	align(computed: PositionComputed) {
-		this.useCSSAnchorPositioning = this.aligner.shouldUseCSSAnchorPositioning()
-
 		if (this.useCSSAnchorPositioning) {
 			this.applyCSSAnchorPositioningProperties(computed)
 		}

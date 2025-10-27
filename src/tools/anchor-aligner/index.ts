@@ -1,2 +1,2 @@
 export * from './anchor-aligner'
-export * from './position-gap-parser'
+export * from './helpers/position-gap-parser'

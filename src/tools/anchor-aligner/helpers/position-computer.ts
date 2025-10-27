@@ -1,7 +1,7 @@
-import {Coord, Direction, Vector} from '../../math'
-import {DOMUtils} from '../../utils'
-import {barrierDOMReading, barrierDOMWriting} from '../barrier-queue'
-import {AnchorAligner} from './anchor-aligner'
+import {Coord, Direction, Vector} from '../../../math'
+import {DOMUtils} from '../../../utils'
+import {barrierDOMReading, barrierDOMWriting} from '../../barrier-queue'
+import {AnchorAligner} from '../anchor-aligner'
 import {getAnchorPointAt, getGapTranslate, getRelativeAnchorPointAt} from './position-gap-parser'
 
 

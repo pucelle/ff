@@ -2,11 +2,12 @@ import {Direction, HVDirection} from '../../math'
 import {ObjectUtils} from '../../utils'
 import {RectWatcher, ResizeWatcher} from '../../watchers'
 import {MeasuredAlignment} from './measured-alignment'
-import {PositionComputer} from './position-computer'
-import {AnchorGaps, AnchorPosition, getGapTranslate, parseAlignDirections, parseGaps} from './position-gap-parser'
+import {PositionComputer} from './helpers/position-computer'
+import {AnchorGaps, AnchorPosition, getGapTranslate, parseAlignDirections, parseGaps} from './helpers/position-gap-parser'
 import {PureCSSAnchorAlignment, PureCSSComputed} from './pure-css-alignment'
 import {AnchorAlignmentType} from './types'
 import {barrierDOMReading, barrierDOMWriting} from '../barrier-queue'
+import {deleteTargetAlignerMap, setTargetAlignerMap} from './helpers/target-aligner'
 
 
 /** 
@@ -146,6 +147,7 @@ export class AnchorAligner {
 
 	constructor(target: HTMLElement, options?: Partial<AnchorAlignerOptions>) {
 		this.target = target
+		setTargetAlignerMap(target, this)
 		
 		if (options) {
 			this.updateOptions(options)
@@ -235,6 +237,8 @@ export class AnchorAligner {
 	 * you should want it the transition played then stop.
 	 */
 	stop() {
+		deleteTargetAlignerMap(this.target, this)
+
 		if (this.alignment) {
 			ResizeWatcher.unwatch(this.target, this.update, this)
 
@@ -251,13 +255,13 @@ export class AnchorAligner {
 	 * Whether should do pure CSS Alignment.
 	 * Means should measure to get state.
 	 */
-	shouldDoPureCSSAlignment(): boolean {
+	private shouldDoPureCSSAlignment(): boolean {
 		return this.shouldUseCSSAnchorPositioning()
 			&& !(this.needAdjustTriangle() || this.canFlip())
 	}
 
 	/** Whether can apply css anchor positioning. */
-	shouldUseCSSAnchorPositioning(): boolean {
+	private shouldUseCSSAnchorPositioning(): boolean {
 		return AnchorAligner.cssAnchorPositioningSupports()
 			&& (this.anchor instanceof HTMLElement)
 
@@ -367,7 +371,7 @@ export class AnchorAligner {
 				this.alignment = new PureCSSAnchorAlignment(this)
 			}
 			else {
-				this.alignment = new MeasuredAlignment(this)
+				this.alignment = new MeasuredAlignment(this, this.shouldUseCSSAnchorPositioning())
 			}
 		}
 

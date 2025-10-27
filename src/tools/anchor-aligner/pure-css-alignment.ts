@@ -1,6 +1,7 @@
 import {Direction, BoxOffsets, Vector} from '../../math'
-import {WeakListMap} from '../../structs'
 import {AnchorAligner} from './anchor-aligner'
+import {deleteElementAnchorName, getElementAnchorName, getNewElementAnchorName, setElementAnchorName} from './helpers/anchor-names'
+import {isTargetUsingByAligner} from './helpers/target-aligner'
 import {AnchorAlignmentType} from './types'
 
 
@@ -12,40 +13,10 @@ export interface PureCSSComputed {
 	targetTranslate: Vector
 }
 
-
 interface PositionAreaAndTranslate {
 	areaV: string
 	areaH: string
 	targetTranslate: Vector
-}
-
-
-let ElementAnchorNameSeed = 1
-const ElementAnchorNameMap: WeakMap<HTMLElement, string> = /*#__PURE__*/new WeakMap()
-const ElementAnchorReferenceBy: WeakListMap<HTMLElement, PureCSSAnchorAlignment> = /*#__PURE__*/new WeakListMap()
-
-function getElementAnchorName(el: HTMLElement): string | undefined {
-	return ElementAnchorNameMap.get(el)
-}
-
-function getNewElementAnchorName(): string {
-	return '--anchor-' + (ElementAnchorNameSeed++)
-}
-
-function setElementAnchorName(el: HTMLElement, name: string, refBy: PureCSSAnchorAlignment) {
-	el.style.setProperty('anchor-name', name)
-	ElementAnchorNameMap.set(el, name)
-	ElementAnchorReferenceBy.add(el, refBy)
-}
-
-function deleteElementAnchorName(el: HTMLElement, refBy: PureCSSAnchorAlignment) {
-	ElementAnchorReferenceBy.delete(el, refBy)
-
-	// Has no reference at all.
-	if (!ElementAnchorReferenceBy.hasKey(el)) {
-		ElementAnchorNameMap.delete(el)
-		el.style.setProperty('anchor-name', '')
-	}
 }
 
 
@@ -85,8 +56,8 @@ export class PureCSSAnchorAlignment {
 	 * Ensure barrier DOM Writing before calling it.
 	 */
 	reset() {
-		let targetInUse = this.target.style.getPropertyValue('position-anchor') === this.anchorName
-		if (targetInUse) {
+		let targetInUsing = isTargetUsingByAligner(this.target, this.aligner)
+		if (targetInUsing) {
 			for (let key of BoxOffsets.Keys) {
 				this.target.style[key] = ''
 			}
