@@ -162,6 +162,7 @@ export class AnchorAligner {
 	 * Will not re-align on event mode.
 	 */
 	async updateOptions(options: Partial<AnchorAlignerOptions> = {}) {
+		let oldOptionsSpecified = !!this.options
 		let newOptions = {...DefaultAnchorAlignerOptions, ...options}
 
 		let changed = !ObjectUtils.deepEqual(this.options, newOptions)
@@ -182,7 +183,7 @@ export class AnchorAligner {
 		this.gaps = parseGaps(newOptions.gaps, newOptions.triangle, this.anchorFaceDirection)
 		this.edgeGaps = parseGaps(newOptions.edgeGaps, newOptions.triangle, this.anchorFaceDirection)
 
-		if (this.anchor && this.aligning) {
+		if (oldOptionsSpecified && this.anchor && this.aligning) {
 			this.update()
 		}
 	}
