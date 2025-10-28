@@ -7,7 +7,7 @@ const TargetAlignerMap: WeakMap<Element, AnchorAligner> = /*#__PURE__*/new WeakM
 export function setTargetAlignerMap(target: Element, aligner: AnchorAligner) {
 	let existingAligner = TargetAlignerMap.get(target)
 
-	// Stop previous aligner using target if it's existing.
+	// Stop previous aligner which using target.
 	if (existingAligner) {
 		existingAligner.stop()
 	}
