@@ -124,14 +124,14 @@ class MouseLeaveController {
 	private onMouseLeave() {
 		this.entered = false
 		this.timeout.reset()
-		MouseEventDelivery.halfRelease(this.trigger)
+		MouseEventDelivery.halfDetach(this.trigger)
 	}
 
 	private onTimeout() {
 
 		// Can't hide if event delivery still attaching at.
 		if (MouseEventDelivery.hasAnyDeliveredTo(this.content)) {
-			MouseEventDelivery.listenReleasing(this.trigger, this.onDeliveryReleased.bind(this))
+			MouseEventDelivery.listenDetaching(this.trigger, this.onDeliveryReleased.bind(this))
 		}
 		else {
 			this.finish()
@@ -147,7 +147,7 @@ class MouseLeaveController {
 
 	/** Finish leave by calling leave callback. */
 	finish() {
-		MouseEventDelivery.release(this.trigger)
+		MouseEventDelivery.detach(this.trigger)
 		this.callback()
 	}
 
@@ -159,6 +159,6 @@ class MouseLeaveController {
 			DOMEvents.off(el, 'mouseleave', this.onMouseLeave, this)
 		}
 
-		MouseEventDelivery.release(this.trigger)
+		MouseEventDelivery.detach(this.trigger)
 	}
 }

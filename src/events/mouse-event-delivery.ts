@@ -65,7 +65,7 @@ export function attach(trigger: Element, content: Element) {
 	// Avoid adding for twice.
 	let existing = getGroupByTrigger(trigger)
 	if (existing) {
-		cancelHalfRelease(trigger)
+		cancelHalfDetach(trigger)
 		return
 	}
 	
@@ -121,7 +121,7 @@ function* walkInChain(group: DeliveryGroup): Iterable<DeliveryGroup> {
  * Will soon release a delivery source by it's trigger, and also all the targets in chain.
  * But right now they enters to a half activated state, means mouse leaves, and can be reused.
  */
-export function halfRelease(trigger: Element) {
+export function halfDetach(trigger: Element) {
 	let existing = getGroupByTrigger(trigger)
 	if (existing) {
 		for (let group of walkInChain(existing)) {
@@ -132,7 +132,7 @@ export function halfRelease(trigger: Element) {
 
 
 /** Cancel half release set by `halfRelease`. */
-function cancelHalfRelease(trigger: Element) {
+function cancelHalfDetach(trigger: Element) {
 	let existing = getGroupByTrigger(trigger)
 	if (existing) {
 		for (let group of walkInChain(existing)) {
@@ -146,7 +146,7 @@ function cancelHalfRelease(trigger: Element) {
  * Release a delivery source by it's trigger, and also walk for
  * it's delivery targets in chain, and release them.
  */
-export function release(trigger: Element) {
+export function detach(trigger: Element) {
 	let existing = getGroupByTrigger(trigger)
 	if (existing) {
 
@@ -164,7 +164,7 @@ export function release(trigger: Element) {
 
 
 /** Listen for a delivery source by it's trigger to get callback after it get released. */
-export function listenReleasing(trigger: Element, callback: () => void) {
+export function listenDetaching(trigger: Element, callback: () => void) {
 	let existing = getGroupByTrigger(trigger)
 	if (existing) {
 		existing.callbacks.push(callback)
