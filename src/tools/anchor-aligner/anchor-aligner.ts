@@ -75,6 +75,9 @@ export interface AnchorAlignerOptions {
 	 * instead of the target anchor point.
 	 */
 	fixedTriangle: boolean
+
+	/** On alignment stop. */
+	onStop?: () => void
 }
 
 
@@ -203,8 +206,30 @@ export class AnchorAligner {
 		// Update after target size changed.
 		ResizeWatcher.watch(this.target, this.update, this)
 
-		if (!this.shouldUseCSSAnchorPositioning()) {
-			RectWatcher.watch(anchor, this.update, this)
+		if (this.shouldUseCSSAnchorPositioning()) {
+			ResizeWatcher.watch(anchor, this.onAnchorSizeChange, this)
+		}
+		else {
+			RectWatcher.watch(anchor, this.onAnchorRectChange, this)
+		}
+	}
+
+	/** After target size changed. */
+	private onAnchorSizeChange(entry: ResizeObserverEntry) {
+		if (entry.contentRect.width === 0 && entry.contentRect.height === 0) {
+			this.stop()
+			this.target.remove()
+		}
+	}
+
+	/** After target rect changed. */
+	private onAnchorRectChange(rect: DOMRect) {
+		if (rect.width === 0 && rect.height === 0) {
+			this.stop()
+			this.target.remove()
+		}
+		else {
+			this.update()
 		}
 	}
 
@@ -237,18 +262,23 @@ export class AnchorAligner {
 	 * you should want it the transition played then stop.
 	 */
 	stop() {
-		deleteTargetAlignerMap(this.target, this)
-
-		if (this.alignment) {
-			ResizeWatcher.unwatch(this.target, this.update, this)
-
-			if (this.shouldUseCSSAnchorPositioning()) {
-				RectWatcher.unwatch(this.anchor!, this.update, this)
-			}
-
-			this.alignment.reset()
-			this.alignment = null
+		if (!this.aligning) {
+			return
 		}
+
+		deleteTargetAlignerMap(this.target, this)
+		ResizeWatcher.unwatch(this.target, this.update, this)
+
+		if (this.shouldUseCSSAnchorPositioning()) {
+			ResizeWatcher.unwatch(this.anchor!, this.onAnchorSizeChange, this)
+		}
+		else {
+			RectWatcher.unwatch(this.anchor!, this.onAnchorRectChange, this)
+		}
+
+		this.alignment!.reset()
+		this.alignment = null
+		this.options.onStop?.()
 	}
 
 	/** 
