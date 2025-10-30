@@ -1,7 +1,5 @@
-import {SizeLike} from "../math"
-
-/** Type of style properties. */
-export type StylePropertyName = string & keyof CSSStyleDeclaration
+import {SizeLike} from '../math'
+import {StylePropertyName} from './types'
 
 
 /** 
@@ -72,7 +70,17 @@ export function getStyleValue(el: Element, property: StylePropertyName): string 
  * Note that this method may cause re-layout.
  */
 export function setStyleValue(el: HTMLElement, property: StylePropertyName, value: string) {
-	(el.style as any)[property] = value
+	el.style.setProperty(property, value)
+}
+
+/**
+ * Set style values for an element.
+ * Note that this method may cause re-layout.
+ */
+export function setStyleValues(el: HTMLElement, values: Partial<Record<StylePropertyName, string>>) {
+	for (let [property, value] of Object.values(values)) {
+		el.style.setProperty(property, value)
+	}
 }
 
 /**
