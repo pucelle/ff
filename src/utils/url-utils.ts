@@ -17,15 +17,15 @@ export function parseQuery(url: string): Record<string, string> {
 
 
 /** Combine base `url` and `params` object to a new URL. */
-export function useQuery(url: string, params: Record<string, string>): string {
+export function useQuery(url: string, params: Record<string, string | number>): string {
 	let hasQuery = url.includes('?')
 
 	if (typeof params === 'string') {
 		return url + (hasQuery ? '&' : '?') + params
 	}
 	else if (params && typeof params === 'object') {
-		for (let key in params) {
-			let value = encodeURIComponent(params[key])
+		for (let [key, value] of Object.entries(params)) {
+			value = encodeURIComponent(params[key])
 			url += (hasQuery ? '&' : '?') + key + '=' + value
 			hasQuery = true 
 		}

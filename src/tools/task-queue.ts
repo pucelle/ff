@@ -1,5 +1,5 @@
 import {ListUtils, ObjectUtils, sleep} from '../utils'
-import {EventFirer, promiseWithResolves} from '@pucelle/lupos'
+import {EventFirer, Observed, promiseWithResolves} from '@pucelle/lupos'
 import {Timeout} from './time-control'
 
 
@@ -61,7 +61,7 @@ interface TaskQueueEvents<T, V> {
 
 /** Cache data of queue, each caches one task. */
 interface TaskQueueTask<T> {
-	data: T
+	readonly data: T
 	retriedTimes: number
 }
 
@@ -103,7 +103,7 @@ export interface TaskQueueOptions<T, V> {
 
 
 /** Class to queue tasks and pass them to handler in specified concurrency. */
-export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, V>> implements Partial<TaskQueueOptions<T, V>> {
+export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, V>> implements Partial<TaskQueueOptions<T, V>>, Observed {
 
 	/**
 	 * Run each task by passing `data` items to `handler` in order.
