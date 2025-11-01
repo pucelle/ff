@@ -1,5 +1,5 @@
 import {barrierDOMReading, barrierDOMWriting} from '../../src'
-import {describe, expect, vi, it} from 'vitest'
+import {describe, expect, it} from 'vitest'
 
 
 describe('Test BarrierQueue', () => {
@@ -12,7 +12,26 @@ describe('Test BarrierQueue', () => {
 		let q4 = barrierDOMWriting().then(() => results.push(4))
 
 		await Promise.all([q1, q2, q3, q4])
-		console.log(results)
 		expect(results).toEqual([1, 3, 2, 4])
+	})
+
+	it('Test multiple reading should all before writing', async () => {
+		let results: number[] = []
+
+		let q1 = async () => {
+			await barrierDOMWriting()
+			results.push(4)
+		}
+
+		let q2 = async () => {
+			results.push(1)
+			await barrierDOMReading()
+			results.push(2)
+			await barrierDOMReading()
+			results.push(3)
+		}
+
+		await Promise.all([q1(), q2()])
+		expect(results).toEqual([1, 2, 3, 4])
 	})
 })
