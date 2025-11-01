@@ -1,4 +1,4 @@
-import {MiniHeap, promiseWithResolves, untilUpdateComplete} from '@pucelle/lupos'
+import {promiseWithResolves, untilUpdateComplete} from '@pucelle/lupos'
 
 
 /** State of BarrierQueue. */
@@ -8,9 +8,9 @@ const enum BarrierQueueState {
 	Resolving,
 }
 
-const enum BarrierQueueOrder {
-	WillReadDOM = 0,
-	WillWriteDOM = 1,
+const enum BarrierQueueStep {
+	ReadDOM = 0,
+	WriteDOM = 1,
 }
 
 
@@ -22,39 +22,24 @@ const enum BarrierQueueOrder {
 class BarrierQueue {
 
 	/** Caches step -> resolve function list. */
-	private map: Map<BarrierQueueOrder, {promise: Promise<void>, resolve: Function}> = new Map()
-
-	/** Can dynamically insert items and order them to get the minimum one. */
-	private heap: MiniHeap<BarrierQueueOrder>
+	private list: ({promise: Promise<void>, resolve: Function} | undefined)[] = new Array(2)
 
 	/** Current state. */
 	private state: BarrierQueueState = BarrierQueueState.Pending
 
-	constructor() {
-		this.heap = new MiniHeap(function(a, b) {
-			return a - b
-		})
-	}
-
-	/** Whether current queue is empty. */
-	isEmpty() {
-		return this.heap.isEmpty()
-	}
-
 	/** Make a barrier promise, with `step` to sort. */
-	barrier(step: BarrierQueueOrder): Promise<void> {
-		if (this.map.has(step)) {
-			return this.map.get(step)!.promise
+	barrier(step: BarrierQueueStep): Promise<void> {
+		if (this.list[step]) {
+			return this.list[step].promise
 		}
 
 		let {promise, resolve} = promiseWithResolves()
 
-		this.map.set(step, {
+		this.list[step] = {
 			promise,
 			resolve: resolve!,
-		})
+		}
 
-		this.heap.add(step)
 		this.willResolve()
 
 		return promise
@@ -78,35 +63,37 @@ class BarrierQueue {
 
 		this.state = BarrierQueueState.Resolving
 
-		while (!this.isEmpty()) {
-			await this.resolveLatestStep()
+		while (this.list[BarrierQueueStep.ReadDOM] || this.list[BarrierQueueStep.WriteDOM]) {
+			for (let step of [BarrierQueueStep.ReadDOM, BarrierQueueStep.WriteDOM]) {
+				if (!this.list[step]) {
+					continue
+				}
 
-			// Wait for more next stepped barriers come.
-			await Promise.resolve()
-			await Promise.resolve()
+				await this.resolveStep(step)
+
+				// Wait for more same stepped barriers come.
+				await Promise.resolve()
+				await Promise.resolve()
+
+				// Note here reset it late, means if barrier more writing
+				// after resolving writing, should directly resolve.
+				this.list[step] = undefined
+			}
 		}
 
 		this.state = BarrierQueueState.Pending
 	}
 
-	/** Resolves latest stepped barrier. */
-	private async resolveLatestStep() {
-		let step = this.heap.popHead()!
-		let {resolve} = this.map.get(step)!
+	/** Resolves currently stepped barrier. */
+	private async resolveStep(step: BarrierQueueStep) {
+		let {resolve} = this.list[step]!
 
 		// Wait for all updating complete.
-		if (step === BarrierQueueOrder.WillReadDOM) {
+		if (step === BarrierQueueStep.ReadDOM) {
 			await untilUpdateComplete()
 		}
 
-		this.map.delete(step)
 		resolve()
-	}
-
-	/** Clear all items from barrier queue. */
-	clear() {
-		this.map = new Map()
-		this.heap.clear()
 	}
 }
 
@@ -137,7 +124,7 @@ const queue = /*#__PURE__*/new BarrierQueue()
  * WRITE2
  */
 export function barrierDOMReading() {
-	return queue.barrier(BarrierQueueOrder.WillReadDOM)
+	return queue.barrier(BarrierQueueStep.ReadDOM)
 }
 
 /** 
@@ -164,5 +151,5 @@ export function barrierDOMReading() {
  * WRITE2
  */
 export function barrierDOMWriting() {
-	return queue.barrier(BarrierQueueOrder.WillWriteDOM)
+	return queue.barrier(BarrierQueueStep.WriteDOM)
 }

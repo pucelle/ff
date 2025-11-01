@@ -20,18 +20,37 @@ describe('Test BarrierQueue', () => {
 
 		let q1 = async () => {
 			await barrierDOMWriting()
-			results.push(4)
+			results.push(3)
 		}
 
 		let q2 = async () => {
+			await barrierDOMReading()
 			results.push(1)
 			await barrierDOMReading()
 			results.push(2)
+		}
+
+		await Promise.all([q1(), q2()])
+		expect(results).toEqual([1, 2, 3])
+	})
+
+	it('Test multiple writing should be bundled', async () => {
+		let results: number[] = []
+
+		let q1 = async () => {
+			await barrierDOMWriting()
+			await barrierDOMWriting()
+			results.push(2)
+		}
+
+		let q2 = async () => {
+			await barrierDOMWriting()
+			results.push(1)
 			await barrierDOMReading()
 			results.push(3)
 		}
 
 		await Promise.all([q1(), q2()])
-		expect(results).toEqual([1, 2, 3, 4])
+		expect(results).toEqual([1, 2, 3])
 	})
 })
