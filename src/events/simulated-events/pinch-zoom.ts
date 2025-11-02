@@ -16,9 +16,9 @@ export interface PinchZoomEvents {
 
 export class PinchZoomProcessor extends PinchTransformProcessor<PinchZoomEvents> {
 
-	protected eventPrefix: string = 'pinch-zoom:'
+	protected override eventPrefix: string = 'pinch-zoom:'
 
-	protected makeMatrix(point1: DOMPoint, point2: DOMPoint): DOMMatrix {
+	protected override makeMatrix(point1: DOMPoint, point2: DOMPoint): DOMMatrix {
 		let matrix = makeNonRotationMatrixFromPoints(
 			[this.startTouchPoint1!, this.startTouchPoint2!],
 			[point1, point2]

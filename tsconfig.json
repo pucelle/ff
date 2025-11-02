@@ -14,6 +14,7 @@
 		"noFallthroughCasesInSwitch": true,
 		"noImplicitAny": true,
 		"noImplicitThis": true,
+		"noImplicitOverride": true
 	},
 	"exclude": [
 		"node_modules",
