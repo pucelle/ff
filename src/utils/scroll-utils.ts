@@ -104,31 +104,3 @@ export function getCSSOverflowDirection(wrapper: HTMLElement): HVDirection | nul
 
 	return direction
 }
-
-
-/**
- * Get element's offset position relative to wrapper element.
- * This value equals to the element's document position difference to wrapper element
- * without any scrolling affected.
- */
-export function getUnScrolledOffset(el: HTMLElement, wrapper: HTMLElement, direction: HVDirection): number {
-	let property: 'offsetLeft' | 'offsetTop' = direction === 'horizontal' ? 'offsetLeft' : 'offsetTop'
-	let parent = el
-	let offset = 0
-
-	// Accumulate offset values, until wrapper.
-	while (parent) {
-		offset += parent[property]
-		parent = parent.offsetParent as HTMLElement
-
-		// Out of range of wrapper.
-		if (parent.contains(wrapper)) {
-			if (parent === wrapper.offsetParent) {
-				offset -= wrapper[property]
-			}
-			break
-		}
-	}
-
-	return offset
-}

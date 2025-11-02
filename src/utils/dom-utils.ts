@@ -1,4 +1,4 @@
-import {SizeLike} from '../math'
+import {HVDirection, SizeLike} from '../math'
 import {StylePropertyName} from './types'
 
 
@@ -180,6 +180,44 @@ export function getOuterSize(el: HTMLElement): SizeLike {
 		width: getOuterWidth(el),
 		height: getOuterHeight(el),
 	}
+}
+
+
+/**
+ * Get element's offset position relative to wrapper element.
+ * This value equals to the element's document position difference to wrapper element
+ * without any scrolling affected.
+ * Note `ancestor` should contain `el`.
+ */
+export function getRelativeOffset(el: HTMLElement, container: HTMLElement, direction: HVDirection): number {
+
+	// Happens often.
+	if (el.offsetParent === container) {
+		if (direction === 'horizontal') {
+			return el.offsetLeft
+		}
+		else {
+			return el.offsetTop
+		}
+	}
+
+	let parent = el
+	let offset = 0
+
+	// Accumulate offset values, until a shared ancestor.
+	while (parent) {
+		offset += direction === 'horizontal' ? parent.offsetLeft : parent.offsetTop
+		parent = parent.offsetParent as HTMLElement
+
+		if (parent.contains(container)) {
+			if (parent === container.offsetParent) {
+				offset -= direction === 'horizontal' ? container.offsetLeft : container.offsetTop
+			}
+			break
+		}
+	}
+
+	return offset
 }
 
 
