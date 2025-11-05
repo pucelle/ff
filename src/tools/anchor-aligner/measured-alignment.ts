@@ -1,5 +1,5 @@
+import {barrierDOMWriting} from '@pucelle/lupos'
 import {Direction, Vector} from '../../math'
-import {barrierDOMWriting} from '../barrier-queue'
 import {AnchorAligner} from './anchor-aligner'
 import {PositionComputed} from './helpers/position-computer'
 import {getAnchorPointAt, getRelativeAnchorPointAt} from './helpers/position-gap-parser'

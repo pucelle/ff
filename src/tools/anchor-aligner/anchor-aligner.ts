@@ -6,7 +6,7 @@ import {PositionComputer} from './helpers/position-computer'
 import {AnchorGaps, AnchorPosition, getGapTranslate, parseAlignDirections, parseGaps} from './helpers/position-gap-parser'
 import {PureCSSAnchorAlignment, PureCSSComputed} from './pure-css-alignment'
 import {AnchorAlignmentType} from './types'
-import {barrierDOMReading, barrierDOMWriting} from '../barrier-queue'
+import {barrierDOMReading, barrierDOMWriting} from '@pucelle/lupos'
 import {deleteTargetAlignerMap, setTargetAlignerMap} from './helpers/target-aligner'
 
 
