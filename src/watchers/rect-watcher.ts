@@ -1,7 +1,7 @@
 import {bindCallback} from '../utils'
 import * as DocumentWatcher from './document-watcher'
 import {ListMap} from '../structs'
-import {untilUpdateComplete} from '@pucelle/lupos'
+import {untilAllUpdateComplete} from '@pucelle/lupos'
 
 
 type RectObserverCallback = (rect: DOMRect) => void
@@ -50,7 +50,7 @@ export async function watch(el: Element, callback: RectObserverCallback, scope: 
 		return
 	}
 
-	await untilUpdateComplete()
+	await untilAllUpdateComplete()
 
 	CallbackMap.add(el, boundCallback)
 	ElementRectCache.set(el, el.getBoundingClientRect())
