@@ -1,4 +1,4 @@
-import {untilAllUpdateComplete} from '@pucelle/lupos'
+import {UpdateQueue} from '@pucelle/lupos'
 import {bindCallback} from '../utils'
 
 
@@ -57,7 +57,7 @@ export function unbind(callback: Function, scope: any = null) {
 async function fireDocumentChangeLater() {
 	if (!willEmitDocumentChange) {
 		willEmitDocumentChange = true
-		await untilAllUpdateComplete()
+		await UpdateQueue.untilAllComplete()
 		fireDocumentChange()
 	}
 }
