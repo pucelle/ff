@@ -1,6 +1,12 @@
 /** Data units from year to seconds. */
 export type DurationUnit = 'y' | 'M' | 'd' | 'h' | 'm' | 's'
 
+/** File and relative path. */
+export interface FileAndPath {
+	file: File
+	path: string
+}
+
 /** Type of style properties. */
 export type StylePropertyName = string & keyof CSSStyleDeclaration
 	| 'accent-color'

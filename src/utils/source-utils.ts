@@ -1,5 +1,6 @@
 import {sleep} from './function'
 import {promiseWithResolves} from '@pucelle/lupos'
+import {FileAndPath} from './types'
 
 
 /** Load image source and output an `<image>` element. */
@@ -152,59 +153,52 @@ function selectFileOrFolder(mime: string, isFolder: boolean, isMultiple: boolean
  * Get all the files from a `DataTransfer` object that captured from drop event.
  * Only work on modern browsers.
  */
-export async function* walkFilesInTransfer(transfer: DataTransfer): AsyncGenerator<File> {
-	let transferFiles = [...transfer.files]
-	let files: File[] = []
-
-	if (transfer.items
-		&& typeof DataTransferItem === 'function'
-		&& (DataTransferItem.prototype.hasOwnProperty('getAsEntry')
-			|| DataTransferItem.prototype.hasOwnProperty('webkitGetAsEntry')
-		)
-	) {
-		let items = [...transfer.items].filter(item => item.kind === 'file')
-
-		try{
-			for (let item of items) {
-				let entry = item.hasOwnProperty('getAsEntry') ? (item as any).getAsEntry() : item.webkitGetAsEntry()
-				yield* walkFilesInEntry(entry)
+export async function* walkFilesInTransfer(transfer: DataTransfer): AsyncGenerator<FileAndPath> {
+	if (transfer.items) {
+		for (let item of transfer.items) {
+			if (item.kind !== 'file') {
+				continue
 			}
-		}
-		catch (err) {
-			files = transferFiles
+			
+			let entry = item.webkitGetAsEntry()
+			if (entry) {
+				yield* walkFilesInEntry(entry, entry.name)
+			}
 		}
 	}
 
 	// Can only read files
 	else {
-		files = transferFiles
+		for (let file of transfer.files) {
+			yield {
+				file,
+				path: file.webkitRelativePath || file.name,
+			}
+		}
 	}
-
-	return files
 }
 
 /** Read files from a file entry. */
-export async function* walkFilesInEntry(entry: FileSystemEntry): AsyncGenerator<File> {
-	if (!entry) {
-		return
-	}
-
+export async function* walkFilesInEntry(entry: FileSystemEntry, path: string = entry.name): AsyncGenerator<FileAndPath> {
 	if (entry.isFile) {
-		let {promise, resolve, reject} = promiseWithResolves<File>();
+		let {promise, resolve, reject} = promiseWithResolves<FileAndPath>();
 
 		(entry as FileSystemFileEntry).file(function(file: File) {
-			resolve(file)
+			resolve({
+				file,
+				path: file.webkitRelativePath || path,
+			})
 		}, reject)
 
 		yield await promise
 	}
 	else if (entry.isDirectory) {
-		yield* walkFilesInDirectoryEntry(entry as FileSystemDirectoryEntry)
+		yield* walkFilesInDirectoryEntry(entry as FileSystemDirectoryEntry, path)
 	}
 }
 
 /** Read files from a directory reader. */
-async function* walkFilesInDirectoryEntry(entry: FileSystemDirectoryEntry): AsyncGenerator<File> {
+async function* walkFilesInDirectoryEntry(entry: FileSystemDirectoryEntry, dir: string): AsyncGenerator<FileAndPath> {
 	let reader = entry.createReader()
 
 	while (true) {
@@ -225,7 +219,7 @@ async function* walkFilesInDirectoryEntry(entry: FileSystemDirectoryEntry): Asyn
 		}
 
 		for (let entry of entries) {
-			yield* walkFilesInEntry(entry)
+			yield* walkFilesInEntry(entry, (dir ? dir + '/' : '') + entry.name)
 		}
 	}
 }

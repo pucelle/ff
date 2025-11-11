@@ -1,7 +1,6 @@
 import {promiseWithResolves} from '@pucelle/lupos'
 import {logger} from './logger'
 import {biggerStorage} from './storage'
-import {SourceUtils} from '../utils'
 
 
 /** Reference to `https://github.com/w3c/editing/blob/gh-pages/docs/clipboard-pickling/explainer.md`. */
@@ -11,7 +10,7 @@ import {SourceUtils} from '../utils'
  * Read clipboard event data as an data object, which's key is mime type, can limit type.
  * Note it can only one file of each mime type.
  */
-export async function readFromEvent(e: ClipboardEvent, limitType: 'text' | 'file' | 'all' = 'text'): Promise<Record<string, string | File> | null> {
+export async function readFromEvent(e: {clipboardData: DataTransfer | null}, limitType: 'text' | 'file' | 'all' = 'text'): Promise<Record<string, string | File> | null> {
 	let data: Record<string, string | File> | null = null
 
 	if (e.clipboardData) {
@@ -34,24 +33,8 @@ export async function readFromEvent(e: ClipboardEvent, limitType: 'text' | 'file
 	return data	
 }
 
-/** Read clipboard file list. */
-export async function* readFilesFromEvent(e: ClipboardEvent): AsyncGenerator<File> {
-	if (e.clipboardData) {
-		for (let item of e.clipboardData.items) {
-			if (item.kind === 'file') {
-				let entry = item.webkitGetAsEntry()
-				if (entry) {
-					for await (let file of SourceUtils.walkFilesInEntry(entry)) {
-						yield file
-					}
-				}
-			}
-		}
-	}
-}
-
 /** Set clipboard event data from an data object, limit string type. */
-export function writeToEvent(e: ClipboardEvent, data: Record<string, string>) {
+export function writeToEvent(e: {clipboardData: DataTransfer | null}, data: Record<string, string>) {
 	for (let [key, value] of Object.entries(data)) {
 		e.clipboardData?.setData(key, value)
 	}
