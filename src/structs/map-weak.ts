@@ -501,7 +501,7 @@ export class WeakPairKeysListMap<K1 extends object, K2, V> {
 	}
 
 	/** Get the map consist of second keys and values from the first key. */
-	getSecond(k1: K1): ListMap<K2, V> | undefined {
+	getOf(k1: K1): ListMap<K2, V> | undefined {
 		return this.map.get(k1)
 	}
 
@@ -667,7 +667,7 @@ export class WeakPairKeysSetMap<K1 extends object, K2, V> {
 	}
 
 	/** Get the map consist of second keys and values from the first key. */
-	getSecond(k1: K1): SetMap<K2, V> | undefined {
+	getOf(k1: K1): SetMap<K2, V> | undefined {
 		return this.map.get(k1)
 	}
 
@@ -781,7 +781,7 @@ export class WeakerPairKeysListMap<K1 extends object, K2 extends object, V> {
 	}
 
 	/** Get the map consist of second keys and values from the first key. */
-	getSecond(k1: K1): WeakListMap<K2, V> | undefined {
+	getOf(k1: K1): WeakListMap<K2, V> | undefined {
 		return this.map.get(k1)
 	}
 
@@ -898,7 +898,7 @@ export class WeakerPairKeysSetMap<K1 extends object, K2 extends object, V> {
 	}
 
 	/** Get the map consist of second keys and values from the first key. */
-	getSecond(k1: K1): WeakSetMap<K2, V> | undefined {
+	getOf(k1: K1): WeakSetMap<K2, V> | undefined {
 		return this.map.get(k1)
 	}
 

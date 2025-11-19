@@ -384,7 +384,7 @@ export class SetMap<K, V> implements MethodsObserved<
 export class PairKeysMap<K1, K2, V> implements MethodsObserved<
 	'firstKeys' | 'secondKeysOf' | 'secondValuesOf' | 'values' | 'entries' | 'flatEntries'
 		| 'secondEntriesOf' | 'has' | 'hasFirstKey' | 'firstKeyCount' | 'secondKeyCountOf'
-		| 'get' | 'getSecond' | 'clone',
+		| 'get' | 'getOf' | 'clone',
 	'set' | 'setSecond' | 'delete' | 'deleteOf' | 'clear'
 > {
 
@@ -476,7 +476,7 @@ export class PairKeysMap<K1, K2, V> implements MethodsObserved<
 	}
 
 	/** Get the map consist of second keys and values from the first key. */
-	getSecond(k1: K1): Map<K2, V> | undefined {
+	getOf(k1: K1): Map<K2, V> | undefined {
 		return this.map.get(k1)
 	}
 
@@ -538,7 +538,7 @@ export class PairKeysMap<K1, K2, V> implements MethodsObserved<
 export class PairKeysListMap<K1, K2, V> implements MethodsObserved<
 	'firstKeys' | 'secondKeysOf' | 'secondValuesOf' | 'values' | 'entries' | 'flatEntries'
 		| 'secondEntriesOf' | 'has' | 'hasFirstKey' | 'firstKeyCount' | 'secondKeyCountOf'
-		| 'get' | 'getSecond' | 'clone',
+		| 'get' | 'getOf' | 'clone',
 	'set' | 'setSecond' | 'add' | 'addSeveral' | 'addIf' | 'addSeveralIf' | 'delete'
 		| 'deleteKeys' | 'deleteFirstKey' | 'clear'
 > {
@@ -665,7 +665,7 @@ export class PairKeysListMap<K1, K2, V> implements MethodsObserved<
 	}
 
 	/** Get the map consist of second keys and values from the first key. */
-	getSecond(k1: K1): ListMap<K2, V> | undefined {
+	getOf(k1: K1): ListMap<K2, V> | undefined {
 		return this.map.get(k1)
 	}
 
@@ -791,7 +791,7 @@ export class PairKeysListMap<K1, K2, V> implements MethodsObserved<
 export class PairKeysSetMap<K1, K2, V> implements MethodsObserved<
 'firstKeys' | 'secondKeysOf' | 'secondValuesOf' | 'values' | 'entries' | 'flatEntries'
 	| 'secondEntriesOf' | 'has' | 'hasFirstKey' | 'firstKeyCount' | 'secondKeyCountOf'
-	| 'get' | 'getSecond' | 'clone',
+	| 'get' | 'getOf' | 'clone',
 'set' | 'setSecond' | 'add' | 'addSeveral' | 'delete'
 	| 'deleteKeys' | 'deleteFirstKey' | 'clear'
 > {
@@ -918,7 +918,7 @@ export class PairKeysSetMap<K1, K2, V> implements MethodsObserved<
 	}
 
 	/** Get the map consist of second keys and values from the first key. */
-	getSecond(k1: K1): SetMap<K2, V> | undefined {
+	getOf(k1: K1): SetMap<K2, V> | undefined {
 		return this.map.get(k1)
 	}
 
