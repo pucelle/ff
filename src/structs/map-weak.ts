@@ -557,7 +557,7 @@ export class WeakPairKeysListMap<K1 extends object, K2, V> {
 	}
 
 	/** Delete associated secondary keys and values by first key. */
-	deleteSecondOf(k1: K1) {
+	deleteFirstKey(k1: K1) {
 		this.map.delete(k1)
 	}
 	
@@ -712,7 +712,7 @@ export class WeakPairKeysSetMap<K1 extends object, K2, V> {
 	}
 
 	/** Delete associated secondary keys and values by first key. */
-	deleteSecondOf(k1: K1) {
+	deleteFirstKey(k1: K1) {
 		this.map.delete(k1)
 	}
 	
@@ -829,7 +829,7 @@ export class WeakerPairKeysListMap<K1 extends object, K2 extends object, V> {
 	}
 
 	/** Delete associated secondary keys and values by first key. */
-	deleteSecondOf(k1: K1) {
+	deleteFirstKey(k1: K1) {
 		this.map.delete(k1)
 	}
 	
@@ -935,7 +935,7 @@ export class WeakerPairKeysSetMap<K1 extends object, K2 extends object, V> {
 	}
 
 	/** Delete associated secondary keys and values by first key. */
-	deleteSecondOf(k1: K1) {
+	deleteFirstKey(k1: K1) {
 		this.map.delete(k1)
 	}
 	

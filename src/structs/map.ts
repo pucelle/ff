@@ -540,7 +540,7 @@ export class PairKeysListMap<K1, K2, V> implements MethodsObserved<
 		| 'secondEntriesOf' | 'has' | 'hasFirstKey' | 'firstKeyCount' | 'secondKeyCountOf'
 		| 'get' | 'getSecond' | 'clone',
 	'set' | 'setSecond' | 'add' | 'addSeveral' | 'addIf' | 'addSeveralIf' | 'delete'
-		| 'deleteKeys' | 'deleteOf' | 'clear'
+		| 'deleteKeys' | 'deleteFirstKey' | 'clear'
 > {
 
 	protected map: Map<K1, ListMap<K2, V>> = new Map()
@@ -773,7 +773,7 @@ export class PairKeysListMap<K1, K2, V> implements MethodsObserved<
 	}
 
 	/** Delete associated secondary keys and values by first key. */
-	deleteOf(k1: K1) {
+	deleteFirstKey(k1: K1) {
 		this.map.delete(k1)
 	}
 	
@@ -793,7 +793,7 @@ export class PairKeysSetMap<K1, K2, V> implements MethodsObserved<
 	| 'secondEntriesOf' | 'has' | 'hasFirstKey' | 'firstKeyCount' | 'secondKeyCountOf'
 	| 'get' | 'getSecond' | 'clone',
 'set' | 'setSecond' | 'add' | 'addSeveral' | 'delete'
-	| 'deleteKeys' | 'deleteOf' | 'clear'
+	| 'deleteKeys' | 'deleteFirstKey' | 'clear'
 > {
 
 	protected map: Map<K1, SetMap<K2, V>> = new Map()
@@ -1000,7 +1000,7 @@ export class PairKeysSetMap<K1, K2, V> implements MethodsObserved<
 	}
 
 	/** Delete associated secondary keys and values by first key. */
-	deleteOf(k1: K1) {
+	deleteFirstKey(k1: K1) {
 		this.map.delete(k1)
 	}
 	
