@@ -3,8 +3,11 @@ node_modules
 .VSCodeCounter
 docs
 src
-test
-jest.config.js
+tests
+*.config.js
+*.config.cjs
+*.md
 tsconfig.json
+*.tsbuildinfo
 README.md
 *.tgz
