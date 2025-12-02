@@ -1,9 +1,9 @@
-# ff
+# ff-kit
 
 
 ## About
 
-The name **ff** comes from "Frequently-Used Functions", it's a JavaScript utility library for Web Programming.
+**ff-kit** stands for "Frequently-Used Kit Functions", it's a JavaScript utility library providing commonly used functions for Web Programming.
 
 Most modules have none or few dependencies, which means you can easily **tree-shaking**, or just copy them to where they are needed.
 
