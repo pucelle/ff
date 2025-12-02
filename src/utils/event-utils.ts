@@ -1,4 +1,4 @@
-import {promiseWithResolves} from '@pucelle/lupos'
+import {promiseWithResolves} from 'lupos'
 
 
 /** From a mouse or touch event, get the mouse event or the first touch in the touch list. */

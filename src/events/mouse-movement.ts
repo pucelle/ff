@@ -1,4 +1,4 @@
-import {DOMEvents} from '@pucelle/lupos'
+import {DOMEvents} from 'lupos'
 import {Coord} from '../math'
 
 

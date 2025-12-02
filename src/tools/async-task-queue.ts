@@ -1,4 +1,4 @@
-import {promiseWithResolves} from '@pucelle/lupos'
+import {promiseWithResolves} from 'lupos'
 
 
 /** Manage a task sequence, and process tasks one by one. */

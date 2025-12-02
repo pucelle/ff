@@ -1,4 +1,4 @@
-import {UpdateQueue} from '@pucelle/lupos'
+import {UpdateQueue} from 'lupos'
 import {bindCallback} from '../utils'
 
 

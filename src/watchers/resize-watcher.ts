@@ -1,4 +1,4 @@
-import {AnimationFrame} from '@pucelle/lupos'
+import {AnimationFrame} from 'lupos'
 import {ListMap} from '../structs'
 import {bindCallback} from '../utils'
 

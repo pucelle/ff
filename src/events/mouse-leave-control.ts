@@ -1,4 +1,4 @@
-import {DOMEvents} from '@pucelle/lupos'
+import {DOMEvents} from 'lupos'
 import {Timeout} from '../tools'
 import * as MouseEventDelivery from './mouse-event-delivery'
 

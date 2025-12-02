@@ -1,4 +1,4 @@
-import {MethodsObserved, GetObserved} from '@pucelle/lupos'
+import {MethodsObserved, GetObserved} from 'lupos'
 import {MatrixLike, SizeLike} from './types'
 
 

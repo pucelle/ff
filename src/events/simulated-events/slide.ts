@@ -1,4 +1,4 @@
-import {EventFirer, DOMEvents} from '@pucelle/lupos'
+import {EventFirer, DOMEvents} from 'lupos'
 import {SimulatedEventsConfiguration} from './configuration'
 import {EventUtils} from '../../utils'
 import {Coord, BoxOffsetKey} from '../../math'

@@ -1,5 +1,5 @@
 import * as NumberUtils from './number-utils'
-import {promiseWithResolves} from '@pucelle/lupos'
+import {promiseWithResolves} from 'lupos'
 
 
 /** 

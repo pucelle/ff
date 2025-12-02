@@ -1,5 +1,5 @@
 import {ListUtils, ObjectUtils, sleep} from '../utils'
-import {EventFirer, Observed, promiseWithResolves} from '@pucelle/lupos'
+import {EventFirer, Observed, promiseWithResolves} from 'lupos'
 import {Timeout} from './time-control'
 
 

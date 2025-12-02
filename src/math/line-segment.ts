@@ -1,6 +1,6 @@
 import {Vector} from './vector'
 import {Point} from './point'
-import {MethodsObserved, GetObserved} from '@pucelle/lupos'
+import {MethodsObserved, GetObserved} from 'lupos'
 import {LineIntersection, normalIntersect} from './helpers/line-intersect'
 
 

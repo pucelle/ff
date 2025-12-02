@@ -1,4 +1,4 @@
-import {EventFirer, DOMEvents} from '@pucelle/lupos'
+import {EventFirer, DOMEvents} from 'lupos'
 
 
 export interface PinchTransformEvents {

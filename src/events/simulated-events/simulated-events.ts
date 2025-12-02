@@ -1,5 +1,5 @@
 import {DoubleTapEventProcessor, DoubleTapEvents} from './double-tap'
-import {EventFirer} from '@pucelle/lupos'
+import {EventFirer} from 'lupos'
 import {HoldEventProcessor, HoldEvents, PinchTransformEvents, PinchTransformProcessor, TapEventProcessor, TapEvents, PinchZoomEvents, PinchZoomProcessor, SlideEvents, SlideEventProcessor} from '.'
 import {WeakPairKeysMap} from '../../structs'
 import {SimulatedEventsConfiguration} from './configuration'

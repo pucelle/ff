@@ -1,5 +1,5 @@
 import {sleep} from './function'
-import {promiseWithResolves} from '@pucelle/lupos'
+import {promiseWithResolves} from 'lupos'
 import {FileAndPath} from './types'
 
 

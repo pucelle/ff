@@ -5,7 +5,7 @@ import {Box} from './box'
 import {LineSegment} from './line-segment'
 import {ListUtils} from '../utils'
 import {LineIntersection, normalIntersect} from './helpers/line-intersect'
-import {GetObserved} from '@pucelle/lupos'
+import {GetObserved} from 'lupos'
 
 
 /** Represent a radial line. */

@@ -3,7 +3,7 @@ import {Point} from './point'
 import {Box} from './box'
 import * as MathUtils from './math-utils'
 import {Size} from './size'
-import {MethodsObserved, GetObserved} from '@pucelle/lupos'
+import {MethodsObserved, GetObserved} from 'lupos'
 import {BoxLike, Coord, MatrixLike, SizeLike} from './types'
 
 

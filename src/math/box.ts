@@ -6,7 +6,7 @@ import {Point} from './point'
 import {Size} from './size'
 import {Vector} from './vector'
 import type {Matrix} from './matrix'
-import {MethodsObserved, GetObserved} from '@pucelle/lupos'
+import {MethodsObserved, GetObserved} from 'lupos'
 import {BoxLike, Coord, HVDirection} from './types'
 
 

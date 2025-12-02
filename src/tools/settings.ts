@@ -1,4 +1,4 @@
-import {Observed, UnObserved} from '@pucelle/lupos'
+import {Observed, UnObserved} from 'lupos'
 import {EmptyBundler} from './bundler'
 import {webStorage} from './storage'
 

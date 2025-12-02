@@ -1,4 +1,4 @@
-import {Observed} from '@pucelle/lupos'
+import {Observed} from 'lupos'
 import {HTMLUtils, StringUtils} from '../utils'
 
 

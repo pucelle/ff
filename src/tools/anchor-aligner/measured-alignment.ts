@@ -1,4 +1,4 @@
-import {barrierDOMWriting} from '@pucelle/lupos'
+import {barrierDOMWriting} from 'lupos'
 import {Direction, Vector} from '../../math'
 import {AnchorAligner} from './anchor-aligner'
 import {PositionComputed} from './helpers/position-computer'

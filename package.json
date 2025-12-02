@@ -1,6 +1,6 @@
 {
 	"name": "ff-kit",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"description": "A JS utility library, includes frequently used functions",
 	"author": "pucelle",
 	"license": "MIT",
@@ -25,6 +25,6 @@
 		"happy-dom": "^20.0.10"
 	},
 	"dependencies": {
-		"@pucelle/lupos": "^0.1.0"
+		"lupos": "^0.1.0"
 	}
 }

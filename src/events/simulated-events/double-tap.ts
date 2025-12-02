@@ -1,5 +1,5 @@
 import {Timeout} from '../../tools'
-import {EventFirer, DOMEvents} from '@pucelle/lupos'
+import {EventFirer, DOMEvents} from 'lupos'
 import {SimulatedEventsConfiguration} from './configuration'
 import {Coord} from '../../math'
 

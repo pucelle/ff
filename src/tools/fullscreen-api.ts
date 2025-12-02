@@ -1,4 +1,4 @@
-import {promiseWithResolves} from '@pucelle/lupos'
+import {promiseWithResolves} from 'lupos'
 
 
 /** Whether supports fullscreen. */

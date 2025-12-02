@@ -1,4 +1,4 @@
-import {MethodsObserved, GetObserved} from '@pucelle/lupos'
+import {MethodsObserved, GetObserved} from 'lupos'
 import * as MathUtils from './math-utils'
 import {Coord, MatrixLike} from './types'
 

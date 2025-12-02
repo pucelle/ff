@@ -1,4 +1,4 @@
-import {GetObserved} from '@pucelle/lupos'
+import {GetObserved} from 'lupos'
 import {NumberUtils} from '../utils'
 import {Vector} from './vector'
 import {HVDirection, BoxOffsetKey} from './types'
