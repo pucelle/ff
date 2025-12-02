@@ -1,9 +1,9 @@
-# ff
+# ff.js
 
 
 ## About
 
-The name **ff** comes from "Frequently-Used Functions", it's a JavaScript utility library for Web Programming.
+The name **ff.js** comes from "Frequently-Used Functions", it's a JavaScript utility library for Web Programming.
 
 Most modules have none or few dependencies, which means you can easily **tree-shaking**, or just copy them to where they are needed.
 
