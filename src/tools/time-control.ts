@@ -5,10 +5,10 @@
 export class Timeout<F extends Function = Function> {
 
 	/** 
-	 * Whether current time control has been canceled.
+	 * Whether current time control has been canceled or not started.
 	 * Readonly outside.
 	 */
-	canceled: boolean = false
+	canceled: boolean = true
 
 	/** The original function to call after timeout. */
 	fn: F
@@ -74,10 +74,10 @@ export class Timeout<F extends Function = Function> {
 export class Interval<F extends Function = Function> {
 
 	/** 
-	 * Whether current time control has been canceled.
+	 * Whether current time control has been canceled or not started.
 	 * Readonly outside.
 	 */
-	canceled: boolean = false
+	canceled: boolean = true
 
 	/** The original function to call each interval. */
 	fn: F
@@ -142,10 +142,10 @@ export class Interval<F extends Function = Function> {
 export class Throttle<F extends Function> {
 
 	/** 
-	 * Whether current time control has been canceled.
+	 * Whether current time control has been canceled or not started.
 	 * Readonly outside.
 	 */
-	canceled: boolean = false
+	canceled: boolean = true
 
 	/** The original function to call after each throttle interval. */
 	fn: F
@@ -278,10 +278,10 @@ export class Throttle<F extends Function> {
 export class Debounce<F extends Function> {
 
 	/** 
-	 * Whether current time control has been canceled.
+	 * Whether current time control has been canceled or not started.
 	 * Readonly outside.
 	 */
-	canceled: boolean = false
+	canceled: boolean = true
 
 	/** The original function to call after debounce end. */
 	fn: F
