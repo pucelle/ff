@@ -117,10 +117,13 @@ export class Interval<F extends Function = Function> {
 		this.fn()
 	}
 
-	/** Call interval function immediately and reset interval. */
+	/** Call interval function immediately and reset interval if not canceled. */
 	flush() {
 		this.fn()
-		this.reset()
+
+		if (!this.canceled) {
+			this.reset()
+		}
 	}
 
 	/** Cancel interval function. */
@@ -237,7 +240,7 @@ export class Throttle<F extends Function> {
 		this.canceled = false
 	}
 
-	/** Call `fn` immediately and reset throttle timeout. */
+	/** Call `fn` immediately and reset throttle timeout if not canceled. */
 	flush() {
 		if (this.id !== null) {
 			clearTimeout(this.id)
@@ -249,7 +252,9 @@ export class Throttle<F extends Function> {
 			this.boundFn = null
 		}
 
-		this.reset()
+		if (!this.canceled) {
+			this.reset()
+		}
 	}
 
 	/** Cancel throttle, `fn` will be called without limitation. */
@@ -353,13 +358,15 @@ export class Debounce<F extends Function> {
 		this.canceled = false
 	}
 
-	/** Call `fn` immediately if there is a deferred calling, and restart debounce timeout. */
+	/** Call `fn` immediately if there is a deferred calling, and restart debounce timeout if not canceled. */
 	flush() {
 		if (this.boundFn) {
 			this.boundFn()
 		}
 
-		this.reset()
+		if (!this.canceled) {
+			this.reset()
+		}
 	}
 
 	/**
