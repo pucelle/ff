@@ -5,10 +5,10 @@
 export class Timeout<F extends Function = Function> {
 
 	/** 
-	 * Whether current time control has been canceled or not started.
+	 * Whether current time control has been canceled.
 	 * Readonly outside.
 	 */
-	canceled: boolean = true
+	canceled: boolean = false
 
 	/** The original function to call after timeout. */
 	fn: F
@@ -74,10 +74,10 @@ export class Timeout<F extends Function = Function> {
 export class Interval<F extends Function = Function> {
 
 	/** 
-	 * Whether current time control has been canceled or not started.
+	 * Whether current time control has been canceled.
 	 * Readonly outside.
 	 */
-	canceled: boolean = true
+	canceled: boolean = false
 
 	/** The original function to call each interval. */
 	fn: F
@@ -117,11 +117,11 @@ export class Interval<F extends Function = Function> {
 		this.fn()
 	}
 
-	/** Call interval function immediately and reset interval if not canceled. */
+	/** Call interval function immediately and reset interval if running. */
 	flush() {
 		this.fn()
 
-		if (!this.canceled) {
+		if (this.running) {
 			this.reset()
 		}
 	}
@@ -142,10 +142,10 @@ export class Interval<F extends Function = Function> {
 export class Throttle<F extends Function> {
 
 	/** 
-	 * Whether current time control has been canceled or not started.
+	 * Whether current time control has been canceled.
 	 * Readonly outside.
 	 */
-	canceled: boolean = true
+	canceled: boolean = false
 
 	/** The original function to call after each throttle interval. */
 	fn: F
@@ -240,7 +240,7 @@ export class Throttle<F extends Function> {
 		this.canceled = false
 	}
 
-	/** Call `fn` immediately and reset throttle timeout if not canceled. */
+	/** Call `fn` immediately and reset throttle timeout. */
 	flush() {
 		if (this.id !== null) {
 			clearTimeout(this.id)
@@ -250,10 +250,6 @@ export class Throttle<F extends Function> {
 		if (this.boundFn) {
 			this.boundFn()
 			this.boundFn = null
-		}
-
-		if (!this.canceled) {
-			this.reset()
 		}
 	}
 
@@ -278,10 +274,10 @@ export class Throttle<F extends Function> {
 export class Debounce<F extends Function> {
 
 	/** 
-	 * Whether current time control has been canceled or not started.
+	 * Whether current time control has been canceled.
 	 * Readonly outside.
 	 */
-	canceled: boolean = true
+	canceled: boolean = false
 
 	/** The original function to call after debounce end. */
 	fn: F
@@ -358,13 +354,13 @@ export class Debounce<F extends Function> {
 		this.canceled = false
 	}
 
-	/** Call `fn` immediately if there is a deferred calling, and restart debounce timeout if not canceled. */
+	/** Call `fn` immediately if there is a deferred calling, and restart debounce timeout if running. */
 	flush() {
 		if (this.boundFn) {
 			this.boundFn()
 		}
 
-		if (!this.canceled) {
+		if (this.running) {
 			this.reset()
 		}
 	}
