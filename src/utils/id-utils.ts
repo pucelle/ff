@@ -8,24 +8,17 @@ export function intUid(): number {
 }
 
 
-/** Create a web-document-unique string type id, 12 chars long by default, 36 chars long at max. */
-export function shortUid(length: number = 12): string {
-	return guid().slice(-length)
+/** Create a random hex of specified length. */
+export function randomHex(byteLength: number = 16): Uint8Array {
+	let arr = new Uint8Array(byteLength)
+	return crypto.getRandomValues(arr)
 }
 
 
-/** Create a global-unique id, 36 chars long. */
-export function guid(): string {
-	return crypto.randomUUID?.()
-
-	// Reference from https://stackoverflow.com/a/2117523/2800218
-	|| '10000000-1000-4000-8000-100000000000'.replace(
-		/[018]/g,
-		function(c: string) {
-			let n = Number(c)
-			return (n ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> n / 4).toString(16)
-		}
-	)
+/** Create a random hex string, with specified length * 2. */
+export function randomHexString(byteLength: number = 16): string {
+	let hex = randomHex(byteLength)
+	return [...hex].map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
 
