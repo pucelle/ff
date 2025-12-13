@@ -8,14 +8,14 @@ export function intUid(): number {
 }
 
 
-/** Create a random hex of specified length. */
+/** Create a random hex bytes of specified length. */
 export function randomHex(byteLength: number = 16): Uint8Array {
 	let arr = new Uint8Array(byteLength)
 	return crypto.getRandomValues(arr)
 }
 
 
-/** Create a random hex string, with specified length * 2. */
+/** Create a random hex string, with length to specified `length * 2`. */
 export function randomHexString(byteLength: number = 16): string {
 	let hex = randomHex(byteLength)
 	return [...hex].map(b => b.toString(16).padStart(2, '0')).join('')
