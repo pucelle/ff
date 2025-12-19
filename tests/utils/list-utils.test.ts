@@ -53,15 +53,26 @@ describe('Test ListUtils', () => {
 		expect(ListUtils.removeWhere([1,2,3], (v) => v === 4)).toEqual([])
 	})
 
-	it('indexBy', () => {
-		expect(ObjectUtils.objectFromMap(ListUtils.indexBy([1,2,3], (v) => [String(v), v]))).toEqual({1:1, 2:2, 3:3})
-		expect(ObjectUtils.objectFromMap(ListUtils.indexBy([1,2,3], (v) => [String(v), v + v]))).toEqual({1:2, 2:4, 3:6})
-		expect(ObjectUtils.objectFromMap(ListUtils.indexBy([1,2,3], (v) => [String(v), true]))).toEqual({1:true, 2:true, 3:true})
+	it('indexToMap', () => {
+		expect(ObjectUtils.objectFromMap(ListUtils.indexToMap([1,2,3], (v) => [String(v), v]))).toEqual({1:1, 2:2, 3:3})
+		expect(ObjectUtils.objectFromMap(ListUtils.indexToMap([1,2,3], (v) => [String(v), v + v]))).toEqual({1:2, 2:4, 3:6})
+		expect(ObjectUtils.objectFromMap(ListUtils.indexToMap([1,2,3], (v) => [String(v), true]))).toEqual({1:true, 2:true, 3:true})
 	})
 
-	it('groupBy', () => {
-		expect(ObjectUtils.objectFromMap(ListUtils.groupBy([{a:1}, {a:2}, {a:2}], x => [x.a, x]))).toEqual({1:[{a:1}], 2:[{a:2}, {a:2}]})
-		expect(ObjectUtils.objectFromMap(ListUtils.groupBy([0,1,2,3,4,5,6,7,8,9], x => [x % 3, x]))).toEqual({0:[0,3,6,9], 1:[1,4,7], 2:[2,5,8]})
+	it('indexToObject', () => {
+		expect(ListUtils.indexToObject([1,2,3], (v) => [String(v), v])).toEqual({1:1, 2:2, 3:3})
+		expect(ListUtils.indexToObject([1,2,3], (v) => [String(v), v + v])).toEqual({1:2, 2:4, 3:6})
+		expect(ListUtils.indexToObject([1,2,3], (v) => [String(v), true])).toEqual({1:true, 2:true, 3:true})
+	})
+
+	it('groupToMap', () => {
+		expect(ObjectUtils.objectFromMap(ListUtils.groupToMap([{a:1}, {a:2}, {a:2}], x => [x.a, x]))).toEqual({1:[{a:1}], 2:[{a:2}, {a:2}]})
+		expect(ObjectUtils.objectFromMap(ListUtils.groupToMap([0,1,2,3,4,5,6,7,8,9], x => [x % 3, x]))).toEqual({0:[0,3,6,9], 1:[1,4,7], 2:[2,5,8]})
+	})
+
+	it('groupToObject', () => {
+		expect(ListUtils.groupToObject([{a:1}, {a:2}, {a:2}], x => [x.a, x])).toEqual({1:[{a:1}], 2:[{a:2}, {a:2}]})
+		expect(ListUtils.groupToObject([0,1,2,3,4,5,6,7,8,9], x => [x % 3, x])).toEqual({0:[0,3,6,9], 1:[1,4,7], 2:[2,5,8]})
 	})
 
 	it('orderBy', () => {

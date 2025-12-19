@@ -159,7 +159,7 @@ export function* lazyMap<T, V>(list: Iterable<T>, map: (value: T) => V): Iterabl
  * Create an index map in `K => V` format.
  * @param pairFn get key and value pair by it.
  */
-export function indexBy<T, K, V>(list: Iterable<T>, pairFn: (value: T) => [K, V]): Map<K, V> {
+export function indexToMap<T, K, V>(list: Iterable<T>, pairFn: (value: T) => [K, V]): Map<K, V> {
 	let map: Map<K, V> = new Map()
 
 	for (let item of list) {
@@ -172,10 +172,26 @@ export function indexBy<T, K, V>(list: Iterable<T>, pairFn: (value: T) => [K, V]
 
 
 /** 
+ * Create an index object in `K => V` format.
+ * @param pairFn get key and value pair by it.
+ */
+export function indexToObject<T, K extends keyof any, V>(list: Iterable<T>, pairFn: (value: T) => [K, V]): Record<K, V> {
+	let map: Record<K, V> = {} as any
+
+	for (let item of list) {
+		let [key, value] = pairFn(item)
+		map[key] = value
+	}
+
+	return map
+}
+
+
+/** 
  * Create a group map in `K => V[]` format, just like SQL `group by` statement.
  * @param pairFn get key and value pair by it.
  */
-export function groupBy<T, K, V>(list: Iterable<T>, pairFn: (value: T) => [K, V]): Map<K, V[]> {
+export function groupToMap<T, K, V>(list: Iterable<T>, pairFn: (value: T) => [K, V]): Map<K, V[]> {
 	let map: Map<K, V[]> = new Map()
 
 	for (let item of list) {
@@ -185,6 +201,29 @@ export function groupBy<T, K, V>(list: Iterable<T>, pairFn: (value: T) => [K, V]
 		if (!group) {
 			group = []
 			map.set(key, group)
+		}
+
+		group.push(value)
+	}
+
+	return map
+}
+
+
+/** 
+ * Create a group object in `K => V[]` format, just like SQL `group by` statement.
+ * @param pairFn get key and value pair by it.
+ */
+export function groupToObject<T, K extends keyof any, V>(list: Iterable<T>, pairFn: (value: T) => [K, V]): Record<K, V[]> {
+	let map: Record<K, V[]> = {} as any
+
+	for (let item of list) {
+		let [key, value] = pairFn(item)
+
+		let group = map[key]
+		if (!group) {
+			group = []
+			map[key] = group
 		}
 
 		group.push(value)
