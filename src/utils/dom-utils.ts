@@ -70,7 +70,7 @@ export function getStyleValue(el: Element, property: StylePropertyName): string 
  * Note that this method may cause re-layout.
  */
 export function setStyleValue(el: HTMLElement, property: StylePropertyName, value: string) {
-	el.style.setProperty(property, value)
+	(el.style as any)[property] = value
 }
 
 /**
@@ -79,7 +79,7 @@ export function setStyleValue(el: HTMLElement, property: StylePropertyName, valu
  */
 export function setStyleValues(el: HTMLElement, values: Partial<Record<StylePropertyName, string>>) {
 	for (let [property, value] of Object.entries(values)) {
-		el.style.setProperty(property, value)
+		(el.style as any)[property] = value
 	}
 }
 
