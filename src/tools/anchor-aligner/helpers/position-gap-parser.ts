@@ -139,7 +139,6 @@ export function getGapTranslate(anchorDirection: Direction, targetDirection: Dir
 }
 
 
-
 /** Get the anchor point by a rect and direction. */
 export function getAnchorPointAt(rect: DOMRect, d: Direction): Coord {
 	let v = d.toAnchorVector()
@@ -151,12 +150,15 @@ export function getAnchorPointAt(rect: DOMRect, d: Direction): Coord {
 }
 
 
-/** Get the relative anchor point by a rect and direction. */
-export function getRelativeAnchorPointAt(rect: DOMRect, d: Direction): Coord {
+/** 
+ * Get the relative anchor point by a rects and direction.
+ * Get the relative point of `rectToAlign`, and based on `rectOfTarget` origin.
+ */
+export function getRelativeAnchorPointAt(rectOfTarget: DOMRect, rectToAlign: DOMRect = rectOfTarget, d: Direction): Coord {
 	let v = d.toAnchorVector()
 
 	return {
-		x: v.x * rect.width,
-		y: v.y * rect.height,
+		x: v.x * rectToAlign.width + rectToAlign.x - rectOfTarget.x,
+		y: v.y * rectToAlign.height + rectToAlign.y - rectOfTarget.y,
 	}
 }

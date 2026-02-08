@@ -44,6 +44,7 @@ export class PositionComputer {
 	private triangle: HTMLElement | undefined
 	private anchorRect: DOMRect
 	private targetRect: DOMRect
+	private targetRectToAlign: DOMRect
 	private triangleRelRect: DOMRect | null
 
 	constructor(aligner: AnchorAligner, anchorRect: DOMRect) {
@@ -52,7 +53,19 @@ export class PositionComputer {
 		this.triangle = aligner.options.triangle
 		this.anchorRect = anchorRect
 		this.targetRect = aligner.target.getBoundingClientRect()
+		this.targetRectToAlign = this.computeTargetRectToAlign()
 		this.triangleRelRect = this.getTriangleRelRect()
+	}
+
+	/** Must after setting `this.targetRect`. */
+	private computeTargetRectToAlign() {
+		let targetToAlign = this.aligner.targetToAlign
+		if (targetToAlign === this.aligner.target) {
+			return this.targetRect
+		}
+		else {
+			return targetToAlign.getBoundingClientRect()
+		}
 	}
 
 	/** Get triangle rect based on target origin. */
@@ -159,6 +172,7 @@ export class PositionComputer {
 			// Barrier DOM Reading here.
 			await barrierDOMReading()
 			this.targetRect = this.target.getBoundingClientRect()
+			this.targetRectToAlign = this.computeTargetRectToAlign()
 
 			targetPoint = this.getTargetRelativeAnchorPoint(computed)
 			computed.target.position = this.getPositionByAnchors(targetPoint, anchorPoint)
@@ -182,7 +196,7 @@ export class PositionComputer {
 			}
 		}
 		else {
-			point = getRelativeAnchorPointAt(this.targetRect, this.aligner.targetDirection)
+			point = getRelativeAnchorPointAt(this.targetRect, this.targetRectToAlign, this.aligner.targetDirection)
 		}
 
 		return point

@@ -76,7 +76,13 @@ export interface AnchorAlignerOptions {
 	 */
 	fixedTriangle: boolean
 
-	/** On alignment stop. */
+	/** 
+	 * Defines which descendant element of target,
+	 * should be used to align with anchor element.
+	 */
+	targetSelectorToAlign?: string
+
+	/** On alignment stop to call this. */
 	onStop?: () => void
 }
 
@@ -160,6 +166,13 @@ export class AnchorAligner {
 	/** Whether in aligning. */
 	get aligning(): boolean {
 		return !!this.alignment
+	}
+
+	/** Get the target to align to, may be descendant element of `target`. */
+	get targetToAlign(): HTMLElement {
+		return this.options.targetSelectorToAlign
+			? this.target.querySelector(this.options.targetSelectorToAlign) ?? this.target
+			: this.target
 	}
 
 	/** 

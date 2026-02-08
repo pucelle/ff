@@ -105,7 +105,9 @@ export class MeasuredAlignment {
 		}
 
 		let anchorPoint = getAnchorPointAt(computed.anchor.rect, computed.anchorDirection)
-		let targetPoint = getRelativeAnchorPointAt(computed.target.rect, computed.targetDirection)
+
+		// This is the alignment for only target and anchor, to simulate the css anchoring layout result.
+		let targetPoint = getRelativeAnchorPointAt(computed.target.rect, undefined, computed.targetDirection)
 
 		let targetTranslate = new Vector(
 			computed.target.position.x - (anchorPoint.x - targetPoint.x),
