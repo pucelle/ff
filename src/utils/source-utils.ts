@@ -155,15 +155,13 @@ function selectFileOrFolder(mime: string, isFolder: boolean, isMultiple: boolean
  */
 export async function* walkFilesInTransfer(transfer: DataTransfer): AsyncGenerator<FileAndPath> {
 	if (transfer.items) {
-		for (let item of transfer.items) {
-			if (item.kind !== 'file') {
-				continue
-			}
-			
-			let entry = item.webkitGetAsEntry()
-			if (entry) {
-				yield* walkFilesInEntry(entry, entry.name)
-			}
+
+		// Must not wait each file but read all entries immediately, or it will lost.
+        let items = Array.from(transfer.items).filter(item => item.kind === 'file')
+		let entries = items.map(item => item.webkitGetAsEntry()).filter(item => item) as FileSystemEntry[]
+
+		for (let entry of entries) {
+			yield* walkFilesInEntry(entry, entry.name)
 		}
 	}
 
