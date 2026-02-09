@@ -108,6 +108,9 @@ class MouseLeaveController {
 			DOMEvents.on(el, 'mouseenter', this.onMouseEnter, this)
 			DOMEvents.on(el, 'mouseleave', this.onMouseLeave, this)
 		}
+
+		// `mouseleave` is not trustable when element moves out of cursor.
+		DOMEvents.on(document, 'mousemove', this.onDOMMouseMove, this)
 	}
 
 	private onMouseAlreadyIn() {
@@ -125,6 +128,19 @@ class MouseLeaveController {
 		this.entered = false
 		this.timeout.reset()
 		MouseEventDelivery.halfDetach(this.trigger)
+	}
+
+	private onDOMMouseMove(e: MouseEvent) {
+
+		if (!this.entered || !e.target) {
+			return
+		}
+
+		// Triggers mouse leave.
+		let target = e.target as Element
+		if (!this.trigger.contains(target) && !this.content.contains(target)) {
+			this.onMouseLeave()
+		}
 	}
 
 	private onTimeout() {
@@ -159,6 +175,7 @@ class MouseLeaveController {
 			DOMEvents.off(el, 'mouseleave', this.onMouseLeave, this)
 		}
 
+		DOMEvents.off(document, 'mousemove', this.onDOMMouseMove, this)
 		MouseEventDelivery.detach(this.trigger)
 	}
 }
