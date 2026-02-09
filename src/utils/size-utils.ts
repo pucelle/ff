@@ -1,4 +1,4 @@
-import {fract, toPrecision} from './number-utils'
+import {toPrecision} from './number-utils'
 
 
 /** 
