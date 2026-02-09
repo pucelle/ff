@@ -31,7 +31,7 @@ export function formatSize(size: number, precision: number = 3, fixedPoint: bool
 		unit = 'TB'
 	}
 
-	if (fixedPoint && fract(value) > 0) {
+	if (fixedPoint) {
 		return value.toPrecision(precision) + ' ' + unit
 	}
 	else {
