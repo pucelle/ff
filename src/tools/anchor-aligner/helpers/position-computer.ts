@@ -1,4 +1,4 @@
-import {Coord, Direction, Vector} from '../../../math'
+import {Box, Coord, Direction, Vector} from '../../../math'
 import {DOMUtils} from '../../../utils'
 import {barrierDOMReading, barrierDOMWriting} from 'lupos'
 import {AnchorAligner} from '../anchor-aligner'
@@ -64,7 +64,14 @@ export class PositionComputer {
 			return this.targetRect
 		}
 		else {
-			return targetToAlign.getBoundingClientRect()
+			let alignRect = targetToAlign.getBoundingClientRect()
+			let faceHV = this.aligner.anchorFaceDirection.hvDirection
+
+			if (faceHV !== null) {
+				alignRect = Box.fromLike(alignRect).unionAtHVSelf(Box.fromLike(this.targetRect), faceHV)
+			}
+
+			return alignRect
 		}
 	}
 
