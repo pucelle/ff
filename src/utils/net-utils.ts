@@ -19,7 +19,6 @@ export function uploadFileWithProgress(
 
 		xhr.upload.onprogress = e => {
 			if (e.lengthComputable) {
-				console.log(e.loaded, e.total)
 				onProgress?.(e.loaded, e.total)
 			}
 		}
