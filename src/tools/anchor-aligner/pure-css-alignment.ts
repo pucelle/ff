@@ -1,4 +1,4 @@
-import {Direction, BoxOffsets, Vector} from '../../math'
+import {Direction, BoxOffsets, Vector, BoxOffsetKey} from '../../math'
 import {AnchorAligner} from './anchor-aligner'
 import {deleteElementAnchorName, getElementAnchorName, getNewElementAnchorName, setElementAnchorName} from './helpers/anchor-names'
 import {isTargetUsingByAligner} from './helpers/target-aligner'
@@ -12,13 +12,6 @@ export interface PureCSSComputed {
 	targetRect: DOMRect
 	targetTranslate: Vector
 }
-
-interface PositionAreaAndTranslate {
-	areaV: string
-	areaH: string
-	targetTranslate: Vector
-}
-
 
 /** Do CSS Anchor alignment by Anchor Positioning APIs. */
 export class PureCSSAnchorAlignment {
@@ -70,112 +63,62 @@ export class PureCSSAnchorAlignment {
 		deleteElementAnchorName(this.anchor, this)
 	}
 
-	/**
-	 * Align content after get computed position.
-	 * Ensure to barrier DOM Writing before calling it.
-	 */
 	align(computed: PureCSSComputed) {
-		let areaAndTranslate = this.mapPositionToAreaAndTranslate(computed)
-		this.setPositionProperties(computed, areaAndTranslate)
+		this.setPosition(computed)
+		this.setTransform(computed)
 	}
 
-	private mapPositionToAreaAndTranslate(computed: PureCSSComputed): PositionAreaAndTranslate {
-		let targetD = computed.targetDirection
+	/** Set `position: anchor(...)`. */
+	private setPosition(computed: PureCSSComputed) {
+		let target = this.target
 		let anchorD = computed.anchorDirection
-		let primaryD = anchorD.joinToStraight(targetD.opposite)
-		let anchorSecondaryD = anchorD.joinToStraight(primaryD.opposite)
-		let targetSecondaryD = targetD.joinToStraight(primaryD)
-		let areaV: string
-		let areaH: string
-		let targetTranslate = new Vector()
+		let targetD = computed.targetDirection
+		let anchorInsetKeyH = anchorD.horizontal.toBoxOffsetKey() ?? 'center'
+		let anchorInsetKeyV = anchorD.vertical.toBoxOffsetKey() ?? 'center'
+		let targetInsetKeyH = targetD.horizontal.toBoxOffsetKey() ?? 'center'
+		let targetInsetKeyV = targetD.vertical.toBoxOffsetKey() ?? 'center'
 
-		// Faced directions like `left, top, top left, center`.
-		if (targetD.isOppositeOf(anchorD)) {
-			if (anchorD === Direction.Center) {
-				areaV = 'center'
-				areaH = 'center'
-			}
-			else if (anchorD.beHorizontal) {
-				areaV = 'center'
-				areaH = anchorD.toBoxOffsetKey()!
-			}
-			else if (anchorD.beVertical) {
-				areaV = anchorD.toBoxOffsetKey()!
-				areaH = 'center'
-			}
-			else {
-				[areaV, areaH] = anchorD.toBoxOffsetKeys()
-			}
-		}
+		let targetInsetKeyHNonCenter = targetInsetKeyH === 'center' ? 'left' : targetInsetKeyH
+		let targetInsetKeyVNonCenter = targetInsetKeyV === 'center' ? 'top' : targetInsetKeyV
+		let otherInsetKeys: BoxOffsetKey[] = BoxOffsets.Keys.filter(key => key !== targetInsetKeyHNonCenter && key !== targetInsetKeyVNonCenter)
 
-		// Span directions like `span-top left, bottom span-left`
-		else {
+		target.style.setProperty(targetInsetKeyHNonCenter, `anchor(${this.anchorName} ${anchorInsetKeyH})`)
+		target.style.setProperty(targetInsetKeyVNonCenter, `anchor(${this.anchorName} ${anchorInsetKeyV})`)
 
-			// `top span-left`
-			if (primaryD.beVertical && anchorSecondaryD !== Direction.Center) {
-				areaV = primaryD.toBoxOffsetKey()!
-				areaH = 'span-' + anchorSecondaryD.opposite.toBoxOffsetKey()!
-			}
-
-			// `span-top left`
-			else if (primaryD.beHorizontal && anchorSecondaryD !== Direction.Center) {
-				areaV = 'span-' + anchorSecondaryD.opposite.toBoxOffsetKey()!
-				areaH = primaryD.toBoxOffsetKey()!
-			}
-
-			// `span-top center`
-			else if (anchorD.beStraight) {
-				areaV = 'span-' + anchorD.opposite.toBoxOffsetKey()!
-				areaH = 'center'
-			}
-
-			// `span-top span-left`
-			else {
-				areaV = 'span-' + anchorD.vertical.opposite.toBoxOffsetKey()!
-				areaH = 'span-' + anchorD.horizontal.opposite.toBoxOffsetKey()!
-			}
-
-			if (anchorSecondaryD !== targetSecondaryD) {
-				targetTranslate = anchorSecondaryD.toAnchorVector().sub(targetSecondaryD.toAnchorVector())
-			}
-		}
-
-		return {
-			areaV: areaV,
-			areaH: areaH,
-			targetTranslate,
+		for (let otherKey of otherInsetKeys) {
+			this.target.style[otherKey] = 'auto'
 		}
 	}
 	
-	private setPositionProperties(computed: PureCSSComputed, areaAndTranslate: PositionAreaAndTranslate) {
+	/** Set transform values. */
+	private setTransform(computed: PureCSSComputed) {
 		let target = this.target
-		let alignTranslate = computed.targetTranslate
-		let {targetTranslate, areaV, areaH} = areaAndTranslate
-		let translate = new Vector()
+		let targetD = this.aligner.targetDirection
+		let targetInsetKeyH = targetD.horizontal.toBoxOffsetKey() ?? 'center'
+		let targetInsetKeyV = targetD.vertical.toBoxOffsetKey() ?? 'center'
+		let targetTranslate = computed.targetTranslate
+		let transform = ''
 
-		target.style.setProperty('position-area', areaV + ' ' + areaH)
-		
-		// Transform not affect anchor positioning, but position does.
-		translate.x += targetTranslate.x * computed.targetRect.width
-		translate.y += targetTranslate.y * computed.targetRect.height
-		translate.addSelf(alignTranslate)
-		
-		if (areaH === 'left' || areaH === 'span-left') {
-			target.style.setProperty('right', -translate.x + 'px')
-			target.style.setProperty('left', '')
+		// When align to center, no gap transform assigned.
+		if (targetInsetKeyH === 'center' && targetInsetKeyV === 'center') {
+			target.style.setProperty('position-anchor', this.anchorName)
+			target.style.setProperty('position-area', 'center')
 		}
-		else if (areaH !== 'center') {
-			target.style.setProperty('left', translate.x + 'px')
-			target.style.setProperty('right', '')
+		else if (targetInsetKeyH === 'center') {
+			transform = 'translateX(-50%)'
+			target.style.setProperty('position-anchor', '')
+			target.style.setProperty('position-area', '')
+		}
+		else if (targetInsetKeyV === 'center') {
+			transform = 'translateY(-50%)'
+			target.style.setProperty('position-anchor', '')
+			target.style.setProperty('position-area', '')
 		}
 
-		if (areaV === 'top' || areaV === 'span-top') {
-			target.style.setProperty('bottom', -translate.y + 'px')
-			target.style.setProperty('top', '')
+		if (targetTranslate.x !== 0 || targetTranslate.y !== 0) {
+			transform += `translate(${targetTranslate.x}px, ${targetTranslate.y}px)`
 		}
-		else if (areaV !== 'center') {
-			target.style.setProperty('top', translate.y + 'px')
-			target.style.setProperty('bottom', '')
-		}
+
+		target.style.setProperty('transform', transform)
 	}
 }

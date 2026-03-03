@@ -379,6 +379,12 @@ export class PositionComputer {
 
 	/** Align `triangle` relative to target. */
 	private alignTriangle(computed: PositionComputed) {
+
+		// Not adjust triangle when it is fixed.
+		if (this.aligner.options.fixedTriangle) {
+			return
+		}
+
 		let triangleRelRect = this.triangleRelRect!
 		let transforms: string[] = []
 
