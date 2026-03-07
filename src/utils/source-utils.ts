@@ -5,22 +5,11 @@ import {FileAndPath} from './types'
 
 /** Load image source and output an `<image>` element. */
 export async function loadImage(url: string) {
-	let {promise, resolve, reject} = promiseWithResolves<HTMLImageElement>()
 	let image = new Image()
-
-	image.onload = function() {
-		resolve(image)
-	}
-
-	image.onerror = function(err) {
-		reject(err)
-	}
-
 	image.src = url
-	image.crossOrigin = 'anonymous'
-
-	return promise
+	return image.decode()
 }
+
 
 /** Load resource by an URL and output a Blob object. */
 export async function loadAsBlob(url: string): Promise<Blob> {

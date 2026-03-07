@@ -106,3 +106,26 @@ export function mayValue(x: number, value: number): number {
 export function fract(n: number): number {
 	return n - Math.floor(n)
 }
+
+
+/** Do ceiling, but if too close to rounded, returns the rounded. */
+export function ceilEpsilon(x: number, eps = 1e-9) {
+	let rounded = Math.round(x)
+	if (Math.abs(x - rounded) < eps) {
+		return rounded
+	}
+
+	return Math.ceil(x)
+}
+
+
+/** Do flooring, but if too close to rounded, returns the rounded. */
+export function floorEpsilon(x: number, eps = 1e-9) {
+	let rounded = Math.round(x)
+
+	if (Math.abs(x - rounded) < eps) {
+		return rounded
+	}
+
+	return Math.floor(x)
+}
