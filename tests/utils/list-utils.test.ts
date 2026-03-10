@@ -87,18 +87,18 @@ describe('Test ListUtils', () => {
 		expect(ListUtils.orderBy([2, 1, null], {by: v => v ?? -Infinity})).toEqual([null, 1, 2])
 	})
 
-	it('minIndex', () => {
-		expect(ListUtils.minIndex([1,1,2], x => x)).toEqual(0)
-		expect(ListUtils.minIndex([{a:1}, {a:1}, {a:2}], x => x.a)).toEqual(0)
-		expect(ListUtils.minIndex([], x => x)).toEqual(-1)
-		expect(ListUtils.minIndex([Infinity], x => x)).toEqual(-1)
+	it('minIndexOf', () => {
+		expect(ListUtils.minIndexOf([1,1,2], x => x)).toEqual(0)
+		expect(ListUtils.minIndexOf([{a:1}, {a:1}, {a:2}], x => x.a)).toEqual(0)
+		expect(ListUtils.minIndexOf([], x => x)).toEqual(-1)
+		expect(ListUtils.minIndexOf([Infinity], x => x)).toEqual(-1)
 	})
 
-	it('maxIndex', () => {
-		expect(ListUtils.maxIndex([1,2,2], x => x)).toEqual(1)
-		expect(ListUtils.maxIndex([{a:1}, {a:2}, {a:2}], x => x.a)).toEqual(1)
-		expect(ListUtils.maxIndex([], x => x)).toEqual(-1)
-		expect(ListUtils.maxIndex([-Infinity], x => x)).toEqual(-1)
+	it('maxIndexOf', () => {
+		expect(ListUtils.maxIndexOf([1,2,2], x => x)).toEqual(1)
+		expect(ListUtils.maxIndexOf([{a:1}, {a:2}, {a:2}], x => x.a)).toEqual(1)
+		expect(ListUtils.maxIndexOf([], x => x)).toEqual(-1)
+		expect(ListUtils.maxIndexOf([-Infinity], x => x)).toEqual(-1)
 	})
 
 	it('minOf', () => {

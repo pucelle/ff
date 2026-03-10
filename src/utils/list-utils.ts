@@ -492,7 +492,7 @@ export function toOrdered<T>(list: T[], ...orders: OrderRule<T>[]): T[] {
  * @param map compare items by this map function.
  * Returns `-1` if no items or all values are `Infinity`.
  */
-export function minIndex<T>(list: ArrayLike<T>, map: (item: T, index: number) => number): number {
+export function minIndexOf<T>(list: ArrayLike<T>, map: (item: T, index: number) => number): number {
 	let minIndex = -1
 	let minValue = Infinity
 
@@ -514,7 +514,7 @@ export function minIndex<T>(list: ArrayLike<T>, map: (item: T, index: number) =>
  * Returns `-1` if no items or all values are `-Infinity`.
  * @param map compare items by this map function.
  */
-export function maxIndex<T>(list: ArrayLike<T>, map: (item: T, index: number) => number): number {
+export function maxIndexOf<T>(list: ArrayLike<T>, map: (item: T, index: number) => number): number {
 	let maxIndex = -1
 	let maxValue = -Infinity
 
@@ -537,7 +537,7 @@ export function maxIndex<T>(list: ArrayLike<T>, map: (item: T, index: number) =>
  * @param map compare items by this map function.
  */
 export function minOf<T>(list: ArrayLike<T>, map: (item: T, index: number) => number): T | null {
-	let index = minIndex(list, map)
+	let index = minIndexOf(list, map)
 	return index >= 0 ? list[index] : null
 }
 
@@ -548,7 +548,7 @@ export function minOf<T>(list: ArrayLike<T>, map: (item: T, index: number) => nu
  * @param map compare items by this map function.
  */
 export function maxOf<T>(list: ArrayLike<T>, map: (item: T, index: number) => number): T | null {
-	let index = maxIndex(list, map)
+	let index = maxIndexOf(list, map)
 	return index >= 0 ? list[index] : null
 }
 

@@ -21,7 +21,7 @@ export function average(list: number[]): number {
  * Returns the index of the minimal value of all the values.
  * Returns `-1` if no values or all values are `Infinity`.
  */
-export function minIndex(values: ArrayLike<number>): number {
+export function minIndexOf(values: ArrayLike<number>): number {
 	let minIndex = -1
 	let minValue = Infinity
 
@@ -40,7 +40,7 @@ export function minIndex(values: ArrayLike<number>): number {
  * Returns the index of the maximum value of all the values.
  * Returns `-1` if no values or all values are `-Infinity`.
  */
-export function maxIndex(values: ArrayLike<number>): number {
+export function maxIndexOf(values: ArrayLike<number>): number {
 	let maxIndex = -1
 	let maxValue = -Infinity
 
@@ -60,7 +60,7 @@ export function maxIndex(values: ArrayLike<number>): number {
  * Returns `null` if no items or all values are `Infinity`.
  */
 export function minOf(values: ArrayLike<number>): number | null {
-	let index = minIndex(values)
+	let index = minIndexOf(values)
 	return index >= 0 ? values[index] : null
 }
 
@@ -70,7 +70,7 @@ export function minOf(values: ArrayLike<number>): number | null {
  * Returns `null` if no items or all values are `-Infinity`.
  */
 export function maxOf(values: ArrayLike<number>): number | null {
-	let index = maxIndex(values)
+	let index = maxIndexOf(values)
 	return index >= 0 ? values[index] : null
 }
 

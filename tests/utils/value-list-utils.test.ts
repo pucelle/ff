@@ -12,16 +12,16 @@ describe('Test ValueListUtils', () => {
 		expect(ValueListUtils.average([1,2,3])).toEqual(2)
 	})
 
-	it('minIndex', () => {
-		expect(ValueListUtils.minIndex([1,1,2])).toEqual(0)
-		expect(ValueListUtils.minIndex([])).toEqual(-1)
-		expect(ValueListUtils.minIndex([Infinity])).toEqual(-1)
+	it('minIndexOf', () => {
+		expect(ValueListUtils.minIndexOf([1,1,2])).toEqual(0)
+		expect(ValueListUtils.minIndexOf([])).toEqual(-1)
+		expect(ValueListUtils.minIndexOf([Infinity])).toEqual(-1)
 	})
 
-	it('maxIndex', () => {
-		expect(ValueListUtils.maxIndex([1,2,2])).toEqual(1)
-		expect(ValueListUtils.maxIndex([])).toEqual(-1)
-		expect(ValueListUtils.maxIndex([-Infinity])).toEqual(-1)
+	it('maxIndexOf', () => {
+		expect(ValueListUtils.maxIndexOf([1,2,2])).toEqual(1)
+		expect(ValueListUtils.maxIndexOf([])).toEqual(-1)
+		expect(ValueListUtils.maxIndexOf([-Infinity])).toEqual(-1)
 	})
 
 	it('minOf', () => {
