@@ -66,8 +66,14 @@ export class Selections<T = any> implements MethodsObserved<
 		}
 	}
 
-	/** Shift or Ctrl select, or normal select. */
-	selectByMouseEvent(index: number, allData: T[], e: MouseEvent) {
+	/** 
+	 * Shift or Ctrl select, or normal select.
+	 * 
+	 * When `selectOnlyIfNoControlKey` is true by default,
+	 * will clear selections if no control key pressing.
+	 * When false, will toggle selection for current item.
+	 */
+	selectByMouseEvent(index: number, allData: T[], e: MouseEvent, selectOnlyIfNoControlKey: boolean = true) {
 		let currentItem = allData[index]
 
 		if (e.shiftKey) {
@@ -95,8 +101,11 @@ export class Selections<T = any> implements MethodsObserved<
 		else if (e.ctrlKey) {
 			this.toggleSelect(currentItem)
 		}
-		else {
+		else if (selectOnlyIfNoControlKey) {
 			this.selectOnly(currentItem)
+		}
+		else {
+			this.toggleSelect(currentItem)
 		}
 	}
 
