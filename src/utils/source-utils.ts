@@ -83,6 +83,27 @@ export function downloadText(text: string, type: string = 'text/plain', fileName
 }
 
 
+/** Post by a json object as form data, and download response. */
+export async function postDownload(url: string, formData: Record<string, string>) {
+	let template = document.createElement('template')
+	template.innerHTML = `<form target="_blank" method="post" action="${url}"></form>`
+	let form = template.content.firstChild as HTMLFormElement
+
+	for (let [key, value] of Object.entries(formData)) {
+		let input = document.createElement('input')
+		input.type = 'hidden'
+		input.name = key
+		input.value = value
+		form.appendChild(input)
+	}
+
+	document.body.append(form)
+	form.submit()
+
+	await sleep(100)
+	form.remove()
+}
+
 
 /** Select a single file matches `MIME` type, equals clicking a `<input type="file">`. */
 export function selectFile(mime: string): Promise<File | null> {
