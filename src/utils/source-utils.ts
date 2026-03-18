@@ -83,7 +83,10 @@ export function downloadText(text: string, type: string = 'text/plain', fileName
 }
 
 
-/** Post by a json object as form data, and download response. */
+/** 
+ * Post by a json object as form data, and download response.
+ * Returned promise get resolved after form deleted from document.
+ */
 export async function postDownload(url: string, formData: Record<string, string>) {
 	let template = document.createElement('template')
 	template.innerHTML = `<form target="_blank" method="post" action="${url}"></form>`
