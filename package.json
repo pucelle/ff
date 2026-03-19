@@ -21,8 +21,8 @@
 	},
 	"devDependencies": {
 		"typescript": "^5.9.3",
-		"vitest": "^4.0.16",
-		"happy-dom": "^20.0.11"
+		"vitest": "^4.1.0",
+		"happy-dom": "^20.8.4"
 	},
 	"dependencies": {
 		"lupos": "^0.1.0"
