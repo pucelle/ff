@@ -4,10 +4,32 @@ import {FileAndPath} from './types'
 
 
 /** Load image source and output an `<image>` element. */
-export async function loadImage(url: string) {
+export async function loadImage(url: string): Promise<HTMLImageElement> {
 	let image = new Image()
 	image.src = url
-	return image.decode()
+	await image.decode()
+	return image
+}
+
+/** Load image source and output an `<video>` element. */
+export function loadVideo(url: string): Promise<HTMLVideoElement> {
+	let video = document.createElement('video')
+	video.src = url
+	video.preload = 'auto'
+
+	let pr = promiseWithResolves<HTMLVideoElement>()
+
+	video.oncanplaythrough = () => {
+		pr.resolve(video)
+	}
+
+	video.onerror = (e: Event | string) => {
+		pr.reject(e)
+	}
+
+	video.load()
+
+	return pr.promise
 }
 
 
