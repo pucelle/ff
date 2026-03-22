@@ -36,6 +36,7 @@ export function uploadFileWithProgress(
 		}
 
 		xhr.onerror = reject
+		xhr.withCredentials = true
 		xhr.send(file)
 	})
 }
