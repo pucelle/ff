@@ -223,7 +223,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 	runningTasks: TaskQueueTask<T>[] = []
 
 	/** All failed tasks. */
-	private failedTasks: TaskQueueTask<T>[] = []
+	protected failedTasks: TaskQueueTask<T>[] = []
 
 	constructor(options: TaskQueueOptions<T, V>) {
 		super()
@@ -380,29 +380,40 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 		return true
 	}
 
-	private tryNextTask() {
+	protected tryNextTask() {
 		
 		// State may change after running event handler, so we also need to test state here.
 		if (this.state !== TaskQueueState.Running) {
 			return
 		}
 		
+		this.tryNextNormalTask()
+		this.tryNextFailedTask()
+
+		if (this.runningCount === 0) {
+			this.onFinish()
+		}
+	}
+
+	protected tryNextNormalTask() {
 		while (this.runningCount < this.concurrency && this.data.length > 0) {
 			let item = this.data.shift()!
 
 			this.handleTask({
 				data: item,
 				retriedTimes: 0,
-			})
+			}, this.taskTimeout)
 		}
+	}
 
+	protected tryNextFailedTask() {
 		if (this.maxRetryTimes > 0 && this.runningCount < this.concurrency && this.failedTasks.length) {
 			for (let i = 0; i < this.failedTasks.length; i++) {
 				let item = this.failedTasks[i]
 				if (item.retriedTimes < this.maxRetryTimes) {
 					item.retriedTimes++
 					this.failedTasks.splice(i--, 1)
-					this.handleTask(item)
+					this.handleTask(item, this.taskTimeout)
 
 					if (this.runningCount >= this.concurrency) {
 						break
@@ -410,22 +421,18 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 				}
 			}
 		}
-
-		if (this.runningCount === 0) {
-			this.onFinish()
-		}
 	}
 
-	private async handleTask(task: TaskQueueTask<T>) {
+	protected async handleTask(task: TaskQueueTask<T>, taskTimeout: number | undefined) {
 		let {data} = task
 		let taskReturned = this.handler(data)
 		let timeout: Timeout | null = null
 
-		if (this.taskTimeout) {
+		if (taskTimeout) {
 			timeout = new Timeout(() => {
 				this.off('task-aborted', onTaskAborted)
 				this.onTaskError(task, 'Timeout')
-			}, this.taskTimeout)
+			}, taskTimeout)
 
 			let onTaskAborted = (data: T) => {
 				if (data === task.data) {
@@ -450,7 +457,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 		}
 	}
 
-	private async onTaskFinish(task: TaskQueueTask<T>, value: V) {
+	protected async onTaskFinish(task: TaskQueueTask<T>, value: V) {
 		if (!this.removeFromRunningTasks(task)) {
 			return
 		}
@@ -468,7 +475,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 		}
 	}
 
-	private async onTaskError(task: TaskQueueTask<T>, err: Error | string | number) {
+	protected async onTaskError(task: TaskQueueTask<T>, err: Error | string | number) {
 		if (!this.removeFromRunningTasks(task)) {
 			return
 		}
@@ -484,11 +491,11 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 		}
 	}
 
-	private removeFromRunningTasks(task: TaskQueueTask<T>): boolean {
+	protected removeFromRunningTasks(task: TaskQueueTask<T>): boolean {
 		return ListUtils.remove(this.runningTasks, task).length > 0
 	}
 
-	private onFinish() {
+	protected onFinish() {
 		if (this.state === TaskQueueState.Pending || this.state === TaskQueueState.Running) {
 			this.state = TaskQueueState.Finished
 			this.fire('finished')
@@ -496,7 +503,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 		}
 	}
 
-	private onError(err: Error | string | number) {
+	protected onError(err: Error | string | number) {
 		this.abort(err)
 	}
 
@@ -535,12 +542,12 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 		return true
 	}
 
-	private abortRunningTasks() {
+	protected abortRunningTasks() {
 		this.runningTasks.forEach(task => this.abortTask(task))
 		this.runningTasks = []
 	}
 
-	private abortTask(task: TaskQueueTask<T>) {
+	protected abortTask(task: TaskQueueTask<T>) {
 		this.abortHandler?.(task.data)
 		this.fire('task-aborted', task.data)
 	}
