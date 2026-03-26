@@ -1,6 +1,3 @@
-import {promiseWithResolves} from 'lupos'
-
-
 /** Whether supports fullscreen. */
 export function isSupported(): boolean {
 	return document.fullscreenEnabled ?? false
@@ -59,7 +56,7 @@ export async function untilExit() {
 
 /** Returns a promise which will be resolved by whether in fullscreen state after fullscreen state changed. */
 function untilFullscreenChange(): Promise<boolean> {
-	let {promise, resolve, reject} = promiseWithResolves<boolean>()
+	let {promise, resolve, reject} = Promise.withResolvers<boolean>()
 	
 	function onChange() {
 		resolve(isInFullscreen())

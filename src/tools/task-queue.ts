@@ -1,5 +1,5 @@
 import {ListUtils, ObjectUtils, sleep} from '../utils'
-import {EventFirer, Observed, promiseWithResolves} from 'lupos'
+import {EventFirer, Observed} from 'lupos'
 import {Timeout} from './time-control'
 
 
@@ -110,7 +110,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 	 * Returns a promise which will be resolved after tasks become finished.
 	 */
 	static each<T>(data: T[], handler: (data: T) => Promise<void> | void, concurrency?: number): Promise<void> {
-		let {promise, resolve, reject} = promiseWithResolves()
+		let {promise, resolve, reject} = Promise.withResolvers<void>()
 
 		let q = new TaskQueue({
 			concurrency,
@@ -130,7 +130,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 	 * Returns a promise which will be resolved with returned values list.
 	 */
 	static map<T, V>(data: T[], handler: (data: T) => Promise<V> | V, concurrency?: number): Promise<V[]> {
-		let {promise, resolve, reject} = promiseWithResolves<V[]>()
+		let {promise, resolve, reject} = Promise.withResolvers<V[]>()
 		let values: V[] = []
 		let indexedTasks = data.map((task, index) => ({task, index}))
 
@@ -154,7 +154,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 	 * Returns a promise which will be resolved if some tasks match `testFn`.
 	 */
 	static some<T>(data: T[], testFn: (task: T) => Promise<boolean> | boolean, concurrency?: number): Promise<boolean> {
-		let {promise, resolve, reject} = promiseWithResolves<boolean>()
+		let {promise, resolve, reject} = Promise.withResolvers<boolean>()
 
 		let q = new TaskQueue({
 			concurrency,
@@ -323,7 +323,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 
 	/** Returns a promise which will be resolved after finished. */
 	untilFinished(): Promise<void> {
-		let {promise, resolve} = promiseWithResolves()
+		let {promise, resolve} = Promise.withResolvers<void>()
 
 		if (this.unprocessedCount > 0) {
 			this.once('finished', resolve)
@@ -337,7 +337,7 @@ export class TaskQueue<T = any, V = void> extends EventFirer<TaskQueueEvents<T, 
 
 	/** Returns a promise which will be resolved after ended. */
 	untilEnded(): Promise<void> {
-		let {promise, resolve, reject} = promiseWithResolves()
+		let {promise, resolve, reject} = Promise.withResolvers<void>()
 
 		if (this.unprocessedCount > 0) {
 			this.once('ended', err => err ? reject(err) : resolve())

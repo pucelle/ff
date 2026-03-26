@@ -1,5 +1,4 @@
 import {sleep} from './function'
-import {promiseWithResolves} from 'lupos'
 import {FileAndPath} from './types'
 
 
@@ -17,7 +16,7 @@ export function loadVideo(url: string): Promise<HTMLVideoElement> {
 	video.src = url
 	video.preload = 'auto'
 
-	let pr = promiseWithResolves<HTMLVideoElement>()
+	let pr = Promise.withResolvers<HTMLVideoElement>()
 
 	video.oncanplaythrough = () => {
 		pr.resolve(video)
@@ -42,7 +41,7 @@ export async function loadAsBlob(url: string): Promise<Blob> {
 export async function loadAsDataURI(url: string): Promise<string> {
 	let blob = await loadAsBlob(url)
 	let reader = new FileReader()
-	let {promise, resolve, reject} = promiseWithResolves<string>()
+	let {promise, resolve, reject} = Promise.withResolvers<string>()
 
 	reader.onload = function() {
 		resolve(reader.result as string)
@@ -152,7 +151,7 @@ export function selectMultipleFolders(): Promise<FileList | null> {
 
 /** Select file or folder, multiple or not. */
 function selectFileOrFolder(mime: string, isFolder: boolean, isMultiple: boolean): Promise<FileList | null> {
-	let {promise, resolve} = promiseWithResolves<FileList | null>()
+	let {promise, resolve} = Promise.withResolvers<FileList | null>()
 	let input = document.createElement('input')
 	input.type = 'file'
 	input.accept = mime
@@ -214,7 +213,7 @@ export async function* walkFilesInTransfer(transfer: DataTransfer): AsyncGenerat
 /** Read files from a file entry. */
 export async function* walkFilesInEntry(entry: FileSystemEntry, path: string = entry.name): AsyncGenerator<FileAndPath> {
 	if (entry.isFile) {
-		let {promise, resolve, reject} = promiseWithResolves<FileAndPath>();
+		let {promise, resolve, reject} = Promise.withResolvers<FileAndPath>();
 
 		(entry as FileSystemFileEntry).file(function(file: File) {
 			resolve({
@@ -235,7 +234,7 @@ async function* walkFilesInDirectoryEntry(entry: FileSystemDirectoryEntry, dir: 
 	let reader = entry.createReader()
 
 	while (true) {
-		let {promise, resolve, reject} = promiseWithResolves<FileSystemEntry[]>()
+		let {promise, resolve, reject} = Promise.withResolvers<FileSystemEntry[]>()
 
 		reader.readEntries(
 			function(entries: FileSystemEntry[]) {

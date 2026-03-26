@@ -1,6 +1,3 @@
-import {promiseWithResolves} from 'lupos'
-
-
 /** To config a DBStorage. */
 export interface DBStoreOptions {
 	name: string
@@ -90,7 +87,7 @@ export class DBStorage {
 
 		let request = indexedDB.open(this.name, this.version)
 
-		let {promise: timeoutPromise, resolve: timeoutResolve} = promiseWithResolves<null>()
+		let {promise: timeoutPromise, resolve: timeoutResolve} = Promise.withResolvers<null>()
 		setTimeout(() => timeoutResolve(null), 500)
 
 		this.openPromise = this.handleOpenDBRequest(request)
@@ -103,7 +100,7 @@ export class DBStorage {
 
 	/** Package Request object to Promise. */
 	private handleOpenDBRequest(request: IDBOpenDBRequest): Promise<IDBDatabase> {
-		let {promise, resolve, reject} = promiseWithResolves<IDBDatabase>()
+		let {promise, resolve, reject} = Promise.withResolvers<IDBDatabase>()
 
 		request.onupgradeneeded = () => {
 			this.updateStores(request.result)
@@ -180,7 +177,7 @@ export class DBStore<T = any> {
 
 	/** Package Request object to Promise. */
 	private requestToPromise<T = any>(request: IDBRequest<T>) {
-		let {promise, resolve, reject} = promiseWithResolves<T>()
+		let {promise, resolve, reject} = Promise.withResolvers<T>()
 		
 		request.onsuccess = function(){resolve(request.result)}
 		request.onerror = reject

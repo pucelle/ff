@@ -1,6 +1,3 @@
-import {promiseWithResolves} from 'lupos'
-
-
 /** From a mouse or touch event, get the mouse event or the first touch in the touch list. */
 export function toSingle(e: MouseEvent | TouchEvent): MouseEvent | Touch | null {
 	if (e.type.startsWith('touch')) {
@@ -99,7 +96,7 @@ export async function untilWindowLoaded() {
 		return
 	}
 	
-	let {promise, resolve} = promiseWithResolves()
+	let {promise, resolve} = Promise.withResolvers<void>()
 	windowLoadedCallbacks!.push(resolve)
 
 	if (windowLoadedCallbacks!.length === 1) {
@@ -138,7 +135,7 @@ export async function untilDocumentComplete() {
 		return
 	}
 
-	let {promise, resolve} = promiseWithResolves()
+	let {promise, resolve} = Promise.withResolvers<void>()
 	documentCompleteCallbacks!.push(resolve)
 
 	if (documentCompleteCallbacks!.length === 1) {

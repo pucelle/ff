@@ -1,4 +1,3 @@
-import {promiseWithResolves} from 'lupos'
 import {logger} from './logger'
 import {biggerStorage} from './storage'
 
@@ -72,7 +71,7 @@ export async function read(limitType: 'text' | 'file' | 'all' = 'text'): Promise
 
 /** Read blob as string. */
 function readBlobAsText(blob: Blob): Promise<string> {
-	let {promise, resolve, reject} = promiseWithResolves<string>()
+	let {promise, resolve, reject} = Promise.withResolvers<string>()
 	let reader = new FileReader()
 
 	reader.onload = function() {

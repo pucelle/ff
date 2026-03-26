@@ -1,6 +1,3 @@
-import {promiseWithResolves} from 'lupos'
-
-
 /** Manage a task sequence, and process tasks one by one. */
 export class AsyncTaskQueue {
 
@@ -12,7 +9,7 @@ export class AsyncTaskQueue {
 	 * Returns a promise which will be resolved after this task end.
 	 */
 	async enqueue(taskFn: () => Promise<void>) {
-		let {promise, resolve} = promiseWithResolves<void>()
+		let {promise, resolve} = Promise.withResolvers<void>()
 		let lastPromise = this.lastTaskPromise
 
 		// Must replace it immediately.
