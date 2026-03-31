@@ -655,7 +655,7 @@ export function binaryFind<T>(sortedList: ArrayLike<T>, like: T, comparer: (valu
  * 
  * @param fn: used to know whether a value is larger or smaller,
  * 	  it returns negative value to move cursor right, and positive value to move cursor left.
- *    you may simply use `v - aFixedValue`.
+ *    you may simply use `v - compareValue`.
  */
 export function quickBinaryFindInsertIndex<T>(sortedList: ArrayLike<T>, fn: (v: T) => number): number {
 	if (sortedList.length === 0) {
@@ -698,7 +698,7 @@ export function quickBinaryFindInsertIndex<T>(sortedList: ArrayLike<T>, fn: (v: 
  * 
  * @param fn used to know whether a value is larger or smaller,
  * 	 it returns negative value to move right, and positive value to move left,
- * 	 you may simply use `v - aFixedValue`.
+ * 	 you may simply use `v - compareValue`.
  */
 export function quickBinaryFindLowerInsertIndex<T>(sortedList: ArrayLike<T>, fn: (v: T) => number): number {
 	let index = quickBinaryFindInsertIndex(sortedList, fn)
@@ -717,7 +717,7 @@ export function quickBinaryFindLowerInsertIndex<T>(sortedList: ArrayLike<T>, fn:
  * 
  * @param fn used to know whether a value is larger or smaller,
  *   it returns negative value to move cursor right, and positive value to move cursor left.
- *   you may simply use `v - aFixedValue`.
+ *   you may simply use `v - compareValue`.
  */
 export function quickBinaryFindIndex<T>(sortedList: ArrayLike<T>, fn: (v: T) => number): number {
 	if (sortedList.length === 0) {
@@ -772,7 +772,7 @@ export function quickBinaryFindIndex<T>(sortedList: ArrayLike<T>, fn: (v: T) => 
  * 
  * @param fn used to know whether a value is larger or smaller,
  *   it returns negative value to move cursor right, and positive value to move cursor left.
- *   you may simply use `v - aFixedValue`.
+ *   you may simply use `v - compareValue`.
  */
 export function quickBinaryFind<T>(sortedList: ArrayLike<T>, fn: (v: T) => number): T | undefined {
 	let index = quickBinaryFindIndex(sortedList, fn)
