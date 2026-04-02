@@ -5,12 +5,12 @@ import {HTMLUtils, StringUtils} from '../utils'
 export class Translations implements Observed {
 
 	/** Current language. */
-	lang: string = 'en'
+	lang: string = 'enus'
 
 	/** If can't find translation, try find in this fallback language. */
-	fallbackLang: string = 'en'
+	fallbackLang: string = 'enus'
 
-	protected readonly map: Map<string, Record<string, string>> = new Map()
+	protected readonly map: Map<string, Record<string, string>> = new Map([['enus', {}]])
 
 	/** Add a translation data pieces to translation data. */
 	add(language: string, pieces: Record<string, string>) {
@@ -30,7 +30,7 @@ export class Translations implements Observed {
 		let data = this.map.get(this.lang)
 		
 		if (!data) {
-			data = this.map.get('en')!
+			data = this.map.get('enus')!
 		}
 
 		let value = data[key]
