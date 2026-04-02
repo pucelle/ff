@@ -10,6 +10,7 @@ export * from './translations'
 export * from './anchor-aligner'
 export * from './selections'
 export * from './time-control'
+export * from './lazy-getter'
 
 export * as ClipboardAPI from './clipboard-api'
 export * as FullscreenAPI from './fullscreen-api'

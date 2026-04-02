@@ -48,13 +48,13 @@ export function getScreenPosition(e: MouseEvent | TouchEvent): DOMPoint {
 
 /** Check whether have pointer device, like mouse. */
 export function havePointer(): boolean {
-	return matchMedia('(pointer:fine)').matches
+	return 'matchMedia' in window ? matchMedia('(pointer:fine)').matches : true
 }
 
 
 /** Check whether can hover with mouse or pencil. */
 export function canHover(): boolean {
-	return matchMedia('(hover:hover)').matches
+	return 'matchMedia' in window ? matchMedia('(hover:hover)').matches : true
 }
 
 
