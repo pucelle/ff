@@ -17,4 +17,9 @@ export class LazyGetter<T> {
 
 		return this.result
 	}
+
+	/** Reset cached value. */
+	reset() {
+		this.result = null
+	}
 }

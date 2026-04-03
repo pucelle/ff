@@ -33,7 +33,7 @@ export class Translations implements Observed {
 			data = this.map.get('enus')!
 		}
 
-		let value = data[key]
+		let value = data[key] ?? ''
 
 		if (args.length) {
 			value = StringUtils.format(value, args)
