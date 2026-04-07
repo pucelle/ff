@@ -4,19 +4,19 @@ import {HTMLUtils, StringUtils} from '../utils'
 
 export class Translations implements Observed {
 
-	/** Current language. */
-	lang: string = 'enus'
+	/** Current language and country code. */
+	locale: string = 'en-us'
 
-	/** If can't find translation, try find in this fallback language. */
-	fallbackLang: string = 'enus'
+	/** If can't find translation, try find in this fallback locale. */
+	fallbackLocale: string = 'en-us'
 
 	protected readonly map: Map<string, Record<string, string>> = new Map([['enus', {}]])
 
 	/** Add a translation data pieces to translation data. */
-	add(language: string, pieces: Record<string, string>) {
-		let data = this.map.get(language)
+	add(locale: string, pieces: Record<string, string>) {
+		let data = this.map.get(locale)
 		if (!data) {
-			this.map.set(language, data = {})
+			this.map.set(locale, data = {})
 		}
 
 		Object.assign(data, pieces)
@@ -27,7 +27,7 @@ export class Translations implements Observed {
 	 * If passes `args` parameter, will format with it as arguments.
 	 */
 	get(key: string, ...args: (string | number)[]): string {
-		let data = this.map.get(this.lang)
+		let data = this.map.get(this.locale)
 		
 		if (!data) {
 			data = this.map.get('enus')!
