@@ -5,10 +5,10 @@ import {HTMLUtils, StringUtils} from '../utils'
 export class Translations implements Observed {
 
 	/** Current language and country code. */
-	locale: string = 'en-us'
+	locale: string = 'enus'
 
 	/** If can't find translation, try find in this fallback locale. */
-	fallbackLocale: string = 'en-us'
+	fallbackLocale: string = 'enus'
 
 	protected readonly map: Map<string, Record<string, string>> = new Map([['enus', {}]])
 
