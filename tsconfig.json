@@ -1,5 +1,6 @@
 {
 	"compilerOptions": {
+		"preserveSymlinks": true,
 		"module": "ESNext",
 		"moduleResolution": "Bundler",
 		"target": "ES2024",
