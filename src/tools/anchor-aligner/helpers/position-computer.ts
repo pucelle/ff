@@ -46,6 +46,8 @@ export class PositionComputer {
 	private targetRect: DOMRect
 	private targetRectToAlign: DOMRect
 	private triangleRelRect: DOMRect | null
+	private targetBorderTop: number
+	private targetBorderLeft: number
 
 	constructor(aligner: AnchorAligner, anchorRect: DOMRect) {
 		this.aligner = aligner
@@ -55,6 +57,10 @@ export class PositionComputer {
 		this.targetRect = aligner.target.getBoundingClientRect()
 		this.targetRectToAlign = this.computeTargetRectToAlign()
 		this.triangleRelRect = this.getTriangleRelRect()
+
+		let targetStyle = getComputedStyle(aligner.target)
+		this.targetBorderTop = parseFloat(targetStyle.borderTopWidth)
+		this.targetBorderLeft = parseFloat(targetStyle.borderLeftWidth)
 	}
 
 	/** Must after setting `this.targetRect`. */
@@ -404,6 +410,7 @@ export class PositionComputer {
 				this.targetRect.width,
 				this.anchorRect.width, this.anchorRect.x - computed.target.position.x,
 				triangleRelRect.width, triangleRelRect.x,
+				this.targetBorderLeft,
 				computed
 			)
 
@@ -414,6 +421,7 @@ export class PositionComputer {
 				this.targetRect.height,
 				this.anchorRect.height, this.anchorRect.y - computed.target.position.y,
 				triangleRelRect.height, triangleRelRect.y,
+				this.targetBorderTop,
 				computed
 			)
 
@@ -465,6 +473,7 @@ export class PositionComputer {
 		targetW: number,
 		anchorW: number, anchorX: number,
 		triangleW: number, triangleX: number,
+		borderW: number,
 		computed: PositionComputed
 	) {
 		let x: number = 0
@@ -505,6 +514,8 @@ export class PositionComputer {
 
 		x = Math.max(x, minX)
 		x = Math.min(x, maxX)
+
+		x -= borderW
 
 		return x
 	}
