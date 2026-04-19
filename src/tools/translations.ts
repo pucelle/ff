@@ -10,16 +10,21 @@ export class Translations implements Observed {
 	/** If can't find translation, try find in this fallback locale. */
 	fallbackLocale: string = 'en-us'
 
-	protected readonly map: Map<string, Record<string, string>> = new Map([['en-us', {}]])
+	protected readonly map: Map<string, Record<string, string>> = new Map()
 
 	/** Add a translation data pieces to translation data. */
-	add(locale: string, pieces: Record<string, string>) {
+	addData(locale: string, pieces: Record<string, string>) {
 		let data = this.map.get(locale)
 		if (!data) {
 			this.map.set(locale, data = {})
 		}
 
 		Object.assign(data, pieces)
+	}
+
+	/** Get all translation data pieces. */
+	getData(locale: string): Record<string, string> | undefined {
+		return this.map.get(locale)
 	}
 
 	/** 
@@ -30,7 +35,10 @@ export class Translations implements Observed {
 		let data = this.map.get(this.locale)
 		
 		if (!data) {
-			data = this.map.get('en-us')!
+			data = this.map.get(this.fallbackLocale)
+			if (!data) {
+				return ''
+			}
 		}
 
 		let value = data[key] ?? ''
