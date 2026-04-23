@@ -2,11 +2,12 @@ import {Coord, Direction, Vector} from '../../../math'
 
 
 /** Align which direction of target to which direction of anchor. */
-export type AnchorPosition = AnchorPositionSingle
-	| `${AnchorPositionSingle}-${AnchorPositionSingle}`
+export type AnchorPosition = NormalAnchorPositionSingle
+	| AdditionalTwoCharsPosition
+	| `${NormalAnchorPositionSingle}-${NormalAnchorPositionSingle}`
 
 /** Single of anchor position. */
-type AnchorPositionSingle = 't'
+type NormalAnchorPositionSingle = 't'
 	| 'b'
 	| 't'
 	| 'l'
@@ -20,6 +21,14 @@ type AnchorPositionSingle = 't'
 	| 'tc'
 	| 'tr'
 	| 'cc'
+
+/** Additional anchor positions. */
+type AdditionalTwoCharsPosition = 'lb'
+	| 'rb'
+	| 'lt'
+	| 'rt'
+	| 'ct'
+	| 'cb'
 
 /** 4 directions of gap. */
 export interface AnchorGaps {
@@ -55,26 +64,49 @@ const PositionDirectionMap: Record<string, Direction> = /*#__PURE__*/(() => ({
  * E.g.: `lt` is short for `tr-tl`, which means align content to the left-top of anchor.
  */
 export function parseAlignDirections(position: AnchorPosition): [Direction, Direction] {
-	if (!/^(?:[tbc][lrc]-[tbc][lrc]|[tbclr]-[tbclr]|[tbc][lrc]|[tbclr])/.test(position)) {
-		throw `"${position}" is not a valid position string!`
-	}
-
 	let d1: Direction
 	let d2: Direction
 
-	if (position.length <= 2) {
+	if (position.length === 1) {
 
 		// `t` means `b-t`.
-		d2 = PositionDirectionMap[position]
+		d2 = parseSingleAlignDirection(position)
 		d1 = d2.opposite
+	}
+	else if (position.length === 2) {
+
+		// `tl` means `bl-tl`.
+		// `lt` means `tr-tl`.
+		let first = parseSingleAlignDirection(position[0])
+		let second = parseSingleAlignDirection(position[1])
+
+		d2 = first.joinWith(second)
+		d1 = first.opposite.joinWith(second)
 	}
 	else {
 		let posArray = position.split('-')
-		d1 = PositionDirectionMap[posArray[0]]
-		d2 = PositionDirectionMap[posArray[1]]
+		d1 = parseSingleAlignDirection(posArray[0])
+		d2 = parseSingleAlignDirection(posArray[1])
 	}
 
 	return [d1, d2]
+}
+
+
+/** Parse single piece, 1 or 2 chars. */
+function parseSingleAlignDirection(position: string): Direction {
+	if (position.length === 1) {
+		return PositionDirectionMap[position]
+	}
+	else if (position.length === 2) {
+		let first = PositionDirectionMap[position[0]]
+		let second = PositionDirectionMap[position[1]]
+
+		return first.joinWith(second)
+	}
+	else {
+		throw new Error(`'${position}' is not a valid position piece`)
+	}
 }
 
 
