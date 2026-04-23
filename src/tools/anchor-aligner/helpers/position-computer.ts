@@ -166,7 +166,7 @@ export class PositionComputer {
 	 * It outputs alignment position to `targetRect`.
 	 */
 	private async doTargetAlignment(computed: PositionComputed) {
-		let targetPoint = this.getTargetRelativeAnchorPoint(computed)
+		let targetPoint = this.getTargetRelativeAnchorPoint()
 		let anchorPoint = this.getAnchorAbsoluteAnchorPoint()
 
 		computed.target.position = this.getPositionByAnchors(targetPoint, anchorPoint)
@@ -187,7 +187,7 @@ export class PositionComputer {
 			this.targetRect = this.target.getBoundingClientRect()
 			this.targetRectToAlign = this.computeTargetRectToAlign()
 
-			targetPoint = this.getTargetRelativeAnchorPoint(computed)
+			targetPoint = this.getTargetRelativeAnchorPoint()
 			computed.target.position = this.getPositionByAnchors(targetPoint, anchorPoint)
 		}
 
@@ -196,22 +196,8 @@ export class PositionComputer {
 	}
 
 	/** Get relative anchor position in the origin of target. */
-	private getTargetRelativeAnchorPoint(computed: PositionComputed): Coord {
-		let point = {x: 0, y: 0}
-
-		// Anchor at triangle position.
-		if (this.aligner.options.fixedTriangle && this.triangleRelRect) {
-			if (computed.anchorFaceDirection.beVertical) {
-				point.x = this.triangleRelRect.left + this.triangleRelRect.width / 2
-			}
-			else if (computed.anchorFaceDirection.beHorizontal) {
-				point.y = this.triangleRelRect.top + this.triangleRelRect.height / 2
-			}
-		}
-		else {
-			point = getRelativeAnchorPointAt(this.targetRect, this.targetRectToAlign, this.aligner.targetDirection)
-		}
-
+	private getTargetRelativeAnchorPoint(): Coord {
+		let point = getRelativeAnchorPointAt(this.targetRect, this.targetRectToAlign, this.aligner.targetDirection)
 		return point
 	}
 

@@ -66,13 +66,9 @@ export interface AnchorAlignerOptions {
 
 	/** 
 	 * Whether triangle element in a fixed position.
-	 * 
+	 * If specified as `true`, will not move triangle element.
 	 * Default value is `false`, means triangle element will be aligned to be
 	 * in the center of the intersect edges between anchor and target.
-	 * 
-	 * If specified as `true`, e.g., triangle always locates at top-left corner.
-	 * will use the position of the triangle acute angle to do alignment,
-	 * instead of the target anchor point.
 	 */
 	fixedTriangle: boolean
 
