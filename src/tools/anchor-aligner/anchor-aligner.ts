@@ -118,22 +118,35 @@ export class AnchorAligner {
 	/** The target to align. */
 	readonly target: HTMLElement
 
-	/** Anchor to align besides. */
+	/** 
+	 * Anchor to align besides.
+	 * Readonly outside.
+	 */
 	anchor: Element | null = null
 
-	/** Full options. */
+	/** 
+	 * Full options.
+	 * Readonly outside.
+	 */
 	options!: AnchorAlignerOptions
 
-	/** Target align direction. */
+	/** 
+	 * Target align direction.
+	 * Readonly outside.
+	 */
 	anchorDirection!: Direction
 
-	/** Target align direction. */
+	/** 
+	 * Target align direction.
+	 * Readonly outside.
+	 */
 	targetDirection!: Direction
 
 	/**
 	 * In which direction, and also the only direction
 	 * the anchor face with target.
 	 * This is always a straight direction.
+	 * Readonly outside.
 	 * 
 	 * E.g.:
 	 *  - `tl-bl` -> `Bottom`.
@@ -141,11 +154,24 @@ export class AnchorAligner {
 	 */
 	anchorFaceDirection!: Direction
 
-	/** Gaps betweens anchor and target. */
+	/** 
+	 * Gaps betweens anchor and target.
+	 * Readonly outside.
+	 */
 	gaps!: AnchorGaps
 
-	/** Gaps betweens target and viewport edges. */
+	/** 
+	 * Gaps betweens target and viewport edges.
+	 * Readonly outside.
+	 */
 	edgeGaps!: AnchorGaps
+
+	/** 
+	 * Whether ever flipped when previous aligning.
+	 * Once flipped, always flip.
+	 * Readonly outside.
+	 */
+	flipped: boolean = false
 
 	/** To do alignment. */
 	private alignment: PureCSSAnchorAlignment | MeasuredAlignment | null = null
@@ -361,6 +387,7 @@ export class AnchorAligner {
 		await barrierDOMWriting()
 
 		alignment.align(computed)
+		this.flipped = computed.flipped
 	}
 
 	/** Do alignment with events. */

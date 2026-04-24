@@ -42,7 +42,7 @@ export abstract class Settings<O extends object> implements Observed {
 
 	/** Modify option key and value pair. */
 	set<K extends keyof O>(key: K, value: O[K]) {
-		if (this.data[key] !== value) {
+		if (this.data[key] !== value || typeof value === 'object') {
 			this.data[key] = value
 			this.saveBundler.call()
 		}
