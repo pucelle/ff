@@ -296,7 +296,7 @@ export class AnchorAligner {
 	 */
 	private shouldDoPureCSSAlignment(): boolean {
 		return this.shouldUseCSSAnchorPositioning()
-			&& !(this.needAdjustTriangle() || this.canFlip())
+			&& !this.canFlip()
 	}
 
 	/** Whether can apply css anchor positioning. */
@@ -306,11 +306,6 @@ export class AnchorAligner {
 
 			// Can't use css anchor positioning when anchor is html or body element.
 			&& this.anchor !== document.documentElement
-	}
-
-	/** Whether need adjust triangle position. */
-	private needAdjustTriangle(): boolean {
-		return !!this.options.triangle && !this.options.fixedTriangle
 	}
 
 	/** Whether can flip. */

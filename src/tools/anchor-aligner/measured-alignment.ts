@@ -155,7 +155,7 @@ export class MeasuredAlignment {
 
 	private applyTriangleProperties(computed: PositionComputed) {
 		let triangle = this.aligner.options.triangle
-		if (!triangle || !computed.triangle || this.aligner.options.fixedTriangle) {
+		if (!triangle || !computed.triangle) {
 			return
 		}
 
