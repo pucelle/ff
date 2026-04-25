@@ -106,12 +106,12 @@ export class MeasuredAlignment {
 
 		let anchorPoint = getAnchorPointAt(computed.anchor.rect, computed.anchorDirection)
 
-		// This is the alignment for only target and anchor, to simulate the css anchoring layout result.
-		let targetPoint = getRelativeAnchorPointAt(computed.target.rect, undefined, computed.targetDirection)
+		// This is the relative position for target when doing normal css anchor positioning,
+		let baseTargetPoint = getRelativeAnchorPointAt(computed.target.rect, undefined, computed.targetDirection)
 
 		let targetTranslate = new Vector(
-			computed.target.position.x - (anchorPoint.x - targetPoint.x),
-			computed.target.position.y - (anchorPoint.y - targetPoint.y)
+			computed.target.position.x - (anchorPoint.x - baseTargetPoint.x),
+			computed.target.position.y - (anchorPoint.y - baseTargetPoint.y)
 		)
 
 		let cssComputed: PureCSSComputed = {

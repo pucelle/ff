@@ -387,7 +387,7 @@ export class AnchorAligner {
 		await barrierDOMWriting()
 
 		alignment.align(computed)
-		this.flipped = computed.flipped
+		this.flipped = computed.target.flipped
 	}
 
 	/** Do alignment with events. */

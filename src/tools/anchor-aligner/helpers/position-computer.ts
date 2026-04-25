@@ -10,7 +10,6 @@ export interface PositionComputed {
 	anchorFaceDirection: Direction
 	anchorDirection: Direction
 	targetDirection: Direction
-	flipped: boolean
 	anchor: {
 		rect: DOMRect
 	},
@@ -29,7 +28,6 @@ export interface PositionComputed {
 			left: string
 		}
 		transform: string
-		flipped: boolean
 	} | null
 }
 
@@ -108,7 +106,6 @@ export class PositionComputer {
 			anchorFaceDirection: this.aligner.anchorFaceDirection,
 			anchorDirection: this.aligner.anchorDirection,
 			targetDirection: this.aligner.targetDirection,
-			flipped: false,
 			anchor: {
 				rect: this.anchorRect,
 			},
@@ -130,10 +127,9 @@ export class PositionComputer {
 		if (this.triangle) {
 			this.alignTriangle(computed)
 		}
-
-		computed.anchorFaceDirection = computed.anchorFaceDirection
+		
+		// Target rect may be reset when aligning.
 		computed.target.rect = this.targetRect
-		computed.target.flipped = computed.anchorFaceDirection !== this.aligner.anchorFaceDirection
 
 		return computed
 	}
@@ -168,10 +164,10 @@ export class PositionComputer {
 	 * It outputs alignment position to `targetRect`.
 	 */
 	private async doTargetAlignment(computed: PositionComputed) {
-		let targetPoint = this.getTargetRelativeAnchorPoint()
-		let anchorPoint = this.getAnchorAbsoluteAnchorPoint()
+		let targetPoint = this.getTargetRelativeAnchorPoint(computed.targetDirection)
+		let anchorPoint = this.getAnchorAbsoluteAnchorPoint(computed.anchorDirection)
 
-		computed.target.position = this.getPositionByAnchors(targetPoint, anchorPoint)
+		computed.target.position = this.getPositionByAnchors(targetPoint, anchorPoint, computed.targetDirection, computed.anchorDirection)
 
 		// Handle vertical alignment.
 		this.alignTargetVertical(computed)
@@ -189,8 +185,13 @@ export class PositionComputer {
 			this.targetRect = this.target.getBoundingClientRect()
 			this.targetRectToAlign = this.computeTargetRectToAlign()
 
-			targetPoint = this.getTargetRelativeAnchorPoint()
-			computed.target.position = this.getPositionByAnchors(targetPoint, anchorPoint)
+			targetPoint = this.getTargetRelativeAnchorPoint(computed.targetDirection)
+
+			if (computed.target.flipped) {
+				anchorPoint = this.getAnchorAbsoluteAnchorPoint(computed.anchorDirection)
+			}
+
+			computed.target.position = this.getPositionByAnchors(targetPoint, anchorPoint, computed.targetDirection, computed.anchorDirection)
 		}
 
 		// Handle horizontal alignment.
@@ -198,21 +199,21 @@ export class PositionComputer {
 	}
 
 	/** Get relative anchor position in the origin of target. */
-	private getTargetRelativeAnchorPoint(): Coord {
-		let point = getRelativeAnchorPointAt(this.targetRect, this.targetRectToAlign, this.aligner.targetDirection)
+	private getTargetRelativeAnchorPoint(targetDirection: Direction): Coord {
+		let point = getRelativeAnchorPointAt(this.targetRect, this.targetRectToAlign, targetDirection)
 		return point
 	}
 
 	/** Get absolute position of anchor in the origin of scrolling page. */
-	private getAnchorAbsoluteAnchorPoint(): Coord {
-		let point = getAnchorPointAt(this.anchorRect, this.aligner.anchorDirection)
+	private getAnchorAbsoluteAnchorPoint(anchorDirection: Direction): Coord {
+		let point = getAnchorPointAt(this.anchorRect, anchorDirection)
 		return point
 	}
 
 	/** Get position by two anchors. */
-	private getPositionByAnchors(anchorT: Coord, anchorA: Coord): Vector {
+	private getPositionByAnchors(anchorT: Coord, anchorA: Coord, targetDirection: Direction, anchorDirection: Direction): Vector {
 		let position = new Vector(anchorA.x - anchorT.x, anchorA.y - anchorT.y)
-		let gapTranslate = getGapTranslate(this.aligner.anchorDirection, this.aligner.targetDirection, this.aligner.gaps)
+		let gapTranslate = getGapTranslate(anchorDirection, targetDirection, this.aligner.gaps)
 
 		position.addSelf(gapTranslate)
 
@@ -305,7 +306,7 @@ export class PositionComputer {
 	/** Flip align directions. */
 	private flipDirections(computed: PositionComputed, toDirection: Direction) {
 		computed.anchorFaceDirection = toDirection
-		computed.flipped = true
+		computed.target.flipped = true
 
 		if (toDirection.beHorizontal) {
 			computed.anchorDirection = computed.anchorDirection.vertical.joinWith(toDirection)
@@ -390,7 +391,6 @@ export class PositionComputer {
 				bottom: '',
 			},
 			transform: '',
-			flipped: false,
 		}
 
 		if (!fixedTriangle) {
@@ -418,16 +418,14 @@ export class PositionComputer {
 			}
 		}
 
-		let triangleSwapped = computed.anchorFaceDirection !== this.aligner.anchorFaceDirection
-		if (triangleSwapped) {
+		let triangleShouldFlip = computed.target.flipped
+		if (triangleShouldFlip) {
 			if (computed.anchorFaceDirection.beHorizontal) {
 				transforms.push('scaleX(-1)')
 			}
 			else {
 				transforms.push('scaleY(-1)')
 			}
-
-			computed.triangle.flipped = true
 		}
 			
 		if (computed.anchorFaceDirection === Direction.Top) {
