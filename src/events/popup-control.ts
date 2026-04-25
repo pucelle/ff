@@ -1,10 +1,10 @@
 import {DOMEvents} from 'lupos'
 import {Timeout} from '../tools'
-import * as MouseEventDelivery from './mouse-event-delivery'
+import * as PopupStacker from './popup-stacker'
 
 
-/** Options for mouse leave control. */
-export interface MouseLeaveControlOptions {
+/** Options for popup control. */
+export interface PopupControlOptions {
 
 	/** 
 	 * If mouse leaves all the elements and doesn't enter again during a duration
@@ -21,36 +21,14 @@ export interface MouseLeaveControlOptions {
 }
 
 
-/*
- * Assume you are programming a menu and submenu component,
- * When mouse over a menu and open a submenu, previous menu should be kept visible,
- * And after mouse leaves submenu, should hide both menu and submenu.
- * 
- * Example:
- * 	- `trigger1` cause `popup1` get popped-up, creates `controller1`.
- * 	- `trigger2` is contained by `popup1`, and cause `popup2` get popped-up, creates `controller2`.
- *  - `trigger3` is contained by `popup2`, and cause `popup3` get popped-up, creates `controller3`.
- *
- * So:
- * 	- `trigger1` cause `popup1` popped-up, `lockBy(trigger1)`, nothing happens.
- *  - Mouse leave `trigger1`, nothing happens.
- * 
- *  - `trigger2` cause `popup2` popped-up, `lockBy(trigger2)`, create lock: `controller1 <=> trigger2`.
- *  - Mouse leave `trigger2`, release lock `controller1 <=> trigger2`.
- * 
- *  - `trigger3` cause `popup3` popped-up, `lockBy(trigger3)`, create locks: `controller2 <=> trigger3` and `controller1 <=> trigger2`.
- *  - Mouse leave `trigger2`, release locks `controller2 <=> trigger3` and `controller1 <=> trigger2`.
- */
-
-
 /**
  * Calls `callback` after mouse leaves both elements
  * and all the popped-up contents for `ms` milliseconds.
  * It's useful to manage mouse leave event for menu & submenus.
  * Returns a cancel callback.
  */
-export function on(trigger: Element, popup: Element, callback: () => void, options?: MouseLeaveControlOptions): () => void {
-	let controller = new MouseLeaveController(trigger, popup, callback, options)
+export function on(trigger: Element, popup: Element, callback: () => void, options?: PopupControlOptions): () => void {
+	let controller = new PopupController(trigger, popup, callback, options)
 	return () => controller.cancel()
 }
 
@@ -61,7 +39,7 @@ export function on(trigger: Element, popup: Element, callback: () => void, optio
  * It's useful to manage mouse leave event for menu & submenus.
  * Returns a cancel callback.
  */
-export function once(trigger: Element, popup: Element, callback: () => void, options?: MouseLeaveControlOptions): () => void {
+export function once(trigger: Element, popup: Element, callback: () => void, options?: PopupControlOptions): () => void {
 	function wrappedCallback() {
 		cancel()
 		callback()
@@ -75,10 +53,10 @@ export function once(trigger: Element, popup: Element, callback: () => void, opt
 
 
 /** Manages a `trigger -> popup` pair. */
-class MouseLeaveController {
+class PopupController {
 
-	/** Whether mouse in. */
-	private entered: boolean = false
+	/** Whether mouse on popup trigger oe content. */
+	private mouseOn: boolean = false
 		
 	/** Trigger element. */
 	readonly trigger: Element
@@ -92,7 +70,7 @@ class MouseLeaveController {
 	/** Timeout to countdown time delay for calling `callback` */
 	private timeout: Timeout
 
-	constructor(trigger: Element, content: Element, callback: () => void, options: MouseLeaveControlOptions = {}) {
+	constructor(trigger: Element, content: Element, callback: () => void, options: PopupControlOptions = {}) {
 		this.trigger = trigger
 		this.content = content
 		this.callback = callback
@@ -114,25 +92,25 @@ class MouseLeaveController {
 	}
 
 	private onMouseAlreadyIn() {
-		this.entered = true
-		MouseEventDelivery.attach(this.trigger, this.content)
+		this.mouseOn = true
+		PopupStacker.onEnter(this.trigger, this.content)
 	}
 
 	private onMouseEnter() {
-		this.entered = true
+		this.mouseOn = true
 		this.timeout.cancel()
-		MouseEventDelivery.attach(this.trigger, this.content)
+		PopupStacker.onEnter(this.trigger, this.content)
 	}
 
 	private onMouseLeave() {
-		this.entered = false
+		this.mouseOn = false
 		this.timeout.reset()
-		MouseEventDelivery.halfDetach(this.trigger)
+		PopupStacker.onLeave(this.trigger)
 	}
 
 	private onDOMMouseMove(e: MouseEvent) {
 
-		if (!this.entered || !e.target) {
+		if (!this.mouseOn || !e.target) {
 			return
 		}
 
@@ -146,8 +124,8 @@ class MouseLeaveController {
 	private onTimeout() {
 
 		// Can't hide if event delivery still attaching at.
-		if (MouseEventDelivery.hasAnyDeliveredTo(this.content)) {
-			MouseEventDelivery.listenDetaching(this.trigger, this.onDeliveryReleased.bind(this))
+		if (PopupStacker.hasLocked(this.content)) {
+			PopupStacker.listenDestroy(this.trigger, this.onDeliveryReleased.bind(this))
 		}
 		else {
 			this.finish()
@@ -156,14 +134,14 @@ class MouseLeaveController {
 
 	/** After released delivering lock. */
 	private onDeliveryReleased() {
-		if (!this.entered) {
+		if (!this.mouseOn) {
 			this.finish()
 		}
 	}
 
 	/** Finish leave by calling leave callback. */
 	finish() {
-		MouseEventDelivery.detach(this.trigger)
+		PopupStacker.destroy(this.trigger)
 		this.callback()
 	}
 
@@ -176,6 +154,6 @@ class MouseLeaveController {
 		}
 
 		DOMEvents.off(document, 'mousemove', this.onDOMMouseMove, this)
-		MouseEventDelivery.detach(this.trigger)
+		PopupStacker.destroy(this.trigger)
 	}
 }
