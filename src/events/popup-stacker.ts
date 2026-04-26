@@ -185,10 +185,10 @@ export function destroy(trigger: Element) {
 			break
 		}
 
-		PopupGroups.delete(group)
-		PopupLocksMap.delete(group)
+		PopupGroups.delete(g)
+		PopupLocksMap.delete(g)
 
-		for (let callback of group.callbacks) {
+		for (let callback of g.callbacks) {
 			callback()
 		}
 	}
