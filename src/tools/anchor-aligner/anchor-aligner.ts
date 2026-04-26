@@ -75,8 +75,9 @@ export interface AnchorAlignerOptions {
 	/** 
 	 * Defines which descendant element of target,
 	 * should be used to align with anchor element.
+	 * If be a list, will try each selector until found one.
 	 */
-	targetSelectorToAlign?: string
+	targetSelector?: string | string[]
 
 	/** 
 	 * On alignment aborted.
@@ -196,9 +197,24 @@ export class AnchorAligner {
 
 	/** Get the target to align to, may be descendant element of `target`. */
 	get targetToAlign(): HTMLElement {
-		return this.options.targetSelectorToAlign
-			? this.target.querySelector(this.options.targetSelectorToAlign) ?? this.target
-			: this.target
+		if (this.options.targetSelector) {
+			if (Array.isArray(this.options.targetSelector)) {
+				for (let selector of this.options.targetSelector) {
+					let target = this.target.querySelector(selector)
+					if (target) {
+						return target as HTMLElement
+					}
+				}
+			}
+			else {
+				let target = this.target.querySelector(this.options.targetSelector)
+				if (target) {
+					return target as HTMLElement
+				}
+			}
+		}
+		
+		return this.target
 	}
 
 	/** 
