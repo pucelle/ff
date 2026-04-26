@@ -33,7 +33,7 @@ export interface AnchorAlignerOptions {
 	gaps: number | number[]
 
 	/** 
-	  * The gaps betweens target and viewport edges.
+	  * The minimum gaps betweens target and viewport edges.
 	  * Can be a number or a number array composed of 1-4 numbers,
 	  * in `top right? bottom? left?` order.
 	  * Works only when `stickToEdges` set to `true`.
@@ -54,7 +54,7 @@ export interface AnchorAlignerOptions {
 	 * If specifies as `auto`, and has one direction edges collapse, will choose this direction.
 	 * Default value is `auto`, set it to `null` to disable flipping.
 	 */
-	flipDirection: HVDirection | 'auto' | null
+	flipDirection: HVDirection | 'auto' | 'none'
 
 	/** 
 	 * The triangle element inside target,
@@ -336,7 +336,7 @@ export class AnchorAligner {
 
 	/** Whether can flip. */
 	private canFlip(): boolean {
-		let cantFlip = this.options.flipDirection === null
+		let cantFlip = this.options.flipDirection === 'none'
 			|| this.options.flipDirection === 'auto'
 				&& this.anchorFaceDirection === Direction.Center
 

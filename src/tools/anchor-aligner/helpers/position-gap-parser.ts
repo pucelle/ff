@@ -133,13 +133,13 @@ export function parseGaps(gapValue: number | number[], triangle: HTMLElement | u
 	
 	if (triangle) {
 		if (anchorFaceDirection.beVertical) {
-			gap.top += triangle.offsetHeight
-			gap.bottom += triangle.offsetHeight
+			gap.top = Math.max(gap.top, triangle.offsetHeight)
+			gap.bottom = Math.max(gap.bottom, triangle.offsetHeight)
 		}
 
 		if (anchorFaceDirection.beHorizontal) {
-			gap.right += triangle.offsetWidth
-			gap.left += triangle.offsetWidth
+			gap.right = Math.max(gap.right, triangle.offsetWidth)
+			gap.left = Math.max(gap.left, triangle.offsetWidth)
 		}
 	}
 

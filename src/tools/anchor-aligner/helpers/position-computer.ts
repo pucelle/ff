@@ -280,18 +280,17 @@ export class PositionComputer {
 		// Handle sticking to edges.
 		if (this.aligner.options.stickToEdges) {
 
-			// If align to left or right, or totally center.
-			if (!computed.anchorFaceDirection.beVertical) {
+			// Can move up a little to become fully visible.
+			if (y + h + this.aligner.edgeGaps.bottom > dh) {
+				let gap = y + h + this.aligner.edgeGaps.bottom - dh
+				h -= gap
+			}
 
-				// Can move up a little to become fully visible.
-				if (y + h + this.aligner.edgeGaps.bottom > dh) {
-					y = dh - h - this.aligner.edgeGaps.bottom
-				}
-
-				// Can move down a little to become fully visible.
-				if (y - this.aligner.edgeGaps.top < 0) {
-					y = this.aligner.edgeGaps.top
-				}
+			// Can move down a little to become fully visible.
+			if (y - this.aligner.edgeGaps.top < 0) {
+				let gap = this.aligner.edgeGaps.top - y
+				y += gap
+				h -= gap
 			}
 		}
 
@@ -359,18 +358,17 @@ export class PositionComputer {
 		// Handle sticking to edges.
 		if (this.aligner.options.stickToEdges) {
 
-			// If align to top or bottom, or totally center.
-			if (!computed.anchorFaceDirection.beHorizontal) {
+			// Move left a little to become fully visible.
+			if (x + w + this.aligner.edgeGaps.right > dw) {
+				let gap = x + w + this.aligner.edgeGaps.right - dw
+				w -= gap
+			}
 
-				// Move left a little to become fully visible.
-				if (x + w + this.aligner.edgeGaps.right > dw) {
-					x = dw - w - this.aligner.edgeGaps.right
-				}
-
-				// Move right a little to become fully visible.
-				if (x - this.aligner.edgeGaps.left < 0) {
-					x = this.aligner.edgeGaps.left
-				}
+			// Move right a little to become fully visible.
+			if (x - this.aligner.edgeGaps.left < 0) {
+				let gap = this.aligner.edgeGaps.left - x
+				x += gap
+				w -= gap
 			}
 		}
 
