@@ -78,8 +78,12 @@ export interface AnchorAlignerOptions {
 	 */
 	targetSelectorToAlign?: string
 
-	/** On alignment stop to call this. */
-	onStop?: () => void
+	/** 
+	 * On alignment aborted.
+	 * Note this is only to be called after the anchor becomes
+	 * hidden, and not to be called from manually calling `stop`.
+	 */
+	onAbort?: () => void
 }
 
 
@@ -254,6 +258,7 @@ export class AnchorAligner {
 		if (entry.contentRect.width === 0 && entry.contentRect.height === 0) {
 			this.stop()
 			this.target.remove()
+			this.options.onAbort?.()
 		}
 	}
 
@@ -262,6 +267,7 @@ export class AnchorAligner {
 		if (rect.width === 0 && rect.height === 0) {
 			this.stop()
 			this.target.remove()
+			this.options.onAbort?.()
 		}
 		else {
 			this.update()
@@ -313,7 +319,6 @@ export class AnchorAligner {
 
 		this.alignment!.reset()
 		this.alignment = null
-		this.options.onStop?.()
 	}
 
 	/** 
