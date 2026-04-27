@@ -178,8 +178,17 @@ export class AnchorAligner {
 	 */
 	flipped: boolean = false
 
+	/** 
+	 * Whether height limited.
+	 * Readonly outside.
+	 */
+	heightLimited: boolean = false
+
 	/** To do alignment. */
 	private alignment: PureCSSAnchorAlignment | MeasuredAlignment | null = null
+
+	/** To mutation dom tree change when height limited. */
+	private mutationObserver: MutationObserver | null = null
 
 	constructor(target: HTMLElement, options?: Partial<AnchorAlignerOptions>) {
 		this.target = target
@@ -290,6 +299,27 @@ export class AnchorAligner {
 		}
 	}
 
+	/** Update `mutationObserver` by `heightLimited` property. */
+	private updateMutationObserver() {
+		if (!this.heightLimited) {
+			if (this.mutationObserver) {
+				this.mutationObserver.disconnect()
+				this.mutationObserver = null
+			}
+		}
+		else {
+			if (!this.mutationObserver) {
+				this.mutationObserver = new MutationObserver(this.onMutationChange.bind(this))
+				this.mutationObserver.observe(this.target, {subtree: true, childList: true})
+			}
+		}
+	}
+
+	/** After target dom tree changed. */
+	private onMutationChange() {
+		this.update()
+	}
+
 	/** 
 	 * Update anchor alignment if in aligning.
 	 * Works only when anchor specified, not work for event mode.
@@ -306,6 +336,8 @@ export class AnchorAligner {
 		else {
 			await this.doAnchorMeasuredAlignment(this.anchor)
 		}
+
+		this.updateMutationObserver()
 	}
 
 	/** Align target to the position of a mouse event. */
@@ -335,6 +367,10 @@ export class AnchorAligner {
 
 		this.alignment!.reset()
 		this.alignment = null
+
+		this.flipped = false
+		this.heightLimited = false
+		this.updateMutationObserver()
 	}
 
 	/** 
@@ -409,6 +445,7 @@ export class AnchorAligner {
 
 		alignment.align(computed)
 		this.flipped = computed.target.flipped
+		this.heightLimited = computed.target.limitHeight !== null
 	}
 
 	/** Do alignment with events. */
