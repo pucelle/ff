@@ -225,10 +225,14 @@ export class PositionComputer {
 	 * It outputs alignment position to `targetRect`.
 	 */
 	private alignTargetVertical(computed: PositionComputed) {
-		let y = computed.target.position.y
-		let dh = document.documentElement.clientHeight
-		let spaceTop = this.anchorRect.top - this.aligner.gaps.top
-		let spaceBottom = dh - (this.anchorRect.bottom + this.aligner.gaps.bottom)
+
+		// Now transform origin to exclude edge gaps.
+		let dt = this.aligner.edgeGaps.top
+		let db = this.aligner.edgeGaps.bottom
+		let y = computed.target.position.y - dt
+		let dh = document.documentElement.clientHeight - dt - db
+		let spaceTop = this.anchorRect.top - dt
+		let spaceBottom = dh - (this.anchorRect.bottom - dt)
 		let heightLimited = false
 		let h = this.targetRect.height
 
@@ -239,9 +243,9 @@ export class PositionComputer {
 			if (computed.anchorFaceDirection === Direction.Top
 				&& this.aligner.options.flipDirection !== 'horizontal'
 			) {
-				let shouldFlip = this.aligner.flipped || (y < 0 && spaceTop < spaceBottom)
+				let shouldFlip = this.aligner.flipped || (y < 0 && spaceTop * 1.2 < spaceBottom)
 				if (shouldFlip) {
-					y = this.anchorRect.bottom + this.aligner.gaps.bottom
+					y = this.anchorRect.bottom - dt + this.aligner.gaps.bottom
 					this.flipDirections(computed, Direction.Bottom)
 				}
 			}
@@ -250,9 +254,9 @@ export class PositionComputer {
 			else if (computed.anchorFaceDirection === Direction.Bottom
 				&& this.aligner.options.flipDirection !== 'horizontal'
 			) {
-				let shouldFlip = this.aligner.flipped || (y + h > dh && spaceTop > spaceBottom)
+				let shouldFlip = this.aligner.flipped || (y + h > dh && spaceBottom * 1.2 < spaceTop)
 				if (shouldFlip) {
-					y = this.anchorRect.top - this.aligner.gaps.top - h
+					y = this.anchorRect.top - dt - this.aligner.gaps.top - h
 					this.flipDirections(computed, Direction.Top)
 				}
 			}
@@ -260,37 +264,26 @@ export class PositionComputer {
 
 		// Limit element height if has not enough space.
 		if (this.aligner.options.stickToEdges) {
-			if (computed.anchorFaceDirection === Direction.Top && y < 0) {
+			if (y < 0) {
 				y = 0
-				h = spaceTop
-				heightLimited = true
+
+				if (computed.anchorFaceDirection === Direction.Top) {
+					h = spaceTop - this.aligner.gaps.top
+					heightLimited = true
+				}
 			}
-			else if (computed.anchorFaceDirection === Direction.Bottom && y + h > dh) {
-				h = spaceBottom
-				heightLimited = true
+			else if (y + h > dh) {
+				if (computed.anchorFaceDirection === Direction.Bottom) {
+					h = spaceBottom - this.aligner.gaps.bottom
+					heightLimited = true
+				}
 			}
-			else if (!computed.anchorFaceDirection.beVertical && this.targetRect.height > dh) {
+
+			// Higher than document.
+			else if (this.targetRect.height > dh) {
 				y = 0
 				h = dh
 				heightLimited = true
-			}
-		}
-
-
-		// Handle sticking to edges.
-		if (this.aligner.options.stickToEdges) {
-
-			// Can move up a little to become fully visible.
-			if (y + h + this.aligner.edgeGaps.bottom > dh) {
-				let gap = y + h + this.aligner.edgeGaps.bottom - dh
-				h -= gap
-			}
-
-			// Can move down a little to become fully visible.
-			if (y - this.aligner.edgeGaps.top < 0) {
-				let gap = this.aligner.edgeGaps.top - y
-				y += gap
-				h -= gap
 			}
 		}
 
@@ -299,7 +292,8 @@ export class PositionComputer {
 			computed.target.limitHeight = h
 		}
 
-		computed.target.position.y = y
+		// Now transform to original origin.
+		computed.target.position.y = y + dt
 	}
 
 	/** Flip align directions. */
@@ -322,10 +316,14 @@ export class PositionComputer {
 	 * It outputs alignment position to `targetRect`.
 	 */
 	private alignTargetHorizontal(computed: PositionComputed) {
-		let x = computed.target.position.x
-		let dw = document.documentElement.clientWidth
-		let spaceLeft = this.anchorRect.left - this.aligner.gaps.left
-		let spaceRight = dw - (this.anchorRect.right + this.aligner.gaps.right)
+		
+		// Now transform origin to exclude edge gaps.
+		let dl = this.aligner.edgeGaps.left
+		let dr = this.aligner.edgeGaps.right
+		let x = computed.target.position.x - dl
+		let dw = document.documentElement.clientWidth - dl - dr
+		let spaceLeft = this.anchorRect.left - dl
+		let spaceRight = dw - (this.anchorRect.right - dl)
 		let w = this.targetRect.width
 
 		// Handle flipping.
@@ -359,20 +357,20 @@ export class PositionComputer {
 		if (this.aligner.options.stickToEdges) {
 
 			// Move left a little to become fully visible.
-			if (x + w + this.aligner.edgeGaps.right > dw) {
-				let gap = x + w + this.aligner.edgeGaps.right - dw
-				w -= gap
+			if (x + w > dw) {
+				let gap = x + w - dw
+				x -= gap
 			}
 
 			// Move right a little to become fully visible.
-			if (x - this.aligner.edgeGaps.left < 0) {
-				let gap = this.aligner.edgeGaps.left - x
+			else if (x < 0) {
+				let gap = -x
 				x += gap
-				w -= gap
 			}
 		}
 
-		computed.target.position.x = x
+		// Now transform to original origin.
+		computed.target.position.x = x + dl
 	}
 
 	/** Align `triangle` relative to target. */
