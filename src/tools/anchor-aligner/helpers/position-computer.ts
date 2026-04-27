@@ -277,6 +277,9 @@ export class PositionComputer {
 					h = spaceBottom - this.aligner.gaps.bottom
 					heightLimited = true
 				}
+				else {
+					y = dh - h
+				}
 			}
 
 			// Higher than document.
