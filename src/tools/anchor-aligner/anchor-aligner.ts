@@ -28,7 +28,9 @@ export interface AnchorAlignerOptions {
 	/** 
 	  * The gaps betweens anchor and target.
 	  * It nearly equals expanding anchor area with this value.
-	  * Can be a number or a number array composed of 1-4 numbers, in `top right? bottom? left?` order.
+	  * Can be a number or a number array composed of 1-4 numbers,
+	  * in `top right? bottom? left?` order.
+	  * Default value is `0`.
 	  */
 	gaps: number | number[]
 
@@ -37,6 +39,7 @@ export interface AnchorAlignerOptions {
 	  * Can be a number or a number array composed of 1-4 numbers,
 	  * in `top right? bottom? left?` order.
 	  * Works only when `stickToEdges` set to `true`.
+	  * Default value is `0`.
 	  */
 	edgeGaps: number | number[]
 
@@ -104,6 +107,9 @@ const DefaultAnchorAlignerOptions: AnchorAlignerOptions = {
  * Would suggest target element in `fixed` position.
  */
 export class AnchorAligner {
+
+	/** Default anchor aligner options, can be overwritten. */
+	static DefaultOptions: AnchorAlignerOptions = DefaultAnchorAlignerOptions
 	
 	/** 
 	 * Get the direction that anchor face to target.

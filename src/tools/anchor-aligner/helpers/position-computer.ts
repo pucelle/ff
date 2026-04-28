@@ -89,12 +89,28 @@ export class PositionComputer {
 		let triangleRect = this.triangle.getBoundingClientRect()
 
 		// Translate by target rect position to become relative.
-		return new DOMRect(
+		let rect = new DOMRect(
 			triangleRect.x - this.targetRect.x,
 			triangleRect.y - this.targetRect.y,
 			triangleRect.width,
 			triangleRect.height
 		)
+
+		// Eliminate previous alignment transform.
+		if (this.aligner.options.fixedTriangle) {
+			let match = this.triangle.style.transform.match(/translate(X|Y)\((-?\d+)px\)/)
+			if (match) {
+				let px = parseInt(match[2])
+				if (match[1] === 'X') {
+					rect.x -= px
+				}
+				else {
+					rect.y -= px
+				}
+			}
+		}
+
+		return rect
 	}
 
 	/** 
@@ -392,29 +408,29 @@ export class PositionComputer {
 			transform: '',
 		}
 
-		if (!fixedTriangle) {
-			if (computed.anchorFaceDirection.beVertical) {
-				let x = this.computeTrianglePosition(
-					this.targetRect.width,
-					this.anchorRect.width, this.anchorRect.x - computed.target.position.x,
-					triangleRelRect.width, triangleRelRect.x,
-					this.targetBorderLeft,
-					computed
-				)
+		if (computed.anchorFaceDirection.beVertical) {
+			let x = this.computeTrianglePosition(
+				this.targetRect.width,
+				this.anchorRect.width, this.anchorRect.x - computed.target.position.x,
+				triangleRelRect.width, triangleRelRect.x,
+				this.targetBorderLeft,
+				computed
+			)
 
-				transforms.push(`translateX(${x}px)`)
-			}
-			else if (computed.anchorFaceDirection.beHorizontal) {
-				let y = this.computeTrianglePosition(
-					this.targetRect.height,
-					this.anchorRect.height, this.anchorRect.y - computed.target.position.y,
-					triangleRelRect.height, triangleRelRect.y,
-					this.targetBorderTop,
-					computed
-				)
+			x = Math.round(x)
+			transforms.push(`translateX(${x}px)`)
+		}
+		else if (computed.anchorFaceDirection.beHorizontal) {
+			let y = this.computeTrianglePosition(
+				this.targetRect.height,
+				this.anchorRect.height, this.anchorRect.y - computed.target.position.y,
+				triangleRelRect.height, triangleRelRect.y,
+				this.targetBorderTop,
+				computed
+			)
 
-				transforms.push(`translateY(${y}px)`)
-			}
+			y = Math.round(y)
+			transforms.push(`translateY(${y}px)`)
 		}
 
 		let triangleShouldFlip = computed.target.flipped
@@ -471,7 +487,7 @@ export class PositionComputer {
 
 		// Align with center of collapse edges of anchor and target.
 		else if (computed.anchorDirection.beStraight && computed.targetDirection.beStraight) {
-			x = Math.max(0, anchorX) / 2 + Math.min(targetW, anchorX + anchorW) / 2 - triangleW / 2
+			x = (Math.max(0, anchorX) + Math.min(targetW, anchorX + anchorW)) / 2 - triangleW / 2
 		}
 
 		// Align with center of target, normally.
@@ -481,7 +497,7 @@ export class PositionComputer {
 
 		// Align with center of anchor.
 		else if (computed.anchorDirection.beStraight) {
-			x = (anchorX + anchorW) / 2 - triangleW / 2
+			x = anchorX + anchorW / 2 - triangleW / 2
 		}
 
 		// Align non-center to non-center, also choose narrower one.
@@ -490,7 +506,7 @@ export class PositionComputer {
 				x = targetW / 2 - triangleW / 2
 			}
 			else {
-				x = (anchorX + anchorW) / 2 - triangleW / 2
+				x = anchorX + anchorW / 2 - triangleW / 2
 			}
 		}
 
