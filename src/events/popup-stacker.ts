@@ -133,7 +133,7 @@ function unlockAncestors(group: PopupGroup) {
 
 /** 
  * Walk chained parental popup groups from one to it's ancestor.
- * Not include self.
+ * Not it doesn't include self.
  * If a parent have another child locked it, skip walking it.
  */
 function* walkLockedChain(child: PopupGroup): Iterable<PopupGroup> {
@@ -256,6 +256,10 @@ export function hasContainedOrPopped(triggerContainer: Element, content: Element
 	}
 
 	if (group) {
+		if (triggerContainer.contains(group.trigger)) {
+			return true
+		}
+
 		for (let g of walkLockedChain(group)) {
 			if (triggerContainer.contains(g.trigger)) {
 				return true
