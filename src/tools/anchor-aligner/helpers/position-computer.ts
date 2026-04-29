@@ -261,7 +261,7 @@ export class PositionComputer {
 			) {
 				let shouldFlip = this.aligner.flipped || (y < 0 && spaceTop * 1.2 < spaceBottom)
 				if (shouldFlip) {
-					y = this.anchorRect.bottom - dt + this.aligner.gaps.bottom
+					y = (this.anchorRect.bottom - dt) + this.aligner.gaps.bottom
 					this.flipDirections(computed, Direction.Bottom)
 				}
 			}
@@ -272,7 +272,7 @@ export class PositionComputer {
 			) {
 				let shouldFlip = this.aligner.flipped || (y + h > dh && spaceBottom * 1.2 < spaceTop)
 				if (shouldFlip) {
-					y = this.anchorRect.top - dt - this.aligner.gaps.top - h
+					y = (this.anchorRect.top - dt) - this.aligner.gaps.top - h
 					this.flipDirections(computed, Direction.Top)
 				}
 			}
@@ -354,7 +354,7 @@ export class PositionComputer {
 			) {
 				let shouldFlip = this.aligner.flipped || (x < 0 && spaceLeft < spaceRight)
 				if (shouldFlip) {
-					x = this.anchorRect.right + this.aligner.gaps.right
+					x = (this.anchorRect.right - dl) + this.aligner.gaps.right
 					computed.target.position.x = this.anchorRect.right
 					this.flipDirections(computed, Direction.Right)
 				}
@@ -366,7 +366,7 @@ export class PositionComputer {
 			) {
 				let shouldFlip = this.aligner.flipped || (x > dw - w && spaceLeft > spaceRight)
 				if (shouldFlip) {
-					x = this.anchorRect.left - this.aligner.gaps.left - w
+					x = (this.anchorRect.left - dl) - this.aligner.gaps.left - w
 					this.flipDirections(computed, Direction.Left)
 				}
 			}
@@ -483,6 +483,17 @@ export class PositionComputer {
 		// In fixed position.
 		if (this.aligner.options.fixedTriangle) {
 			x = triangleX
+
+			// If align to anchor left, will adjust triangle by anchor edges.
+			if (!computed.anchorDirection.beStraight) {
+				let anchorDirectionSecondary = computed.anchorDirection.exclude(computed.anchorFaceDirection)
+				if (anchorDirectionSecondary === Direction.Left || anchorDirectionSecondary === Direction.Top) {
+					x += anchorX
+				}
+				else {
+					x += targetW - (anchorX + anchorW)
+				}
+			}
 		}
 
 		// Align with center of collapse edges of anchor and target.
@@ -518,6 +529,11 @@ export class PositionComputer {
 		x = Math.min(x, maxX)
 
 		x -= borderW
+
+		// Exclude default styled position from fixed triangle.
+		if (this.aligner.options.fixedTriangle) {
+			x -= triangleX
+		}
 
 		return x
 	}

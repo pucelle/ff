@@ -572,6 +572,22 @@ export class Direction {
 		return Direction.fromVector(joint)
 	}
 
+	/** Exclude direction components from target direction if have same components at directions. */
+	exclude(direction: Direction): Direction {
+		let v1 = this.toVector()
+		let v2 = direction.toVector()
+
+		if (v1.x === v2.x && v1.x !== 0) {
+			v1.x = 0
+		}
+
+		if (v1.y === v2.y && v1.y !== 0) {
+			v1.y = 0
+		}
+
+		return Direction.fromVector(v1)
+	}
+
 	/** 
 	 * Whether direction and current are the opposite.
 	 * Both `None` and `Center` are the opposite of themselves.

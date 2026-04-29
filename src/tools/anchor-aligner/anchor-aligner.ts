@@ -30,6 +30,7 @@ export interface AnchorAlignerOptions {
 	  * It nearly equals expanding anchor area with this value.
 	  * Can be a number or a number array composed of 1-4 numbers,
 	  * in `top right? bottom? left?` order.
+	  * If has only one number, will only work between anchor and target.
 	  * Default value is `0`.
 	  */
 	gaps: number | number[]

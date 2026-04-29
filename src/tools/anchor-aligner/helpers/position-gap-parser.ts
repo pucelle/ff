@@ -115,11 +115,21 @@ export function parseGaps(gapValue: number | number[], triangle: HTMLElement | u
 	let gap: AnchorGaps
 
 	if (typeof gapValue === 'number') {
-		gap = {
-			top: gapValue,
-			right: gapValue,
-			bottom: gapValue,
-			left: gapValue,
+		if (anchorFaceDirection.beVertical) {
+			gap = {
+				top: gapValue,
+				right: 0,
+				bottom: gapValue,
+				left: 0,
+			}
+		}
+		else {
+			gap = {
+				top: 0,
+				right: gapValue,
+				bottom: 0,
+				left: gapValue,
+			}
 		}
 	}
 	else {
@@ -131,15 +141,16 @@ export function parseGaps(gapValue: number | number[], triangle: HTMLElement | u
 		}
 	}
 	
+	// Triangle increase the minimum size of gaps.
 	if (triangle) {
 		if (anchorFaceDirection.beVertical) {
-			gap.top = Math.max(gap.top, triangle.offsetHeight)
-			gap.bottom = Math.max(gap.bottom, triangle.offsetHeight)
+			gap.top += triangle.offsetHeight
+			gap.bottom += triangle.offsetHeight
 		}
 
 		if (anchorFaceDirection.beHorizontal) {
-			gap.right = Math.max(gap.right, triangle.offsetWidth)
-			gap.left = Math.max(gap.left, triangle.offsetWidth)
+			gap.right += triangle.offsetWidth
+			gap.left += triangle.offsetWidth
 		}
 	}
 
