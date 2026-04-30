@@ -257,7 +257,7 @@ export class AnchorAligner {
 		// Barrier DOM Reading here.
 		await barrierDOMReading()
 		this.gaps = parseGaps(newOptions.gaps, newOptions.triangle, this.anchorFaceDirection)
-		this.edgeGaps = parseGaps(newOptions.edgeGaps, newOptions.triangle, this.anchorFaceDirection)
+		this.edgeGaps = parseGaps(newOptions.edgeGaps, newOptions.triangle, Direction.Center)
 
 		if (oldOptionsSpecified && this.anchor && this.aligning) {
 			this.update()

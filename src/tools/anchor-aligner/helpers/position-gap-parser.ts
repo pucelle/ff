@@ -123,11 +123,19 @@ export function parseGaps(gapValue: number | number[], triangle: HTMLElement | u
 				left: 0,
 			}
 		}
-		else {
+		else if (anchorFaceDirection.beHorizontal) {
 			gap = {
 				top: 0,
 				right: gapValue,
 				bottom: 0,
+				left: gapValue,
+			}
+		}
+		else {
+			gap = {
+				top: gapValue,
+				right: gapValue,
+				bottom: gapValue,
 				left: gapValue,
 			}
 		}

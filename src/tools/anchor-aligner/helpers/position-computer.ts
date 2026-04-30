@@ -284,13 +284,13 @@ export class PositionComputer {
 				y = 0
 
 				if (computed.anchorFaceDirection === Direction.Top) {
-					h = spaceTop
+					h = spaceTop - this.aligner.gaps.top
 					heightLimited = true
 				}
 			}
 			else if (y + h > dh) {
 				if (computed.anchorFaceDirection === Direction.Bottom) {
-					h = spaceBottom
+					h = spaceBottom - this.aligner.gaps.bottom
 					heightLimited = true
 				}
 				else {
