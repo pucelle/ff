@@ -159,11 +159,12 @@ export function* lazyMap<T, V>(list: Iterable<T>, map: (value: T) => V): Iterabl
  * Create an index map in `K => V` format.
  * @param pairFn get key and value pair by it.
  */
-export function indexToMap<T, K, V>(list: Iterable<T>, pairFn: (value: T) => [K, V]): Map<K, V> {
+export function indexToMap<T, K, V>(list: Iterable<T>, pairFn: (value: T, index: number) => [K, V]): Map<K, V> {
 	let map: Map<K, V> = new Map()
+	let index = 0
 
 	for (let item of list) {
-		let [key, value] = pairFn(item)
+		let [key, value] = pairFn(item, index++)
 		map.set(key, value)
 	}
 
@@ -175,11 +176,12 @@ export function indexToMap<T, K, V>(list: Iterable<T>, pairFn: (value: T) => [K,
  * Create an index object in `K => V` format.
  * @param pairFn get key and value pair by it.
  */
-export function indexToObject<T, K extends keyof any, V>(list: Iterable<T>, pairFn: (value: T) => [K, V]): Record<K, V> {
+export function indexToObject<T, K extends keyof any, V>(list: Iterable<T>, pairFn: (value: T, index: number) => [K, V]): Record<K, V> {
 	let map: Record<K, V> = {} as any
+	let index = 0
 
 	for (let item of list) {
-		let [key, value] = pairFn(item)
+		let [key, value] = pairFn(item, index++)
 		map[key] = value
 	}
 
@@ -191,11 +193,12 @@ export function indexToObject<T, K extends keyof any, V>(list: Iterable<T>, pair
  * Create a group map in `K => V[]` format, just like SQL `group by` statement.
  * @param pairFn get key and value pair by it.
  */
-export function groupToMap<T, K, V>(list: Iterable<T>, pairFn: (value: T) => [K, V]): Map<K, V[]> {
+export function groupToMap<T, K, V>(list: Iterable<T>, pairFn: (value: T, index: number) => [K, V]): Map<K, V[]> {
 	let map: Map<K, V[]> = new Map()
+	let index = 0
 
 	for (let item of list) {
-		let [key, value] = pairFn(item)
+		let [key, value] = pairFn(item, index++)
 
 		let group = map.get(key)
 		if (!group) {
@@ -214,11 +217,12 @@ export function groupToMap<T, K, V>(list: Iterable<T>, pairFn: (value: T) => [K,
  * Create a group object in `K => V[]` format, just like SQL `group by` statement.
  * @param pairFn get key and value pair by it.
  */
-export function groupToObject<T, K extends keyof any, V>(list: Iterable<T>, pairFn: (value: T) => [K, V]): Record<K, V[]> {
+export function groupToObject<T, K extends keyof any, V>(list: Iterable<T>, pairFn: (value: T, index: number) => [K, V]): Record<K, V[]> {
 	let map: Record<K, V[]> = {} as any
+	let index = 0
 
 	for (let item of list) {
-		let [key, value] = pairFn(item)
+		let [key, value] = pairFn(item, index++)
 
 		let group = map[key]
 		if (!group) {
