@@ -48,11 +48,11 @@ export class PositionComputer {
 	private targetBorderTop: number
 	private targetBorderLeft: number
 
-	constructor(aligner: AnchorAligner, anchorRect: DOMRect) {
+	constructor(aligner: AnchorAligner, anchorRect: DOMRect, anchorRectToAlign: DOMRect = anchorRect) {
 		this.aligner = aligner
 		this.target = aligner.target
 		this.triangle = aligner.options.triangle
-		this.anchorRect = anchorRect
+		this.anchorRect = this.computeRectToAlign(anchorRect, anchorRectToAlign)
 		this.targetRect = aligner.target.getBoundingClientRect()
 		this.targetRectToAlign = this.computeTargetRectToAlign()
 		this.triangleRelRect = this.getTriangleRelRect()
@@ -70,14 +70,23 @@ export class PositionComputer {
 		}
 		else {
 			let alignRect = targetToAlign.getBoundingClientRect()
-			let faceHV = this.aligner.anchorFaceDirection.hvDirection
-
-			if (faceHV !== null) {
-				alignRect = Box.fromLike(alignRect).unionAtHVSelf(Box.fromLike(this.targetRect), faceHV)
-			}
-
-			return alignRect
+			return this.computeRectToAlign(this.targetRect, alignRect)
 		}
+	}
+
+	/** Compute a new rect by extending `toAlignRect` at face direction and it's opposite. */
+	private computeRectToAlign(containerRect: DOMRect, toAlignRect: DOMRect): DOMRect {
+		if (containerRect === toAlignRect) {
+			return containerRect
+		}
+		
+		let faceHV = this.aligner.anchorFaceDirection.hvDirection
+
+		if (faceHV !== null) {
+			toAlignRect = Box.fromLike(toAlignRect).unionAtHVSelf(Box.fromLike(containerRect), faceHV)
+		}
+
+		return toAlignRect
 	}
 
 	/** Get triangle rect based on target origin. */

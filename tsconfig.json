@@ -1,6 +1,7 @@
 {
 	"compilerOptions": {
 		"preserveSymlinks": true,
+		"skipLibCheck": true,
 		"module": "ESNext",
 		"moduleResolution": "Bundler",
 		"target": "ES2024",

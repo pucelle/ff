@@ -77,9 +77,16 @@ export interface AnchorAlignerOptions {
 	fixedTriangle: boolean
 
 	/** 
+	 * Defines which descendant element of anchor,
+	 * should be used to align with target element.
+	 * If is a list, will try each selector until found one.
+	 */
+	anchorSelector?: string | string[]
+
+	/** 
 	 * Defines which descendant element of target,
 	 * should be used to align with anchor element.
-	 * If be a list, will try each selector until found one.
+	 * If is a list, will try each selector until found one.
 	 */
 	targetSelector?: string | string[]
 
@@ -212,25 +219,35 @@ export class AnchorAligner {
 	}
 
 	/** Get the target to align to, may be descendant element of `target`. */
-	get targetToAlign(): HTMLElement {
-		if (this.options.targetSelector) {
-			if (Array.isArray(this.options.targetSelector)) {
-				for (let selector of this.options.targetSelector) {
-					let target = this.target.querySelector(selector)
+	get anchorToAlign(): Element {
+		return this.getThatToAlign(this.anchor!, this.options.anchorSelector)
+	}
+
+	/** Get the target to align to, may be descendant element of `target`. */
+	get targetToAlign(): Element {
+		return this.getThatToAlign(this.target, this.options.targetSelector)
+	}
+
+	/** Get the element to align to, may be descendant element of this element by selector. */
+	private getThatToAlign(el: Element, selector: string | string[] | undefined): Element {
+		if (selector) {
+			if (Array.isArray(selector)) {
+				for (let sel of selector) {
+					let target = el.querySelector(sel)
 					if (target) {
 						return target as HTMLElement
 					}
 				}
 			}
 			else {
-				let target = this.target.querySelector(this.options.targetSelector)
+				let target = el.querySelector(selector)
 				if (target) {
 					return target as HTMLElement
 				}
 			}
 		}
 		
-		return this.target
+		return el
 	}
 
 	/** 
@@ -341,7 +358,7 @@ export class AnchorAligner {
 			await this.doPureCSSAnchorAlignment()
 		}
 		else {
-			await this.doAnchorMeasuredAlignment(this.anchor)
+			await this.doAnchorMeasuredAlignment()
 		}
 
 		this.updateMutationObserver()
@@ -431,7 +448,7 @@ export class AnchorAligner {
 	}
 
 	/** Do alignment with measurements and re-syncing positions. */
-	private async doAnchorMeasuredAlignment(anchor: Element) {
+	private async doAnchorMeasuredAlignment() {
 		let alignment = await this.updateAlignment(AnchorAlignmentType.Measured)
 		alignment.resetBeforeAlign()
 
@@ -440,11 +457,14 @@ export class AnchorAligner {
 
 		// Do position computation.
 		// For `<html>`, always use viewport rect.
-		let anchorRect = anchor === document.documentElement
+		let anchorRect = this.anchor === document.documentElement
 			? new DOMRect(0, 0, document.documentElement.clientWidth, document.documentElement.clientHeight)
-			: anchor.getBoundingClientRect()
+			: this.anchor!.getBoundingClientRect()
 
-		let computer = new PositionComputer(this, anchorRect)
+		let anchorToAlign = this.anchorToAlign
+		let anchorRectToAlign = anchorToAlign === this.anchor ? anchorRect : anchorToAlign.getBoundingClientRect()
+
+		let computer = new PositionComputer(this, anchorRect, anchorRectToAlign)
 		let computed = await computer.compute()
 
 		// Barrier DOM Writing here.
