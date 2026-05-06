@@ -291,7 +291,7 @@ export class Order<T> {
 	 */
 	readonly orders: NormativeOrderRule<T>[] = []
 
-	constructor(...orders: OrderRule<T>[]) {
+	constructor(...orders: (OrderKey<T> | OrderFunction<T> | OrderRule<T>)[]) {
 		for (let order of orders) {
 			if (typeof order === 'object') {
 				this.orders.push({
@@ -475,7 +475,7 @@ export class Order<T> {
  * Sort `list` inside it's memory space, by specified orders.
  * Multiple order rules can be specified.
  */
-export function orderBy<T>(list: T[], ...orders: OrderRule<T>[]): T[] {
+export function orderBy<T>(list: T[], ...orders: (OrderKey<T> | OrderFunction<T> | OrderRule<T>)[]): T[] {
 	let order = new Order(...orders)
 	order.sort(list)
 
@@ -487,7 +487,7 @@ export function orderBy<T>(list: T[], ...orders: OrderRule<T>[]): T[] {
  * Sort `list` by specified orders and return a new list.
  * Multiple order rules can be specified.
  */
-export function toOrdered<T>(list: T[], ...orders: OrderRule<T>[]): T[] {
+export function toOrdered<T>(list: T[], ...orders: (OrderKey<T> | OrderFunction<T> | OrderRule<T>)[]): T[] {
 	let order = new Order(...orders)
 	return order.toSorted(list)
 }
