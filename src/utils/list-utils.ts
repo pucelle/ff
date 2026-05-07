@@ -795,3 +795,48 @@ export function quickBinaryFind<T>(sortedList: ArrayLike<T>, fn: (v: T) => numbe
 	return sortedList[index]
 }
 
+
+/** Async version of array map. */
+export async function asyncMap<I, V>(items: I[], map: (item: I, index: number) => Promise<V>): Promise<V[]> {
+	return await Promise.all(
+		items.map(map)
+	)
+}
+
+
+/** Async version of array filter. */
+export async function asyncFilter<I>(items: I[], filter: (item: I, index: number) => Promise<any>): Promise<I[]> {
+	let mapped = await Promise.all(
+		items.map(filter)
+	)
+
+	let filtered: I[] = []
+
+	for (let i = 0; i < mapped.length; i++) {
+		if (mapped[i]) {
+			filtered.push(items[i])
+		}
+	}
+
+	return filtered
+}
+
+
+/** Async version of array some. */
+export async function asyncSome<I>(items: I[], test: (item: I, index: number) => Promise<any>): Promise<boolean> {
+	let mapped = await Promise.all(
+		items.map(test)
+	)
+
+	return mapped.some(v => v)
+}
+
+
+/** Async version of array every. */
+export async function asyncEvery<I>(items: I[], test: (item: I, index: number) => Promise<any>): Promise<boolean> {
+	let mapped = await Promise.all(
+		items.map(test)
+	)
+
+	return mapped.every(v => v)
+}
