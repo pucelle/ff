@@ -237,7 +237,10 @@ export function groupToObject<T, K extends keyof any, V>(list: Iterable<T>, pair
 }
 
 
-/** Ordering direction, `-1` to sort items from larger to smaller, while `1` to sort items from smaller to larger. */
+/** 
+ * Ordering direction, `-1` / `desc` to sort items from larger to smaller,
+ * while `1` / `asc` to sort items from smaller to larger.
+ */
 export type OrderDirection = -1 | 1 | 'asc' | 'desc'
 
 /** Ordering function that map each item to a sortable string or number. */
@@ -291,15 +294,20 @@ export class Order<T> {
 	 */
 	readonly orders: NormativeOrderRule<T>[] = []
 
-	constructor(...orders: (OrderKey<T> | OrderFunction<T> | OrderRule<T>)[]) {
+	constructor(...orders: (OrderKey<T> | OrderFunction<T> | OrderRule<T> | Order<T>)[]) {
 		for (let order of orders) {
 			if (typeof order === 'object') {
-				this.orders.push({
-					fn: this.normalizeOrderKey(order.by), 
-					direction: this.normalizeOrderDirection(order.direction),
-					numeric: order.numeric ?? false,
-					ignoreCase: order.ignoreCase ?? false,
-				})
+				if (order instanceof Order) {
+					this.orders.push(...order.orders)
+				}
+				else {
+					this.orders.push({
+						fn: this.normalizeOrderKey(order.by), 
+						direction: this.normalizeOrderDirection(order.direction),
+						numeric: order.numeric ?? false,
+						ignoreCase: order.ignoreCase ?? false,
+					})
+				}
 			}
 			else {
 				this.orders.push({
@@ -475,7 +483,7 @@ export class Order<T> {
  * Sort `list` inside it's memory space, by specified orders.
  * Multiple order rules can be specified.
  */
-export function orderBy<T>(list: T[], ...orders: (OrderKey<T> | OrderFunction<T> | OrderRule<T>)[]): T[] {
+export function orderBy<T>(list: T[], ...orders: (OrderKey<T> | OrderFunction<T> | OrderRule<T> | Order<T>)[]): T[] {
 	let order = new Order(...orders)
 	order.sort(list)
 
@@ -487,7 +495,7 @@ export function orderBy<T>(list: T[], ...orders: (OrderKey<T> | OrderFunction<T>
  * Sort `list` by specified orders and return a new list.
  * Multiple order rules can be specified.
  */
-export function toOrdered<T>(list: T[], ...orders: (OrderKey<T> | OrderFunction<T> | OrderRule<T>)[]): T[] {
+export function toOrdered<T>(list: T[], ...orders: (OrderKey<T> | OrderFunction<T> | OrderRule<T> | Order<T>)[]): T[] {
 	let order = new Order(...orders)
 	return order.toSorted(list)
 }
