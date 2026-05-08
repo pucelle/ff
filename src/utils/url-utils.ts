@@ -39,3 +39,12 @@ export function useQuery(url: string, params: Record<string, string | number>): 
 export function removeQuery(url: string): string {
 	return url.replace(/\?.+/, '')
 }
+
+
+/** 
+ * Join path parts.
+ * Result always starts with '/'.
+ */
+export function join(...parts: (string | number)[]) {
+	return '/' + parts.filter(v => v).join('/')
+}
