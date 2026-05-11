@@ -45,6 +45,6 @@ export function removeQuery(url: string): string {
  * Join path parts.
  * Result always starts with '/'.
  */
-export function join(...parts: (string | number)[]): string {
+export function joinPath(...parts: (string | number)[]): string {
 	return ('/' + parts.filter(v => v).join('/')).replace(/\/\//g, '/')
 }
