@@ -113,11 +113,7 @@ export class ListMap<K, V> implements MethodsObserved<
 	 * Note it will not validate whether value exist,
 	 * and will add value repeatedly although it exists.
 	 */
-	addSeveral(k: K, vs: V[]) {
-		if (vs.length === 0) {
-			return
-		}
-
+	addSeveral(k: K, vs: Iterable<V>) {
 		let values = this.map.get(k)
 		if (!values) {
 			values = [...vs]
@@ -147,11 +143,7 @@ export class ListMap<K, V> implements MethodsObserved<
 	 * Add a key and a value.
 	 * Note it will validate whether value exist, and ignore if value exists.
 	 */
-	addSeveralIf(k: K, vs: V[]) {
-		if (vs.length === 0) {
-			return
-		}
-
+	addSeveralIf(k: K, vs: Iterable<V>) {
 		let values = this.map.get(k)
 		if (!values) {
 			values = []
@@ -317,11 +309,7 @@ export class SetMap<K, V> implements MethodsObserved<
 	}
 
 	/** Add a key and several values. */
-	addSeveral(k: K, vs: V[]) {
-		if (vs.length === 0) {
-			return
-		}
-
+	addSeveral(k: K, vs: Iterable<V>) {
 		let values = this.map.get(k)
 		if (!values) {
 			values = new Set(vs)
@@ -708,11 +696,7 @@ export class PairKeysListMap<K1, K2, V> implements MethodsObserved<
 	}
 
 	/** Add a key pair and several values. */
-	addSeveral(k1: K1, k2: K2, vs: V[]) {
-		if (vs.length === 0) {
-			return
-		}
-		
+	addSeveral(k1: K1, k2: K2, vs: Iterable<V>) {
 		let sub = this.map.get(k1)
 		if (!sub) {
 			sub = new ListMap()
@@ -734,11 +718,7 @@ export class PairKeysListMap<K1, K2, V> implements MethodsObserved<
 	}
 
 	/** Add a key pair and several values. */
-	addSeveralIf(k1: K1, k2: K2, vs: V[]) {
-		if (vs.length === 0) {
-			return
-		}
-
+	addSeveralIf(k1: K1, k2: K2, vs: Iterable<V>) {
 		let sub = this.map.get(k1)
 		if (!sub) {
 			sub = new ListMap()
@@ -961,11 +941,7 @@ export class PairKeysSetMap<K1, K2, V> implements MethodsObserved<
 	}
 
 	/** Add a key pair and several values. */
-	addSeveral(k1: K1, k2: K2, vs: V[]) {
-		if (vs.length === 0) {
-			return
-		}
-		
+	addSeveral(k1: K1, k2: K2, vs: Iterable<V>) {
 		let sub = this.map.get(k1)
 		if (!sub) {
 			sub = new SetMap()
