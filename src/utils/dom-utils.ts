@@ -238,3 +238,55 @@ export function isRectIntersectWithViewport(rect: DOMRect): boolean {
 
 	return true
 }
+
+
+/** 
+ * Select one descendant element.
+ * If failed to select, returns `el`.
+ */
+export function quickSelect(el: Element, selector: string | string[] | undefined): Element {
+	if (selector) {
+		if (Array.isArray(selector)) {
+			for (let sel of selector) {
+				let target = el.querySelector(sel)
+				if (target) {
+					return target as HTMLElement
+				}
+			}
+		}
+		else {
+			let target = el.querySelector(selector)
+			if (target) {
+				return target as HTMLElement
+			}
+		}
+	}
+	
+	return el
+}
+
+
+/** 
+ * Select one ancestral element.
+ * If failed to select, returns `el`.
+ */
+export function quickClosest(el: Element, selector: string | string[] | undefined): Element {
+	if (selector) {
+		if (Array.isArray(selector)) {
+			for (let sel of selector) {
+				let target = el.closest(sel)
+				if (target) {
+					return target as HTMLElement
+				}
+			}
+		}
+		else {
+			let target = el.closest(selector)
+			if (target) {
+				return target as HTMLElement
+			}
+		}
+	}
+	
+	return el
+}

@@ -1,5 +1,5 @@
 import {Direction, HVDirection} from '../../math'
-import {ObjectUtils} from '../../utils'
+import {DOMUtils, ObjectUtils} from '../../utils'
 import {RectWatcher, ResizeWatcher} from '../../watchers'
 import {MeasuredAlignment} from './measured-alignment'
 import {PositionComputer} from './helpers/position-computer'
@@ -220,34 +220,12 @@ export class AnchorAligner {
 
 	/** Get the target to align to, may be descendant element of `target`. */
 	get anchorToAlign(): Element {
-		return this.getThatToAlign(this.anchor!, this.options.anchorSelector)
+		return DOMUtils.quickSelect(this.anchor!, this.options.anchorSelector)
 	}
 
 	/** Get the target to align to, may be descendant element of `target`. */
 	get targetToAlign(): Element {
-		return this.getThatToAlign(this.target, this.options.targetSelector)
-	}
-
-	/** Get the element to align to, may be descendant element of this element by selector. */
-	private getThatToAlign(el: Element, selector: string | string[] | undefined): Element {
-		if (selector) {
-			if (Array.isArray(selector)) {
-				for (let sel of selector) {
-					let target = el.querySelector(sel)
-					if (target) {
-						return target as HTMLElement
-					}
-				}
-			}
-			else {
-				let target = el.querySelector(selector)
-				if (target) {
-					return target as HTMLElement
-				}
-			}
-		}
-		
-		return el
+		return DOMUtils.quickSelect(this.target, this.options.targetSelector)
 	}
 
 	/** 
