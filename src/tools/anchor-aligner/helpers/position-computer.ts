@@ -1,8 +1,9 @@
-import {Box, Coord, Direction, Vector} from '../../../math'
+import {Coord, Direction, Vector} from '../../../math'
 import {DOMUtils} from '../../../utils'
 import {barrierDOMReading, barrierDOMWriting} from 'lupos'
 import {AnchorAligner} from '../anchor-aligner'
 import {getAnchorPointAt, getGapTranslate, getRelativeAnchorPointAt} from './position-gap-parser'
+import {computeReAnchoredOrTargetedRect} from './target-aligner'
 
 
 /** Includes target and triangle position. */
@@ -43,7 +44,7 @@ export class PositionComputer {
 	private triangle: HTMLElement | undefined
 	private anchorRect: DOMRect
 	private targetRect: DOMRect
-	private targetRectToAlign: DOMRect
+	private reTargetedRect: DOMRect
 	private triangleRelRect: DOMRect | null
 	private targetBorderTop: number
 	private targetBorderLeft: number
@@ -52,9 +53,17 @@ export class PositionComputer {
 		this.aligner = aligner
 		this.target = aligner.target
 		this.triangle = aligner.options.triangle
-		this.anchorRect = this.computeRectToAlign(anchorRect, anchorRectToAlign)
+
+		this.anchorRect = computeReAnchoredOrTargetedRect(
+			anchorRect,
+			anchorRectToAlign,
+			this.aligner.anchorFaceDirection.hvDirection,
+			this.aligner.reAnchorExpanded
+		)
+
 		this.targetRect = aligner.target.getBoundingClientRect()
-		this.targetRectToAlign = this.computeTargetRectToAlign()
+		this.reTargetedRect = this.computeReTargetedRect()
+
 		this.triangleRelRect = this.getTriangleRelRect()
 
 		let targetStyle = getComputedStyle(aligner.target)
@@ -63,30 +72,21 @@ export class PositionComputer {
 	}
 
 	/** Must after setting `this.targetRect`. */
-	private computeTargetRectToAlign() {
-		let targetToAlign = this.aligner.targetToAlign
-		if (targetToAlign === this.aligner.target) {
+	private computeReTargetedRect(): DOMRect {
+		let reTargeted = this.aligner.reTargeted
+		if (reTargeted === this.aligner.target) {
 			return this.targetRect
 		}
 		else {
-			let alignRect = targetToAlign.getBoundingClientRect()
-			return this.computeRectToAlign(this.targetRect, alignRect)
+			let reRect = reTargeted.getBoundingClientRect()
+			
+			return computeReAnchoredOrTargetedRect(
+				this.targetRect,
+				reRect,
+				this.aligner.anchorFaceDirection.hvDirection,
+				this.aligner.reTargetExpanded
+			)
 		}
-	}
-
-	/** Compute a new rect by extending `toAlignRect` at face direction and it's opposite. */
-	private computeRectToAlign(containerRect: DOMRect, toAlignRect: DOMRect): DOMRect {
-		if (containerRect === toAlignRect) {
-			return containerRect
-		}
-		
-		let faceHV = this.aligner.anchorFaceDirection.hvDirection
-
-		if (faceHV !== null) {
-			toAlignRect = Box.fromLike(toAlignRect).unionAtHVSelf(Box.fromLike(containerRect), faceHV)
-		}
-
-		return toAlignRect
 	}
 
 	/** Get triangle rect based on target origin. */
@@ -208,7 +208,7 @@ export class PositionComputer {
 			// Barrier DOM Reading here.
 			await barrierDOMReading()
 			this.targetRect = this.target.getBoundingClientRect()
-			this.targetRectToAlign = this.computeTargetRectToAlign()
+			this.reTargetedRect = this.computeReTargetedRect()
 
 			targetPoint = this.getTargetRelativeAnchorPoint(computed.targetDirection)
 
@@ -225,7 +225,7 @@ export class PositionComputer {
 
 	/** Get relative anchor position in the origin of target. */
 	private getTargetRelativeAnchorPoint(targetDirection: Direction): Coord {
-		let point = getRelativeAnchorPointAt(this.targetRect, this.targetRectToAlign, targetDirection)
+		let point = getRelativeAnchorPointAt(this.targetRect, this.reTargetedRect, targetDirection)
 		return point
 	}
 

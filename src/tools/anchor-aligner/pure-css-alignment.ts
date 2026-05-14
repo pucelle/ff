@@ -25,7 +25,7 @@ export class PureCSSAnchorAlignment {
 	/** Can only write to dom properties after initialized. */
 	constructor(aligner: AnchorAligner) {
 		this.aligner = aligner
-		this.anchor = aligner.anchor as HTMLElement
+		this.anchor = aligner.reAnchored as HTMLElement
 		this.target = this.aligner.target
 
 		let anchorName = getElementAnchorName(this.anchor)

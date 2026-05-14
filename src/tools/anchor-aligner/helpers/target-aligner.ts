@@ -1,3 +1,4 @@
+import {Box, HVDirection} from '../../../math'
 import {AnchorAligner} from '../anchor-aligner'
 
 
@@ -23,4 +24,18 @@ export function deleteTargetAlignerMap(target: Element, aligner: AnchorAligner) 
 
 export function isTargetUsingByAligner(target: Element, aligner: AnchorAligner) {
 	return TargetAlignerMap.get(target) === aligner
+}
+
+/** Compute a new rect by extending `toAlignRect` at face direction and it's opposite. */
+export function computeReAnchoredOrTargetedRect(containerRect: DOMRect, reRect: DOMRect, hvDirection: HVDirection | null, willExpand: boolean): DOMRect {
+	if (containerRect === reRect) {
+		return containerRect
+	}
+	
+	let faceHV = hvDirection
+	if (faceHV !== null && willExpand) {
+		reRect = Box.fromLike(reRect).unionAtHVSelf(Box.fromLike(containerRect), faceHV)
+	}
+
+	return reRect
 }
