@@ -5,6 +5,7 @@ export * from './mixin'
 
 export * as DateUtils from './date-utils'
 export * as DOMUtils from './dom-utils'
+export * as CSSUtils from './css-utils'
 export * as ScrollUtils from './scroll-utils'
 export * as EventUtils from './event-utils'
 export * as HTMLUtils from './html-utils'
