@@ -15,12 +15,20 @@ export function getNewElementAnchorName(): string {
 	return '--anchor-' + (ElementAnchorNameSeed++)
 }
 
+/** 
+ * Set anchor element with it's reference alignments.
+ * One anchor element may have multiple references.
+ */
 export function setElementAnchorName(el: HTMLElement, name: string, refBy: PureCSSAnchorAlignment) {
 	el.style.setProperty('anchor-name', name)
 	ElementAnchorNameMap.set(el, name)
 	ElementAnchorReferenceBy.add(el, refBy)
 }
 
+/** 
+ * Delete anchor element with it's reference alignments.
+ * Only after all references cleared, the anchor-name will be cleared.
+ */
 export function deleteElementAnchorName(el: HTMLElement, refBy: PureCSSAnchorAlignment) {
 	ElementAnchorReferenceBy.delete(el, refBy)
 

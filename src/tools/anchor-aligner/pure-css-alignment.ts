@@ -29,11 +29,11 @@ export class PureCSSAnchorAlignment {
 		this.target = this.aligner.target
 
 		let anchorName = getElementAnchorName(this.anchor)
-		
 		if (!anchorName) {
 			anchorName = this.aligner.options.name || getNewElementAnchorName()
-			setElementAnchorName(this.anchor, anchorName, this)
 		}
+		
+		setElementAnchorName(this.anchor, anchorName, this)
 
 		this.anchorName = anchorName
 		this.target.style.setProperty('position-anchor', this.anchorName)
