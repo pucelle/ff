@@ -531,7 +531,7 @@ export class PositionComputer {
 		}
 
 		// Limit to the intersect edge of content and anchors.
-		let minX = Math.max(0, anchorX)
+		let minX = Math.max(0, anchorX - triangleW / 2)
 		let maxX = Math.min(targetW - triangleW / 2, anchorX + anchorW - triangleW / 2)
 
 		x = Math.max(x, minX)
