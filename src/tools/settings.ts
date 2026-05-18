@@ -9,8 +9,11 @@ import {webStorage} from './storage'
  */
 export abstract class Settings<O extends object> implements Observed {
 
-	private readonly defaultData: UnObserved<O>
-	protected data: Partial<O>
+	readonly defaultData: UnObserved<O>
+
+	/** Current data, readonly outside. */
+	data: Partial<O>
+
 	protected saveBundler: EmptyBundler
 
 	constructor(data: Partial<O>, defaultData: O) {
@@ -18,11 +21,6 @@ export abstract class Settings<O extends object> implements Observed {
 		this.defaultData = defaultData
 
 		this.saveBundler = new EmptyBundler(this.saveStorageData.bind(this))
-	}
-
-	/** Get initial data. */
-	getData(): Partial<O> {
-		return this.data
 	}
 
 	/** Get full data fulfilled by default data. */
@@ -36,7 +34,7 @@ export abstract class Settings<O extends object> implements Observed {
 	}
 
 	/** Get option value by key, choose default value if option data doesn't specified it. */
-	get<K extends keyof O>(key: K): O[K] {
+	get<K extends keyof O>(key: K): Observed<O[K]> {
 		return this.data[key] ?? this.defaultData[key]!
 	}
 
