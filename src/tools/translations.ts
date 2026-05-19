@@ -1,4 +1,4 @@
-import {Observed} from 'lupos'
+import {Observed, UnObserved} from 'lupos'
 import {HTMLUtils, StringUtils} from '../utils'
 
 
@@ -10,7 +10,8 @@ export class Translations implements Observed {
 	/** If can't find translation, try find in this fallback locale. */
 	fallbackLocale: string = 'en-us'
 
-	protected readonly map: Map<string, Record<string, string>> = new Map()
+	/** Map to cache translations of all locales. */
+	protected readonly map: UnObserved<Map<string, Record<string, string>>> = new Map()
 
 	/** Add a translation data pieces to translation data. */
 	addData(locale: string, pieces: Record<string, string>) {

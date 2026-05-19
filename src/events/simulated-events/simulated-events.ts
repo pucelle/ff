@@ -1,7 +1,7 @@
 import {DoubleTapEventProcessor, DoubleTapEvents} from './double-tap'
 import {EventFirer} from 'lupos'
 import {HoldEventProcessor, HoldEvents, PinchTransformEvents, PinchTransformProcessor, TapEventProcessor, TapEvents, PinchZoomEvents, PinchZoomProcessor, SlideEvents, SlideEventProcessor} from '.'
-import {WeakPairKeysMap} from '../../structs'
+import {WeakFirstPairKeysMap} from '../../structs'
 import {SimulatedEventsConfiguration} from './configuration'
 
 
@@ -34,7 +34,7 @@ const EventConstructors: Record<string, {new(el: EventTarget): EventProcessor}> 
 }
 
 /** Shared Processors. */
-const EventProcessorCache: WeakPairKeysMap<EventTarget, string, EventProcessor> = /*#__PURE__*/new WeakPairKeysMap()
+const EventProcessorCache: WeakFirstPairKeysMap<EventTarget, string, EventProcessor> = /*#__PURE__*/new WeakFirstPairKeysMap()
 
 
 /** 
