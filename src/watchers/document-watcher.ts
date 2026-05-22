@@ -57,7 +57,7 @@ export function unbind(callback: Function, scope: any = null) {
 async function fireDocumentChangeLater() {
 	if (!willEmitDocumentChange) {
 		willEmitDocumentChange = true
-		await UpdateQueue.untilAllComplete()
+		await UpdateQueue.untilComplete()
 		fireDocumentChange()
 	}
 }

@@ -50,7 +50,7 @@ export async function watch(el: Element, callback: RectObserverCallback, scope: 
 		return
 	}
 
-	await UpdateQueue.untilAllComplete()
+	await UpdateQueue.untilComplete()
 
 	CallbackMap.add(el, boundCallback)
 	ElementRectCache.set(el, el.getBoundingClientRect())
