@@ -1,4 +1,4 @@
-/** Parse `url` search part to get a query parameter object. */
+/** Parse `url` search part which starts with '?' to get a query parameter object. */
 export function parseQuery(url: string): Record<string, string> {
 	let match = url.match(/\?(.+)/)
 	let pieces = match ? match[1].split('&') : []
