@@ -222,7 +222,9 @@ export function isMouseOn(trigger: Element): boolean {
 /** 
  * Test whether container element contains any content
  * which's popup group has been locked or mouse on.
- * Normally if is `true`, means container should not be hidden.
+ * 
+ * It is normally used to test whether a popup which specified by
+ * it's trigger or descendant element can be recycled.
  */
 export function hasLocked(triggerContainer: Element): boolean {
 	for (let group of PopupGroups.keys()) {
@@ -240,6 +242,9 @@ export function hasLocked(triggerContainer: Element): boolean {
 /** 
  * Test whether container contains content, or contains an trigger element,
  * which's popup group, or an ancestral popup group contains content.
+ * 
+ * It is normally used to test whether an event happen in an trigger element
+ * of a popup, or in the content, or within the content of popup-chain.
  */
 export function hasContainedOrPopped(triggerContainer: Element, content: Element): boolean {
 	if (triggerContainer.contains(content)) {

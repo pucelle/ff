@@ -1,3 +1,6 @@
+import {sum} from './value-list-utils'
+
+
 type CSSValue = {
 	value: number
 	unit: string
@@ -32,27 +35,28 @@ export function parse(input: string | number): CSSValue | null {
  * May either output numeric values adding result like `1em + 2em = 3em`,
  * or output calc result like `1em + 10px = calc(1em + 10px)`.
  */
-export function add(a: string | number, b: string | number): string {
-	let av = parse(a)
-	let bv = parse(b)
+export function add(...values: (string | number)[]): string {
+	let parsed = values.map(v => parse(v))
+		.filter(v => v && v.value !== 0) as CSSValue[]
 
-	if (!av || !bv) {
-		return `calc(${a} + ${b})`
+	if (parsed.length === 0) {
+		return '0'
 	}
 
-	if (av.value === 0) {
-		return `${bv.value}${bv.unit}`
-	}
+	let grouped: CSSValue[] = [...Map.groupBy(parsed, v => v.unit).values()]
+		.map(g => {
+			return {
+				value: sum(g.map(g => g.value)),
+				unit: g[0].unit,
+			}
+		})
 
-	if (bv.value === 0) {
-		return `${av.value}${av.unit}`
+	if (grouped.length === 1) {
+		return `${grouped[0].value}${grouped[0].unit}`
 	}
-
-	if (av.unit === bv.unit) {
-		return `${av.value + bv.value}${av.unit}`
+	else {
+		return `calc(${grouped.map(g => `${g.value}${g.unit}`).join(' + ')})`
 	}
-
-	return `calc(${av.value}${av.unit} + ${bv.value}${bv.unit})`
 }
 
 
