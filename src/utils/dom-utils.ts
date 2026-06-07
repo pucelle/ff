@@ -209,7 +209,7 @@ export function getRelativeOffset(el: HTMLElement, container: HTMLElement, direc
 		offset += direction === 'horizontal' ? parent.offsetLeft : parent.offsetTop
 		parent = parent.offsetParent as HTMLElement
 
-		if (parent.contains(container)) {
+		if (parent && parent.contains(container)) {
 			if (parent === container.offsetParent) {
 				offset -= direction === 'horizontal' ? container.offsetLeft : container.offsetTop
 			}
