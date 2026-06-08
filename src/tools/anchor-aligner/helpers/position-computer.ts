@@ -261,29 +261,42 @@ export class PositionComputer {
 		let heightLimited = false
 		let h = this.targetRect.height
 
-		// Handle flipping.
-		if (computed.anchorFaceDirection.beVertical) {
-
-			// Not enough space at top side, switch to bottom.
-			if (computed.anchorFaceDirection === Direction.Top
-				&& this.aligner.options.flipDirection !== 'horizontal'
-			) {
-				let shouldFlip = this.aligner.flipped || (y < 0 && spaceTop * 1.2 < spaceBottom)
-				if (shouldFlip) {
-					y = (this.anchorRect.bottom - dt) + this.aligner.gaps.bottom
-					this.flipDirections(computed, Direction.Bottom)
-				}
+		// Not enough space at top side, switch to bottom.
+		if ((computed.anchorFaceDirection === Direction.Top
+			|| computed.anchorFaceDirection === Direction.Center
+				&& computed.anchorDirection.vertical === Direction.Top
+			)
+			&& this.aligner.options.flipDirection !== 'horizontal'
+		) {
+			let shouldFlip = this.aligner.flipped || (y < 0 && spaceTop * 1.2 < spaceBottom)
+			if (shouldFlip) {
+				y = (this.anchorRect.bottom - dt) + this.aligner.gaps.bottom
+				this.flipDirections(computed, Direction.Bottom)
 			}
+		}
 
-			// Not enough space at bottom side, switch to top.
-			else if (computed.anchorFaceDirection === Direction.Bottom
-				&& this.aligner.options.flipDirection !== 'horizontal'
-			) {
-				let shouldFlip = this.aligner.flipped || (y + h > dh && spaceBottom * 1.2 < spaceTop)
-				if (shouldFlip) {
-					y = (this.anchorRect.top - dt) - this.aligner.gaps.top - h
-					this.flipDirections(computed, Direction.Top)
-				}
+		// Not enough space at bottom side, switch to top.
+		else if ((computed.anchorFaceDirection === Direction.Bottom
+			|| computed.anchorFaceDirection === Direction.Center
+				&& computed.anchorDirection.vertical === Direction.Bottom
+			)
+			&& this.aligner.options.flipDirection !== 'horizontal'
+		) {
+			let shouldFlip = this.aligner.flipped || (y + h > dh && spaceBottom * 1.2 < spaceTop)
+			if (shouldFlip) {
+				y = (this.anchorRect.top - dt) - this.aligner.gaps.top - h
+				this.flipDirections(computed, Direction.Top)
+			}
+		}
+
+		// Not enough space at bottom side, switch to top.
+		else if (computed.anchorFaceDirection === Direction.Center
+			&& this.aligner.options.flipDirection !== 'horizontal'
+		) {
+			let shouldFlip = this.aligner.flipped || (y + h > dh && spaceBottom * 1.2 < spaceTop)
+			if (shouldFlip) {
+				y = (this.anchorRect.top - dt) - this.aligner.gaps.top - h
+				this.flipDirections(computed, Direction.Top)
 			}
 		}
 
@@ -326,7 +339,12 @@ export class PositionComputer {
 
 	/** Flip align directions. */
 	private flipDirections(computed: PositionComputed, toDirection: Direction) {
+
+		// Note here if align top-right, and both should flip,
+		// then after vertical flip, face direction is not Center
+		// any more, which means have no need to flip at horizontal.
 		computed.anchorFaceDirection = toDirection
+
 		computed.target.flipped = true
 
 		if (toDirection.beHorizontal) {
@@ -354,30 +372,32 @@ export class PositionComputer {
 		let spaceRight = dw - (this.anchorRect.right - dl)
 		let w = this.targetRect.width
 
-		// Handle flipping.
-		if (computed.anchorFaceDirection.beHorizontal) {
-
-			// Not enough space at left side.
-			if (computed.anchorFaceDirection === Direction.Left
-				&& this.aligner.options.flipDirection !== 'vertical'
-			) {
-				let shouldFlip = this.aligner.flipped || (x < 0 && spaceLeft < spaceRight)
-				if (shouldFlip) {
-					x = (this.anchorRect.right - dl) + this.aligner.gaps.right
-					computed.target.position.x = this.anchorRect.right
-					this.flipDirections(computed, Direction.Right)
-				}
+		// Not enough space at left side.
+		if ((computed.anchorFaceDirection === Direction.Left
+			|| computed.anchorFaceDirection === Direction.Center
+				&& computed.anchorDirection.horizontal === Direction.Left
+			)
+			&& this.aligner.options.flipDirection !== 'vertical'
+		) {
+			let shouldFlip = this.aligner.flipped || (x < 0 && spaceLeft < spaceRight)
+			if (shouldFlip) {
+				x = (this.anchorRect.right - dl) + this.aligner.gaps.right
+				computed.target.position.x = this.anchorRect.right
+				this.flipDirections(computed, Direction.Right)
 			}
+		}
 
-			// Not enough space at right side.
-			else if (computed.anchorFaceDirection === Direction.Right
-				&& this.aligner.options.flipDirection !== 'vertical'
-			) {
-				let shouldFlip = this.aligner.flipped || (x > dw - w && spaceLeft > spaceRight)
-				if (shouldFlip) {
-					x = (this.anchorRect.left - dl) - this.aligner.gaps.left - w
-					this.flipDirections(computed, Direction.Left)
-				}
+		// Not enough space at right side.
+		else if ((computed.anchorFaceDirection === Direction.Right
+			|| computed.anchorFaceDirection === Direction.Center
+				&& computed.anchorDirection.horizontal === Direction.Right
+			)
+			&& this.aligner.options.flipDirection !== 'vertical'
+		) {
+			let shouldFlip = this.aligner.flipped || (x > dw - w && spaceLeft > spaceRight)
+			if (shouldFlip) {
+				x = (this.anchorRect.left - dl) - this.aligner.gaps.left - w
+				this.flipDirections(computed, Direction.Left)
 			}
 		}
 
