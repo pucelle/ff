@@ -18,7 +18,7 @@ export interface PositionComputed {
 		position: Vector
 		limitHeight: number | null
 		rect: DOMRect
-		flipped: boolean
+		flipped: {x: boolean, y: boolean}
 		absolutePositionOffset: Vector | null
 	}
 	triangle: {
@@ -138,7 +138,7 @@ export class PositionComputer {
 				position: new Vector(),
 				limitHeight: null,
 				rect: this.targetRect,
-				flipped: false,
+				flipped: {x: false, y: false},
 				absolutePositionOffset: this.getAbsoluteLayoutOffset(),
 			},
 			triangle: null,
@@ -268,7 +268,7 @@ export class PositionComputer {
 			)
 			&& this.aligner.options.flipDirection !== 'horizontal'
 		) {
-			let shouldFlip = this.aligner.flipped || (y < 0 && spaceTop * 1.2 < spaceBottom)
+			let shouldFlip = this.aligner.flipped.y || (y < 0 && spaceTop * 1.2 < spaceBottom)
 			if (shouldFlip) {
 				y = (this.anchorRect.bottom - dt) + this.aligner.gaps.bottom
 				this.flipDirections(computed, Direction.Bottom)
@@ -282,7 +282,7 @@ export class PositionComputer {
 			)
 			&& this.aligner.options.flipDirection !== 'horizontal'
 		) {
-			let shouldFlip = this.aligner.flipped || (y + h > dh && spaceBottom * 1.2 < spaceTop)
+			let shouldFlip = this.aligner.flipped.y || (y + h > dh && spaceBottom * 1.2 < spaceTop)
 			if (shouldFlip) {
 				y = (this.anchorRect.top - dt) - this.aligner.gaps.top - h
 				this.flipDirections(computed, Direction.Top)
@@ -334,7 +334,12 @@ export class PositionComputer {
 		// any more, which means have no need to flip at horizontal.
 		computed.anchorFaceDirection = toDirection
 
-		computed.target.flipped = true
+		if (toDirection.beVertical) {
+			computed.target.flipped.y = true
+		}
+		else {
+			computed.target.flipped.x = true
+		}
 
 		if (toDirection.beHorizontal) {
 			computed.anchorDirection = computed.anchorDirection.vertical.joinWith(toDirection)
@@ -368,7 +373,7 @@ export class PositionComputer {
 			)
 			&& this.aligner.options.flipDirection !== 'vertical'
 		) {
-			let shouldFlip = this.aligner.flipped || (x < 0 && spaceLeft < spaceRight)
+			let shouldFlip = this.aligner.flipped.x || (x < 0 && spaceLeft < spaceRight)
 			if (shouldFlip) {
 				x = (this.anchorRect.right - dl) + this.aligner.gaps.right
 				computed.target.position.x = this.anchorRect.right
@@ -383,7 +388,7 @@ export class PositionComputer {
 			)
 			&& this.aligner.options.flipDirection !== 'vertical'
 		) {
-			let shouldFlip = this.aligner.flipped || (x > dw - w && spaceLeft > spaceRight)
+			let shouldFlip = this.aligner.flipped.x || (x > dw - w && spaceLeft > spaceRight)
 			if (shouldFlip) {
 				x = (this.anchorRect.left - dl) - this.aligner.gaps.left - w
 				this.flipDirections(computed, Direction.Left)

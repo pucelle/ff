@@ -196,11 +196,12 @@ export class AnchorAligner {
 	edgeGaps!: AnchorGaps
 
 	/** 
-	 * Whether ever flipped when previous aligning.
+	 * Whether ever flipped when previous aligning,
+	 * in vertical and horizontal direction.
 	 * Once flipped, always flip.
 	 * Readonly outside.
 	 */
-	flipped: boolean = false
+	flipped: {x: boolean, y: boolean} = {x: false, y: false}
 
 	/** 
 	 * Whether height limited.
@@ -426,7 +427,9 @@ export class AnchorAligner {
 		this.alignment!.reset()
 		this.alignment = null
 
-		this.flipped = false
+		this.flipped.x = false
+		this.flipped.y = false
+		
 		this.heightLimited = false
 		this.updateMutationObserver()
 	}
