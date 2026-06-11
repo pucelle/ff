@@ -7,7 +7,10 @@ import {Coord, BoxOffsetKey} from '../../math'
 export interface SlideEvents {
 
 	/** After sliding enough pixels at a direction on a touch screen. */
-	'slide': (e: TouchEvent, direction: BoxOffsetKey) => void
+	'slide': (direction: BoxOffsetKey, e: TouchEvent) => void
+
+	/** After began sliding and before sliding end. */
+	'slide:translate': (moves: Coord, e: TouchEvent) => void
 }
 
 
@@ -20,7 +23,7 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 		super()
 
 		this.el = el
-		DOMEvents.on(el, 'touchstart', this.onTouchStart as any, this, {capture: true})
+		DOMEvents.on(el, 'touchstart', this.onTouchStart, this, {capture: true})
 	}
 
 	private get inTouching(): boolean {
@@ -34,7 +37,23 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 
 		this.latestStartEvent = e
 
-		DOMEvents.on(this.el, 'touchend', this.onTouchEnd as any, this)
+		DOMEvents.on(this.el, 'touchmove', this.onTouchMove, this)
+		DOMEvents.on(this.el, 'touchend', this.onTouchEnd, this)
+	}
+
+	private onTouchMove(e: TouchEvent) {
+		let duration = e.timeStamp - this.latestStartEvent!.timeStamp
+		let startP = EventUtils.getClientPosition(this.latestStartEvent!)!
+		let endP = EventUtils.getClientPosition(e)!
+
+		let moves: Coord = {
+			x: endP.x - startP.x,
+			y: endP.y - startP.y,
+		}
+
+		if (duration <= SimulatedEventsConfiguration.maximumSlideDuration) {
+			this.fire('slide:translate', moves, e)
+		}
 	}
 
 	private onTouchEnd(e: TouchEvent) {
@@ -54,7 +73,7 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 			&& movesLength >= SimulatedEventsConfiguration.minimumSlideDistance
 			&& direction
 		) {
-			this.fire('slide', e, direction)
+			this.fire('slide', direction, e)
 		}
 		
 		this.endTouching()
@@ -79,7 +98,7 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 
 	private endTouching() {
 		this.latestStartEvent = null
-		DOMEvents.off(this.el, 'touchend', this.onTouchEnd as any, this)
+		DOMEvents.off(this.el, 'touchend', this.onTouchEnd, this)
 	}
 
 	remove() {
@@ -87,7 +106,7 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 			this.endTouching()
 		}
 
-		DOMEvents.off(this.el, 'touchstart', this.onTouchStart as any, this)
+		DOMEvents.off(this.el, 'touchstart', this.onTouchStart, this)
 	}
 }
 

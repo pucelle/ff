@@ -7,7 +7,7 @@ export interface PinchTransformEvents {
 	'pinch-transform:start': (e: TouchEvent) => void
 
 	/** When fingers moved and need to update transform. */
-	'pinch-transform:transform': (e: TouchEvent, transformOnScreenOrigin: DOMMatrix) => void
+	'pinch-transform:transform': (transformOnScreenOrigin: DOMMatrix, e: TouchEvent) => void
 
 	/** After pinch transform completed. */
 	'pinch-transform:end': (e: TouchEvent) => void
@@ -25,7 +25,7 @@ export class PinchTransformProcessor<E = PinchTransformEvents> extends EventFire
 		super()
 
 		this.el = el
-		DOMEvents.on(el, 'touchstart', this.onTouchStart as any, this)
+		DOMEvents.on(el, 'touchstart', this.onTouchStart, this)
 	}
 
 	protected get inTouching(): boolean {
@@ -35,8 +35,8 @@ export class PinchTransformProcessor<E = PinchTransformEvents> extends EventFire
 	protected onTouchStart(e: TouchEvent) {
 		this.fire(this.eventPrefix + 'start' as any, ...[e] as any)
 
-		DOMEvents.on(document, 'touchmove', this.onTouchMove as any, this)
-		DOMEvents.on(document, 'touchend', this.onTouchEnd as any, this)
+		DOMEvents.on(document, 'touchmove', this.onTouchMove, this)
+		DOMEvents.on(document, 'touchend', this.onTouchEnd, this)
 	}
 
 	protected onTouchMove(e: TouchEvent) {
@@ -54,7 +54,7 @@ export class PinchTransformProcessor<E = PinchTransformEvents> extends EventFire
 		let touchPoint2 = new DOMPoint(e.touches[1].clientX, e.touches[1].clientY)
 		let matrix = this.makeMatrix(touchPoint1, touchPoint2)
 
-		this.fire(this.eventPrefix + 'transform' as any, ...[e, matrix] as any)
+		this.fire(this.eventPrefix + 'transform' as any, ...[matrix, e] as any)
 	}
 
 	protected makeMatrix(point1: DOMPoint, point2: DOMPoint): DOMMatrix {
@@ -75,8 +75,8 @@ export class PinchTransformProcessor<E = PinchTransformEvents> extends EventFire
 		this.startTouchPoint1 = null
 		this.startTouchPoint2 = null
 
-		DOMEvents.off(document, 'touchmove', this.onTouchMove as any, this)
-		DOMEvents.off(document, 'touchend', this.onTouchEnd as any, this)
+		DOMEvents.off(document, 'touchmove', this.onTouchMove, this)
+		DOMEvents.off(document, 'touchend', this.onTouchEnd, this)
 	}
 
 	remove() {
@@ -84,7 +84,7 @@ export class PinchTransformProcessor<E = PinchTransformEvents> extends EventFire
 			this.endTouching()
 		}
 
-		DOMEvents.off(this.el, 'touchstart', this.onTouchStart as any, this)
+		DOMEvents.off(this.el, 'touchstart', this.onTouchStart, this)
 	}
 }
 

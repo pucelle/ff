@@ -8,8 +8,8 @@ import {SimulatedEventsConfiguration} from './configuration'
 type EventProcessor = EventFirer<any> & {remove: () => void}
 
 /** Simulated events and types. */
-type Events = HoldEvents & DoubleTapEvents & PinchTransformEvents & PinchZoomEvents & TapEvents & SlideEvents
-type EventType = keyof Events & string
+export type Events = HoldEvents & DoubleTapEvents & PinchTransformEvents & PinchZoomEvents & TapEvents & SlideEvents
+export type EventType = keyof Events & string
 
 
 /** Simulated event configurations. */

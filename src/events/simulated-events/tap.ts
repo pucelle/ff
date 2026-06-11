@@ -30,7 +30,7 @@ export class TapEventProcessor extends EventFirer<TapEvents> {
 
 		this.el = el
 		this.timeout = new Timeout(this.onTimeout.bind(this), SimulatedEventsConfiguration.becomeHoldAfterDuration)
-		DOMEvents.on(el, 'touchstart', this.onTouchStart as any, this, {capture: true})
+		DOMEvents.on(el, 'touchstart', this.onTouchStart, this, {capture: true})
 	}
 
 	private get inTouching(): boolean {
@@ -45,7 +45,7 @@ export class TapEventProcessor extends EventFirer<TapEvents> {
 		this.timeout.start()
 		this.latestStartEvent = e
 
-		DOMEvents.on(this.el, 'touchend', this.onTouchEnd as any, this)
+		DOMEvents.on(this.el, 'touchend', this.onTouchEnd, this)
 	}
 
 	private onTimeout() {
@@ -78,7 +78,7 @@ export class TapEventProcessor extends EventFirer<TapEvents> {
 		this.timeout.cancel()
 		this.latestStartEvent = null
 
-		DOMEvents.off(this.el, 'touchend', this.onTouchEnd as any, this)
+		DOMEvents.off(this.el, 'touchend', this.onTouchEnd, this)
 	}
 
 	remove() {
@@ -86,6 +86,6 @@ export class TapEventProcessor extends EventFirer<TapEvents> {
 			this.endTouching()
 		}
 
-		DOMEvents.off(this.el, 'touchstart', this.onTouchStart as any, this)
+		DOMEvents.off(this.el, 'touchstart', this.onTouchStart, this)
 	}
 }

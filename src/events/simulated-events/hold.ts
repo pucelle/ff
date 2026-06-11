@@ -25,7 +25,7 @@ export class HoldEventProcessor extends EventFirer<HoldEvents> {
 		this.el = el
 		this.timeout = new Timeout(this.onTimeout.bind(this), SimulatedEventsConfiguration.becomeHoldAfterDuration)
 
-		DOMEvents.on(el, 'touchstart', this.onTouchStart as any, this)
+		DOMEvents.on(el, 'touchstart', this.onTouchStart, this)
 	}
 
 	private get inTouching(): boolean {
@@ -46,8 +46,8 @@ export class HoldEventProcessor extends EventFirer<HoldEvents> {
 
 		this.timeout.start()
 
-		DOMEvents.on(document, 'touchmove', this.onTouchMove as any, this)
-		DOMEvents.on(document, 'touchend', this.onTouchEnd as any, this)
+		DOMEvents.on(document, 'touchmove', this.onTouchMove, this)
+		DOMEvents.on(document, 'touchend', this.onTouchEnd, this)
 	}
 
 	private onTimeout() {
@@ -88,8 +88,8 @@ export class HoldEventProcessor extends EventFirer<HoldEvents> {
 		this.timeout.cancel()
 		this.latestStartEvent = null
 
-		DOMEvents.off(document, 'touchmove', this.onTouchMove as any, this)
-		DOMEvents.off(document, 'touchend', this.endTouching as any, this)
+		DOMEvents.off(document, 'touchmove', this.onTouchMove, this)
+		DOMEvents.off(document, 'touchend', this.endTouching, this)
 	}
 
 	remove() {
@@ -97,6 +97,6 @@ export class HoldEventProcessor extends EventFirer<HoldEvents> {
 			this.endTouching()
 		}
 
-		DOMEvents.off(this.el, 'touchstart', this.onTouchStart as any, this)
+		DOMEvents.off(this.el, 'touchstart', this.onTouchStart, this)
 	}
 }

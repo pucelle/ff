@@ -28,7 +28,7 @@ export class DoubleTapEventProcessor extends EventFirer<DoubleTapEvents> {
 		this.el = el
 		this.timeout = new Timeout(this.onTimeout.bind(this), SimulatedEventsConfiguration.maximumDoubleTapDuration)
 
-		DOMEvents.on(el, 'touchstart', this.onTouchStart as any, this)
+		DOMEvents.on(el, 'touchstart', this.onTouchStart, this)
 	}
 
 	private get inTouching(): boolean {
@@ -66,8 +66,8 @@ export class DoubleTapEventProcessor extends EventFirer<DoubleTapEvents> {
 		this.latestStartEvent = e
 		this.timeout.start()
 
-		DOMEvents.on(document, 'touchmove', this.onTouchMove as any, this)
-		DOMEvents.on(document, 'touchend', this.onTouchEnd as any, this)
+		DOMEvents.on(document, 'touchmove', this.onTouchMove, this)
+		DOMEvents.on(document, 'touchend', this.onTouchEnd, this)
 	}
 
 	private handleSecondTouch(e: TouchEvent) {
@@ -135,8 +135,8 @@ export class DoubleTapEventProcessor extends EventFirer<DoubleTapEvents> {
 		this.latestStartEvent = null
 		this.touchCount = 0
 
-		DOMEvents.off(document, 'touchmove', this.onTouchMove as any, this)
-		DOMEvents.off(document, 'touchend', this.onTouchEnd as any, this)
+		DOMEvents.off(document, 'touchmove', this.onTouchMove, this)
+		DOMEvents.off(document, 'touchend', this.onTouchEnd, this)
 	}
 
 	remove() {
@@ -144,6 +144,6 @@ export class DoubleTapEventProcessor extends EventFirer<DoubleTapEvents> {
 			this.endTouching()
 		}
 
-		DOMEvents.off(this.el, 'touchstart', this.onTouchStart as any, this)
+		DOMEvents.off(this.el, 'touchstart', this.onTouchStart, this)
 	}
 }
