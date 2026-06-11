@@ -42,7 +42,6 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 	}
 
 	private onTouchMove(e: TouchEvent) {
-		let duration = e.timeStamp - this.latestStartEvent!.timeStamp
 		let startP = EventUtils.getClientPosition(this.latestStartEvent!)!
 		let endP = EventUtils.getClientPosition(e)!
 
@@ -51,9 +50,7 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 			y: endP.y - startP.y,
 		}
 
-		if (duration <= SimulatedEventsConfiguration.maximumSlideDuration) {
-			this.fire('slide:translate', moves, e)
-		}
+		this.fire('slide:translate', moves, e)
 	}
 
 	private onTouchEnd(e: TouchEvent) {
@@ -68,6 +65,8 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 
 		let movesLength = Math.sqrt(moves.x ** 2 + moves.y ** 2)
 		let direction = this.getSlideDirection(moves)
+		
+		this.fire('slide:translate', {x: 0, y: 0}, e)
 
 		if (duration <= SimulatedEventsConfiguration.maximumSlideDuration
 			&& movesLength >= SimulatedEventsConfiguration.minimumSlideDistance
@@ -75,7 +74,6 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 		) {
 			this.fire('slide', direction, e)
 		}
-		
 		this.endTouching()
 	}
 

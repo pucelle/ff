@@ -7,10 +7,10 @@ export const SimulatedEventsConfiguration = {
 	maximumDoubleTapDuration: 1000,
 
 	/** If pointer moved pixels more that this, will be recognized as moving. */
-	maximumMovelessDistance: 20,
+	maximumMovelessDistance: 15,
 
 	/** Must move at least this pixels to be recognized as sliding. */
-	minimumSlideDistance: 100,
+	minimumSlideDistance: 40,
 
 	/** If duration longer, will not be recognized as sliding. */
 	maximumSlideDuration: 1000,
