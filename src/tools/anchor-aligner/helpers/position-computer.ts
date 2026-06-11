@@ -289,17 +289,6 @@ export class PositionComputer {
 			}
 		}
 
-		// Not enough space at bottom side, switch to top.
-		else if (computed.anchorFaceDirection === Direction.Center
-			&& this.aligner.options.flipDirection !== 'horizontal'
-		) {
-			let shouldFlip = this.aligner.flipped || (y + h > dh && spaceBottom * 1.2 < spaceTop)
-			if (shouldFlip) {
-				y = (this.anchorRect.top - dt) - this.aligner.gaps.top - h
-				this.flipDirections(computed, Direction.Top)
-			}
-		}
-
 		// Limit element height if has not enough space.
 		if (this.aligner.options.stickToEdges) {
 			if (y < 0) {
