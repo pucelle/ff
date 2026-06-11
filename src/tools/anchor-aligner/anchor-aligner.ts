@@ -140,7 +140,12 @@ export class AnchorAligner {
 
 	/** Test whether support CSS anchor positioning. */
 	static cssAnchorPositioningSupports() {
-		return CSS.supports('anchor-name', 'none') 
+		return CSS.supports('anchor-name', 'none')
+
+			// For ipad or iphone, until 2016/06, if anchor ancestor
+			// have transformed, target element will be aligned to the
+			// position which before anchor element transformed.
+			&& !matchMedia('(pointer: coarse)')
 	}
 	
 

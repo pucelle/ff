@@ -136,8 +136,12 @@ export class MeasuredAlignment {
 		// May scrollbar appears after alignment,
 		// such that it should align to right.
 		if (computed.anchorFaceDirection === Direction.Left) {
+
+			// Target rect position is not final position.
+			let right = x + computed.target.rect.width
+
 			this.target.style.left = 'auto'
-			this.target.style.right = document.documentElement.clientWidth - computed.target.rect.right + 'px'
+			this.target.style.right = document.documentElement.clientWidth - right + 'px'
 		}
 		else {
 			this.target.style.left = x + 'px'

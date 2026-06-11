@@ -268,7 +268,11 @@ export class PositionComputer {
 			)
 			&& this.aligner.options.flipDirection !== 'horizontal'
 		) {
-			let shouldFlip = this.aligner.flipped.y || (y < 0 && spaceTop * 1.2 < spaceBottom)
+
+			// If ever flipped, next time will also prefer flipping.
+			let shouldFlip = this.aligner.flipped.y && spaceBottom > spaceTop
+				|| y < 0 && spaceBottom > spaceTop * 1.2
+
 			if (shouldFlip) {
 				y = (this.anchorRect.bottom - dt) + this.aligner.gaps.bottom
 				this.flipDirections(computed, Direction.Bottom)
@@ -282,7 +286,9 @@ export class PositionComputer {
 			)
 			&& this.aligner.options.flipDirection !== 'horizontal'
 		) {
-			let shouldFlip = this.aligner.flipped.y || (y + h > dh && spaceBottom * 1.2 < spaceTop)
+			let shouldFlip = this.aligner.flipped.y && spaceTop > spaceBottom
+				|| y + h > dh && spaceTop > spaceBottom * 1.2
+
 			if (shouldFlip) {
 				y = (this.anchorRect.top - dt) - this.aligner.gaps.top - h
 				this.flipDirections(computed, Direction.Top)
@@ -373,7 +379,9 @@ export class PositionComputer {
 			)
 			&& this.aligner.options.flipDirection !== 'vertical'
 		) {
-			let shouldFlip = this.aligner.flipped.x || (x < 0 && spaceLeft < spaceRight)
+			let shouldFlip = this.aligner.flipped.x && spaceRight > spaceLeft
+				|| x < 0 && spaceRight > spaceLeft * 1.2
+
 			if (shouldFlip) {
 				x = (this.anchorRect.right - dl) + this.aligner.gaps.right
 				computed.target.position.x = this.anchorRect.right
@@ -388,7 +396,9 @@ export class PositionComputer {
 			)
 			&& this.aligner.options.flipDirection !== 'vertical'
 		) {
-			let shouldFlip = this.aligner.flipped.x || (x > dw - w && spaceLeft > spaceRight)
+			let shouldFlip = this.aligner.flipped.x && spaceLeft > spaceRight
+				|| x > dw - w && spaceLeft > spaceRight * 1.2
+
 			if (shouldFlip) {
 				x = (this.anchorRect.left - dl) - this.aligner.gaps.left - w
 				this.flipDirections(computed, Direction.Left)
@@ -456,7 +466,7 @@ export class PositionComputer {
 			transforms.push(`translateY(${y}px)`)
 		}
 
-		let triangleShouldFlip = computed.target.flipped
+		let triangleShouldFlip = computed.target.flipped.x || computed.target.flipped.y
 		if (triangleShouldFlip) {
 			if (computed.anchorFaceDirection.beHorizontal) {
 				transforms.push('scaleX(-1)')
