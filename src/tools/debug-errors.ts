@@ -10,11 +10,11 @@ export function debug_errors() {
 	}
 
 	window.onerror = (msg, _src, _line, _col, err) => {
-		print(err?.stack ?? msg)
+		print(String(msg).trim() + '\n' + err?.stack)
 	}
 
 	window.addEventListener('unhandledrejection', e => {
-		print(e.reason?.stack ?? e.reason?.message ?? String(e.reason))
+		print((e.reason?.message ?? String(e.reason) ?? '').trim() + '\n' + e.reason?.stack)
 	})
 }
 
@@ -23,11 +23,9 @@ function print(message: any) {
 	document.body.insertAdjacentHTML(
 		'beforeend',
 		`
-			<div style="position:fixed; top:0; left:0; max-width:100vh; max-height:100vh; padding: 12px; z-index:10000; overflow:auto; background: #888; ">
+			<pre style="position:fixed; top:0; left:0; max-width:100vw; max-height:100vh; word-break: break-all; padding: 12px; font-size: 9px; z-index:10000; overflow: auto; background: #888; ">
 				${message}
-			</div>
+			</pre>
 		`
 	)
 }
-
-

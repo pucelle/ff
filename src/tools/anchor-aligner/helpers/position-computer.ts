@@ -412,12 +412,21 @@ export class PositionComputer {
 			if (x + w > dw) {
 				let gap = x + w - dw
 				x -= gap
+
+				// Target wider than document, balance 
+				if (x < 0) {
+					x /= 2
+				}
 			}
 
 			// Move right a little to become fully visible.
 			else if (x < 0) {
 				let gap = -x
 				x += gap
+
+				if (x > dw) {
+					x -= (x - dw) / 2
+				}
 			}
 		}
 
