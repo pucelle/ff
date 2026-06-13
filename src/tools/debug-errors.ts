@@ -10,11 +10,17 @@ export function debug_errors() {
 	}
 
 	window.onerror = (msg, _src, _line, _col, err) => {
-		print(String(msg).trim() + '\n' + err?.stack)
+		let message = String(msg).trim()
+		let stack = err?.stack ?? ''
+
+		print(message + (stack ? '\n' + stack : ''))
 	}
 
-	window.addEventListener('unhandledrejection', e => {
-		print((e.reason?.message ?? String(e.reason) ?? '').trim() + '\n' + e.reason?.stack)
+	window.addEventListener('unhandledrejection', err => {
+		let message = err.reason?.message ?? String(err.reason) ?? ''
+		let stack = err.reason?.stack ?? ''
+
+		print(message + (stack ? '\n' + stack : ''))
 	})
 }
 
