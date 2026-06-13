@@ -6,7 +6,7 @@ import {PositionComputer} from './helpers/position-computer'
 import {AnchorGaps, AnchorPosition, getGapTranslate, parseAlignDirections, parseGaps} from './helpers/position-gap-parser'
 import {PureCSSAnchorAlignment, PureCSSComputed} from './pure-css-alignment'
 import {AnchorAlignmentType} from './types'
-import {barrierDOMReading, barrierDOMWriting} from 'lupos'
+import {AnimationFrame, barrierDOMReading, barrierDOMWriting} from 'lupos'
 import {deleteTargetAlignerMap, setTargetAlignerMap} from './helpers/target-aligner'
 
 
@@ -332,7 +332,7 @@ export class AnchorAligner {
 		await this.update()
 
 		// Update after target size changed.
-		ResizeWatcher.watch(this.target, this.update, this)
+		ResizeWatcher.watch(this.target, this.willUpdate, this)
 
 		if (this.shouldUseCSSAnchorPositioning()) {
 			ResizeWatcher.watch(anchor, this.onAnchorSizeChange, this)
@@ -382,6 +382,18 @@ export class AnchorAligner {
 	/** After target dom tree changed. */
 	private onMutationChange() {
 		this.update()
+	}
+
+	/** 
+	 * Update in next animation frame.
+	 * To avoid ResizeObserver loop warning.
+	 */
+	willUpdate() {
+		AnimationFrame.requestNext(() => {
+			if (this.alignment) {
+				this.update()
+			}
+		})
 	}
 
 	/** 
