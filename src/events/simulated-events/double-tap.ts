@@ -1,6 +1,6 @@
 import {Timeout} from '../../tools'
 import {EventFirer, DOMEvents} from 'lupos'
-import {SimulatedEventsConfiguration} from './configuration'
+import {SimulatedEventsConfig, SimulatedEventsOptions} from './config'
 import {Coord} from '../../math'
 
 
@@ -18,15 +18,19 @@ export interface DoubleTapEvents {
 export class DoubleTapEventProcessor extends EventFirer<DoubleTapEvents> {
 
 	private el: EventTarget
+	private options: SimulatedEventsOptions
 	private timeout: Timeout
 	private latestStartEvent: TouchEvent | null = null
 	private touchCount: number = 0
 
-	constructor(el: EventTarget) {
+	constructor(el: EventTarget, options: SimulatedEventsOptions = {}) {
 		super()
 
 		this.el = el
-		this.timeout = new Timeout(this.onTimeout.bind(this), SimulatedEventsConfiguration.maximumDoubleTapDuration)
+		this.options = options
+
+		let maximumDoubleTapDuration = options.maximumDoubleTapDuration ?? SimulatedEventsConfig.maximumDoubleTapDuration
+		this.timeout = new Timeout(this.onTimeout.bind(this), maximumDoubleTapDuration)
 
 		DOMEvents.on(el, 'touchstart', this.onTouchStart, this)
 	}
@@ -40,6 +44,13 @@ export class DoubleTapEventProcessor extends EventFirer<DoubleTapEvents> {
 	}
 
 	private onTouchStart(e: TouchEvent) {
+		if (this.options.prevent) {
+			e.preventDefault()
+		}
+
+		if (this.options.stop) {
+			e.stopPropagation()
+		}
 
 		// Multi touches.
 		if (e.touches.length !== 1) {
@@ -77,9 +88,10 @@ export class DoubleTapEventProcessor extends EventFirer<DoubleTapEvents> {
 		}
 
 		let movesLength = Math.sqrt(moves.x ** 2 + moves.y ** 2)
+		let maximumMovelessDistance = this.options.maximumMovelessDistance ?? SimulatedEventsConfig.maximumMovelessDistance
 
 		// Moved much, set current as first touch.
-		if (movesLength > SimulatedEventsConfiguration.maximumMovelessDistance) {
+		if (movesLength > maximumMovelessDistance) {
 			this.resetFirstTouch(e)
 		}
 
@@ -107,9 +119,10 @@ export class DoubleTapEventProcessor extends EventFirer<DoubleTapEvents> {
 		}
 
 		let movesLength = Math.sqrt(moves.x ** 2 + moves.y ** 2)
+		let maximumMovelessDistance = this.options.maximumMovelessDistance ?? SimulatedEventsConfig.maximumMovelessDistance
 
 		// Moved much.
-		if (movesLength > SimulatedEventsConfiguration.maximumMovelessDistance) {
+		if (movesLength > maximumMovelessDistance) {
 			this.endTouching()
 		}
 	}

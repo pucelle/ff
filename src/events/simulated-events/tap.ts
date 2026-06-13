@@ -1,6 +1,6 @@
 import {EventUtils} from '../../utils'
 import {EventFirer, DOMEvents} from 'lupos'
-import {SimulatedEventsConfiguration} from './configuration'
+import {SimulatedEventsConfig, SimulatedEventsOptions} from './config'
 import {Timeout} from '../../tools'
 import {Coord} from '../../math'
 
@@ -22,14 +22,18 @@ export interface TapEvents {
 export class TapEventProcessor extends EventFirer<TapEvents> {
 
 	private el: EventTarget
+	private options: SimulatedEventsOptions
 	private latestStartEvent: TouchEvent | null = null
 	private timeout: Timeout
 
-	constructor(el: EventTarget) {
+	constructor(el: EventTarget, options: SimulatedEventsOptions = {}) {
 		super()
 
 		this.el = el
-		this.timeout = new Timeout(this.onTimeout.bind(this), SimulatedEventsConfiguration.becomeHoldAfterDuration)
+		this.options = options
+
+		let becomeHoldAfterDuration = options.becomeHoldAfterDuration ?? SimulatedEventsConfig.becomeHoldAfterDuration
+		this.timeout = new Timeout(this.onTimeout.bind(this), becomeHoldAfterDuration)
 		DOMEvents.on(el, 'touchstart', this.onTouchStart, this, {capture: true})
 	}
 
@@ -40,6 +44,14 @@ export class TapEventProcessor extends EventFirer<TapEvents> {
 	private onTouchStart(e: TouchEvent) {
 		if (e.touches.length !== 1) {
 			return
+		}
+
+		if (this.options.prevent) {
+			e.preventDefault()
+		}
+
+		if (this.options.stop) {
+			e.stopPropagation()
 		}
 
 		this.timeout.start()
@@ -63,9 +75,11 @@ export class TapEventProcessor extends EventFirer<TapEvents> {
 		}
 		
 		let movesLength = Math.sqrt(moves.x ** 2 + moves.y ** 2)
+		let becomeHoldAfterDuration = this.options.becomeHoldAfterDuration ?? SimulatedEventsConfig.becomeHoldAfterDuration
+		let maximumMovelessDistance = this.options.maximumMovelessDistance ?? SimulatedEventsConfig.maximumMovelessDistance
 
-		if (duration < SimulatedEventsConfiguration.becomeHoldAfterDuration
-			&& movesLength < SimulatedEventsConfiguration.maximumMovelessDistance
+		if (duration < becomeHoldAfterDuration
+			&& movesLength < maximumMovelessDistance
 		) {
 			this.fire('tap', e)
 		}

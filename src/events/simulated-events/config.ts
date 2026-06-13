@@ -1,4 +1,5 @@
-export const SimulatedEventsConfiguration = {
+/** The default configuration for simulated events. */
+export const SimulatedEventsConfig = {
 
 	/** How long after pointer down to trigger hold event. */
 	becomeHoldAfterDuration: 500,
@@ -17,4 +18,14 @@ export const SimulatedEventsConfiguration = {
 
 	/** The minimum angle from a direction can be recognized as sliding in this direction. */
 	minimumSlideAngle: 30,
+}
+
+/** All options for simulated events. */
+export interface SimulatedEventsOptions extends Partial<typeof SimulatedEventsConfig> {
+
+	/** Whether prevent default. */
+	prevent?: boolean
+
+	/** Whether stop propagation. */
+	stop?: boolean
 }

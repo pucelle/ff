@@ -1,4 +1,5 @@
 import {EventFirer, DOMEvents} from 'lupos'
+import {SimulatedEventsOptions} from './config'
 
 
 export interface PinchTransformEvents {
@@ -17,14 +18,16 @@ export interface PinchTransformEvents {
 export class PinchTransformProcessor<E = PinchTransformEvents> extends EventFirer<E> {
 
 	protected el: EventTarget
+	protected options: SimulatedEventsOptions
 	protected startTouchPoint1: DOMPoint | null = null
 	protected startTouchPoint2: DOMPoint | null = null
 	protected eventPrefix: string = 'pinch-transform:'
 
-	constructor(el: EventTarget) {
+	constructor(el: EventTarget, options: SimulatedEventsOptions = {}) {
 		super()
 
 		this.el = el
+		this.options = options
 		DOMEvents.on(el, 'touchstart', this.onTouchStart, this)
 	}
 
@@ -33,6 +36,14 @@ export class PinchTransformProcessor<E = PinchTransformEvents> extends EventFire
 	}
 
 	protected onTouchStart(e: TouchEvent) {
+		if (this.options.prevent) {
+			e.preventDefault()
+		}
+
+		if (this.options.stop) {
+			e.stopPropagation()
+		}
+
 		this.fire(this.eventPrefix + 'start' as any, ...[e] as any)
 
 		DOMEvents.on(document, 'touchmove', this.onTouchMove, this)

@@ -1,5 +1,5 @@
 import {EventFirer, DOMEvents} from 'lupos'
-import {SimulatedEventsConfiguration} from './configuration'
+import {SimulatedEventsConfig, SimulatedEventsOptions} from './config'
 import {EventUtils} from '../../utils'
 import {Coord, BoxOffsetKey} from '../../math'
 
@@ -17,12 +17,14 @@ export interface SlideEvents {
 export class SlideEventProcessor extends EventFirer<SlideEvents> {
 
 	private el: EventTarget
+	private options: SimulatedEventsOptions
 	private latestStartEvent: TouchEvent | null = null
 
-	constructor(el: EventTarget) {
+	constructor(el: EventTarget, options: SimulatedEventsOptions = {}) {
 		super()
 
 		this.el = el
+		this.options = options
 		DOMEvents.on(el, 'touchstart', this.onTouchStart, this, {capture: true})
 	}
 
@@ -33,6 +35,14 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 	private onTouchStart(e: TouchEvent) {
 		if (e.touches.length !== 1) {
 			return
+		}
+
+		if (this.options.prevent) {
+			e.preventDefault()
+		}
+
+		if (this.options.stop) {
+			e.stopPropagation()
 		}
 
 		this.latestStartEvent = e
@@ -65,11 +75,13 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 
 		let movesLength = Math.sqrt(moves.x ** 2 + moves.y ** 2)
 		let direction = this.getSlideDirection(moves)
-		
+		let maximumSlideDuration = this.options.maximumSlideDuration ?? SimulatedEventsConfig.maximumSlideDuration
+		let minimumSlideDistance = this.options.minimumSlideDistance ?? SimulatedEventsConfig.minimumSlideDistance
+
 		this.fire('slide:translate', {x: 0, y: 0}, e)
 
-		if (duration <= SimulatedEventsConfiguration.maximumSlideDuration
-			&& movesLength >= SimulatedEventsConfiguration.minimumSlideDistance
+		if (duration <= maximumSlideDuration
+			&& movesLength >= minimumSlideDistance
 			&& direction
 		) {
 			this.fire('slide', direction, e)
@@ -85,11 +97,12 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 		}
 
 		let v = directionToVector(direction)
+		let minimumSlideAngle = this.options.minimumSlideAngle ?? SimulatedEventsConfig.minimumSlideAngle
 
 		// Angle must lower than configured angle.
 		// Dot of `v` and `moves` normalized should lower than cos value of minimum
 		let correctAngle = (v.x * moves.x + v.y * moves.y) / Math.sqrt(moves.x ** 2 + moves.y ** 2)
-			> Math.cos(SimulatedEventsConfiguration.minimumSlideAngle / 180 * Math.PI)
+			> Math.cos(minimumSlideAngle / 180 * Math.PI)
 
 		return correctAngle ? direction : null
 	}

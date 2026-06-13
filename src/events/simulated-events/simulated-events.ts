@@ -2,7 +2,7 @@ import {DoubleTapEventProcessor, DoubleTapEvents} from './double-tap'
 import {EventFirer} from 'lupos'
 import {HoldEventProcessor, HoldEvents, PinchTransformEvents, PinchTransformProcessor, TapEventProcessor, TapEvents, PinchZoomEvents, PinchZoomProcessor, SlideEvents, SlideEventProcessor} from '.'
 import {WeakFirstPairKeysMap} from '../../structs'
-import {SimulatedEventsConfiguration} from './configuration'
+import {SimulatedEventsConfig, SimulatedEventsOptions} from './config'
 
 
 type EventProcessor = EventFirer<any> & {remove: () => void}
@@ -13,7 +13,7 @@ export type EventType = keyof Events & string
 
 
 /** Simulated event configurations. */
-export const Configuration = SimulatedEventsConfiguration
+export const Configuration = SimulatedEventsConfig
 
 /** 
  * All the event processor constructors.
@@ -24,7 +24,7 @@ export const Configuration = SimulatedEventsConfiguration
  * 
  * Or we may pass another processor parameter... this is not good.
  */
-const EventConstructors: Record<string, {new(el: EventTarget): EventProcessor}> = {
+const EventConstructors: Record<string, {new(el: EventTarget, options?: SimulatedEventsOptions): EventProcessor}> = {
 	'tap': TapEventProcessor,
 	'double-tap': DoubleTapEventProcessor,
 	'hold': HoldEventProcessor,
@@ -41,8 +41,8 @@ const EventProcessorCache: WeakFirstPairKeysMap<EventTarget, string, EventProces
  * Bind a simulated event listener on an event target.
  * Can specify `scope` to identify listener, and will pass it to listener handler.
  */
-export function on<T extends EventType>(el: EventTarget, type: T, handler: Events[T], scope: any = null) {
-	let processor = getProcessor(el, type)
+export function on<T extends EventType>(el: EventTarget, type: T, handler: Events[T], scope: any = null, options?: SimulatedEventsOptions) {
+	let processor = getProcessor(type, el, options)
 	processor.on(type, handler, scope)
 }
 
@@ -51,8 +51,8 @@ export function on<T extends EventType>(el: EventTarget, type: T, handler: Event
  * Bind a event listener on event target, triggers for only once.
  * Can specify `scope` to identify listener, and will pass it to listener handler.
  */
-export function once<T extends EventType>(el: EventTarget, type: T, handler: Events[T], scope: any = null) {
-	let processor = getProcessor(el, type)
+export function once<T extends EventType>(el: EventTarget, type: T, handler: Events[T], scope: any = null, options?: SimulatedEventsOptions) {
+	let processor = getProcessor(type, el, options)
 	processor.once(type, handler, scope)
 }
 
@@ -62,23 +62,23 @@ export function once<T extends EventType>(el: EventTarget, type: T, handler: Eve
  * If listener binds a `scope`, here must match it to remove the listener.
  */
 export function off<T extends EventType>(el: EventTarget, type: T, handler: Events[T], scope: any = null) {
-	let processor = getProcessor(el, type)
+	let processor = getProcessor(type, el)
 	processor.off(type, handler, scope)
 
 	if (!processor.hasListeners()) {
 		processor.remove()
-		deleteProcessor(el, type)
+		deleteProcessor(type, el)
 	}
 }
 
 
-function getProcessor(el: EventTarget, type: EventType): EventProcessor {
+function getProcessor(type: EventType, el: EventTarget, options?: SimulatedEventsOptions): EventProcessor {
 	let groupName = type.replace(/:.+/, '')
 	let processor = EventProcessorCache.get(el, groupName)
 
 	if (!processor) {
 		let Processor = EventConstructors[groupName]
-		processor = new Processor(el)
+		processor = new Processor(el, options)
 		EventProcessorCache.set(el, groupName, processor)
 	}
 
@@ -86,7 +86,7 @@ function getProcessor(el: EventTarget, type: EventType): EventProcessor {
 }
 
 
-function deleteProcessor(el: EventTarget, type: EventType) {
+function deleteProcessor(type: EventType, el: EventTarget) {
 	let groupName = type.replace(/:.+/, '')
 	EventProcessorCache.delete(el, groupName)
 }
