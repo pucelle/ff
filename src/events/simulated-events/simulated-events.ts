@@ -10,10 +10,11 @@ type EventProcessor = EventFirer<any> & {remove: () => void}
 /** Simulated events and types. */
 export type Events = HoldEvents & DoubleTapEvents & PinchTransformEvents & PinchZoomEvents & TapEvents & SlideEvents
 export type EventType = keyof Events & string
+export type Options = SimulatedEventsOptions
 
 
-/** Simulated event configurations. */
-export const Configuration = SimulatedEventsConfig
+/** Default simulated event configurations. */
+export const Default = SimulatedEventsConfig
 
 /** 
  * All the event processor constructors.
@@ -69,6 +70,13 @@ export function off<T extends EventType>(el: EventTarget, type: T, handler: Even
 		processor.remove()
 		deleteProcessor(type, el)
 	}
+}
+
+
+/** Test whether has specified simulated event type. */
+export function hasType(type: string): type is EventType {
+	let groupName = type.replace(/:.+/, '')
+	return EventConstructors.hasOwnProperty(groupName)
 }
 
 

@@ -7,10 +7,10 @@ import {Coord, BoxOffsetKey} from '../../math'
 export interface SlideEvents {
 
 	/** After sliding enough pixels at a direction on a touch screen. */
-	'slide': (direction: BoxOffsetKey, e: TouchEvent) => void
+	'slide': (e: TouchEvent, direction: BoxOffsetKey) => void
 
 	/** After began sliding and before sliding end. */
-	'slide:translate': (moves: Coord, e: TouchEvent) => void
+	'slide:translate': (e: TouchEvent, moves: Coord) => void
 }
 
 
@@ -60,7 +60,7 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 			y: endP.y - startP.y,
 		}
 
-		this.fire('slide:translate', moves, e)
+		this.fire('slide:translate', e, moves)
 	}
 
 	private onTouchEnd(e: TouchEvent) {
@@ -78,13 +78,13 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 		let maximumSlideDuration = this.options.maximumSlideDuration ?? SimulatedEventsConfig.maximumSlideDuration
 		let minimumSlideDistance = this.options.minimumSlideDistance ?? SimulatedEventsConfig.minimumSlideDistance
 
-		this.fire('slide:translate', {x: 0, y: 0}, e)
+		this.fire('slide:translate', e, {x: 0, y: 0})
 
 		if (duration <= maximumSlideDuration
 			&& movesLength >= minimumSlideDistance
 			&& direction
 		) {
-			this.fire('slide', direction, e)
+			this.fire('slide', e, direction)
 		}
 		this.endTouching()
 	}

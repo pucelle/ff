@@ -8,7 +8,7 @@ export interface PinchTransformEvents {
 	'pinch-transform:start': (e: TouchEvent) => void
 
 	/** When fingers moved and need to update transform. */
-	'pinch-transform:transform': (transformOnScreenOrigin: DOMMatrix, e: TouchEvent) => void
+	'pinch-transform:transform': (e: TouchEvent, transformOnScreenOrigin: DOMMatrix) => void
 
 	/** After pinch transform completed. */
 	'pinch-transform:end': (e: TouchEvent) => void
@@ -65,7 +65,7 @@ export class PinchTransformProcessor<E = PinchTransformEvents> extends EventFire
 		let touchPoint2 = new DOMPoint(e.touches[1].clientX, e.touches[1].clientY)
 		let matrix = this.makeMatrix(touchPoint1, touchPoint2)
 
-		this.fire(this.eventPrefix + 'transform' as any, ...[matrix, e] as any)
+		this.fire(this.eventPrefix + 'transform' as any, ...[e, matrix] as any)
 	}
 
 	protected makeMatrix(point1: DOMPoint, point2: DOMPoint): DOMMatrix {
