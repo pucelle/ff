@@ -18,6 +18,7 @@ export class HoldEventProcessor extends EventFirer<HoldEvents> {
 	private options: SimulatedEventsOptions
 	private latestStartEvent: TouchEvent | null = null
 	private latestStartPoint: DOMPoint | null = null
+	private holdStarted: boolean = false
 	private timeout: Timeout
 	
 	constructor(el: EventTarget, options: SimulatedEventsOptions = {}) {
@@ -63,13 +64,7 @@ export class HoldEventProcessor extends EventFirer<HoldEvents> {
 	}
 
 	private onTimeout() {
-
-		// Try to prevent text selection, but not working.
-		// Must `user-select: none` on elements.
-		if (this.latestStartEvent?.cancelable) {
-			this.latestStartEvent.preventDefault()
-		}
-		
+		this.holdStarted = true
 		this.fire('hold:start', this.latestStartEvent!)
 	}
 
@@ -93,6 +88,13 @@ export class HoldEventProcessor extends EventFirer<HoldEvents> {
 	}
 
 	private onTouchEnd(e: TouchEvent) {
+
+		// Avoid following click events fires.
+		if (this.holdStarted) {
+			e.preventDefault()
+			e.stopPropagation()
+		}
+
 		this.fire('hold:end', e)
 		this.endTouching()
 	}
@@ -100,6 +102,7 @@ export class HoldEventProcessor extends EventFirer<HoldEvents> {
 	private endTouching() {
 		this.timeout.cancel()
 		this.latestStartEvent = null
+		this.holdStarted = false
 
 		DOMEvents.off(document, 'touchmove', this.onTouchMove, this)
 		DOMEvents.off(document, 'touchend', this.endTouching, this)

@@ -41,6 +41,13 @@ const EventProcessorCache: WeakFirstPairKeysMap<EventTarget, string, EventProces
 /** 
  * Bind a simulated event listener on an event target.
  * Can specify `scope` to identify listener, and will pass it to listener handler.
+ * 
+ * For `hold` event bound element, you may need to set styles to prevent default selection and hold action:
+ * `
+ *  user-select: none;
+ *	-webkit-user-select: none;
+ *	-webkit-touch-callout: none;
+ * `
  */
 export function on<T extends EventType>(el: EventTarget, type: T, handler: Events[T], scope: any = null, options?: SimulatedEventsOptions) {
 	let processor = getProcessor(type, el, options)
