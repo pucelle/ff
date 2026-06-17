@@ -204,7 +204,7 @@ export class Color {
 		b = NumberUtils.clamp(Math.round(b * 255), 0, 255)
 		a = NumberUtils.clamp(NumberUtils.toDecimal(a, 3), 0, 1)
 
-		return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${a})`
+		return `rgba(${Math.round(r)},${Math.round(g)},${Math.round(b)},${a})`
 	}
 
 	/** Convert to `#XXXXXX` format. */
