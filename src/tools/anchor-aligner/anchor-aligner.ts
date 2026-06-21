@@ -345,7 +345,6 @@ export class AnchorAligner {
 	private onAnchorSizeChange(entry: ResizeObserverEntry) {
 		if (entry.contentRect.width === 0 && entry.contentRect.height === 0) {
 			this.stop()
-			this.target.remove()
 			this.options.onAbort?.()
 		}
 	}
@@ -354,7 +353,6 @@ export class AnchorAligner {
 	private onAnchorRectChange(rect: DOMRect) {
 		if (rect.width === 0 && rect.height === 0) {
 			this.stop()
-			this.target.remove()
 			this.options.onAbort?.()
 		}
 		else {
