@@ -1,7 +1,6 @@
 import {NumberUtils} from '../../utils'
 import {parseHEX} from './hex'
 import {HSLA2RGBA, parseHSLA, RGBA2HSLA} from './hsl'
-import {HTMLColorNames} from './html-colors'
 import {parseRGBA, RGBA} from './rgba'
 
 
@@ -22,16 +21,6 @@ export class Color {
 		// transparent.
 		if (str === 'transparent' || str === 'none' || str === '') {
 			rgba = {r: 0, g: 0, b: 0, a: 0}
-		}
-
-		// HTML color name.
-		else if (str in HTMLColorNames) {
-			let n = HTMLColorNames[str]
-			let r = (n & 0xff0000) >> 16
-			let g = (n & 0x00ff00) >> 8
-			let b = n & 0x0000ff
-
-			rgba = {r, g, b, a: 1}
 		}
 
 		// hex.
