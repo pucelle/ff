@@ -43,6 +43,7 @@ export function removeQuery(url: string): string {
 
 /** 
  * Join path parts.
+ * Empty path pieces will be ignored.
  * Result always starts with '/'.
  */
 export function joinPath(...parts: (string | number)[]): string {
