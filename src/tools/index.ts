@@ -13,6 +13,7 @@ export * from './time-control'
 export * from './lazy-getter'
 export * from './bits'
 export * from './debug-errors'
+export * from './json'
 
 export * as ClipboardAPI from './clipboard-api'
 export * as FullscreenAPI from './fullscreen-api'
