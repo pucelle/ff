@@ -1,4 +1,4 @@
-import {Observed, UnObserved} from 'lupos'
+import {Connectable, Observed, UnObserved} from 'lupos'
 import {EmptyBundler} from './bundler'
 import {webStorage} from './storage'
 
@@ -7,7 +7,7 @@ import {webStorage} from './storage'
  * Manage settings data.
  * Otherwise you should specify a default options for it.
  */
-export abstract class Settings<O extends object> implements Observed {
+export abstract class Settings<O extends object> implements Observed, Connectable {
 
 	readonly defaultData: UnObserved<O>
 
@@ -22,6 +22,10 @@ export abstract class Settings<O extends object> implements Observed {
 
 		this.saveBundler = new EmptyBundler(this.saveStorageData.bind(this))
 	}
+
+	onCreated() {}
+	onConnected() {}
+	onWillDisconnect() {}
 
 	/** Get full data fulfilled by default data. */
 	getFullData(): O {
