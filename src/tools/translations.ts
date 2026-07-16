@@ -4,11 +4,11 @@ import {HTMLUtils, StringUtils} from '../utils'
 
 export class Translations implements Observed {
 
-	/** Current language and country code. */
-	locale: string = 'en-us'
+	/** Current language and country code, or only language. */
+	locale: string = 'en'
 
 	/** If can't find translation, try find in this fallback locale. */
-	fallbackLocale: string = 'en-us'
+	fallbackLocale: string = 'en'
 
 	/** Map to cache translations of all locales. */
 	protected readonly map: UnObserved<Map<string, Record<string, string>>> = new Map()
