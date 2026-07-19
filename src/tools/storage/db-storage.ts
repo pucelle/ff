@@ -1,5 +1,5 @@
 /** To config a DBStorage. */
-export interface DBStoreOptions {
+export interface IndexedStoreOptions {
 	name: string
 	keyPath?: string | string[]
 	autoIncrement?: boolean
@@ -11,7 +11,7 @@ let cachedSupported: boolean | null = null
 
 
 /** Cache data using `indexedDB`. */
-export class DBStorage {
+export class IndexedStorage {
 
 	/** Database name. */
 	private name: string
@@ -20,7 +20,7 @@ export class DBStorage {
 	private version: number
 
 	/** Database options, can only add (must version plus) and can't modify existing. */
-	private storeOptions: DBStoreOptions[]
+	private storeOptions: IndexedStoreOptions[]
 
 	/** Database. */
 	private db: IDBDatabase | null = null
@@ -28,7 +28,7 @@ export class DBStorage {
 	/** Opening Database promise. */
 	private openPromise: Promise<IDBDatabase> | null = null
 
-	constructor(name: string, version: number, storeOptions: DBStoreOptions[]) {
+	constructor(name: string, version: number, storeOptions: IndexedStoreOptions[]) {
 		this.name = name
 		this.version = version
 		this.storeOptions = storeOptions
@@ -134,26 +134,26 @@ export class DBStorage {
 	}
 
 	/** Get store by name. */
-	async getStore(storeName: string): Promise<DBStore | null> {
+	async getStore(storeName: string): Promise<IndexedStore | null> {
 		if (!this.isSupported()) {
 			return null
 		}
 
-		return new DBStore(storeName, this)
+		return new IndexedStore(storeName, this)
 	}
 }
 
 
-/** Handle a database store. */
-export class DBStore<T = any> {
+/** Handle a indexed db store. */
+export class IndexedStore<T = any> {
 
 	/** Store name. */
 	private name: string 
 
 	/** Database connection. */
-	private connection: DBStorage
+	private connection: IndexedStorage
 
-	constructor(name: string, connection: DBStorage) {
+	constructor(name: string, connection: IndexedStorage) {
 		this.name = name
 		this.connection = connection
 	}

@@ -1,5 +1,5 @@
 import {DurationObject} from '../../utils'
-import {DBStorage, DBStore} from './db-storage'
+import {IndexedStorage, IndexedStore} from './db-storage'
 
 
 /** 
@@ -13,12 +13,12 @@ export class BiggerStorage {
 	private expiringSuffix: string = '_expires_at'
 
 	/** Database connection. */
-	private db: DBStorage
+	private db: IndexedStorage
 
 	/** Store for current storage. */
-	private store: DBStore | null | undefined = undefined
+	private store: IndexedStore | null | undefined = undefined
 
-	constructor(db: DBStorage) {
+	constructor(db: IndexedStorage) {
 		this.db = db
 	}
 
@@ -27,7 +27,7 @@ export class BiggerStorage {
 		return this.db.isSupported()
 	}
 
-	private async getStore(): Promise<DBStore | null> {
+	private async getStore(): Promise<IndexedStore | null> {
 		if (!this.db) {
 			return null
 		}
@@ -194,5 +194,5 @@ export class BiggerStorage {
 
 /** Default global bigger storage API. */
 export const biggerStorage = /*#__PURE__*/new BiggerStorage(
-	/*#__PURE__*/new DBStorage('ff_storage', 1, [{name: 'storage'}])
+	/*#__PURE__*/new IndexedStorage('ff_storage', 1, [{name: 'storage'}])
 )
