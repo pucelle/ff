@@ -1,7 +1,5 @@
 {
 	"compilerOptions": {
-		"preserveSymlinks": true,
-		"skipLibCheck": true,
 		"module": "ESNext",
 		"moduleResolution": "Bundler",
 		"target": "ES2024",
@@ -16,7 +14,10 @@
 		"noFallthroughCasesInSwitch": true,
 		"noImplicitAny": true,
 		"noImplicitThis": true,
-		"noImplicitOverride": true
+		"noImplicitOverride": true,
+		"preserveSymlinks": true,
+		"skipLibCheck": true,
+		"tsBuildInfoFile": "out/tsconfig.tsbuildinfo"
 	},
 	"exclude": [
 		"node_modules",
