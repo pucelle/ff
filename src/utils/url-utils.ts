@@ -17,7 +17,7 @@ export function parseQuery(url: string): Record<string, string> {
 
 
 /** Combine base `url` and `params` object to a new URL. */
-export function useQuery(url: string, params: Record<string, string | number>): string {
+export function useQuery(url: string, params: string | Record<string, string | number>): string {
 	let hasQuery = url.includes('?')
 
 	if (typeof params === 'string') {
@@ -25,9 +25,9 @@ export function useQuery(url: string, params: Record<string, string | number>): 
 	}
 	else if (params && typeof params === 'object') {
 		for (let [key, value] of Object.entries(params)) {
-			value = encodeURIComponent(params[key])
-			url += (hasQuery ? '&' : '?') + key + '=' + value
-			hasQuery = true 
+			let encoded = encodeURIComponent(value)
+			url += (hasQuery ? '&' : '?') + key + '=' + encoded
+			hasQuery = true
 		}
 	}
 
