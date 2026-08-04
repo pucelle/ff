@@ -21,20 +21,22 @@ export function toCapitalize(string: string): string {
 
 /** Convert `string` to camel case type: `a-bc` -> `abc`. */
 export function toCamelCase(string: string): string {
-	return string.replace(/[-_ ][a-z]/gi, m0 => m0[1].toUpperCase())
+	return string.replace(/[’']/g, '')
+		.replace(/[-_ ][a-z]/gi, m0 => m0[1].toUpperCase())
 }
 
 /** Convert `string` to dash case type by joining words with `-`: `a bc` -> `a-bc`. */
 export function toDashCase(string: string): string {
-	return string.replace(/(^|.)([A-Z]+)/g, function(m0: string, charBefore: string | undefined, upperChars: string) {
-		if (charBefore && /[a-z ]/i.test(charBefore)) {
-			return charBefore + '-' + upperChars.toLowerCase()
-		}
-		else {
-			return m0.toLowerCase()
-		}
-	})
-	.replace(/[_ ]/g, '-')
+	return string.replace(/[’']/g, '')
+		.replace(/(^|.)([A-Z]+)/g, function(m0: string, charBefore: string | undefined, upperChars: string) {
+			if (charBefore && /[a-z ]/i.test(charBefore)) {
+				return charBefore + '-' + upperChars.toLowerCase()
+			}
+			else {
+				return m0.toLowerCase()
+			}
+		})
+		.replace(/[_ ]/g, '-')
 }
 
 /** Convert `string` to underscore case by joining words with `_`: `a bc` -> `a_bc`. */
