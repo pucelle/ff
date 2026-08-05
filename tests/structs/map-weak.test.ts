@@ -1,4 +1,4 @@
-import {WeakPairKeysListMap, WeakPairKeysMap, WeakPairKeysSetMap, WeakListMap, WeakSetMap, WeakTwoWayListMap, WeakTwoWayMap, WeakTwoWaySetMap, WeakerPairKeysMap} from '../../src'
+import {WeakPairKeysListMap, WeakPairKeysMap, WeakPairKeysSetMap, WeakListMap, WeakSetMap, WeakTwoWayListMap, WeakTwoWayMap, WeakTwoWaySetMap, WeakerPairKeysMap, WeakerPairKeysListMap, WeakerPairKeysSetMap} from '../../src'
 import {describe, expect, it} from 'vitest'
 
 
@@ -139,26 +139,6 @@ describe('Test Weak Map Structs', () => {
 		expect(m.hasRight(b)).toEqual(false)
 	})
 
-	it('WeakerPairKeysMap', () => {
-		let m = new WeakerPairKeysMap<object, object, string>()
-
-		m.set(a, b, 'c')
-
-		expect(m.get(a, b)).toEqual('c')
-		expect(m.has(a, b)).toEqual(true)
-		expect(m.hasKey(a)).toEqual(true)
-
-		m.set(a, b, 'd')
-		expect(m.get(a, b)).toEqual('d')
-
-		m.delete(a, b)
-		expect(m.has(a, b)).toEqual(false)
-
-		m.set(a, b, 'c')
-		m.deleteOf(a)
-		expect(m.hasKey(a)).toEqual(false)
-	})
-
 	it('WeakPairKeysMap', () => {
 		let m = new WeakPairKeysMap<object, string, string>()
 
@@ -168,7 +148,7 @@ describe('Test Weak Map Structs', () => {
 		expect([...m.secondEntriesOf(a)]).toEqual([['b', 'c']])
 		expect(m.get(a, 'b')).toEqual('c')
 		expect(m.has(a, 'b')).toEqual(true)
-		expect(m.hasKey(a)).toEqual(true)
+		expect(m.hasFirstKey(a)).toEqual(true)
 		expect([...m.secondKeysOf(a)]).toEqual(['b'])
 		expect([...m.secondValuesOf(a)]).toEqual(['c'])
 
@@ -180,7 +160,7 @@ describe('Test Weak Map Structs', () => {
 
 		m.set(a, 'b', 'c')
 		m.deleteOf(a)
-		expect(m.hasKey(a)).toEqual(false)
+		expect(m.hasFirstKey(a)).toEqual(false)
 	})
 
 	it('WeakPairKeysListMap', () => {
@@ -197,7 +177,7 @@ describe('Test Weak Map Structs', () => {
 		expect(m.get(a, 'b')).toEqual(['c', 'd'])
 		expect(m.has(a, 'b', 'c')).toEqual(true)
 		expect(m.hasKeys(a, 'b')).toEqual(true)
-		expect(m.hasKey(a)).toEqual(true)
+		expect(m.hasFirstKey(a)).toEqual(true)
 		expect([...m.secondKeysOf(a)]).toEqual(['b'])
 		expect([...m.values(a, 'b')]).toEqual(['c', 'd'])
 		expect([...m.secondValuesOf(a)]).toEqual(['c', 'd'])
@@ -210,7 +190,7 @@ describe('Test Weak Map Structs', () => {
 
 		m.add(a, 'b', 'c')
 		m.deleteFirstKey(a)
-		expect(m.hasKey(a)).toEqual(false)
+		expect(m.hasFirstKey(a)).toEqual(false)
 	})
 
 	it('WeakPairKeysSetMap', () => {
@@ -226,7 +206,7 @@ describe('Test Weak Map Structs', () => {
 		expect(m.get(a, 'b')).toEqual(new Set(['c', 'd']))
 		expect(m.has(a, 'b', 'c')).toEqual(true)
 		expect(m.hasKeys(a, 'b')).toEqual(true)
-		expect(m.hasKey(a)).toEqual(true)
+		expect(m.hasFirstKey(a)).toEqual(true)
 		expect([...m.secondKeysOf(a)]).toEqual(['b'])
 		expect([...m.values(a, 'b')]).toEqual(['c', 'd'])
 		expect([...m.secondValuesOf(a)]).toEqual(['c', 'd'])
@@ -239,6 +219,76 @@ describe('Test Weak Map Structs', () => {
 
 		m.add(a, 'b', 'c')
 		m.deleteFirstKey(a)
-		expect(m.hasKey(a)).toEqual(false)
+		expect(m.hasFirstKey(a)).toEqual(false)
+	})
+
+	it('WeakerPairKeysMap', () => {
+		let m = new WeakerPairKeysMap<object, object, string>()
+
+		m.set(a, b, 'c')
+
+		expect(m.get(a, b)).toEqual('c')
+		expect(m.has(a, b)).toEqual(true)
+		expect(m.hasFirstKey(a)).toEqual(true)
+
+		m.set(a, b, 'd')
+		expect(m.get(a, b)).toEqual('d')
+
+		m.delete(a, b)
+		expect(m.has(a, b)).toEqual(false)
+
+		m.set(a, b, 'c')
+		m.deleteOf(a)
+		expect(m.hasFirstKey(a)).toEqual(false)
+	})
+
+	it('WeakerPairKeysListMap', () => {
+		let m = new WeakerPairKeysListMap<object, object, string>()
+
+		m.add(a, b, 'c')
+		m.addIf(a, b, 'c')
+		m.add(a, b, 'd')
+
+		expect(m.countOf(a, b)).toEqual(2)
+		expect(m.get(a, b)).toEqual(['c', 'd'])
+		expect(m.has(a, b, 'c')).toEqual(true)
+		expect(m.hasKeys(a, b)).toEqual(true)
+		expect(m.hasFirstKey(a)).toEqual(true)
+
+		expect([...m.values(a, b)]).toEqual(['c', 'd'])
+
+		m.delete(a, b, 'c')
+		expect(m.has(a, b, 'c')).toEqual(false)
+
+		m.deleteKeys(a, b)
+		expect(m.hasKeys(a, b)).toEqual(false)
+
+		m.add(a, b, 'c')
+		m.deleteFirstKey(a)
+		expect(m.hasFirstKey(a)).toEqual(false)
+	})
+
+	it('WeakPairKeysSetMap', () => {
+		let m = new WeakerPairKeysSetMap<object, object, string>()
+
+		m.add(a, b, 'c')
+		m.add(a, b, 'd')
+
+		expect(m.countOf(a, b)).toEqual(2)
+		expect(m.get(a, b)).toEqual(new Set(['c', 'd']))
+		expect(m.has(a, b, 'c')).toEqual(true)
+		expect(m.hasKeys(a, b)).toEqual(true)
+		expect(m.hasFirstKey(a)).toEqual(true)
+		expect([...m.values(a, b)]).toEqual(['c', 'd'])
+
+		m.delete(a, b, 'c')
+		expect(m.has(a, b, 'c')).toEqual(false)
+
+		m.deleteKeys(a, b)
+		expect(m.hasKeys(a, b)).toEqual(false)
+
+		m.add(a, b, 'c')
+		m.deleteFirstKey(a)
+		expect(m.hasFirstKey(a)).toEqual(false)
 	})
 })

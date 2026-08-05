@@ -340,11 +340,35 @@ export class WeakFirstPairKeysMap<K1 extends object, K2, V> {
 /** 
  * `K1 -> K2 -> V` Map Struct.
  * Index single value by a pair of object keys.
- * Both `K1` and `K2` must be object type.
+ * `K1` must be object type.
  */
-export class WeakPairKeysMap<K1 extends object, K2 extends object, V> {
+export class WeakPairKeysMap<K1 extends object, K2, V> {
 
-	private map: WeakMap<K1, WeakMap<K2, V>> = new WeakMap();
+	private map: WeakMap<K1, Map<K2, V>> = new WeakMap();
+
+	/** Iterate associated secondary keys after known first key. */
+	*secondKeysOf(k1: K1): Iterable<K2> {
+		let sub = this.map.get(k1)
+		if (sub) {
+			yield* sub.keys()
+		}
+	}
+
+	/** Iterate all associated values after known first key. */
+	*secondValuesOf(k1: K1): Iterable<V> {
+		let sub = this.map.get(k1)
+		if (sub) {
+			yield* sub.values()
+		}
+	}
+
+	/** Iterate secondary key and associated value after known first key. */
+	*secondEntriesOf(k1: K1): Iterable<[K2, V]> {
+		let sub = this.map.get(k1)
+		if (sub) {
+			yield* sub.entries()
+		}
+	}
 
 	/** Has associated value by key pair. */
 	has(k1: K1, k2: K2): boolean {
@@ -357,8 +381,13 @@ export class WeakPairKeysMap<K1 extends object, K2 extends object, V> {
 	}
 
 	/** Has secondary map existed for first key. */
-	hasKey(k1: K1): boolean {
+	hasFirstKey(k1: K1): boolean {
 		return this.map.has(k1)
+	}
+
+	/** Get the secondary key count by first key. */
+	secondKeyCountOf(k1: K1) {
+		return this.map.get(k1)?.size || 0
 	}
 
 	/** Get associated value by key pair. */
@@ -371,15 +400,25 @@ export class WeakPairKeysMap<K1 extends object, K2 extends object, V> {
 		return sub.get(k2)
 	}
 
+	/** Get the map consist of second keys and values from the first key. */
+	getOf(k1: K1): Map<K2, V> | undefined {
+		return this.map.get(k1)
+	}
+
 	/** Set key pair and associated value. */
 	set(k1: K1, k2: K2, v: V) {
 		let sub = this.map.get(k1)
 		if (!sub) {
-			sub = new WeakMap()
+			sub = new Map()
 			this.map.set(k1, sub)
 		}
 
 		sub.set(k2, v)
+	}
+
+	/** Replace with first key and associated map of second keys and values. */
+	setSecond(k1: K1, m: Map<K2, V>) {
+		this.map.set(k1, m)
 	}
 
 	/** Delete all the associated values by key pair. */
@@ -476,7 +515,7 @@ export class WeakPairKeysListMap<K1 extends object, K2, V> {
 	}
 
 	/** Has secondary map associated by first key. */
-	hasKey(k1: K1): boolean {
+	hasFirstKey(k1: K1): boolean {
 		return this.map.has(k1)
 	}
 
@@ -642,7 +681,7 @@ export class WeakPairKeysSetMap<K1 extends object, K2, V> {
 	}
 
 	/** Has secondary map associated by first key. */
-	hasKey(k1: K1): boolean {
+	hasFirstKey(k1: K1): boolean {
 		return this.map.has(k1)
 	}
 
@@ -724,6 +763,81 @@ export class WeakPairKeysSetMap<K1 extends object, K2, V> {
 
 
 /** 
+ * `K1 -> K2 -> V` Map Struct.
+ * Index single value by a pair of object keys.
+ * Both `K1` and `K2` must be object type.
+ */
+export class WeakerPairKeysMap<K1 extends object, K2 extends object, V> {
+
+	private map: WeakMap<K1, WeakMap<K2, V>> = new WeakMap();
+
+	/** Has associated value by key pair. */
+	has(k1: K1, k2: K2): boolean {
+		let sub = this.map.get(k1)
+		if (!sub) {
+			return false
+		}
+
+		return sub.has(k2)
+	}
+
+	/** Has secondary map existed for first key. */
+	hasFirstKey(k1: K1): boolean {
+		return this.map.has(k1)
+	}
+
+	/** Get associated value by key pair. */
+	get(k1: K1, k2: K2): V | undefined {
+		let sub = this.map.get(k1)
+		if (!sub) {
+			return undefined
+		}
+
+		return sub.get(k2)
+	}
+
+	/** Get the map consist of second keys and values from the first key. */
+	getOf(k1: K1): WeakMap<K2, V> | undefined {
+		return this.map.get(k1)
+	}
+
+	/** Set key pair and associated value. */
+	set(k1: K1, k2: K2, v: V) {
+		let sub = this.map.get(k1)
+		if (!sub) {
+			sub = new WeakMap()
+			this.map.set(k1, sub)
+		}
+
+		sub.set(k2, v)
+	}
+
+	/** Replace with first key and associated map of second keys and values. */
+	setSecond(k1: K1, m: WeakMap<K2, V>) {
+		this.map.set(k1, m)
+	}
+
+	/** Delete all the associated values by key pair. */
+	delete(k1: K1, k2: K2) {
+		let sub = this.map.get(k1)
+		if (sub) {
+			sub.delete(k2)
+		}
+	}
+
+	/** Delete all associated secondary keys and values by first key. */
+	deleteOf(k1: K1) {
+		this.map.delete(k1)
+	}
+
+	/** Clear all the data. */
+	clear() {
+		this.map = new WeakMap()
+	}
+}
+
+
+/** 
  * `K1 -> K2 -> V[]` Map Struct.
  * Index value list by a pair of keys.
  * Both `K1` and `K2` must be object type.
@@ -761,7 +875,7 @@ export class WeakerPairKeysListMap<K1 extends object, K2 extends object, V> {
 	}
 
 	/** Has secondary map associated by first key. */
-	hasKey(k1: K1): boolean {
+	hasFirstKey(k1: K1): boolean {
 		return this.map.has(k1)
 	}
 
@@ -878,7 +992,7 @@ export class WeakerPairKeysSetMap<K1 extends object, K2 extends object, V> {
 	}
 
 	/** Has secondary map associated by first key. */
-	hasKey(k1: K1): boolean {
+	hasFirstKey(k1: K1): boolean {
 		return this.map.has(k1)
 	}
 
