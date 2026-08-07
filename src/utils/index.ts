@@ -2,6 +2,7 @@ export * from './bind-callback'
 export * from './duration-object'
 export * from './function'
 export * from './mixin'
+export * from './utils'
 
 export * as DateUtils from './date-utils'
 export * as DOMUtils from './dom-utils'
