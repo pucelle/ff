@@ -36,12 +36,12 @@ export class Translations implements Observed {
 		let data = this.map.get(this.locale)
 		
 		if (!data) {
-			console.warn(`No data table in locale '${this.locale}'`)
+			console.warn(`No table in locale '${this.locale}'`)
 
 			data = this.map.get(this.fallbackLocale)
 
 			if (!data) {
-				console.warn(`No data table in fallback locale '${this.locale}'`)
+				console.warn(`No table in fallback locale '${this.locale}'`)
 				return ''
 			}
 		}
@@ -49,7 +49,7 @@ export class Translations implements Observed {
 		let value = data[key]
 
 		if (value === undefined) {
-			console.warn(`No data item '${key}' in locale '${this.locale}'`)
+			console.warn(`No item '${key}' in locale '${this.locale}'`)
 			value = ''
 		}
 

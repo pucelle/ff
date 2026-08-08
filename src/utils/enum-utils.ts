@@ -25,8 +25,8 @@ export function fromKey<V extends string | number>(enumData: {[key: string]: V |
 }
 
 
-/** Check whether enum value existing. */
-export function hasValue<V extends string | number>(enumData: {[key: string]: V | string}, value: V): boolean {
+/** Check whether in enum value from an enum. */
+export function hasValue<E extends Record<string, string | number>>(enumData: E, value: string | number): value is E[keyof E] {
 	return getKey(enumData, value) !== undefined
 }
 
