@@ -4,7 +4,7 @@ import {toDashCase} from './string-utils'
 /** Get dash-cased identifier by enum value. */
 export function getIdentifier<V extends string | number>(enumData: {[key: string]: V | string}, value: V): string {
 	let key = getValueKeyMap(enumData)[value]
-	return toDashCase(key)
+	return key ? toDashCase(key) : key
 }
 
 /** Get enum value from dash-cased identifier. */
