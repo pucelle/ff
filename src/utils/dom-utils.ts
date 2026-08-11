@@ -62,7 +62,8 @@ export function elementIndexOf(el: Element): number {
  * Note that this method may cause re-layout.
  */
 export function getStyleValue(el: Element, property: StylePropertyName): string {
-	return getComputedStyle(el)[property as any]
+	let computedValue = getComputedStyle(el)[property as any]
+	return computedValue || (el as HTMLElement).style?.[property as any] || ''
 }
 
 /**

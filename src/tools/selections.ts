@@ -78,7 +78,7 @@ export class Selections<T = any> implements MethodsObserved<
 
 		if (e.shiftKey) {
 			let previousTouched = this.getLatestTouched()
-			let previousIndex = previousTouched ? allData.indexOf(previousTouched) : -1
+			let previousIndex = previousTouched !== null ? allData.indexOf(previousTouched) : -1
 
 			if (previousIndex === -1) {
 				previousIndex = 0

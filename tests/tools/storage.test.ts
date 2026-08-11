@@ -1,9 +1,11 @@
 import {webStorage} from '../../src'
 import {sleep} from '../../src'
-import {describe, expect, it} from 'vitest'
+import {beforeEach, describe, expect, it} from 'vitest'
 
 
 describe('Test storage', () => {
+	beforeEach(() => localStorage.clear())
+
 	it('webStorage', async () => {
 		expect(webStorage.isSupported()).toEqual(true)
 		expect(webStorage.set('a', 'b')).toEqual(true)
@@ -18,6 +20,13 @@ describe('Test storage', () => {
 		await sleep(1100)
 		expect(webStorage.has('a')).toEqual(true)
 		expect(webStorage.get('a')).toEqual(null)
+	})
+
+	it('removes stale expiry metadata when overwriting a value', () => {
+		expect(webStorage.set('overwrite', 'old', 1)).toEqual(true)
+		expect(webStorage.set('overwrite', 'new')).toEqual(true)
+		expect(localStorage.getItem('ff_overwrite_expires_at')).toEqual(null)
+		expect(webStorage.get('overwrite')).toEqual('new')
 	})
 
 

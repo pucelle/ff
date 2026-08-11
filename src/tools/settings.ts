@@ -34,12 +34,12 @@ export abstract class Settings<O extends object> implements Observed, Connectabl
 
 	/** Has specified option by key. */
 	has<K extends keyof O>(key: K): boolean {
-		return this.data.hasOwnProperty(key)
+		return Object.prototype.hasOwnProperty.call(this.data, key)
 	}
 
 	/** Get option value by key, choose default value if option data doesn't specified it. */
 	get<K extends keyof O>(key: K): Observed<O[K]> {
-		return this.data[key] ?? this.defaultData[key]!
+		return this.has(key) ? this.data[key] as Observed<O[K]> : this.defaultData[key]!
 	}
 
 	/** Modify option key and value pair. */
@@ -58,7 +58,7 @@ export abstract class Settings<O extends object> implements Observed, Connectabl
 
 	/** Modify option key and value pair. */
 	delete<K extends keyof O>(key: K) {
-		if (this.data[key] !== undefined) {
+		if (this.has(key)) {
 			delete this.data[key]
 			this.saveBundler.call()
 		}

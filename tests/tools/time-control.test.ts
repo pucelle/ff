@@ -144,35 +144,47 @@ describe('Test time-control', () => {
 		})
 
 		it('Will reset timeout after been reset', async () => {
-			let fn = vi.fn()
-			let throttle = new Throttle(fn, 100, true)
-			let throttled = throttle.wrapped
-			let interval = willAlwaysEndInterval(throttled, 40)
-			await sleep(44)
-			expect(fn).toHaveBeenCalledTimes(1)
-			throttle.reset()
-			await sleep(44)
-			expect(fn).toHaveBeenCalledTimes(2)
-			await sleep(150)
-			expect(fn).toHaveBeenCalledTimes(3)
-			interval.cancel()
+			vi.useFakeTimers()
+			try {
+				let fn = vi.fn()
+				let throttle = new Throttle(fn, 100, true)
+				let throttled = throttle.wrapped
+				let interval = willAlwaysEndInterval(throttled, 40)
+				vi.advanceTimersByTime(44)
+				expect(fn).toHaveBeenCalledTimes(1)
+				throttle.reset()
+				vi.advanceTimersByTime(44)
+				expect(fn).toHaveBeenCalledTimes(2)
+				vi.advanceTimersByTime(150)
+				expect(fn).toHaveBeenCalledTimes(3)
+				interval.cancel()
+			}
+			finally {
+				vi.useRealTimers()
+			}
 		})
 	})
 
 
 	describe('Test not immediate throttle', () => {
 		it('Will call fn in expected time points', async () => {
-			let fn = vi.fn()
-			let throttle = new Throttle(fn, 100)
-			let throttled = throttle.wrapped
-			let interval = willAlwaysEndInterval(throttled, 40)
-			await sleep(45)
-			expect(fn).toHaveBeenCalledTimes(0)
-			await sleep(100)
-			expect(fn).toHaveBeenCalledTimes(1)
-			await sleep(100 + 45)
-			expect(fn).toHaveBeenCalledTimes(2)
-			interval.cancel()
+			vi.useFakeTimers()
+			try {
+				let fn = vi.fn()
+				let throttle = new Throttle(fn, 100)
+				let throttled = throttle.wrapped
+				let interval = willAlwaysEndInterval(throttled, 40)
+				vi.advanceTimersByTime(45)
+				expect(fn).toHaveBeenCalledTimes(0)
+				vi.advanceTimersByTime(100)
+				expect(fn).toHaveBeenCalledTimes(1)
+				vi.advanceTimersByTime(145)
+				expect(fn).toHaveBeenCalledTimes(2)
+				interval.cancel()
+			}
+			finally {
+				vi.useRealTimers()
+			}
 		})
 
 		it('Will call fn frequently after been canceled', async () => {

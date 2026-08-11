@@ -193,7 +193,7 @@ export class Color {
 		b = NumberUtils.clamp(Math.round(b * 255), 0, 255)
 		a = NumberUtils.clamp(NumberUtils.toDecimal(a, 3), 0, 1)
 
-		return `rgba(${Math.round(r)},${Math.round(g)},${Math.round(b)},${a})`
+		return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${a})`
 	}
 
 	/** Convert to `#XXXXXX` format. */
@@ -203,7 +203,7 @@ export class Color {
 		r = NumberUtils.clamp(Math.round(r * 255), 0, 255)
 		g = NumberUtils.clamp(Math.round(g * 255), 0, 255)
 		b = NumberUtils.clamp(Math.round(b * 255), 0, 255)
-		a = NumberUtils.clamp(NumberUtils.toDecimal(a, 3), 0, 1)
+		a = NumberUtils.clamp(Math.round(a * 255), 0, 255)
 
 		if (this.a < 1) {
 			return '#' + [r, g, b, a].map(v => v.toString(16).padStart(2, '0')).join('')

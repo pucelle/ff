@@ -19,12 +19,17 @@ export class AsyncTaskQueue {
 			await lastPromise
 		}
 
-		await taskFn()
-		resolve()
+		try {
+			await taskFn()
+		}
+		finally {
+			
+			// Always release the queue, even when the task rejects.
+			resolve()
 
-		// Release promise to ensure next time not wait it.
-		if (this.lastTaskPromise === promise) {
-			this.lastTaskPromise = null
+			if (this.lastTaskPromise === promise) {
+				this.lastTaskPromise = null
+			}
 		}
 	}
 }

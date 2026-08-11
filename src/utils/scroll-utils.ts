@@ -94,11 +94,13 @@ export function findClosestCSSScrollWrapper(el: HTMLElement): {wrapper: HTMLElem
 export function getCSSOverflowDirection(wrapper: HTMLElement): HVDirection | null {
 	let direction: HVDirection | null = null
 	let style = getComputedStyle(wrapper)
+	let overflowY = style.overflowY || wrapper.style.overflowY
+	let overflowX = style.overflowX || wrapper.style.overflowX
 
-	if (style.overflowY === 'auto' || style.overflowY === 'scroll') {
+	if (overflowY === 'auto' || overflowY === 'scroll') {
 		direction = 'vertical'
 	}
-	else if (style.overflowX === 'auto' || style.overflowX === 'scroll') {
+	else if (overflowX === 'auto' || overflowX === 'scroll') {
 		direction = 'horizontal'
 	}
 

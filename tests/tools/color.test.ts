@@ -31,6 +31,7 @@ describe('Test transition', () => {
 		expect(c.toRGB()).toEqual('rgb(255, 0, 0)')
 		expect(c.toRGBA()).toEqual('rgba(255, 0, 0, 1)')
 		expect(c.toHEX()).toEqual('#ff0000')
+		expect(c.alpha(0.5).toHEX()).toEqual('#ff000080')
 		expect(c.toHSL()).toEqual('hsl(0, 100%, 50%)')
 		expect(c.toHSLA()).toEqual('hsla(0, 100%, 50%, 1)')
 		expect(c.gray).toEqual(1/3)

@@ -25,4 +25,18 @@ describe('Test AsyncTaskQueue', () => {
 		await sleep(15)
 		expect(f2).toHaveBeenCalledTimes(1)
 	})
+
+	it('continues after a rejected task', async () => {
+		let q = new AsyncTaskQueue()
+		let laterTask = vi.fn()
+
+		await expect(q.enqueue(async () => {
+			throw new Error('failed')
+		})).rejects.toThrow('failed')
+
+		await q.enqueue(async () => {
+			laterTask()
+		})
+		expect(laterTask).toHaveBeenCalledOnce()
+	})
 })

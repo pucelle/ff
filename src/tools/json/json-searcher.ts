@@ -25,14 +25,18 @@ export function searchFromRegExp(text: string, re: RegExp): any {
 
 /** Search json list from each regexp match. */
 export function searchListFromRegExp(text: string, re: RegExp): any[] {
-	let list: any[] = []
+	if (!re.flags.includes('g')) {
+		throw new Error(`RegExp must have global flag`)
+	}
 
+	let list: any[] = []
 	let match: RegExpExecArray | null
+
 	while (match = re.exec(text)) {
 		list.push(searchFrom(text, match.index + match[0].length))
 	}
 
-	return list.filter(v => v)
+	return list.filter(v => v !== null)
 }
 
 
@@ -49,7 +53,8 @@ export function searchFromText(text: string, from: string): any {
 
 /** Search for specified variable. */
 export function searchVariable(text: string, variableName: string): any {
-	let re = new RegExp(`\\b${variableName}\\b\\s*=`)
+	let escapedName = variableName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+	let re = new RegExp(`\\b${escapedName}\\b\\s*=`)
 	return searchFromRegExp(text, re)
 }
 

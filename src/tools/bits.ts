@@ -7,7 +7,7 @@ export class BitReader {
 		let binaryString = atob(base64)
 
 		// Encode the binary string to buffer
-		let buffer = new TextEncoder().encode(binaryString)
+		let buffer = Uint8Array.from(binaryString, char => char.charCodeAt(0))
 
 		return new BitReader(buffer)
 	}

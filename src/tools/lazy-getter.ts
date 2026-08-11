@@ -3,7 +3,8 @@
 export class LazyGetter<T> {
 
 	private getter: () => T
-	private result: T | null = null
+	private result!: T
+	private initialized = false
 
 	constructor(getter: () => T) {
 		this.getter = getter
@@ -11,8 +12,9 @@ export class LazyGetter<T> {
 
 	/** Get and will initialize if not yet. */
 	get value(): T {
-		if (!this.result) {
+		if (!this.initialized) {
 			this.result = this.getter()
+			this.initialized = true
 		}
 
 		return this.result
@@ -20,6 +22,6 @@ export class LazyGetter<T> {
 
 	/** Reset cached value. */
 	reset() {
-		this.result = null
+		this.initialized = false
 	}
 }

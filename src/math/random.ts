@@ -11,7 +11,7 @@ export function randomInt(min: number, max: number) {
 
 /** Returns a random float value within range `min` ~ `max`. */
 export function randomFloat(min: number, max: number) {
-	return min + Math.floor(Math.random() * (max - min + 1))
+	return min + Math.random() * (max - min)
 }
 
 
@@ -46,4 +46,3 @@ export function seedRandom3(v: number): [number, number, number]{
 		NumberUtils.fract(Math.sin(v * 419.2) * 43758.5453123),
 	]
 }
-

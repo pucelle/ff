@@ -7,12 +7,14 @@ describe('Test IDUtils', () => {
 		expect(IDUtils.intUid() - IDUtils.intUid()).toEqual(-1)
 	})
 
-	it('shortUid', () => {
-		expect(IDUtils.shortUid()).toMatch(/^[0-9a-z]{12}$/i)
+	it('randomHex', () => {
+		let value = IDUtils.randomHex(6)
+		expect(value).toBeInstanceOf(Uint8Array)
+		expect(value).toHaveLength(6)
 	})
 
-	it('guid', () => {
-		expect(IDUtils.guid()).toMatch(/^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$/i)
+	it('randomHexString', () => {
+		expect(IDUtils.randomHexString(6)).toMatch(/^[0-9a-f]{12}$/)
 	})
 
 	it('prefixedUid & isUidInPrefix', () => {

@@ -1,8 +1,8 @@
-import {WeakPairKeysMap} from '../structs'
+import {WeakerPairKeysMap} from '../structs'
 
 
 /** Caches all bound callbacks, `Callback -> Scope -> Bound Callback`. */
-const BoundCallbackMap: WeakPairKeysMap<Function, object, Function> = /*#__PURE__*/new WeakPairKeysMap()
+const BoundCallbackMap: WeakerPairKeysMap<Function, object, Function> = /*#__PURE__*/new WeakerPairKeysMap()
 
 
 /** 

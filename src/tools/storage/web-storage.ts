@@ -32,9 +32,9 @@ export class WebStorage {
 
 		try {
 			let key = 'flit_test_supported'
-			localStorage[key] = 'test'
-			let supported = localStorage[key] === 'test'
-			delete localStorage[key]
+			localStorage.setItem(key, 'test')
+			let supported = localStorage.getItem(key) === 'test'
+			localStorage.removeItem(key)
 			return cachedSupported = supported
 		}
 		catch (e) {
@@ -49,7 +49,7 @@ export class WebStorage {
 		}
 
 		key = this.prefix + key
-		return key in localStorage
+		return localStorage.getItem(key) !== null
 	}
 
 	/** Get value by associated key, can specify a default value. */
@@ -64,19 +64,19 @@ export class WebStorage {
 		}
 
 		key = this.prefix + key
-		let value = localStorage[key]
+		let value = localStorage.getItem(key)
 
-		if (value === undefined) {
+		if (value === null) {
 			return defaultValue
 		}
 
 		if (value && typeof value === 'string') {
 			try {
 				value = JSON.parse(value)
-				let expires = localStorage[key + this.expiringSuffix]
-				if (expires && expires < Date.now()) {
-					delete localStorage[key]
-					delete localStorage[key + this.expiringSuffix]
+				let expires = localStorage.getItem(key + this.expiringSuffix)
+				if (expires && Number(expires) < Date.now()) {
+					localStorage.removeItem(key)
+					localStorage.removeItem(key + this.expiringSuffix)
 					return defaultValue
 				}
 				else {
@@ -104,13 +104,19 @@ export class WebStorage {
 		}
 
 		key = this.prefix + key
-		localStorage[key] = JSON.stringify(value)
+		localStorage.setItem(key, JSON.stringify(value))
 
 		if (expireDuration) {
 			let seconds = DurationObject.fromAny(expireDuration).toSeconds()
 			if (seconds > 0) {
-				localStorage[key + this.expiringSuffix] = Date.now() + seconds * 1000
+				localStorage.setItem(key + this.expiringSuffix, String(Date.now() + seconds * 1000))
 			}
+			else {
+				localStorage.removeItem(key + this.expiringSuffix)
+			}
+		}
+		else {
+			localStorage.removeItem(key + this.expiringSuffix)
 		}
 
 		return true
@@ -123,9 +129,9 @@ export class WebStorage {
 		}
 
 		key = this.prefix + key
-		delete localStorage[key + this.expiringSuffix]
-
-		return delete localStorage[key]
+		localStorage.removeItem(key + this.expiringSuffix)
+		localStorage.removeItem(key)
+		return true
 	}
 
 	/** Clear all the data in storage. */
@@ -141,12 +147,13 @@ export class WebStorage {
 		for (let i = 0; i < localStorage.length; i++) {
 			let key = localStorage.key(i)
 			if (key && key.endsWith(this.expiringSuffix)) {
-				let value = localStorage.get(key) as number
+				let value = Number(localStorage.getItem(key))
 
 				if (currentTime > value) {
 					let rawKey = key.slice(0, -this.expiringSuffix.length)
-					localStorage.delete(rawKey)
-					localStorage.delete(key)
+					localStorage.removeItem(rawKey)
+					localStorage.removeItem(key)
+					i--
 				}
 			}
 		}
