@@ -28,51 +28,60 @@ export class DAG<T> {
 		this.parents.add(childNode, parentNode)
 	}
 
-	/** Walk self and descendants using depth-first traversal. */
-	walkDownDepthFirst(fromNode: T): Set<T> {
-		return this.walk(fromNode, 'down', 'depth-first')
+	/** Walk descendants using depth-first traversal, optionally including `fromNode`. */
+	walkDownDepthFirst(fromNode: T, includeFrom: boolean = true): Set<T> {
+		return this.walk(fromNode, 'down', 'depth-first', includeFrom)
 	}
 
-	/** Walk self and ancestors using depth-first traversal. */
-	walkUpDepthFirst(fromNode: T): Set<T> {
-		return this.walk(fromNode, 'up', 'depth-first')
+	/** Walk ancestors using depth-first traversal, optionally including `fromNode`. */
+	walkUpDepthFirst(fromNode: T, includeFrom: boolean = true): Set<T> {
+		return this.walk(fromNode, 'up', 'depth-first', includeFrom)
 	}
 
-	/** Walk self and descendants using breadth-first traversal. */
-	walkDownBreadthFirst(fromNode: T): Set<T> {
-		return this.walk(fromNode, 'down', 'breadth-first')
+	/** Walk descendants using breadth-first traversal, optionally including `fromNode`. */
+	walkDownBreadthFirst(fromNode: T, includeFrom: boolean = true): Set<T> {
+		return this.walk(fromNode, 'down', 'breadth-first', includeFrom)
 	}
 
-	/** Walk self and ancestors using breadth-first traversal. */
-	walkUpBreadthFirst(fromNode: T): Set<T> {
-		return this.walk(fromNode, 'up', 'breadth-first')
+	/** Walk ancestors using breadth-first traversal, optionally including `fromNode`. */
+	walkUpBreadthFirst(fromNode: T, includeFrom: boolean = true): Set<T> {
+		return this.walk(fromNode, 'up', 'breadth-first', includeFrom)
 	}
 
-	/** Walk self and descendants using breadth-first traversal, also output distance. */
-	walkDownWithDistances(fromNode: T): Map<T, number> {
-		return this.walkWithDistanceBreadthFirst(fromNode, 'down')
+	/** Walk descendants by distance, optionally including `fromNode` at distance zero. */
+	walkDownWithDistances(fromNode: T, includeFrom: boolean = true): Map<T, number> {
+		return this.walkWithDistanceBreadthFirst(fromNode, 'down', includeFrom)
 	}
 
-	/** Walk self and ancestors using breadth-first traversal, also output distance. */
-	walkUpWithDistances(fromNode: T): Map<T, number> {
-		return this.walkWithDistanceBreadthFirst(fromNode, 'up')
+	/** Walk ancestors by distance, optionally including `fromNode` at distance zero. */
+	walkUpWithDistances(fromNode: T, includeFrom: boolean = true): Map<T, number> {
+		return this.walkWithDistanceBreadthFirst(fromNode, 'up', includeFrom)
 	}
 
 	private walk(
 		fromNode: T,
 		direction: WalkDirection,
 		strategy: WalkStrategy,
+		includeFrom: boolean,
 	): Set<T> {
 		let relations = direction === 'down'
 			? this.children
 			: this.parents
 
+		let walked: Set<T>
+
 		if (strategy === 'breadth-first') {
-			return this.walkBreadthFirst(fromNode, relations)
+			walked = this.walkBreadthFirst(fromNode, relations)
 		}
 		else {
-			return this.walkDepthFirst(fromNode, relations)
+			walked = this.walkDepthFirst(fromNode, relations)
 		}
+
+		if (!includeFrom) {
+			walked.delete(fromNode)
+		}
+
+		return walked
 	}
 
 	private walkDepthFirst(
@@ -138,7 +147,8 @@ export class DAG<T> {
 
 	private walkWithDistanceBreadthFirst(
 		fromNode: T,
-		direction: WalkDirection
+		direction: WalkDirection,
+		includeFrom: boolean,
 	): Map<T, number> {
 		let relations = direction === 'down'
 			? this.children
@@ -165,6 +175,10 @@ export class DAG<T> {
 				distances.set(relatedNode, distance + 1)
 				queue.push(relatedNode)
 			}
+		}
+
+		if (!includeFrom) {
+			distances.delete(fromNode)
 		}
 
 		return distances

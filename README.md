@@ -33,6 +33,9 @@ Most modules have none or few dependencies, which means you can easily **tree-sh
 		- `RecursiveAverage` and `RecursiveVariance`
 
 	- **Structs**: map and weak map structs, includes:
+		- `DAG`: directed graph traversal with depth-first, breadth-first, and distance-aware walks.
+		- `MedianHeap`: quickly maintain and retrieve a median value.
+		
 		- **Map**:
 			- `ListMap`: `K => V[]`
 			- `SetMap`: `K => Set<V>`
@@ -55,6 +58,7 @@ Most modules have none or few dependencies, which means you can easily **tree-sh
 
 	- **Tools**: includes normally tool classes:
 		- `AnchorAligner`: do anchor like positioning.
+		- `Base36`: compactly encode bounded numeric values as Base36 text.
 		- `Color`: color parse, formatting and converting.
 		- `WebStorage & BiggerStorage`: store json data items into localStorage and indexedDB. 
 		- `AsyncTaskQueue`: handle async tasks one by one.
@@ -90,7 +94,6 @@ Most modules have none or few dependencies, which means you can easily **tree-sh
 		- `StringUtils`: do string formatting, HTML safety, and converting between different naming conventions.
 		- `URLUtils`: parse or combine url query part.
 		- `ValueListUtils`: works just like `ListUtils`, but handle numbers and strings.
-	
 
 ## License
 

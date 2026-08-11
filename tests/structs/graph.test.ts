@@ -179,6 +179,53 @@ describe('DAG traversal', () => {
 		expect([...dag.walkUpBreadthFirst('A')]).toEqual(['A'])
 	})
 
+	it('can exclude the starting node from every traversal', () => {
+		let dag = createTree()
+
+		expect([...dag.walkDownDepthFirst('A', false)]).toEqual([
+			'B',
+			'D',
+			'E',
+			'C',
+			'F',
+			'G',
+		])
+		expect([...dag.walkDownBreadthFirst('A', false)]).toEqual([
+			'B',
+			'C',
+			'D',
+			'E',
+			'F',
+			'G',
+		])
+		expect([...dag.walkUpDepthFirst('D', false)]).toEqual(['B', 'A'])
+		expect([...dag.walkUpBreadthFirst('D', false)]).toEqual(['B', 'A'])
+
+		expect(dag.walkDownWithDistances('A', false)).toEqual(new Map([
+			['B', 1],
+			['C', 1],
+			['D', 2],
+			['E', 2],
+			['F', 2],
+			['G', 2],
+		]))
+		expect(dag.walkUpWithDistances('D', false)).toEqual(new Map([
+			['B', 1],
+			['A', 2],
+		]))
+	})
+
+	it('returns an empty result for an unrelated starting node when excluded', () => {
+		let dag = new DAG<string>()
+
+		expect(dag.walkDownDepthFirst('A', false)).toEqual(new Set())
+		expect(dag.walkDownBreadthFirst('A', false)).toEqual(new Set())
+		expect(dag.walkUpDepthFirst('A', false)).toEqual(new Set())
+		expect(dag.walkUpBreadthFirst('A', false)).toEqual(new Set())
+		expect(dag.walkDownWithDistances('A', false)).toEqual(new Map())
+		expect(dag.walkUpWithDistances('A', false)).toEqual(new Map())
+	})
+
 	it('ignores self-relations', () => {
 		let dag = new DAG<string>()
 
