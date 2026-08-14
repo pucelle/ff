@@ -3,20 +3,20 @@ import {describe, expect, it} from 'vitest'
 
 
 describe('Base36', () => {
-	it('packs two radix-6 values into one character', () => {
+	it('packs two radix-6 values into one character in little-endian order', () => {
 		let base36 = new Base36(6)
 
 		expect(base36.valuesPerChunk).toEqual(2)
 		expect(base36.charactersPerChunk).toEqual(1)
-		expect(base36.encode([1, 2])).toEqual('8')
-		expect(base36.decode('8')).toEqual([1, 2])
+		expect(base36.encode([1, 2])).toEqual('d')
+		expect(base36.decode('d')).toEqual([1, 2])
 	})
 
 	it('pads an incomplete radix-4 chunk with zero', () => {
 		let base36 = new Base36(4)
 
-		expect(base36.encode([1, 2, 3])).toEqual('6c')
-		expect(base36.decode('6c')).toEqual([1, 2, 3, 0])
+		expect(base36.encode([1, 2, 3])).toEqual('93')
+		expect(base36.decode('93')).toEqual([1, 2, 3, 0])
 		expect(base36.getEncodedLength(3)).toEqual(2)
 	})
 
@@ -25,8 +25,8 @@ describe('Base36', () => {
 
 		expect(base36.valuesPerChunk).toEqual(3)
 		expect(base36.charactersPerChunk).toEqual(2)
-		expect(base36.encode([1, 2, 3])).toEqual('2b')
-		expect(base36.decode('2b')).toEqual([1, 2, 3])
+		expect(base36.encode([1, 2, 3])).toEqual('t5')
+		expect(base36.decode('t5')).toEqual([1, 2, 3])
 		expect(base36.getEncodedLength(3)).toEqual(2)
 	})
 
@@ -46,7 +46,7 @@ describe('Base36', () => {
 		let base36 = new Base36(6)
 		let values = [1]
 
-		expect(base36.encode(values)).toEqual('6')
+		expect(base36.encode(values)).toEqual('1')
 		expect(values).toEqual([1])
 		expect(() => base36.encode([6])).toThrow(RangeError)
 		expect(() => base36.decode('!')).toThrow(RangeError)

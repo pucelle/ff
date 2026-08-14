@@ -1,7 +1,7 @@
 const Base36Radix = 36n
 
 
-/** Pack numeric values into a Base36 string. */
+/** Pack numeric values into a Base36 string in little-endian order. */
 export class Base36 {
 
 	/** Exclusive upper bound of every numeric value. */
@@ -35,26 +35,28 @@ export class Base36 {
 		this.charactersPerChunk = charactersPerChunk
 	}
 
-	/** Encode values, padding an incomplete final chunk with zero values. */
+	/** Encode values in little-endian order, padding an incomplete final chunk with zeros. */
 	encode(values: readonly number[]): string {
 		let encoded = ''
 
 		for (let start = 0; start < values.length; start += this.valuesPerChunk) {
 			let chunkValue = 0n
+			let multiplier = 1n
 
 			for (let offset = 0; offset < this.valuesPerChunk; offset++) {
 				let value = values[start + offset] ?? 0
 				this.validateValue(value)
-				chunkValue = chunkValue * this.bigintValueRadix + BigInt(value)
+				chunkValue += BigInt(value) * multiplier
+				multiplier *= this.bigintValueRadix
 			}
 
-			encoded += chunkValue.toString(36).padStart(this.charactersPerChunk, '0')
+			encoded += [...chunkValue.toString(36)].reverse().join('').padEnd(this.charactersPerChunk, '0')
 		}
 
 		return encoded
 	}
 
-	/** Decode a string, including zero values added while padding its final chunk. */
+	/** Decode a little-endian string, including zero values added while padding its final chunk. */
 	decode(encoded: string): number[] {
 		if (encoded.length % this.charactersPerChunk !== 0) {
 			throw new RangeError(`Encoded length must be a multiple of ${this.charactersPerChunk}`)
@@ -67,7 +69,7 @@ export class Base36 {
 			let chunkValue = this.parseChunk(chunkText)
 			let chunkValues = new Array<number>(this.valuesPerChunk)
 
-			for (let offset = this.valuesPerChunk - 1; offset >= 0; offset--) {
+			for (let offset = 0; offset < this.valuesPerChunk; offset++) {
 				chunkValues[offset] = Number(chunkValue % this.bigintValueRadix)
 				chunkValue /= this.bigintValueRadix
 			}
@@ -112,6 +114,7 @@ export class Base36 {
 
 	private parseChunk(chunk: string): bigint {
 		let value = 0n
+		let multiplier = 1n
 
 		for (let character of chunk.toLowerCase()) {
 			let digit = parseInt(character, 36)
@@ -119,7 +122,8 @@ export class Base36 {
 				throw new RangeError(`"${character}" is not a Base36 character`)
 			}
 
-			value = value * Base36Radix + BigInt(digit)
+			value += BigInt(digit) * multiplier
+			multiplier *= Base36Radix
 		}
 
 		return value
