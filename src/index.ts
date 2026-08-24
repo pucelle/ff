@@ -1,3 +1,4 @@
+import './polyfills'
 export * from './events'
 export * from './math'
 export * from './structs'

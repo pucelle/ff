@@ -12,7 +12,10 @@
 	"type": "module",
 	"main": "out/index.js",
 	"types": "out/index.d.ts",
-	"sideEffects": false,
+	"sideEffects": [
+		"./out/index.js",
+		"./out/polyfills/**/*.js"
+	],
 	"scripts": {
 		"build": "luc -e",
 		"watch": "luc -e -w",
