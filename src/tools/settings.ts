@@ -11,10 +11,11 @@ export abstract class Settings<O extends object> implements Observed, Connectabl
 
 	readonly defaultData: UnObserved<O>
 
+	/** Control saving delay. */
+	readonly saveBundler: EmptyBundler
+
 	/** Current data, readonly outside. */
 	data: Partial<O>
-
-	protected saveBundler: EmptyBundler
 
 	constructor(data: Partial<O>, defaultData: O) {
 		this.data = data
