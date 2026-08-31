@@ -14,7 +14,10 @@ export abstract class Settings<O extends object> implements Observed, Connectabl
 	/** Control saving delay. */
 	readonly saveBundler: EmptyBundler
 
-	/** Current data, readonly outside. */
+	/** 
+	 * Current data, normally readonly outside,
+	 * except you are really need to overwrite it.
+	 */
 	data: Partial<O>
 
 	constructor(data: Partial<O>, defaultData: O) {
