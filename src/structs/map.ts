@@ -201,7 +201,7 @@ export class ListMap<K, V> implements MethodsObserved<
 
 	/** Clear all the data. */
 	clear() {
-		this.map = new Map()
+		this.map.clear()
 	}
 }
 
@@ -360,7 +360,7 @@ export class SetMap<K, V> implements MethodsObserved<
 
 	/** Clear all the data. */
 	clear() {
-		this.map = new Map()
+		this.map.clear()
 	}
 }
 
@@ -514,7 +514,7 @@ export class PairKeysMap<K1, K2, V> implements MethodsObserved<
 
 	/** Clear all the data. */
 	clear() {
-		this.map = new Map()
+		this.map.clear()
 	}
 }
 
@@ -759,7 +759,7 @@ export class PairKeysListMap<K1, K2, V> implements MethodsObserved<
 	
 	/** Clear all the data. */
 	clear() {
-		this.map = new Map()
+		this.map.clear()
 	}
 }
 
@@ -982,7 +982,7 @@ export class PairKeysSetMap<K1, K2, V> implements MethodsObserved<
 	
 	/** Clear all the data. */
 	clear() {
-		this.map = new Map()
+		this.map.clear()
 	}
 }
 
