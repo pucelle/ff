@@ -15,10 +15,19 @@ export interface PositionComputed {
 		rect: DOMRect
 	},
 	target: {
-		position: Vector
-		limitHeight: number | null
 		rect: DOMRect
 		flipped: {x: boolean, y: boolean}
+
+		/** Limit target height to make content fully visible according to overflow. */
+		limitHeight: number | null
+
+		/** Position in viewport origin. */
+		position: Vector
+
+		/** 
+		 * If need to transform from viewport position to absolute origin relative to offset parent.
+		 * It's the translate transform for the `position`.
+		 */
 		absolutePositionOffset: Vector | null
 	}
 	triangle: {
@@ -135,11 +144,11 @@ export class PositionComputer {
 				rect: this.anchorRect,
 			},
 			target: {
-				position: new Vector(),
-				limitHeight: null,
 				rect: this.targetRect,
 				flipped: {x: false, y: false},
-				absolutePositionOffset: this.getAbsoluteLayoutOffset(),
+				limitHeight: null,
+				position: new Vector(),
+				absolutePositionOffset: this.getAbsoluteLayoutOffset(this.target, this.aligner.anchor),
 			},
 			triangle: null,
 		}
@@ -160,16 +169,16 @@ export class PositionComputer {
 	}
 
 	/** Get offset to convert fixed position to absolute position. */
-	private getAbsoluteLayoutOffset() {
-		let targetInAbsolutePosition = DOMUtils.getStyleValue(this.target, 'position') === 'absolute'
+	private getAbsoluteLayoutOffset(target: HTMLElement, anchor: Element | null) {
+		let targetInAbsolutePosition = DOMUtils.getStyleValue(target, 'position') === 'absolute'
 
 		// For absolute layout content, convert x, y to absolute position.
 		if (targetInAbsolutePosition
-			&& this.aligner.anchor !== document.body
-			&& this.aligner.anchor !== document.documentElement
+			&& anchor !== document.body
+			&& anchor !== document.documentElement
 		) {
 			let offset = new Vector()
-			let offsetParent = this.target.offsetParent as HTMLElement
+			let offsetParent = target.offsetParent as HTMLElement
 
 			// If we use body's top position, it will cause a bug when body has a margin top (even from margin collapse).
 			if (offsetParent) {

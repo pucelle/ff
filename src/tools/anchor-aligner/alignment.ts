@@ -1,33 +1,21 @@
-import {barrierDOMWriting} from 'lupos'
-import {Direction, Vector} from '../../math'
+import {Direction} from '../../math'
 import {AnchorAligner} from './anchor-aligner'
 import {PositionComputed} from './helpers/position-computer'
-import {getAnchorPointAt, getRelativeAnchorPointAt} from './helpers/position-gap-parser'
 import {isTargetUsingByAligner} from './helpers/target-aligner'
-import {PureCSSComputed, PureCSSAnchorAlignment} from './pure-css-alignment'
-import {AnchorAlignmentType} from './types'
 
 
 /** It must do measurement firstly, then assign css properties. */
 export class MeasuredAlignment {
 
-	readonly type: AnchorAlignmentType = AnchorAlignmentType.Measured
 	private aligner: AnchorAligner
 	private target: HTMLElement
 	private triangle: HTMLElement | undefined
 
-	/** Whether applied CSS Anchor Positioning properties. */
-	private useCSSAnchorPositioning: boolean = false
-
 	/** Previously computed. */
 	private lastComputed: PositionComputed | null = null
 
-	/** To do css alignment. */
-	private cssAlignment: PureCSSAnchorAlignment | null = null
-	
-	constructor(aligner: AnchorAligner, useCSSAnchorPositioning: boolean) {
+	constructor(aligner: AnchorAligner) {
 		this.aligner = aligner
-		this.useCSSAnchorPositioning = useCSSAnchorPositioning
 		this.target = aligner.target
 		this.triangle = aligner.options.triangle
 	}
@@ -37,23 +25,16 @@ export class MeasuredAlignment {
 	 * Or toggle alignment class.
 	 * `align` repetitively with same alignment class will not cause reset.
 	 */
-	async reset() {
+	reset() {
 		if (!this.lastComputed) {
 			return
 		}
 
-		await barrierDOMWriting()
-
 		this.resetBeforeAlign()
-
 		let targetInUsing = isTargetUsingByAligner(this.target, this.aligner)
 
-		if (this.useCSSAnchorPositioning) {
-			this.cssAlignment!.reset()
-		}
-
 		// Absolute element's layout will be affected by parent container.
-		else if (targetInUsing) {
+		if (targetInUsing) {
 			this.target.style.top = ''
 			this.target.style.right = ''
 			this.target.style.left = ''
@@ -87,41 +68,10 @@ export class MeasuredAlignment {
 	 * Ensure to barrier DOM Writing before calling it.
 	 */
 	align(computed: PositionComputed) {
-		if (this.useCSSAnchorPositioning) {
-			this.applyCSSAnchorPositioningProperties(computed)
-		}
-		else {
-			this.applyCSSPositionProperties(computed)
-		}
-
+		this.applyCSSPositionProperties(computed)
 		this.applyTargetProperties(computed)
 		this.applyTriangleProperties(computed)
 		this.lastComputed = computed
-	}
-
-	private applyCSSAnchorPositioningProperties(computed: PositionComputed) {
-		if (!this.cssAlignment) {
-			this.cssAlignment = new PureCSSAnchorAlignment(this.aligner)
-		}
-
-		let anchorPoint = getAnchorPointAt(computed.anchor.rect, computed.anchorDirection)
-
-		// This is the relative position for target when doing normal css anchor positioning,
-		let baseTargetPoint = getRelativeAnchorPointAt(computed.target.rect, undefined, computed.targetDirection)
-
-		let targetTranslate = new Vector(
-			computed.target.position.x - (anchorPoint.x - baseTargetPoint.x),
-			computed.target.position.y - (anchorPoint.y - baseTargetPoint.y)
-		)
-
-		let cssComputed: PureCSSComputed = {
-			anchorDirection: computed.anchorDirection,
-			targetDirection: computed.targetDirection,
-			targetRect: computed.target.rect,
-			targetTranslate,
-		}
-
-		this.cssAlignment.align(cssComputed)
 	}
 
 	private applyCSSPositionProperties(computed: PositionComputed) {
@@ -130,7 +80,7 @@ export class MeasuredAlignment {
 		// Convert from fixed positioning to absolute positioning.
 		if (computed.target.absolutePositionOffset) {
 			x += computed.target.absolutePositionOffset.x
-			y += computed.target.absolutePositionOffset.x
+			y += computed.target.absolutePositionOffset.y
 		}
 
 		// May scrollbar appears after alignment,

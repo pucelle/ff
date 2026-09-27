@@ -1,13 +1,12 @@
 import {Direction, HVDirection} from '../../math'
 import {DOMUtils, ObjectUtils} from '../../utils'
 import {RectWatcher, ResizeWatcher} from '../../watchers'
-import {MeasuredAlignment} from './measured-alignment'
+import {MeasuredAlignment} from './alignment'
 import {PositionComputer} from './helpers/position-computer'
-import {AnchorGaps, AnchorPosition, getGapTranslate, parseAlignDirections, parseGaps} from './helpers/position-gap-parser'
-import {PureCSSAnchorAlignment, PureCSSComputed} from './pure-css-alignment'
-import {AnchorAlignmentType} from './types'
+import {AnchorGaps, AnchorPosition, parseAlignDirections, parseGaps} from './helpers/position-gap-parser'
 import {barrierDOMReading, barrierDOMWriting} from 'lupos'
 import {deleteTargetAlignerMap, setTargetAlignerMap} from './helpers/target-aligner'
+import {Freezer} from './helpers/freezer'
 
 
 /** 
@@ -215,13 +214,20 @@ export class AnchorAligner {
 	heightLimited: boolean = false
 
 	/** To do alignment. */
-	private alignment: PureCSSAnchorAlignment | MeasuredAlignment | null = null
+	private alignment: MeasuredAlignment | null = null
+
+	/** Whether holding the last position during a leave transition. */
+	private freezer: Freezer
+
+	/** Invalidates pending asynchronous alignment work. */
+	private alignmentVersion: number = 0
 
 	/** To mutation dom tree change when height limited. */
 	private mutationObserver: MutationObserver | null = null
 
 	constructor(target: HTMLElement, options?: Partial<AnchorAlignerOptions>) {
 		this.target = target
+		this.freezer = new Freezer(target)
 		setTargetAlignerMap(target, this)
 		
 		if (options) {
@@ -324,30 +330,39 @@ export class AnchorAligner {
 	 * You may still call this to force align immediately.
 	 */
 	async alignTo(anchor: Element) {
+		if (this.anchor && this.anchor !== anchor) {
+			this.stop()
+		}
+
+		this.unwatch()
+		this.freezer.unfreeze()
 		this.anchor = anchor
+
+		setTargetAlignerMap(this.target, this)
+
+		let version = ++this.alignmentVersion
 		await this.update()
+
+		if (!this.aligning
+			|| this.anchor !== anchor
+			|| version + 1 !== this.alignmentVersion
+		) {
+			return
+		}
 
 		// Update after target size changed.
 		ResizeWatcher.watch(this.target, this.update, this)
 
-		if (this.shouldUseCSSAnchorPositioning()) {
-			ResizeWatcher.watch(anchor, this.onAnchorSizeChange, this)
-		}
-		else {
-			RectWatcher.watch(anchor, this.onAnchorRectChange, this)
-		}
-	}
-
-	/** After target size changed. */
-	private onAnchorSizeChange(entry: ResizeObserverEntry) {
-		if (entry.contentRect.width === 0 && entry.contentRect.height === 0) {
-			this.stop()
-			this.options.onAbort?.()
-		}
+		// Update or stop after anchor rect size changed.
+		RectWatcher.watch(anchor, this.onAnchorRectChange, this)
 	}
 
 	/** After target rect changed. */
 	private onAnchorRectChange(rect: DOMRect) {
+		if (this.freezer.frozen) {
+			return
+		}
+
 		if (rect.width === 0 && rect.height === 0) {
 			this.stop()
 			this.options.onAbort?.()
@@ -387,106 +402,84 @@ export class AnchorAligner {
 			return
 		}
 
-		let doPureCSSAlignment = this.shouldDoPureCSSAlignment()
-		if (doPureCSSAlignment) {
-			await this.doPureCSSAnchorAlignment()
-		}
-		else {
-			await this.doAnchorMeasuredAlignment()
-		}
+		let version = ++this.alignmentVersion
+		await this.doAnchorMeasuredAlignment(version)
 
-		this.updateMutationObserver()
+		if (version === this.alignmentVersion) {
+			this.updateMutationObserver()
+		}
 	}
 
 	/** Align target to the position of a mouse event. */
 	alignToEvent(event: MouseEvent) {
+		this.unwatch()
+		this.freezer.unfreeze()
+		this.anchor = null
 		this.doEventMeasuredAlignment(event)
 	}
 
-	/** 
+	/** Release subscriptions while preserving the visible placement. */
+	private unwatch() {
+		ResizeWatcher.unwatch(this.target, this.update, this)
+
+		if (this.anchor) {
+			RectWatcher.unwatch(this.anchor, this.onAnchorRectChange, this)
+		}
+
+		this.mutationObserver?.disconnect()
+		this.mutationObserver = null
+	}
+
+	/**
 	 * Stop sync aligning, and clear all alignment related properties.
-	 * Note that if still have leave transition playing,
-	 * you should want it the transition played then stop.
+	 * Call `freeze` before a leave transition, then stop after it finishes.
 	 */
 	stop() {
 		if (!this.aligning) {
 			return
 		}
 
-		deleteTargetAlignerMap(this.target, this)
-		ResizeWatcher.unwatch(this.target, this.update, this)
+		this.alignmentVersion++
 
-		if (this.shouldUseCSSAnchorPositioning()) {
-			ResizeWatcher.unwatch(this.anchor!, this.onAnchorSizeChange, this)
-		}
-		else {
-			RectWatcher.unwatch(this.anchor!, this.onAnchorRectChange, this)
-		}
-
+		this.unwatch()
+		this.freeze()
 		this.alignment!.reset()
 		this.alignment = null
 
+		deleteTargetAlignerMap(this.target, this)
+
 		this.flipped.x = false
 		this.flipped.y = false
-		
+
 		this.heightLimited = false
 		this.updateMutationObserver()
 	}
 
-	/** 
-	 * Whether should do pure CSS Alignment.
-	 * Means should measure to get state.
-	 */
-	private shouldDoPureCSSAlignment(): boolean {
-		return this.shouldUseCSSAnchorPositioning()
-			&& !this.canFlip()
-	}
-
-	/** Whether can apply css anchor positioning. */
-	private shouldUseCSSAnchorPositioning(): boolean {
-		return AnchorAligner.cssAnchorPositioningSupports()
-			&& (this.anchor instanceof HTMLElement)
-
-			// Can't use css anchor positioning when anchor is html or body element.
-			&& this.anchor !== document.documentElement
-	}
-
-	/** Whether can flip. */
-	private canFlip(): boolean {
-		let cantFlip = this.options.flipDirection === 'none'
-		return !cantFlip
-	}
-
-	/** 
-	 * Do alignment without measurement or re-syncing positions,
-	 * by pure CSS anchor positioning.
-	 */
-	private async doPureCSSAnchorAlignment() {
-		let alignment = await this.updateAlignment(AnchorAlignmentType.PureCSS)
-
-		// Barrier DOM Reading here.
-		await barrierDOMReading()
-
-		let computed: PureCSSComputed = {
-			anchorDirection: this.anchorDirection,
-			targetDirection: this.targetDirection,
-			targetRect: this.target.getBoundingClientRect(),
-			targetTranslate: getGapTranslate(this.anchorDirection, this.targetDirection, this.gaps),
+	/** Hold the current position independently of the anchor until stopped or realigned. */
+	freeze() {
+		let freezed = this.freezer.freeze()
+		if (freezed) {
+			this.alignmentVersion++
+			this.unwatch()
 		}
-
-		// Barrier DOM Writing here.
-		await barrierDOMWriting()
-
-		alignment.align(computed)
 	}
 
 	/** Do alignment with measurements and re-syncing positions. */
-	private async doAnchorMeasuredAlignment() {
-		let alignment = await this.updateAlignment(AnchorAlignmentType.Measured)
+	private async doAnchorMeasuredAlignment(version: number) {
+		let alignment = await this.updateAlignment()
+
+		if (version !== this.alignmentVersion) {
+			return
+		}
+
 		alignment.resetBeforeAlign()
 
 		// Barrier DOM Reading here.
 		await barrierDOMReading()
+
+		if (version !== this.alignmentVersion) {
+			return
+		}
 
 		// Do position computation.
 		// For `<html>`, always use viewport rect.
@@ -503,14 +496,25 @@ export class AnchorAligner {
 		// Barrier DOM Writing here.
 		await barrierDOMWriting()
 
+		if (version !== this.alignmentVersion) {
+			return
+		}
+
 		alignment.align(computed)
+		this.freezer.capturePlacement(computed)
 		this.flipped = computed.target.flipped
 		this.heightLimited = computed.target.limitHeight !== null
 	}
 
 	/** Do alignment with events. */
 	private async doEventMeasuredAlignment(event: MouseEvent) {
-		let alignment = await this.updateAlignment(AnchorAlignmentType.Measured)
+		let version = ++this.alignmentVersion
+		let alignment = await this.updateAlignment()
+
+		if (version !== this.alignmentVersion) {
+			return
+		}
+
 		alignment.resetBeforeAlign()
 
 		// Do position computation.
@@ -528,32 +532,20 @@ export class AnchorAligner {
 		let computed = await computer.compute()
 
 		// Do alignment by computation.
-		alignment.align(computed)
+		if (version !== this.alignmentVersion) {
+			return
+		}
 
+		alignment.align(computed)
+		this.freezer.capturePlacement(computed)
 	}
 
 	/** Update alignment class if needed. */
-	private async updateAlignment<T extends AnchorAlignmentType>(alignmentType: T):
-		Promise<T extends AnchorAlignmentType.PureCSS ? PureCSSAnchorAlignment : MeasuredAlignment>
-	{
-		if (this.alignment && this.alignment.type !== alignmentType) {
-
-			// Barrier DOM Writing here.
-			await barrierDOMWriting()
-
-			this.alignment.reset()
-			this.alignment = null
-		}
-
+	private async updateAlignment(): Promise<MeasuredAlignment>	{
 		if (!this.alignment) {
-			if (alignmentType === AnchorAlignmentType.PureCSS) {
-				this.alignment = new PureCSSAnchorAlignment(this)
-			}
-			else {
-				this.alignment = new MeasuredAlignment(this, this.shouldUseCSSAnchorPositioning())
-			}
+			this.alignment = new MeasuredAlignment(this)
 		}
 
-		return this.alignment as T extends AnchorAlignmentType.PureCSS ? PureCSSAnchorAlignment : MeasuredAlignment
+		return this.alignment
 	}
 }
