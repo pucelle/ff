@@ -398,7 +398,9 @@ export class AnchorAligner {
 	 * Works only when anchor specified, not work for event mode.
 	 */
 	async update() {
-		if (!this.anchor) {
+		if (!this.anchor
+			|| this.freezer.frozen
+		) {
 			return
 		}
 
@@ -430,8 +432,18 @@ export class AnchorAligner {
 		this.mutationObserver = null
 	}
 
+	/** Hold the current position until stopped or realigned. */
+	freeze() {
+		let freezed = this.freezer.freeze()
+		if (freezed) {
+			this.alignmentVersion++
+			this.unwatch()
+		}
+	}
+
 	/**
 	 * Stop sync aligning, and clear all alignment related properties.
+	 * Also stop freezing.
 	 * Call `freeze` before a leave transition, then stop after it finishes.
 	 */
 	stop() {
@@ -453,15 +465,6 @@ export class AnchorAligner {
 
 		this.heightLimited = false
 		this.updateMutationObserver()
-	}
-
-	/** Hold the current position independently of the anchor until stopped or realigned. */
-	freeze() {
-		let freezed = this.freezer.freeze()
-		if (freezed) {
-			this.alignmentVersion++
-			this.unwatch()
-		}
 	}
 
 	/** Do alignment with measurements and re-syncing positions. */
