@@ -91,11 +91,20 @@ export function onEnter(trigger: Element, content: Element) {
 
 	if (parent) {
 		PopupLocksMap.set(group, parent)
+		lockAncestors(group)
+	}
+}
 
-		// No need to handle older ancestors,
-		// Mouse already on parent popup group,
-		// so older ancestors muse have been locked.
+
+/** Lock ancestor chained after entering a descendant. */
+function lockAncestors(group: PopupGroup) {
+	let visited = new Set<PopupGroup>([group])
+	let parent = PopupLocksMap.get(group)
+
+	while (parent && !visited.has(parent)) {
+		visited.add(parent)
 		parent.state |= PopupStateMask.Locked
+		parent = PopupLocksMap.get(parent)
 	}
 }
 
