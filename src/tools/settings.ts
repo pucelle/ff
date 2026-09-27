@@ -43,7 +43,7 @@ export abstract class Settings<O extends object> implements Observed, Connectabl
 
 	/** Get option value by key, choose default value if option data doesn't specified it. */
 	get<K extends keyof O>(key: K): Observed<O[K]> {
-		return this.has(key) ? this.data[key] as Observed<O[K]> : this.defaultData[key]!
+		return this.data[key] as Observed<O[K]> ?? this.defaultData[key]!
 	}
 
 	/** Modify option key and value pair. */
