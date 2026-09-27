@@ -294,7 +294,7 @@ export class AnchorAligner {
 	 * Update options, will re-align if options get changed.
 	 * Will not re-align on event mode.
 	 */
-	async updateOptions(options: Partial<AnchorAlignerOptions> = {}) {
+	updateOptions(options: Partial<AnchorAlignerOptions> = {}) {
 		let oldOptionsSpecified = !!this.options
 		let newOptions = {...DefaultAnchorAlignerOptions, ...options}
 
@@ -310,9 +310,6 @@ export class AnchorAligner {
 		this.anchorDirection = ds[1]
 
 		this.anchorFaceDirection = this.anchorDirection.joinToStraight(this.targetDirection.opposite)
-
-		// Barrier DOM Reading here.
-		await barrierDOMReading()
 		this.gaps = parseGaps(newOptions.gaps, newOptions.triangle, this.anchorFaceDirection)
 		this.edgeGaps = parseGaps(newOptions.edgeGaps, newOptions.triangle, Direction.Center)
 

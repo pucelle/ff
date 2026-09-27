@@ -111,58 +111,58 @@ function parseSingleAlignDirection(position: string): Direction {
 
 
 /** Parse margin values to get a margin object, and apply triangle size to it. */
-export function parseGaps(gapValue: number | number[], triangle: HTMLElement | undefined, anchorFaceDirection: Direction): AnchorGaps {
-	let gap: AnchorGaps
+export function parseGaps(gapsValue: number | number[], triangle: HTMLElement | undefined, anchorFaceDirection: Direction): AnchorGaps {
+	let gaps: AnchorGaps
 
-	if (typeof gapValue === 'number') {
+	if (typeof gapsValue === 'number') {
 		if (anchorFaceDirection.beVertical) {
-			gap = {
-				top: gapValue,
+			gaps = {
+				top: gapsValue,
 				right: 0,
-				bottom: gapValue,
+				bottom: gapsValue,
 				left: 0,
 			}
 		}
 		else if (anchorFaceDirection.beHorizontal) {
-			gap = {
+			gaps = {
 				top: 0,
-				right: gapValue,
+				right: gapsValue,
 				bottom: 0,
-				left: gapValue,
+				left: gapsValue,
 			}
 		}
 		else {
-			gap = {
-				top: gapValue,
-				right: gapValue,
-				bottom: gapValue,
-				left: gapValue,
+			gaps = {
+				top: gapsValue,
+				right: gapsValue,
+				bottom: gapsValue,
+				left: gapsValue,
 			}
 		}
 	}
 	else {
-		gap = {
-			top: gapValue[0],
-			right: gapValue[1] ?? gapValue[0],
-			bottom: gapValue[2] ?? gapValue[0],
-			left: gapValue[3] ?? gapValue[1] ?? gapValue[0],
+		gaps = {
+			top: gapsValue[0],
+			right: gapsValue[1] ?? gapsValue[0],
+			bottom: gapsValue[2] ?? gapsValue[0],
+			left: gapsValue[3] ?? gapsValue[1] ?? gapsValue[0],
 		}
 	}
 	
 	// Triangle increase the minimum size of gaps.
 	if (triangle) {
 		if (anchorFaceDirection.beVertical) {
-			gap.top += triangle.offsetHeight
-			gap.bottom += triangle.offsetHeight
+			gaps.top += triangle.offsetHeight
+			gaps.bottom += triangle.offsetHeight
 		}
 
 		if (anchorFaceDirection.beHorizontal) {
-			gap.right += triangle.offsetWidth
-			gap.left += triangle.offsetWidth
+			gaps.right += triangle.offsetWidth
+			gaps.left += triangle.offsetWidth
 		}
 	}
 
-	return gap
+	return gaps
 }
 
 
