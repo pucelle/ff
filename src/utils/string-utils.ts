@@ -43,3 +43,60 @@ export function toDashCase(string: string): string {
 export function toUnderscoreCase(string: string): string {
 	return toDashCase(string).replace(/-/g, '_')
 }
+
+
+/** Guess text width in em. */
+export function estimateTextWidthEM(text: string): number {
+	let width = 0
+
+	for (const char of text) {
+
+		// Chinese / Japanese / Korean
+		if (/[\u4E00-\u9FFF\u3400-\u4DBF\u3040-\u30FF\uAC00-\uD7AF]/u.test(char)) {
+			width += 1.05
+		}
+		else if (/[A-Z]/.test(char)) {
+			width += 0.8
+		}
+		else if (/[a-z0-9]/.test(char)) {
+			width += 0.6
+		}
+		else if (/\s/.test(char)) {
+			width += 0.3
+		}
+
+		// punctuation / symbols
+		else {
+			width += 0.5
+		}
+	}
+
+	return width
+}
+
+
+/** 
+ * Hash a string to a hash string.
+ * Good for cache keys, IDs, deterministic colors, etc.
+ * But it's not cryptographically secure.
+ */
+export function hashToString(str: string): string {
+    return hashToNum(str).toString(16)
+}
+
+
+/** 
+ * Hash a string to get a number.
+ * Good for cache keys, IDs, deterministic colors, etc.
+ * But it's not cryptographically secure.
+ */
+export function hashToNum(str: string): number {
+    let hash = 0x811c9dc5
+
+    for (let i = 0; i < str.length; i++) {
+        hash ^= str.charCodeAt(i)
+        hash = Math.imul(hash, 0x01000193)
+    }
+
+    return hash >>> 0
+}
