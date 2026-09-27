@@ -364,7 +364,7 @@ export class AnchorAligner {
 		}
 
 		if (rect.width === 0 && rect.height === 0) {
-			this.stop()
+			this.freeze()
 			this.options.onAbort?.()
 		}
 		else {
@@ -442,7 +442,7 @@ export class AnchorAligner {
 		this.alignmentVersion++
 
 		this.unwatch()
-		this.freeze()
+		this.freezer.unfreeze()
 		this.alignment!.reset()
 		this.alignment = null
 
