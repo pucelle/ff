@@ -28,32 +28,60 @@ export class DAG<T> {
 		this.parents.add(childNode, parentNode)
 	}
 
-	/** Walk descendants using depth-first traversal, optionally including `fromNode`. */
+	/** Get all children nodes. */
+	getChildren(fromNode: T): Set<T> | undefined {
+		return this.children.get(fromNode)
+	}
+
+	/** Get all parent nodes. */
+	getParents(fromNode: T): Set<T> | undefined {
+		return this.parents.get(fromNode)
+	}
+
+	/** 
+	 * Walk descendants using depth-first traversal.
+	 * `includeFrom` specifies whether include `fromNode`, default is `true`.
+	 */
 	walkDownDepthFirst(fromNode: T, includeFrom: boolean = true): Set<T> {
 		return this.walk(fromNode, 'down', 'depth-first', includeFrom)
 	}
 
-	/** Walk ancestors using depth-first traversal, optionally including `fromNode`. */
+	/** 
+	 * Walk ancestors using depth-first traversal.
+	 * `includeFrom` specifies whether include `fromNode`, default is `true`.
+	 */
 	walkUpDepthFirst(fromNode: T, includeFrom: boolean = true): Set<T> {
 		return this.walk(fromNode, 'up', 'depth-first', includeFrom)
 	}
 
-	/** Walk descendants using breadth-first traversal, optionally including `fromNode`. */
+	/** 
+	 * Walk descendants using breadth-first traversal.
+	 * `includeFrom` specifies whether include `fromNode`, default is `true`.
+	 */
 	walkDownBreadthFirst(fromNode: T, includeFrom: boolean = true): Set<T> {
 		return this.walk(fromNode, 'down', 'breadth-first', includeFrom)
 	}
 
-	/** Walk ancestors using breadth-first traversal, optionally including `fromNode`. */
+	/** 
+	 * Walk ancestors using breadth-first traversal.
+	 * `includeFrom` specifies whether include `fromNode`, default is `true`.
+	 */
 	walkUpBreadthFirst(fromNode: T, includeFrom: boolean = true): Set<T> {
 		return this.walk(fromNode, 'up', 'breadth-first', includeFrom)
 	}
 
-	/** Walk descendants by distance, optionally including `fromNode` at distance zero. */
+	/** 
+	 * Walk descendants by distance
+	 * `includeFrom` specifies whether include `fromNode` at distance 0, default is `true`.
+	 */
 	walkDownWithDistances(fromNode: T, includeFrom: boolean = true): Map<T, number> {
 		return this.walkWithDistanceBreadthFirst(fromNode, 'down', includeFrom)
 	}
 
-	/** Walk ancestors by distance, optionally including `fromNode` at distance zero. */
+	/** 
+	 * Walk ancestors by distance
+	 * includeFrom` specifies whether include `fromNode` at distance 0, default is `true`.
+	 */
 	walkUpWithDistances(fromNode: T, includeFrom: boolean = true): Map<T, number> {
 		return this.walkWithDistanceBreadthFirst(fromNode, 'up', includeFrom)
 	}
