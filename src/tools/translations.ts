@@ -49,11 +49,11 @@ export class Translations implements Observed {
 		let value = data[key]
 
 		if (value === undefined) {
-			console.warn(`No item '${key}' in locale '${this.locale}'`)
-			value = ''
+			console.warn(`No translation item '${key}' in locale '${this.locale}'`)
+			value = key
 		}
 
-		if (args.length) {
+		if (value && args.length) {
 			value = StringUtils.format(value, args)
 		}
 
