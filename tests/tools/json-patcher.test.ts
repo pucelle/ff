@@ -37,6 +37,43 @@ describe('JSONPatcher', () => {
 		expect(applyJSONPatch({value: 1}, []).undo).toEqual([])
 	})
 
+	it('detects deeper differences but replaces at maxDepth', () => {
+		let before = {profile: {settings: {theme: 'dark'}, name: 'old'}, unchanged: {value: 1}}
+		let after = {profile: {settings: {theme: 'light'}, name: 'new'}, unchanged: {value: 1}}
+		let root = JSONPatcher.compare(before, after, {maxDepth: 0})
+		let parent = JSONPatcher.compare(before, after, {maxDepth: 1})
+		let child = JSONPatcher.compare(before, after, {maxDepth: 2})
+
+		expect(root).toEqual([{type: 'set', path: [], after}])
+		expect(parent).toEqual([{type: 'set', path: ['profile'], after: after.profile}])
+		expect(child).toEqual([
+			{type: 'set', path: ['profile', 'settings'], after: after.profile.settings},
+			{type: 'set', path: ['profile', 'name'], after: 'new'},
+		])
+
+		for (let patch of [root, parent, child]) {
+			expect(applyJSONPatch(structuredClone(before), patch).data).toEqual(after)
+		}
+
+		expect(JSONPatcher.compare(before, structuredClone(before), {maxDepth: 1})).toEqual([])
+	})
+
+	it('counts an identified array member as one comparison level', () => {
+		let before = [{id: 1, details: {score: 1}}]
+		let after = [{id: 1, details: {score: 2}}]
+		let patch = JSONPatcher.compare(before, after, {maxDepth: 1})
+
+		expect(patch).toEqual([{
+			type: 'set', path: [{id: 1}], after: after[0],
+		}])
+		expect(applyJSONPatch(structuredClone(before), patch).data).toEqual(after)
+	})
+
+	it('rejects invalid maximum comparison depths', () => {
+		expect(() => JSONPatcher.compare({}, {}, {maxDepth: -1})).toThrow(RangeError)
+		expect(() => JSONPatcher.compare({}, {}, {maxDepth: 1.5})).toThrow(RangeError)
+	})
+
 	it('matches mixed array members by typed primitive value and object ID', () => {
 		let before = [
 			1, '1', false,

@@ -4,6 +4,11 @@ import type {JSONPatch, JSONPatchCompareOptions, JSONPatchPath} from './json-pat
 
 /** Compare two values and describe their differences as a patch. */
 export function compareJSONPatch(before: unknown, after: unknown, options: JSONPatchCompareOptions = {}): JSONPatch {
+	let maxDepth = options.maxDepth ?? Infinity
+	if (maxDepth < 0 || maxDepth !== Infinity && !Number.isInteger(maxDepth)) {
+		throw new RangeError('Maximum patch depth must be a nonnegative integer or Infinity')
+	}
+
 	let patch: JSONPatch = []
 	collect(before, after, [], patch, options)
 	return patch
@@ -11,6 +16,14 @@ export function compareJSONPatch(before: unknown, after: unknown, options: JSONP
 
 /** Compare objects recursively and arrays by member selectors. */
 function collect(before: any, after: any, path: JSONPatchPath, patch: JSONPatch, options: JSONPatchCompareOptions) {
+	if (path.length >= (options.maxDepth ?? Infinity)) {
+		if (!sameValue(before, after)) {
+			replaceValue(after, path, patch)
+		}
+
+		return
+	}
+
 	if (sameValue(before, after)) {
 		return
 	}
@@ -35,7 +48,14 @@ function collect(before: any, after: any, path: JSONPatchPath, patch: JSONPatch,
 	else if (Array.isArray(before) && Array.isArray(after)) {
 		collectArray(before, after, path, patch, options)
 	}
-	else if (after !== undefined) {
+	else {
+		replaceValue(after, path, patch)
+	}
+}
+
+/** Replace one changed value without descending further. */
+function replaceValue(after: any, path: JSONPatchPath, patch: JSONPatch) {
+	if (after !== undefined) {
 		patch.push({type: 'set', path, after: clone(after)})
 	}
 	else {

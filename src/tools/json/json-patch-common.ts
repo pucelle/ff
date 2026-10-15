@@ -65,6 +65,12 @@ export interface JSONPatchApplyOptions {
 /** Collection matching policy for comparing object members. */
 export interface JSONPatchCompareOptions {
 
+	/**
+	 * Detect changes at any depth. Emit replacement patches no deeper than this depth.
+	 * The root is depth 0.
+	 */
+	maxDepth?: number
+
 	/** 
 	 * Use a custom way to identify the object items in an array.
 	 * If not specified, use object id property.
