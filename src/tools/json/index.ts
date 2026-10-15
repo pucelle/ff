@@ -12,3 +12,4 @@ export type {
 } from './json-patch-common'
 export * from './json-patch-comparer'
 export {applyJSONPatch} from './json-patch-applier'
+export {subtractJSONPatch} from './json-patch-subtractor'

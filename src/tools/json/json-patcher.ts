@@ -1,14 +1,34 @@
 import {clone} from './json-patch-common'
+import {applyJSONPatch} from './json-patch-applier'
 import {compareJSONPatch} from './json-patch-comparer'
-import type {JSONPatch, JSONPatchCompareOptions, JSONPatchPath, JSONArrayMember, JSONArrayPosition} from './json-patch-common'
+import {subtractJSONPatch} from './json-patch-subtractor'
+import type {
+	JSONPatch,
+	JSONPatchApplyOptions,
+	JSONPatchApplyResult,
+	JSONPatchCompareOptions,
+	JSONPatchPath,
+	JSONArrayMember,
+	JSONArrayPosition,
+} from './json-patch-common'
 
 
-/** Compare and construct patches to JSON-like objects and arrays. */
+/** Compare, construct, subtract, and apply patches to JSON-like data. */
 export class JSONPatcher {
 
 	/** Build a patch from two values. */
 	static compare(before: unknown, after: unknown, options: JSONPatchCompareOptions = {}): JSONPatch {
 		return compareJSONPatch(before, after, options)
+	}
+
+	/** Remove changes covered by a later patch. */
+	static subtract(earlier: JSONPatch, later: JSONPatch, options: JSONPatchCompareOptions = {}): JSONPatch {
+		return subtractJSONPatch(earlier, later, options)
+	}
+
+	/** Apply a patch and return the result with patches for undoing it. */
+	static apply<T>(data: T, patch: JSONPatch, options: JSONPatchApplyOptions = {}): JSONPatchApplyResult<T> {
+		return applyJSONPatch(data, patch, options)
 	}
 
 	/** Changes composed through the builder methods. */
@@ -60,7 +80,8 @@ export class JSONPatcher {
 		this.changes.push({
 			type: 'insert',
 			path,
-			value: clone(value), position,
+			value: clone(value),
+			position,
 		})
 		return this
 	}
@@ -73,6 +94,7 @@ export class JSONPatcher {
 			member,
 			position,
 		})
+
 		return this
 	}
 

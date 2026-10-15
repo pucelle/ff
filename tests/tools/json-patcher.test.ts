@@ -4,6 +4,17 @@ import {applyJSONPatch} from '../../src/tools/json/json-patch-applier'
 
 
 describe('JSONPatcher', () => {
+	it('forwards static subtraction and application to the standalone APIs', () => {
+		let data = {value: 1}
+		let patch = new JSONPatcher().set(['value'], 2).toPatch()
+		let result = JSONPatcher.apply(data, patch)
+		let later = new JSONPatcher().set(['value'], 3).toPatch()
+
+		expect(result.data).toEqual({value: 2})
+		expect(JSONPatcher.subtract(result.undo, later)).toEqual([])
+		expect(JSONPatcher.apply(result.data, result.undo).data).toEqual({value: 1})
+	})
+
 	it('treats missing and undefined fields alike while returning undo patches', () => {
 		let before = {kept: undefined, removed: 1, nested: {value: 2}}
 		let after = {kept: undefined, added: undefined, nested: {value: 3}}
