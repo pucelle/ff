@@ -353,7 +353,6 @@ export class AnchorAligner {
 
 		// Update after target size changed.
 		ResizeWatcher.watch(this.target, this.update, this)
-
 	}
 
 	/** After target rect changed. */
