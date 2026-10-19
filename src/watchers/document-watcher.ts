@@ -23,6 +23,8 @@ export function bind(callback: Function, scope: any = null) {
 
 		window.addEventListener('resize', fireDocumentChangeLater)
 		window.addEventListener('wheel', fireDocumentChangeLater)
+		window.addEventListener('transitionend', fireDocumentChangeLater)
+		window.addEventListener('animationend', fireDocumentChangeLater)
 	}
 
 	MutationCallbacks.push(boundCallback)

@@ -1,7 +1,7 @@
+import {ListMap} from '../structs'
 import {bindCallback} from '../utils'
 import * as DocumentWatcher from './document-watcher'
-import {ListMap} from '../structs'
-import {UpdateQueue} from 'lupos'
+import * as ResizeWatcher from './resize-watcher'
 
 
 type RectObserverCallback = (rect: DOMRect) => void
@@ -18,23 +18,38 @@ let documentWatcherBound = false
 /** Check each element rect. */
 function checkOnDocumentWatcherCallback() {
 	for (let el of CallbackMap.keys()) {
-		let newRect = el.getBoundingClientRect()
-		let oldRect = ElementRectCache.get(el)
+		checkElementRect(el)
+	}
+}
 
-		if (oldRect
-			&& oldRect.x === newRect.x
-			&& oldRect.y === newRect.y
-			&& oldRect.width === newRect.width
-			&& oldRect.height === newRect.height
-		) {
-			continue
-		}
+/** Check a resized element using the same rect comparison as document changes. */
+function onResizeCallback(entry: ResizeObserverEntry) {
+	checkElementRect(entry.target)
+}
 
-		for (let callback of CallbackMap.get(el)!) {
-			callback(newRect)
-		}
+/** Notify only when the element's position or size actually changed. */
+function checkElementRect(el: Element) {
+	let callbacks = CallbackMap.get(el)
+	if (!callbacks) {
+		return
+	}
 
-		ElementRectCache.set(el, newRect)
+	let newRect = el.getBoundingClientRect()
+	let oldRect = ElementRectCache.get(el)
+
+	if (oldRect
+		&& oldRect.x === newRect.x
+		&& oldRect.y === newRect.y
+		&& oldRect.width === newRect.width
+		&& oldRect.height === newRect.height
+	) {
+		return
+	}
+
+	ElementRectCache.set(el, newRect)
+
+	for (let callback of [...callbacks]) {
+		callback(newRect)
 	}
 }
 
@@ -42,18 +57,20 @@ function checkOnDocumentWatcherCallback() {
 /**
  * Watch rect of an element, get notified by `callback` if this rect get changed.
  * Note that this method may cause additional page re-layout.
- * It will wait for update complete then read bounding rect.
  */
-export async function watch(el: Element, callback: RectObserverCallback, scope: any = null) {
+export function watch(el: Element, callback: RectObserverCallback, scope: any = null) {
 	let boundCallback = bindCallback(callback, scope)
 	if (CallbackMap.has(el, boundCallback)) {
 		return
 	}
 
-	await UpdateQueue.untilComplete()
-
+	let firstWatcher = !CallbackMap.hasKey(el)
 	CallbackMap.add(el, boundCallback)
-	ElementRectCache.set(el, el.getBoundingClientRect())
+
+	if (firstWatcher) {
+		ElementRectCache.set(el, el.getBoundingClientRect())
+		ResizeWatcher.watch(el, onResizeCallback)
+	}
 
 	if (!documentWatcherBound) {
 		DocumentWatcher.bind(checkOnDocumentWatcherCallback)
@@ -67,12 +84,19 @@ export async function watch(el: Element, callback: RectObserverCallback, scope: 
  * If `callback` omitted, unwatch all callbacks for element.
  */
 export function unwatch(el: Element, callback?: RectObserverCallback, scope?: any) {
+	let wasWatched = CallbackMap.hasKey(el)
+
 	if (callback) {
 		let boundCallback = bindCallback(callback, scope)
 		CallbackMap.delete(el, boundCallback)
 	}
 	else {
 		CallbackMap.deleteOf(el)
+	}
+
+	if (wasWatched && !CallbackMap.hasKey(el)) {
+		ResizeWatcher.unwatch(el, onResizeCallback)
+		ElementRectCache.delete(el)
 	}
 
 	if (CallbackMap.keyCount() === 0) {
