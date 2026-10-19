@@ -216,6 +216,9 @@ export class AnchorAligner {
 	/** To do alignment. */
 	private alignment: MeasuredAlignment | null = null
 
+	/** The selected descendant whose rect also controls alignment. */
+	private watchedReAnchor: Element | null = null
+
 	/** Whether holding the last position during a leave transition. */
 	private freezer: Freezer
 
@@ -229,10 +232,7 @@ export class AnchorAligner {
 		this.target = target
 		this.freezer = new Freezer(target)
 		setTargetAlignerMap(target, this)
-		
-		if (options) {
-			this.updateOptions(options)
-		}
+		this.updateOptions(options)
 	}
 
 	/** Whether in aligning. */
@@ -339,13 +339,14 @@ export class AnchorAligner {
 		this.anchor = anchor
 
 		setTargetAlignerMap(this.target, this)
+		RectWatcher.watch(anchor, this.onAnchorRectChange, this)
+		this.updateReAnchorWatcher()
 
-		let version = ++this.alignmentVersion
 		await this.update()
 
 		if (!this.aligning
 			|| this.anchor !== anchor
-			|| version + 1 !== this.alignmentVersion
+			|| this.freezer.frozen
 		) {
 			return
 		}
@@ -353,8 +354,6 @@ export class AnchorAligner {
 		// Update after target size changed.
 		ResizeWatcher.watch(this.target, this.update, this)
 
-		// Update or stop after anchor rect size changed.
-		RectWatcher.watch(anchor, this.onAnchorRectChange, this)
 	}
 
 	/** After target rect changed. */
@@ -370,6 +369,33 @@ export class AnchorAligner {
 		else {
 			this.update()
 		}
+	}
+
+	/** Watch the selected descendant when it differs from the anchor. */
+	private updateReAnchorWatcher() {
+		let reAnchor = this.options.reAnchor ? this.reAnchored : null
+		if (reAnchor === this.anchor) {
+			reAnchor = null
+		}
+
+		if (reAnchor === this.watchedReAnchor) {
+			return
+		}
+
+		if (this.watchedReAnchor) {
+			RectWatcher.unwatch(this.watchedReAnchor, this.onReAnchorRectChange, this)
+		}
+
+		this.watchedReAnchor = reAnchor
+
+		if (reAnchor) {
+			RectWatcher.watch(reAnchor, this.onReAnchorRectChange, this)
+		}
+	}
+
+	/** Re-align when the selected anchor descendant changes its rect. */
+	private onReAnchorRectChange() {
+		this.update()
 	}
 
 	/** Update `mutationObserver` by `heightLimited` property. */
@@ -408,6 +434,7 @@ export class AnchorAligner {
 		await this.doAnchorMeasuredAlignment(version)
 
 		if (version === this.alignmentVersion) {
+			this.updateReAnchorWatcher()
 			this.updateMutationObserver()
 		}
 	}
@@ -426,6 +453,11 @@ export class AnchorAligner {
 
 		if (this.anchor) {
 			RectWatcher.unwatch(this.anchor, this.onAnchorRectChange, this)
+		}
+
+		if (this.watchedReAnchor) {
+			RectWatcher.unwatch(this.watchedReAnchor, this.onReAnchorRectChange, this)
+			this.watchedReAnchor = null
 		}
 
 		this.mutationObserver?.disconnect()

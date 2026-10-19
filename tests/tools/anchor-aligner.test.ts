@@ -1,5 +1,6 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {AnchorAligner} from '../../src/tools/anchor-aligner/anchor-aligner'
+import {RectWatcher} from '../../src/watchers'
 
 
 vi.mock('lupos', () => ({
@@ -116,5 +117,38 @@ describe('AnchorAligner leave positioning', () => {
 		await aligner.alignTo(anchor)
 		expect(target.style.left).toBe('180px')
 		expect(target.style.top).toBe('220px')
+	})
+
+	it('subscribes before alignment and re-aligns when the anchor size changes', async () => {
+		let {anchor, target, aligner} = createPopup(false, 'none')
+		let pending = aligner.alignTo(anchor)
+		let watched = vi.mocked(RectWatcher.watch).mock.calls.find(call => call[0] === anchor)!
+		expect(watched).toBeDefined()
+		await pending
+
+		let rect = new DOMRect(100, 100, 80, 20)
+		vi.mocked(anchor.getBoundingClientRect).mockReturnValue(rect)
+		watched[1].call(watched[2], rect)
+
+		await vi.waitFor(() => expect(target.style.left).toBe('100px'))
+	})
+
+	it('re-aligns when a selected anchor descendant changes size', async () => {
+		let {anchor, target, aligner} = createPopup(false, 'none')
+		let child = document.createElement('span')
+		child.className = 'point'
+		anchor.append(child)
+		let rect = new DOMRect(110, 100, 10, 20)
+		vi.spyOn(child, 'getBoundingClientRect').mockImplementation(() => rect)
+		aligner.updateOptions({reAnchor: '.point', flipDirection: 'none', stickToEdges: false})
+		let pending = aligner.alignTo(anchor)
+
+		let watched = vi.mocked(RectWatcher.watch).mock.calls.find(call => call[0] === child)!
+		expect(watched).toBeDefined()
+		await pending
+		rect = new DOMRect(110, 100, 30, 20)
+		watched[1].call(watched[2], rect)
+
+		await vi.waitFor(() => expect(target.style.left).toBe('85px'))
 	})
 })
