@@ -339,8 +339,6 @@ export class AnchorAligner {
 		this.anchor = anchor
 
 		setTargetAlignerMap(this.target, this)
-		RectWatcher.watch(anchor, this.onAnchorRectChange, this)
-		this.updateReAnchorWatcher()
 
 		await this.update()
 
@@ -351,7 +349,11 @@ export class AnchorAligner {
 			return
 		}
 
-		// Update after target size changed.
+		// Watch anchor size.
+		RectWatcher.watch(anchor, this.onAnchorRectChange, this)
+		this.updateReAnchorWatcher()
+
+		// Watch target size.
 		ResizeWatcher.watch(this.target, this.update, this)
 	}
 
