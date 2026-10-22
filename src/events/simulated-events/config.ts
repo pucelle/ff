@@ -1,5 +1,5 @@
 /** The default configuration for simulated events. */
-export const SimulatedEventsConfig = {
+export const SIMULATED_EVENTS_CONFIG = {
 
 	/** How long after pointer down to trigger hold event. */
 	becomeHoldAfterDuration: 500,
@@ -20,8 +20,9 @@ export const SimulatedEventsConfig = {
 	minimumSlideAngle: 30,
 }
 
+
 /** All options for simulated events. */
-export interface SimulatedEventsOptions extends Partial<typeof SimulatedEventsConfig> {
+export interface SimulatedEventsOptions extends Partial<typeof SIMULATED_EVENTS_CONFIG> {
 
 	/** Whether prevent default. */
 	prevent?: boolean

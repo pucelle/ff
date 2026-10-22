@@ -6,7 +6,7 @@ type DurationData = Record<DurationUnit, number>
 
 
 /** All data units from year to seconds. */
-export const DurationUnits = 'yMdhms'
+export const DURATION_UNITS = 'yMdhms'
 
 
 export class DurationObject {
@@ -61,7 +61,7 @@ export class DurationObject {
 	}
 
 	/** Parse second count to duration object. */
-	static fromSeconds(seconds: number, units = DurationUnits): DurationObject {
+	static fromSeconds(seconds: number, units = DURATION_UNITS): DurationObject {
 		let o = {
 			y: 0,
 			M: 0,
@@ -138,7 +138,7 @@ export class DurationObject {
 	 * Format to duration string like `1h1m`.
 	 * @param units can specify only output in these units.
 	 */
-	toDurationString(units: string = DurationUnits): string {
+	toDurationString(units: string = DURATION_UNITS): string {
 		let seconds = this.toSeconds()
 		let duration = ''
 

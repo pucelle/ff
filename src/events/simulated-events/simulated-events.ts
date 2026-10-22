@@ -2,7 +2,7 @@ import {DoubleTapEventProcessor, DoubleTapEvents} from './double-tap'
 import {EventFirer} from 'lupos'
 import {HoldEventProcessor, HoldEvents, PinchTransformEvents, PinchTransformProcessor, TapEventProcessor, TapEvents, PinchZoomEvents, PinchZoomProcessor, SlideEvents, SlideEventProcessor} from '.'
 import {WeakFirstPairKeysMap} from '../../structs'
-import {SimulatedEventsConfig, SimulatedEventsOptions} from './config'
+import {SIMULATED_EVENTS_CONFIG, SimulatedEventsOptions} from './config'
 
 
 type EventProcessor = EventFirer<any> & {remove: () => void}
@@ -14,7 +14,8 @@ export type Options = SimulatedEventsOptions
 
 
 /** Default simulated event configurations. */
-export const Default = SimulatedEventsConfig
+export const DEFAULT = SIMULATED_EVENTS_CONFIG
+
 
 /** 
  * All the event processor constructors.
@@ -25,7 +26,7 @@ export const Default = SimulatedEventsConfig
  * 
  * Or we may pass another processor parameter... this is not good.
  */
-const EventConstructors: Record<string, {new(el: EventTarget, options?: SimulatedEventsOptions): EventProcessor}> = {
+const EVENT_CONSTRUCTORS: Record<string, {new(el: EventTarget, options?: SimulatedEventsOptions): EventProcessor}> = {
 	'tap': TapEventProcessor,
 	'double-tap': DoubleTapEventProcessor,
 	'hold': HoldEventProcessor,
@@ -83,7 +84,7 @@ export function off<T extends EventType>(el: EventTarget, type: T, handler: Even
 /** Test whether has specified simulated event type. */
 export function hasType(type: string): type is EventType {
 	let groupName = type.replace(/:.+/, '')
-	return EventConstructors.hasOwnProperty(groupName)
+	return EVENT_CONSTRUCTORS.hasOwnProperty(groupName)
 }
 
 
@@ -92,7 +93,7 @@ function getProcessor(type: EventType, el: EventTarget, options?: SimulatedEvent
 	let processor = EventProcessorCache.get(el, groupName)
 
 	if (!processor) {
-		let Processor = EventConstructors[groupName]
+		let Processor = EVENT_CONSTRUCTORS[groupName]
 		processor = new Processor(el, options)
 		EventProcessorCache.set(el, groupName, processor)
 	}

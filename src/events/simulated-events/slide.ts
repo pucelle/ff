@@ -1,5 +1,5 @@
 import {EventFirer, DOMEvents} from 'lupos'
-import {SimulatedEventsConfig, SimulatedEventsOptions} from './config'
+import {SIMULATED_EVENTS_CONFIG, SimulatedEventsOptions} from './config'
 import {EventUtils} from '../../utils'
 import {Coord, BoxOffsetKey} from '../../math'
 
@@ -75,8 +75,8 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 
 		let movesLength = Math.sqrt(moves.x ** 2 + moves.y ** 2)
 		let direction = this.getSlideDirection(moves)
-		let maximumSlideDuration = this.options.maximumSlideDuration ?? SimulatedEventsConfig.maximumSlideDuration
-		let minimumSlideDistance = this.options.minimumSlideDistance ?? SimulatedEventsConfig.minimumSlideDistance
+		let maximumSlideDuration = this.options.maximumSlideDuration ?? SIMULATED_EVENTS_CONFIG.maximumSlideDuration
+		let minimumSlideDistance = this.options.minimumSlideDistance ?? SIMULATED_EVENTS_CONFIG.minimumSlideDistance
 
 		this.fire('slide:translate', e, {x: 0, y: 0})
 
@@ -97,7 +97,7 @@ export class SlideEventProcessor extends EventFirer<SlideEvents> {
 		}
 
 		let v = directionToVector(direction)
-		let minimumSlideAngle = this.options.minimumSlideAngle ?? SimulatedEventsConfig.minimumSlideAngle
+		let minimumSlideAngle = this.options.minimumSlideAngle ?? SIMULATED_EVENTS_CONFIG.minimumSlideAngle
 
 		// Angle must lower than configured angle.
 		// Dot of `v` and `moves` normalized should lower than cos value of minimum

@@ -1,4 +1,4 @@
-import {DurationUnits, DurationObject} from './duration-object'
+import {DURATION_UNITS, DurationObject} from './duration-object'
 import {DurationUnit} from './types'
 
 
@@ -105,8 +105,8 @@ export function getDaysOfMonth(date: Date): number {
  * Clones a date, returns a new date.
  * @param units default value is `yMdhms`, can specify partial of it to do partly clone, rest values will be set to initial.
  */
-export function clone(date: Date = new Date(), units: string = DurationUnits): Date {
-	let dateValues = [...DurationUnits].map(unit => {
+export function clone(date: Date = new Date(), units: string = DURATION_UNITS): Date {
+	let dateValues = [...DURATION_UNITS].map(unit => {
 		if (units.includes(unit)) {
 			return getValue(date, unit as DurationUnit)
 		}
@@ -180,7 +180,7 @@ export function formatToShort(date: Date, template: {[key in DurationUnit]?: str
 	let hasDifferentUnit = false
 	let matchedFormat: string = Object.values(template)[0]!
 
-	for (let unit of DurationUnits) {
+	for (let unit of DURATION_UNITS) {
 		hasDifferentUnit = hasDifferentUnit || getValue(date, unit as DurationUnit) !== getValue(now, unit as DurationUnit)
 		matchedFormat = template[unit as DurationUnit] || matchedFormat
 

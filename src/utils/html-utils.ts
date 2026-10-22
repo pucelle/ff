@@ -1,5 +1,5 @@
 /** HTML Encoding Characters map. */
-const HTMLEncodingMap: Record<string, string> = {
+const HTML_ENCODING_MAP: Record<string, string> = {
 	'&': '&amp;',
 	'<': '&lt;',
 	'>': '&gt;',
@@ -8,9 +8,9 @@ const HTMLEncodingMap: Record<string, string> = {
 }
 
 /** HTML Decoding Characters map. */
-const DynamicHTMLDecodingMap: Record<string, string>
+const DYNAMIC_HTML_DECODING_MAP: Record<string, string>
 	= /*#__PURE__*/Object.fromEntries(
-		/*#__PURE__*/Object.entries(HTMLEncodingMap).map(v => [v[1], v[0]])
+		/*#__PURE__*/Object.entries(HTML_ENCODING_MAP).map(v => [v[1], v[0]])
 	)
 
 
@@ -20,7 +20,7 @@ const DynamicHTMLDecodingMap: Record<string, string>
  */
 export function encodeToHTML(code: string): string {
 	return code.replace(/[&<>"']/g, (a) => {
-		return HTMLEncodingMap[a]
+		return HTML_ENCODING_MAP[a]
 	})
 }
 
@@ -44,8 +44,8 @@ export function decodeFromHTML(code: string): string {
 
 /** Check what a HTML encoded characters like `&amp;` should be decoded. */
 function decodeEntity(entity: string) {
-	if (DynamicHTMLDecodingMap[entity]) {
-		return DynamicHTMLDecodingMap[entity]
+	if (DYNAMIC_HTML_DECODING_MAP[entity]) {
+		return DYNAMIC_HTML_DECODING_MAP[entity]
 	}
 
 	let span = document.createElement('span')
@@ -53,7 +53,7 @@ function decodeEntity(entity: string) {
 	let decoded = span.textContent
 
 	if (decoded.length === 1) {
-		DynamicHTMLDecodingMap[entity] = decoded
+		DYNAMIC_HTML_DECODING_MAP[entity] = decoded
 	}
 
 	return decoded

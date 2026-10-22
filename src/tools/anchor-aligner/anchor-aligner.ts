@@ -108,7 +108,7 @@ export type ReAnchorTarget = {
 } | string | string[]
 
 
-const DefaultAnchorAlignerOptions: AnchorAlignerOptions = {
+const DEFAULT_ANCHOR_ALIGNER_OPTIONS: AnchorAlignerOptions = {
 	position: 'b',
 	gaps: 0,
 	edgeGaps: 0,
@@ -126,7 +126,7 @@ const DefaultAnchorAlignerOptions: AnchorAlignerOptions = {
 export class AnchorAligner {
 
 	/** Default anchor aligner options, can be overwritten. */
-	static DefaultOptions: AnchorAlignerOptions = DefaultAnchorAlignerOptions
+	static DefaultOptions: AnchorAlignerOptions = DEFAULT_ANCHOR_ALIGNER_OPTIONS
 	
 	/** 
 	 * Get the direction that anchor face to target.
@@ -302,7 +302,7 @@ export class AnchorAligner {
 	 */
 	updateOptions(options: Partial<AnchorAlignerOptions> = {}) {
 		let oldOptionsSpecified = !!this.options
-		let newOptions = {...DefaultAnchorAlignerOptions, ...options}
+		let newOptions = {...DEFAULT_ANCHOR_ALIGNER_OPTIONS, ...options}
 
 		let changed = !ObjectUtils.deepEqual(this.options, newOptions)
 		if (!changed) {

@@ -1,6 +1,6 @@
 import {Timeout} from '../../tools'
 import {EventFirer, DOMEvents} from 'lupos'
-import {SimulatedEventsConfig, SimulatedEventsOptions} from './config'
+import {SIMULATED_EVENTS_CONFIG, SimulatedEventsOptions} from './config'
 
 
 export interface HoldEvents {
@@ -27,7 +27,7 @@ export class HoldEventProcessor extends EventFirer<HoldEvents> {
 		this.el = el
 		this.options = options
 
-		let becomeHoldAfterDuration = options.becomeHoldAfterDuration ?? SimulatedEventsConfig.becomeHoldAfterDuration
+		let becomeHoldAfterDuration = options.becomeHoldAfterDuration ?? SIMULATED_EVENTS_CONFIG.becomeHoldAfterDuration
 		this.timeout = new Timeout(this.onTimeout.bind(this), becomeHoldAfterDuration)
 
 		DOMEvents.on(el, 'touchstart', this.onTouchStart, this)
@@ -80,7 +80,7 @@ export class HoldEventProcessor extends EventFirer<HoldEvents> {
 		)
 
 		let movesLength = Math.sqrt(moves.x ** 2 + moves.y ** 2)
-		let maximumMovelessDistance = this.options.maximumMovelessDistance ?? SimulatedEventsConfig.maximumMovelessDistance
+		let maximumMovelessDistance = this.options.maximumMovelessDistance ?? SIMULATED_EVENTS_CONFIG.maximumMovelessDistance
 
 		if (movesLength > maximumMovelessDistance) {
 			this.endTouching()

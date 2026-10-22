@@ -1,6 +1,6 @@
 import {EventUtils} from '../../utils'
 import {EventFirer, DOMEvents} from 'lupos'
-import {SimulatedEventsConfig, SimulatedEventsOptions} from './config'
+import {SIMULATED_EVENTS_CONFIG, SimulatedEventsOptions} from './config'
 import {Timeout} from '../../tools'
 import {Coord} from '../../math'
 
@@ -32,7 +32,7 @@ export class TapEventProcessor extends EventFirer<TapEvents> {
 		this.el = el
 		this.options = options
 
-		let becomeHoldAfterDuration = options.becomeHoldAfterDuration ?? SimulatedEventsConfig.becomeHoldAfterDuration
+		let becomeHoldAfterDuration = options.becomeHoldAfterDuration ?? SIMULATED_EVENTS_CONFIG.becomeHoldAfterDuration
 		this.timeout = new Timeout(this.onTimeout.bind(this), becomeHoldAfterDuration)
 		DOMEvents.on(el, 'touchstart', this.onTouchStart, this, {capture: true})
 	}
@@ -75,8 +75,8 @@ export class TapEventProcessor extends EventFirer<TapEvents> {
 		}
 		
 		let movesLength = Math.sqrt(moves.x ** 2 + moves.y ** 2)
-		let becomeHoldAfterDuration = this.options.becomeHoldAfterDuration ?? SimulatedEventsConfig.becomeHoldAfterDuration
-		let maximumMovelessDistance = this.options.maximumMovelessDistance ?? SimulatedEventsConfig.maximumMovelessDistance
+		let becomeHoldAfterDuration = this.options.becomeHoldAfterDuration ?? SIMULATED_EVENTS_CONFIG.becomeHoldAfterDuration
+		let maximumMovelessDistance = this.options.maximumMovelessDistance ?? SIMULATED_EVENTS_CONFIG.maximumMovelessDistance
 
 		if (duration < becomeHoldAfterDuration
 			&& movesLength < maximumMovelessDistance

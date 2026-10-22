@@ -1,4 +1,4 @@
-const Base36Radix = 36n
+const BASE36_RADIX = 36n
 
 
 /** Pack numeric values into a Base36 string in little-endian order. */
@@ -16,7 +16,7 @@ export class Base36 {
 	private readonly bigintValueRadix: bigint
 
 	constructor(valueRadix: number) {
-		if (!Number.isInteger(valueRadix) || valueRadix < 2 || valueRadix >= Number(Base36Radix)) {
+		if (!Number.isInteger(valueRadix) || valueRadix < 2 || valueRadix >= Number(BASE36_RADIX)) {
 			throw new RangeError('"valueRadix" must be an integer between 2 and 35')
 		}
 
@@ -26,7 +26,7 @@ export class Base36 {
 		let valuesPerChunk = 2
 		let charactersPerChunk = 1
 
-		while (this.bigintValueRadix ** BigInt(valuesPerChunk) > Base36Radix ** BigInt(charactersPerChunk)) {
+		while (this.bigintValueRadix ** BigInt(valuesPerChunk) > BASE36_RADIX ** BigInt(charactersPerChunk)) {
 			valuesPerChunk++
 			charactersPerChunk++
 		}
@@ -123,7 +123,7 @@ export class Base36 {
 			}
 
 			value += BigInt(digit) * multiplier
-			multiplier *= Base36Radix
+			multiplier *= BASE36_RADIX
 		}
 
 		return value

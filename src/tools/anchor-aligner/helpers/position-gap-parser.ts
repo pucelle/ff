@@ -40,7 +40,7 @@ export interface AnchorGaps {
 
 
 /** Position string -> Direction. */
-const PositionDirectionMap: Record<string, Direction> = /*#__PURE__*/(() => ({
+const POSITION_DIRECTION_MAP: Record<string, Direction> = /*#__PURE__*/(() => ({
 	c : Direction.Center,
 	t : Direction.Top,
 	b : Direction.Bottom,
@@ -96,11 +96,11 @@ export function parseAlignDirections(position: AnchorPosition): [Direction, Dire
 /** Parse single piece, 1 or 2 chars. */
 function parseSingleAlignDirection(position: string): Direction {
 	if (position.length === 1) {
-		return PositionDirectionMap[position]
+		return POSITION_DIRECTION_MAP[position]
 	}
 	else if (position.length === 2) {
-		let first = PositionDirectionMap[position[0]]
-		let second = PositionDirectionMap[position[1]]
+		let first = POSITION_DIRECTION_MAP[position[0]]
+		let second = POSITION_DIRECTION_MAP[position[1]]
 
 		return first.joinWith(second)
 	}

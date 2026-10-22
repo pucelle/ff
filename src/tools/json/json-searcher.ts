@@ -125,7 +125,7 @@ export function searchFrom(text: string, startIndex: number): any {
 }
 
 
-const BracketCharacters = '[{()}]'
+const BRACKET_CHARACTERS = '[{()}]'
 
 function parseToRawTokens(text: string, startIndex: number) {
 	let bracketStack: string[] = []
@@ -156,7 +156,7 @@ function parseToRawTokens(text: string, startIndex: number) {
 		}
 		else if (']})'.includes(m0)) {
 			let startBracket = bracketStack.pop()!
-			if (BracketCharacters.indexOf(startBracket) + BracketCharacters.indexOf(m0) !== 5) {
+			if (BRACKET_CHARACTERS.indexOf(startBracket) + BRACKET_CHARACTERS.indexOf(m0) !== 5) {
 				throw new Error(`Unexpected end bracket "${m0}"`)
 			}
 			type = JSONTokenType.Bracket
@@ -189,7 +189,7 @@ function parseToRawTokens(text: string, startIndex: number) {
 
 function popupTokensWithinBrackets(tokens: JSONToken[], startIndex: number) {
 	let startBracket = tokens[startIndex].value
-	let endBracket = BracketCharacters[5 - BracketCharacters.indexOf(startBracket)]
+	let endBracket = BRACKET_CHARACTERS[5 - BRACKET_CHARACTERS.indexOf(startBracket)]
 	let count = 1
 	let removed: JSONToken[] = []
 

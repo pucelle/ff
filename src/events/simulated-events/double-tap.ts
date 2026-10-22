@@ -1,6 +1,6 @@
 import {Timeout} from '../../tools'
 import {EventFirer, DOMEvents} from 'lupos'
-import {SimulatedEventsConfig, SimulatedEventsOptions} from './config'
+import {SIMULATED_EVENTS_CONFIG, SimulatedEventsOptions} from './config'
 import {Coord} from '../../math'
 
 
@@ -29,7 +29,7 @@ export class DoubleTapEventProcessor extends EventFirer<DoubleTapEvents> {
 		this.el = el
 		this.options = options
 
-		let maximumDoubleTapDuration = options.maximumDoubleTapDuration ?? SimulatedEventsConfig.maximumDoubleTapDuration
+		let maximumDoubleTapDuration = options.maximumDoubleTapDuration ?? SIMULATED_EVENTS_CONFIG.maximumDoubleTapDuration
 		this.timeout = new Timeout(this.onTimeout.bind(this), maximumDoubleTapDuration)
 
 		DOMEvents.on(el, 'touchstart', this.onTouchStart, this)
@@ -88,7 +88,7 @@ export class DoubleTapEventProcessor extends EventFirer<DoubleTapEvents> {
 		}
 
 		let movesLength = Math.sqrt(moves.x ** 2 + moves.y ** 2)
-		let maximumMovelessDistance = this.options.maximumMovelessDistance ?? SimulatedEventsConfig.maximumMovelessDistance
+		let maximumMovelessDistance = this.options.maximumMovelessDistance ?? SIMULATED_EVENTS_CONFIG.maximumMovelessDistance
 
 		// Moved much, set current as first touch.
 		if (movesLength > maximumMovelessDistance) {
@@ -119,7 +119,7 @@ export class DoubleTapEventProcessor extends EventFirer<DoubleTapEvents> {
 		}
 
 		let movesLength = Math.sqrt(moves.x ** 2 + moves.y ** 2)
-		let maximumMovelessDistance = this.options.maximumMovelessDistance ?? SimulatedEventsConfig.maximumMovelessDistance
+		let maximumMovelessDistance = this.options.maximumMovelessDistance ?? SIMULATED_EVENTS_CONFIG.maximumMovelessDistance
 
 		// Moved much.
 		if (movesLength > maximumMovelessDistance) {

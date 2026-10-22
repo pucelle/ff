@@ -8,7 +8,7 @@ export interface MouseMovementOptions {
 	minimumMoves: number
 }
 
-const DefaultMouseMovementOptions: MouseMovementOptions = {
+const DEFAULT_MOUSE_MOVEMENT_OPTIONS: MouseMovementOptions = {
 	minimumMoves: 0
 }
 
@@ -35,7 +35,7 @@ export class MouseMovement {
 	protected started: boolean = false
 	
 	constructor(e: MouseEvent, options: Partial<MouseMovementOptions> = {}) {
-		this.options = {...DefaultMouseMovementOptions, ...options}
+		this.options = {...DEFAULT_MOUSE_MOVEMENT_OPTIONS, ...options}
 		this.startPoint = this.latestPosition = new DOMPoint(e.clientX, e.clientY)
 
 		DOMEvents.on(document, 'mousemove', this.onDragMove, this)

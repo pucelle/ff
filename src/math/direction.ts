@@ -100,7 +100,7 @@ export class Direction {
 
 	/** Make direction from a numeric direction value. */
 	static fromValue(value: DirectionValue): Direction {
-		return ValueToDirection[value]
+		return VALUE_TO_DIRECTION[value]
 	}
 
 	/** Make direction from a box offset key. */
@@ -696,7 +696,7 @@ export class Direction {
 
 
 /** Map from value to direction. */
-const ValueToDirection: Record<DirectionValue, Direction> = /*#__PURE__*/(() => ({
+const VALUE_TO_DIRECTION: Record<DirectionValue, Direction> = /*#__PURE__*/(() => ({
 	[DirectionValue.None]: Direction.None,
 	[DirectionValue.Center]: Direction.Center,
 	[DirectionValue.Left]: Direction.Left,
