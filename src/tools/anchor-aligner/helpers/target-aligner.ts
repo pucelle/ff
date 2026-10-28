@@ -28,14 +28,25 @@ export function isTargetUsingByAligner(target: Element, aligner: AnchorAligner) 
 }
 
 /** Compute a new rect by extending `toAlignRect` at face direction and it's opposite. */
-export function computeReAnchoredOrTargetedRect(containerRect: DOMRect, reRect: DOMRect, hvDirection: HVDirection | null, willExpand: boolean): DOMRect {
-	if (containerRect === reRect) {
-		return containerRect
+export function computeReAnchoredOrTargetedRect(
+	anchorRect: DOMRect,
+	reRect: DOMRect,
+	hvDirection: HVDirection | null,
+	willExpand: boolean,
+	parental: boolean = false
+): DOMRect {
+	if (anchorRect === reRect) {
+		return anchorRect
 	}
 	
 	let faceHV = hvDirection
 	if (faceHV !== null && willExpand) {
-		reRect = Box.fromLike(reRect).unionAtHVSelf(Box.fromLike(containerRect), faceHV)
+
+		// A parental anchor contributes only on the face axis.
+		// keep the trigger's other axis.
+		reRect = parental
+			? Box.fromLike(anchorRect).unionAtHVSelf(Box.fromLike(reRect), faceHV)
+			: Box.fromLike(reRect).unionAtHVSelf(Box.fromLike(anchorRect), faceHV)
 	}
 
 	return reRect

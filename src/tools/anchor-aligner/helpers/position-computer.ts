@@ -63,11 +63,15 @@ export class PositionComputer {
 		this.target = aligner.target
 		this.triangle = aligner.options.triangle
 
+		let reAnchor = this.aligner.options.reAnchor
+		let parental = typeof reAnchor === 'object' && !Array.isArray(reAnchor) && reAnchor?.parental === true
+		
 		this.anchorRect = computeReAnchoredOrTargetedRect(
 			anchorRect,
 			anchorRectToAlign,
 			this.aligner.anchorFaceDirection.hvDirection,
-			this.aligner.reAnchorExpanded
+			this.aligner.reAnchorExpanded,
+			parental
 		)
 
 		this.targetRect = aligner.target.getBoundingClientRect()

@@ -1,6 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {AnchorAligner} from '../../src/tools/anchor-aligner/anchor-aligner'
 import {RectWatcher} from '../../src/watchers'
+import {computeReAnchoredOrTargetedRect} from '../../src/tools/anchor-aligner/helpers/target-aligner'
 
 
 vi.mock('lupos', () => ({
@@ -12,6 +13,21 @@ vi.mock('../../src/watchers', () => ({
 	ResizeWatcher: {watch: vi.fn(), unwatch: vi.fn()},
 	RectWatcher: {watch: vi.fn(), unwatch: vi.fn()},
 }))
+
+
+describe('parental anchor bounds', () => {
+	it('extends only the alignment axis and retains descendant behavior', () => {
+		let trigger = new DOMRect(120, 210, 40, 20)
+		let parent = new DOMRect(100, 100, 200, 300)
+		let horizontal = computeReAnchoredOrTargetedRect(trigger, parent, 'horizontal', true, true)
+		let vertical = computeReAnchoredOrTargetedRect(trigger, parent, 'vertical', true, true)
+		let descendant = computeReAnchoredOrTargetedRect(parent, trigger, 'horizontal', true)
+		expect([horizontal.x, horizontal.y, horizontal.width, horizontal.height]).toEqual([100, 210, 200, 20])
+		expect([vertical.x, vertical.y, vertical.width, vertical.height]).toEqual([120, 100, 40, 300])
+		expect([descendant.x, descendant.y, descendant.width, descendant.height]).toEqual([100, 210, 200, 20])
+		expect(computeReAnchoredOrTargetedRect(trigger, parent, 'horizontal', false, true)).toBe(parent)
+	})
+})
 
 
 describe('AnchorAligner leave positioning', () => {

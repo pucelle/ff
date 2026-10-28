@@ -79,8 +79,12 @@ export interface AnchorAlignerOptions {
 	 * Defines which descendant element of anchor,
 	 * should be used to align with target element.
 	 * If selector is a list, will try each selector until found one.
+	 * 
 	 * If `expanded`, which is `true` by default,
 	 * should expand re-anchored rect to original anchor rect.
+	 * 
+	 * If `parental`, which is `false` by default,
+	 * will select ancestral element.
 	 */
 	reAnchor?: ReAnchorTarget
 
@@ -88,8 +92,12 @@ export interface AnchorAlignerOptions {
 	 * Defines which descendant element of target,
 	 * should be used to align with anchor element.
 	 * If selector is a list, will try each selector until found one.
+	 * 
 	 * If `expanded`, which is `true` by default,
 	 * should expand re-targeted rect to original target rect.
+	 * 
+	 * If `parental`, which is `false` by default,
+	 * will select ancestral element.
 	 */
 	reTarget?: ReAnchorTarget
 
@@ -105,6 +113,7 @@ export interface AnchorAlignerOptions {
 export type ReAnchorTarget = {
 	selector: string | string[]
 	expanded?: boolean
+	parental?: boolean
 } | string | string[]
 
 
@@ -242,26 +251,38 @@ export class AnchorAligner {
 
 	/** Get the target to align to, may be descendant element of `target`. */
 	get reAnchored(): Element {
-		if (!this.options.reAnchor) {
+		let reAnchor = this.options.reAnchor
+		if (!reAnchor) {
 			return this.anchor!
 		}
 
-		if (typeof this.options.reAnchor === 'object' && !Array.isArray(this.options.reAnchor)) {
-			return DOMUtils.quickSelect(this.anchor!, this.options.reAnchor.selector)
+		if (typeof reAnchor === 'object' && !Array.isArray(reAnchor) && reAnchor.parental) {
+			if (typeof reAnchor === 'object' && !Array.isArray(reAnchor)) {
+				return DOMUtils.quickClosest(this.anchor!, reAnchor.selector)
+			}
+			else {
+				return DOMUtils.quickClosest(this.anchor!, reAnchor)
+			}
 		}
 		else {
-			return DOMUtils.quickSelect(this.anchor!, this.options.reAnchor)
+			if (typeof reAnchor === 'object' && !Array.isArray(reAnchor)) {
+				return DOMUtils.quickSelect(this.anchor!, reAnchor.selector)
+			}
+			else {
+				return DOMUtils.quickSelect(this.anchor!, reAnchor)
+			}
 		}
 	}
 
 	/** Whether should expand re-anchored rect. */
 	get reAnchorExpanded(): boolean {
-		if (!this.options.reAnchor) {
+		let reAnchor = this.options.reAnchor
+		if (!reAnchor) {
 			return true
 		}
 
-		if (typeof this.options.reAnchor === 'object' && !Array.isArray(this.options.reAnchor)) {
-			return this.options.reAnchor?.expanded ?? true
+		if (typeof reAnchor === 'object' && !Array.isArray(reAnchor)) {
+			return reAnchor?.expanded ?? true
 		}
 		else {
 			return true
@@ -270,15 +291,26 @@ export class AnchorAligner {
 
 	/** Get the target to align to, may be descendant element of `target`. */
 	get reTargeted(): Element {
-		if (!this.options.reTarget) {
+		let reTarget = this.options.reTarget
+		if (!reTarget) {
 			return this.target
 		}
 
-		if (typeof this.options.reTarget === 'object' && !Array.isArray(this.options.reTarget)) {
-			return DOMUtils.quickSelect(this.target, this.options.reTarget.selector)
+		if (typeof reTarget === 'object' && !Array.isArray(reTarget) && reTarget.parental) {
+			if (typeof reTarget === 'object' && !Array.isArray(reTarget)) {
+				return DOMUtils.quickClosest(this.anchor!, reTarget.selector)
+			}
+			else {
+				return DOMUtils.quickClosest(this.anchor!, reTarget)
+			}
 		}
 		else {
-			return DOMUtils.quickSelect(this.target, this.options.reTarget)
+			if (typeof reTarget === 'object' && !Array.isArray(reTarget)) {
+				return DOMUtils.quickSelect(this.target, reTarget.selector)
+			}
+			else {
+				return DOMUtils.quickSelect(this.target, reTarget)
+			}
 		}
 	}
 
