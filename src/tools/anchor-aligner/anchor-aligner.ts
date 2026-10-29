@@ -234,6 +234,9 @@ export class AnchorAligner {
 	/** Invalidates pending asynchronous alignment work. */
 	private alignmentVersion: number = 0
 
+	/** Whether alignment has been suspended until the next align request. */
+	private alignmentSuspended: boolean = false
+
 	/** To mutation dom tree change when height limited. */
 	private mutationObserver: MutationObserver | null = null
 
@@ -368,6 +371,7 @@ export class AnchorAligner {
 
 		this.unwatch()
 		this.freezer.unfreeze()
+		this.alignmentSuspended = false
 		this.anchor = anchor
 
 		setTargetAlignerMap(this.target, this)
@@ -376,8 +380,12 @@ export class AnchorAligner {
 
 		if (!this.aligning
 			|| this.anchor !== anchor
-			|| this.freezer.frozen
+			|| this.alignmentSuspended
 		) {
+			return
+		}
+
+		if (this.abortIfAnchorHidden()) {
 			return
 		}
 
@@ -391,17 +399,38 @@ export class AnchorAligner {
 
 	/** After target rect changed. */
 	private onAnchorRectChange(rect: DOMRect) {
-		if (this.freezer.frozen) {
+		if (this.alignmentSuspended) {
 			return
 		}
 
 		if (rect.width === 0 && rect.height === 0) {
-			this.freeze()
-			this.options.onAbort?.()
+			this.abortAlignment()
 		}
 		else {
 			this.update()
 		}
+	}
+
+	/** Suspend alignment and notify the caller when the anchor disappears. */
+	private abortAlignment() {
+		if (!this.alignmentSuspended) {
+			this.freeze()
+			this.options.onAbort?.()
+		}
+	}
+
+	/** Abort if the anchor is detached or has no layout box. */
+	private abortIfAnchorHidden(): boolean {
+		let anchor = this.anchor!
+
+		if (anchor !== document.documentElement
+			&& (!anchor.isConnected || anchor.getClientRects().length === 0)
+		) {
+			this.abortAlignment()
+			return true
+		}
+
+		return false
 	}
 
 	/** Watch the selected descendant when it differs from the anchor. */
@@ -458,7 +487,7 @@ export class AnchorAligner {
 	 */
 	async update() {
 		if (!this.anchor
-			|| this.freezer.frozen
+			|| this.alignmentSuspended
 		) {
 			return
 		}
@@ -476,6 +505,7 @@ export class AnchorAligner {
 	alignToEvent(event: MouseEvent) {
 		this.unwatch()
 		this.freezer.unfreeze()
+		this.alignmentSuspended = false
 		this.anchor = null
 		this.doEventMeasuredAlignment(event)
 	}
@@ -499,8 +529,9 @@ export class AnchorAligner {
 
 	/** Hold the current position until stopped or realigned. */
 	freeze() {
-		let freezed = this.freezer.freeze()
-		if (freezed) {
+		if (!this.alignmentSuspended) {
+			this.alignmentSuspended = true
+			this.freezer.freeze()
 			this.alignmentVersion++
 			this.unwatch()
 		}
@@ -549,6 +580,10 @@ export class AnchorAligner {
 			return
 		}
 
+		if (this.abortIfAnchorHidden()) {
+			return
+		}
+
 		// Do position computation.
 		// For `<html>`, always use viewport rect.
 		let anchorRect = this.anchor === document.documentElement
@@ -565,6 +600,10 @@ export class AnchorAligner {
 		await barrierDOMWriting()
 
 		if (version !== this.alignmentVersion) {
+			return
+		}
+
+		if (this.abortIfAnchorHidden()) {
 			return
 		}
 

@@ -2,6 +2,7 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 import {AnchorAligner} from '../../src/tools/anchor-aligner/anchor-aligner'
 import {RectWatcher} from '../../src/watchers'
 import {computeReAnchoredOrTargetedRect} from '../../src/tools/anchor-aligner/helpers/target-aligner'
+import {barrierDOMWriting} from 'lupos'
 
 
 vi.mock('lupos', () => ({
@@ -122,6 +123,48 @@ describe('AnchorAligner leave positioning', () => {
 		expect(aligner.aligning).toBe(true)
 	})
 
+	it('aborts initial alignment when the anchor has no layout box', async () => {
+		let {anchor, target, aligner} = createPopup(false, 'none')
+		let abort = vi.fn()
+		aligner.updateOptions({onAbort: abort})
+		vi.mocked(anchor.getClientRects).mockReturnValue([] as any)
+
+		await aligner.alignTo(anchor)
+		await aligner.update()
+		expect(abort).toHaveBeenCalledOnce()
+		expect(target.style.left).toBe('')
+		expect(target.style.top).toBe('')
+	})
+
+	it('discards the pending placement when the anchor disappears before writing', async () => {
+		let {anchor, target, aligner} = createPopup(false, 'none')
+		let abort = vi.fn()
+		let release!: () => void
+		let writing = new Promise<void>(resolve => { release = resolve })
+		vi.mocked(barrierDOMWriting).mockClear().mockImplementationOnce(() => writing)
+		aligner.updateOptions({onAbort: abort})
+
+		let pending = aligner.alignTo(anchor)
+		await vi.waitFor(() => expect(barrierDOMWriting).toHaveBeenCalled())
+		anchor.remove()
+		release()
+		await pending
+
+		expect(abort).toHaveBeenCalledOnce()
+		expect(target.style.left).toBe('')
+		expect(target.style.top).toBe('')
+	})
+
+	it('cancels the first alignment when frozen before a placement exists', async () => {
+		let {anchor, target, aligner} = createPopup(false, 'none')
+		let pending = aligner.alignTo(anchor)
+		aligner.freeze()
+		await pending
+
+		expect(target.style.left).toBe('')
+		expect(target.style.top).toBe('')
+	})
+
 	it('discards pending writes and resumes anchoring when reopened', async () => {
 		let {anchor, target, aligner} = createPopup(true, 'none')
 		await aligner.alignTo(anchor)
@@ -135,12 +178,11 @@ describe('AnchorAligner leave positioning', () => {
 		expect(target.style.top).toBe('220px')
 	})
 
-	it('subscribes before alignment and re-aligns when the anchor size changes', async () => {
+	it('re-aligns when the anchor size changes', async () => {
 		let {anchor, target, aligner} = createPopup(false, 'none')
-		let pending = aligner.alignTo(anchor)
+		await aligner.alignTo(anchor)
 		let watched = vi.mocked(RectWatcher.watch).mock.calls.find(call => call[0] === anchor)!
 		expect(watched).toBeDefined()
-		await pending
 
 		let rect = new DOMRect(100, 100, 80, 20)
 		vi.mocked(anchor.getBoundingClientRect).mockReturnValue(rect)
@@ -157,11 +199,10 @@ describe('AnchorAligner leave positioning', () => {
 		let rect = new DOMRect(110, 100, 10, 20)
 		vi.spyOn(child, 'getBoundingClientRect').mockImplementation(() => rect)
 		aligner.updateOptions({reAnchor: '.point', flipDirection: 'none', stickToEdges: false})
-		let pending = aligner.alignTo(anchor)
+		await aligner.alignTo(anchor)
 
 		let watched = vi.mocked(RectWatcher.watch).mock.calls.find(call => call[0] === child)!
 		expect(watched).toBeDefined()
-		await pending
 		rect = new DOMRect(110, 100, 30, 20)
 		watched[1].call(watched[2], rect)
 
