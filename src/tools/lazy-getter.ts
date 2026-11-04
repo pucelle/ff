@@ -20,8 +20,11 @@ export class LazyGetter<T> {
 		return this.result
 	}
 
-	/** Reset cached value. */
-	reset() {
-		this.initialized = false
+	/** Reset cached value and optionally clean up an existing value without initializing one. */
+	reset(dispose?: (value: T) => void) {
+		if (this.initialized) {
+			this.initialized = false
+			dispose?.(this.result)
+		}
 	}
 }
