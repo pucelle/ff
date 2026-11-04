@@ -33,15 +33,20 @@ export class Translations implements Observed {
 	 * If passes `args` parameter, will format with it as arguments.
 	 */
 	get(key: string, ...args: (string | number)[]): string {
-		let data = this.map.get(this.locale)
+		return this.getForLocale(this.locale, key, ...args)
+	}
+
+	/** Translate for one request's locale without changing the globally selected language. */
+	getForLocale(locale: string, key: string, ...args: (string | number)[]): string {
+		let data = this.map.get(locale)
 		
 		if (!data) {
-			console.warn(`No table in locale '${this.locale}'`)
+			console.warn(`No table in locale '${locale}'`)
 
 			data = this.map.get(this.fallbackLocale)
 
 			if (!data) {
-				console.warn(`No table in fallback locale '${this.locale}'`)
+				console.warn(`No table in fallback locale '${this.fallbackLocale}'`)
 				return ''
 			}
 		}
@@ -49,7 +54,7 @@ export class Translations implements Observed {
 		let value = data[key]
 
 		if (value === undefined) {
-			console.warn(`No translation item '${key}' in locale '${this.locale}'`)
+			console.warn(`No translation item '${key}' in locale '${locale}'`)
 			value = key
 		}
 
