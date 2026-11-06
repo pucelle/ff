@@ -1,4 +1,4 @@
-import {Connectable, Observed, UnObserved} from 'lupos'
+import {Connectable, getIncrementalId, Observed, UnObserved} from 'lupos'
 import {EmptyBundler} from './bundler'
 import {webStorage} from './storage'
 
@@ -9,6 +9,7 @@ import {webStorage} from './storage'
  */
 export abstract class Settings<O extends object> implements Observed, Connectable {
 
+	readonly iid = getIncrementalId()
 	readonly defaultData: UnObserved<O>
 
 	/** Control saving delay. */
